@@ -27,17 +27,18 @@ Two practice modes sharing one backend:
    the user and persisted. The tutor's reply + follow-up question are **also spoken aloud** via
    Google Cloud Text-to-Speech Neural2 (§4.5), so lesson mode is a real spoken back-and-forth,
    not text-only.
-2. **Live conversation mode** (build second): real-time voice-to-voice via the Gemini Live API,
-   browser connecting directly to Google over WebSocket (client-to-server pattern) using a
-   short-lived ephemeral token minted by a serverless route. **See §4.3 — this has a billing
-   catch that needs an owner decision.**
+2. **Live conversation mode** (build second): **DECIDED (owner, July 2026) — ships as the $0
+   turn-based voice loop**: record → Gemini text reply → Cloud TTS speaks it back (§4.3 option 2).
+   True simultaneous real-time voice-to-voice via the Gemini Live API and ephemeral tokens is
+   fully specced in §4.2 as a **documented future upgrade** (~$1–3/hour of talk time if ever
+   wanted) but is NOT part of this build.
 
 ### Hard constraints (violating any of these is a spec failure)
 
 | Constraint | Detail |
 |---|---|
 | Hosting | Vercel **Hobby (free)** tier only. No Hostinger slot. No always-on server, no persistent WebSocket process on our infra. |
-| Cost | $0/month expected for the beta. One Google Cloud project carries a billing account (required for Cloud TTS even within its free allotment, §4.5) but stays at $0 spend via free monthly quotas + budget alerts. The only possible real charge is Live mode (§4.3, owner decides). |
+| Cost | **$0/month, confirmed** for the beta. One Google Cloud project carries a billing account (required for Cloud TTS even within its free allotment, §4.5) but stays at $0 spend via free monthly quotas + budget alerts. Live mode ships as the $0 turn-based option (§4.3 — decided); true simultaneous Live API is a documented future upgrade, not built now. |
 | Stack | Next.js (App Router) + TypeScript + Tailwind. Drizzle ORM. Auth.js with Google OAuth. |
 | Database | **Neon** free tier (decision + tradeoff in §3.1). |
 | Curriculum | ALL lesson content is supplied by the owner. **Never generate curriculum content.** Build only the delivery mechanism and an import path. |
@@ -128,7 +129,7 @@ idioma/
 │   │   │   ├── dashboard/page.tsx   # progress + recurring-mistakes dashboard
 │   │   │   ├── lesson/page.tsx      # lesson list (by level/topic)
 │   │   │   ├── lesson/[lessonId]/page.tsx   # lesson player: record → feedback loop
-│   │   │   ├── live/page.tsx        # live conversation mode (Phase 7)
+│   │   │   ├── live/page.tsx        # turn-based conversation mode (Phase 7, decided §4.3)
 │   │   │   └── settings/page.tsx    # profile: langs, level, sign out
 │   │   │
 │   │   ├── admin/                   # role === 'admin' only (middleware-guarded)
@@ -142,9 +143,9 @@ idioma/
 │   │       ├── lessons/route.ts
 │   │       ├── lessons/[lessonId]/route.ts
 │   │       ├── progress/route.ts
-│   │       ├── live/token/route.ts           # ephemeral-token mint (Phase 7)
-│   │       ├── live/session/route.ts         # save live transcript + post-analysis
 │   │       └── admin/content/route.ts
+│   │       # Live mode needs no new route (§4.3): reuses lesson/attempt. live/token +
+│   │       # live/session only get added if the §4.2 future real-time upgrade is ever built.
 │   │
 │   ├── components/
 │   │   ├── ui/                      # buttons, cards, badges (small, hand-rolled)
@@ -155,9 +156,11 @@ idioma/
 │   │   │   ├── FeedbackCard.tsx         # errors color-coded by severity/category
 │   │   │   └── LessonPlayer.tsx         # prompt → record → feedback → follow-up loop
 │   │   ├── live/
-│   │   │   ├── LiveSession.tsx          # WebSocket lifecycle + timer UI (Phase 7)
-│   │   │   ├── useLiveAudio.ts          # mic capture → 16kHz PCM16; 24kHz playback
-│   │   │   └── pcm-worklet.ts           # AudioWorklet processor (downsample/encode)
+│   │   │   └── ConversationLoop.tsx     # Phase 7 (decided, §4.3): reuses
+│   │   │                                #   UtteranceRecorder + FeedbackCard in a loop,
+│   │   │                                #   no lessonId, tutor audio auto-plays.
+│   │   │   # LiveSession.tsx / useLiveAudio.ts / pcm-worklet.ts (WebSocket, PCM streaming)
+│   │   │   # only get built if the §4.2 future real-time upgrade is ever undertaken.
 │   │   └── dashboard/
 │   │       ├── ErrorPatternList.tsx
 │   │       └── SessionHistory.tsx
@@ -206,16 +209,21 @@ All routes are Next.js App Router route handlers (serverless functions on Vercel
 | `/api/lessons` | GET | learner | List lesson_content for the user's language pair, filtered by `level`/`topic` query params. |
 | `/api/lessons/[lessonId]` | GET | learner | One lesson's full content JSON. |
 | `/api/progress` | GET | learner | Dashboard payload: `error_patterns` ranked by `occurrence_count` and recency, per-category counts over time, recent practice sessions with utterance counts. |
-| `/api/live/token` | POST | learner | **Ephemeral-token mint** (Phase 7). Body: `{ }` (config derived server-side). Flow: ① enforce daily live-minutes cap ② load language pair config ③ `ai.authTokens.create` (`v1alpha`) with `uses: 1`, `newSessionExpireTime` ≈ now+2 min, `expireTime` ≈ now+30 min, and `liveConnectConstraints` locking `model: 'gemini-3.1-flash-live-preview'`, the assembled `systemInstruction`, `responseModalities: ['AUDIO']`, and input/output transcription on ④ create a `practice_sessions` row (mode `live`), return `{ token, sessionId, maxSeconds }`. The browser then connects **directly to Google** — no WebSocket touches our infra. ⚠️ Gated on the §4.3 billing decision. |
-| `/api/live/session` | POST | learner | End-of-live-session save. Body: `{ sessionId, turns: [{ speaker: 'user'\|'tutor', text }] }` (accumulated client-side from Live transcription events). Persists turns as `utterances`, marks the session ended, then runs **text-only** error extraction on the user's turns via `gemini-3.5-flash` (§4.4) and upserts `error_patterns`. |
 | `/api/admin/content` | GET/POST/PUT/DELETE | admin | Import/manage `lesson_content`. POST accepts a JSON array of lessons (§3.4 shape) for bulk import — the owner pastes/uploads his own material here. Zod-validates every item. |
+
+**Live mode (Phase 7, decided as the $0 turn-based loop, §4.3) needs NO new route** — it reuses
+`/api/lesson/attempt` with `mode: 'live'` and no `lessonId`. The routes below only exist if the
+owner later upgrades to the true real-time Live API (§4.2, future/optional, not built now):
+
+| `/api/live/token` *(future upgrade only)* | POST | learner | Ephemeral-token mint. Body: `{ }` (config derived server-side). Flow: ① enforce daily live-minutes cap ② load language pair config ③ `ai.authTokens.create` (`v1alpha`) with `uses: 1`, `newSessionExpireTime` ≈ now+2 min, `expireTime` ≈ now+30 min, and `liveConnectConstraints` locking `model: 'gemini-3.1-flash-live-preview'`, the assembled `systemInstruction`, `responseModalities: ['AUDIO']`, and input/output transcription on ④ create a `practice_sessions` row (mode `live`), return `{ token, sessionId, maxSeconds }`. The browser then connects **directly to Google** — no WebSocket touches our infra. |
+| `/api/live/session` *(future upgrade only)* | POST | learner | End-of-live-session save. Body: `{ sessionId, turns: [{ speaker: 'user'\|'tutor', text }] }` (accumulated client-side from Live transcription events). Persists turns as `utterances`, marks the session ended, then runs **text-only** error extraction on the user's turns via `gemini-3.5-flash` (§4.4) and upserts `error_patterns`. |
 
 Notes:
 - Audio is sent as base64 JSON rather than multipart to keep the route dead simple; Vercel's
   ~4.5 MB body limit then caps recordings at roughly ~3 MB of audio ≈ 2–3 minutes of Opus — far
   more than a single utterance needs. Enforce a 90-second client-side recording cap anyway.
-- No `/api/live` WebSocket route exists by design: serverless can't hold sockets. The Live
-  connection is browser↔Google only.
+- No `/api/live` WebSocket route exists, by design or otherwise: serverless can't hold sockets.
+  A future true-Live upgrade would still be browser↔Google direct, never touching our infra.
 
 ---
 
@@ -494,7 +502,11 @@ instruction that every error's `patternKey` MUST come from that list (or `"other
 Always Zod-parse Gemini's JSON before persisting; on schema mismatch, retry once, then return a
 graceful "couldn't analyze, try again" error. Never store unvalidated model output.
 
-### 4.2 Live mode — client-to-server with ephemeral token
+### 4.2 Live mode (real-time, ephemeral-token version) — FUTURE UPGRADE, NOT BUILT NOW
+
+**Decided (§4.3): this build ships the $0 turn-based voice loop (§4.3 option 2) instead.** This
+section is kept as a complete, ready-to-build spec for if/when the owner wants to upgrade to
+true simultaneous voice-to-voice later — skip it for Phase 7 as currently planned.
 
 - **Token mint** (`/api/live/token`, server): `@google/genai` client constructed with
   `httpOptions: { apiVersion: 'v1alpha' }` and the project-B key; `ai.authTokens.create({ config:
@@ -518,38 +530,51 @@ graceful "couldn't analyze, try again" error. Never store unvalidated model outp
   save the transcript as usual.
 - iOS note: `AudioContext` must be created/resumed inside the user's tap handler.
 
-### 4.3 ⚠️ THE BILLING CATCH — owner decision required before Phase 7
+### 4.3 Live mode: the $0 turn-based conversation loop (BUILD THIS — decided §9 Q1)
 
-Ephemeral tokens (`authTokens.create`) **require a billing-enabled Tier-1 project** — they are
-not available on the free tier. And a raw API key must never ship to the browser, and Vercel
-serverless cannot proxy a WebSocket. So true Live mode cannot be 100 % free with this
-architecture. Options:
+**Background on why this exists instead of true real-time Live API:** ephemeral tokens
+(`authTokens.create`, §4.2) require a billing-enabled Tier-1 project, a raw API key must never
+ship to the browser, and Vercel serverless cannot proxy a WebSocket — so a fully free *true*
+Live mode isn't possible with this architecture. The owner chose the $0 path (option 2 below)
+over paying ~$1–3/hour for real-time (option 1, §4.2, kept as a documented future upgrade). A
+self-hosted WebSocket proxy (option 3) was rejected — it adds an always-on-ish moving part and
+contradicts the "no persistent socket on our infra" principle.
 
-1. **(Recommended) Use the already-billed project B:** project B exists anyway for Cloud TTS
-   (§4.5), so real Live mode needs no new infrastructure — just a Gemini key on project B.
-   Cost is usage-based: at 2 users × a few 8-minute sessions/week on a Flash-class live model,
-   expect **single-digit dollars per month, likely $1–5** (~$1–3/hour of actual talk time).
-   Enforce our own `usage_log` daily cap (e.g. 20 live minutes/user/day); the project-B budget
-   alerts (Phase 0) make a surprise impossible.
-2. **$0 fallback — "turn-based conversation mode":** reuse the *lesson-mode* pipeline in a free
-   conversation loop: user speaks → `generateContent` (free tier) returns tutor reply text →
-   the reply is spoken via Cloud TTS Neural2 (§4.5 — same voice as lesson mode, free allotment).
-   Feels like walkie-talkie turns, not a live call, but costs nothing and needs no new infra.
-   This can even be built as Phase 7-lite first and upgraded to real Live later.
-3. Self-hosted WebSocket proxy on a free non-Vercel host (Cloudflare Workers etc.) — **rejected**:
-   adds an always-on-ish moving part, another platform, and free-tier CPU/duration risk; it
-   contradicts the "no persistent socket on our infra" principle.
+**What to build — turn-based voice conversation:** this reuses the lesson-mode pipeline in a
+loop with no fixed lesson prompt, framed as free-flowing conversation practice rather than
+graded exercises:
 
-**This is §9 Q1.** Phase 7 is written for option 1; option 2 is specced enough in this paragraph
-for a builder to implement if chosen.
+1. `/live` page: a single "hold to talk" (or tap-to-start/tap-to-stop) recorder, same
+   `UtteranceRecorder`/`useRecorder` component as lesson mode. No countdown/session-length UX is
+   needed here (unlike true Live, there's no persistent connection to expire) — session length
+   is just "however long the user keeps talking, one turn at a time."
+2. On stop: POST to `/api/lesson/attempt` with `mode: 'live'` and a **conversation** system-prompt
+   variant (add a `conversationPromptTemplate` slot to `language_pairs`, alongside
+   `tutorPromptTemplate` — same dialect/correction-style/error-taxonomy inputs, but instructing
+   the model to prioritize natural back-and-forth dialogue over exercise-style correction, and
+   to keep replies short/conversational rather than lesson-formal).
+3. Response includes the usual structured feedback (§4.1) **plus** the synthesized `tutorReply`
+   audio (§4.5) — same as lesson mode, just no `lessonId`/`promptContext`.
+4. Client auto-plays the tutor's spoken reply (§4.5 iOS-unlock pattern), shows the follow-up
+   question as the prompt for the next turn, and the user taps to respond — a real spoken
+   conversation, just walkie-talkie style (one side talks, then the other) instead of both
+   sides talking over a live connection.
+5. Session bookkeeping is identical to lesson mode: a `practice_sessions` row with
+   `mode: 'live'` groups the turns; `utterances` and `error_patterns` populate the dashboard
+   exactly as lesson mode does — **no separate `/api/live/session` or transcript-analysis step
+   is needed**, because each turn already goes through the full structured-feedback pipeline
+   (§4.4's post-hoc text analysis was only needed for the *true* Live API's raw transcripts,
+   and doesn't apply here — skip building it for now).
+6. Cost: $0. Same free-tier Gemini calls and free Cloud TTS allotment as lesson mode.
 
-### 4.4 Post-live transcript analysis (feeds the dashboard from live mode too)
+### 4.4 Post-live transcript analysis — part of the §4.2 FUTURE UPGRADE ONLY, not built now
 
-Live transcription yields plain text with no structured errors. `/api/live/session` therefore
-runs `transcriptAnalysis.ts`: one **text-only** `gemini-3.5-flash` call (free tier, cheap) with
-the user's turns + the same error schema (minus pronunciation, which text can't capture) and the
-same `patternKey` taxonomy → upserts `error_patterns`. This keeps the recurring-mistakes
-dashboard unified across both modes.
+Only relevant if/when the owner upgrades to true Live mode (§4.2): that path yields plain-text
+transcription with no structured errors, so `/api/live/session` would run `transcriptAnalysis.ts`
+— one **text-only** `gemini-3.5-flash` call (free tier, cheap) with the user's turns + the same
+error schema (minus pronunciation, which text can't capture) and the same `patternKey` taxonomy
+→ upserts `error_patterns`. **Not needed for the turn-based loop actually being built (§4.3)** —
+there, every turn already runs the full structured-feedback pipeline directly.
 
 ### 4.5 Tutor voice — Google Cloud Text-to-Speech (Neural2)
 
@@ -639,7 +664,7 @@ Rules:
 | 6.4 | **Gemini free tier: 15 RPM / 1,500 RPD** on `gemini-3.5-flash` | 1,500/day is plenty; 15 RPM could be hit by rapid-fire retries or a runaway client loop | 429 responses with quota error details | §6.5 caps + surface a friendly "daily practice limit reached" state; exponential backoff on 429, never tight-loop retries |
 | 6.5 | **No native quota dashboard alerting on free tier** | You find out when you hit the wall | — | `usage_log` table + admin page showing today's counts vs. limits (lesson attempts/user/day capped at e.g. 100; live minutes/user/day capped at 20). This is the early-warning system |
 | 6.6 | **Billing trap** (linking billing kills project-A free tier permanently) | Catastrophic for $0 goal if done accidentally | — | Two-project split is mandatory (Phase 0); PLAN states project A must never get billing |
-| 6.7 | **Live free-tier: 3 concurrent sessions / ~10-min connections** | 2 users → fine; duration cap is real | Sessions dying at ~10 min | 8-minute session design (§4.2) |
+| 6.7 | *(N/A for this build — only applies if the §4.2 future real-time upgrade is ever built)* Live free-tier: 3 concurrent sessions / ~10-min connections | 2 users → fine; duration cap is real | Sessions dying at ~10 min | 8-minute session design (§4.2) |
 | 6.8 | **Neon 0.5 GB storage** | Text-only rows: years of headroom | Neon dashboard storage graph | No audio blobs in beta (§9 Q3); revisit only if audio storage is approved |
 | 6.9 | **Vercel Hobby is for non-commercial use** | Fine for a free 2-person beta | — | Flag: if the app ever charges users, upgrade to Pro ($20/mo) or move hosting |
 | 6.10 | **Google OAuth consent screen in Testing mode** | 100-user cap, test users must be listed | New sign-ups fail with `access_denied` | Both beta emails added as test users in Phase 0; publish the consent screen only when opening the beta |
@@ -788,19 +813,20 @@ fallback page, install-hint UI for Android + iOS.
 opens standalone; airplane mode shows the offline page instead of a browser error; API responses
 are never served from cache.
 
-### Phase 7 — Live conversation mode (blocked by: 4; GATED on §9 Q1 decision)
-If **option 1** (billed project B): §4.2 + §4.4 in full — `/api/live/token`, `liveToken.ts`,
-`pcm-worklet.ts`, `useLiveAudio.ts`, `LiveSession.tsx` (connect → talk → live captions →
-8-minute countdown → wrap-up → save), `/api/live/session` + `transcriptAnalysis.ts` feeding
-`error_patterns`, live-minutes cap in `usage_log`.
-If **option 2** ($0 fallback): build `/live` as the turn-based conversation loop described in
-§4.3 (2) — reuses `/api/lesson/attempt` with a conversation-style prompt variant (add a
-`conversationPromptTemplate` column or template slot to `language_pairs`), plus
-`speechSynthesis` playback of `tutorReply`; still writes `utterances`/`error_patterns`.
-**Acceptance (opt 1):** full voice conversation in Spanish on a phone; captions live; transcript
-+ extracted error patterns in DB after ending; session ends gracefully at the timer; Google
-budget alert configured. **(opt 2):** speak → hear the tutor's spoken reply hands-free →
-patterns recorded.
+### Phase 7 — Live conversation mode: turn-based voice loop (blocked by: 4; DECIDED, §9 Q1 = $0)
+Build `/live` per §4.3: add a `conversationPromptTemplate` slot to `language_pairs`; `ConversationLoop.tsx`
+reusing `UtteranceRecorder`/`FeedbackCard` in a loop with no `lessonId`; POST to
+`/api/lesson/attempt` with `mode: 'live'`; auto-play the synthesized `tutorReply` audio (§4.5)
+and surface the follow-up question as the next prompt; `practice_sessions` row with `mode: 'live'`
+groups the turns. No new API routes, no `transcriptAnalysis.ts`, no ephemeral tokens — this mode
+is a thin wrapper around the already-built lesson pipeline.
+**Acceptance:** speak → hear the tutor's spoken reply hands-free → tap to respond → repeat for
+several turns; `utterances`/`error_patterns` populate from live-mode turns exactly as from lesson
+mode; cost stays $0 (verify via the admin usage page, §6.5).
+
+*(Future upgrade, not part of this build: true real-time voice-to-voice via the Gemini Live API
+— fully specced in §4.2 + §4.4, gated on billing, ~$1–3/hour of talk time. Revisit only if the
+owner explicitly asks for it later.)*
 
 ### Phase 8 — Polish + beta hardening (blocked by: all)
 Error boundaries + retry UX on every Gemini call; loading/empty states; Spanish UI strings for
@@ -815,9 +841,9 @@ promote-to-admin, import content); TWA runbook per §7.3 left as documented-not-
 
 | # | Question | Blocks | Default if unanswered |
 |---|---|---|---|
-| Q1 | **Live mode:** option 1 (real Live API on the already-billed project B, ~$1–5/mo of actual usage) or option 2 ($0 turn-based voice loop with Cloud TTS replies)? See §4.3. Note the billed project exists either way (TTS needs it), so this is now purely "pay ~$1–3/hour of talk time for true real-time, or not". | Phase 0 step 4 (Live key only), Phase 7 | Option 2 ($0) |
+| Q1 | ~~**Live mode:** option 1 vs option 2~~ | — | **DECIDED (owner, July 2026): option 2 — the $0 turn-based voice loop (§4.3).** True real-time Live API (§4.2) is documented but deferred indefinitely; only revisit if explicitly requested. |
 | Q2 | Google-only sign-in OK for the beta, or is magic-link email needed too (adds Resend signup)? | Phase 2 | Google-only |
-| Q3 | Store learners' audio recordings? Recommendation: **no** for beta (privacy, storage, zero product need — transcripts suffice). If yes later: Cloudflare R2 free tier, `audioRef` column is ready. | Phase 3 | Don't store |
+| Q3 | ~~Store learners' audio recordings?~~ | — | **DECIDED (owner): don't store audio.** Transcripts suffice; `audioRef` column stays NULL. If ever revisited: Cloudflare R2 free tier is the path, column is ready. |
 | Q4 | Level system: is CEFR (A1–C1) right, or do you want custom levels (e.g. beginner/intermediate)? Affects the enum + content tagging. | Phase 1 (enum), Phase 5 | CEFR |
 | Q5 | Send a **sample of your real lesson material** (even one lesson) so the `content` JSON shape (§3.4) and the two `tutorPromptTemplate` texts (incl. voseo/dialect guidance and correction style/tone) can be finalized. Also: confirm the initial `errorTaxonomy` lists (I can draft ~20 keys per pair for your review — but the wording of tutor behavior is yours to approve). | Phase 5 fully; Phase 1 seed uses placeholders | Placeholders until provided |
 | Q6 | App name (placeholder: "Idioma") and a square logo/icon source image; custom domain or `*.vercel.app`? (OAuth consent + manifest + TWA all reference these.) | Phase 0, 6 | "Idioma", generated placeholder icon, vercel.app |
