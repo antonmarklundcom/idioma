@@ -24,7 +24,9 @@ Two practice modes sharing one backend:
 1. **Lesson mode** (build first): user records a spoken utterance in the browser; a serverless
    API route sends the audio inline to Gemini `generateContent` with a structured-output schema;
    the response (transcription, errors, correction, tutor reply, follow-up question) is shown to
-   the user and persisted.
+   the user and persisted. The tutor's reply + follow-up question are **also spoken aloud** via
+   Google Cloud Text-to-Speech Neural2 (§4.5), so lesson mode is a real spoken back-and-forth,
+   not text-only.
 2. **Live conversation mode** (build second): real-time voice-to-voice via the Gemini Live API,
    browser connecting directly to Google over WebSocket (client-to-server pattern) using a
    short-lived ephemeral token minted by a serverless route. **See §4.3 — this has a billing
@@ -35,7 +37,7 @@ Two practice modes sharing one backend:
 | Constraint | Detail |
 |---|---|
 | Hosting | Vercel **Hobby (free)** tier only. No Hostinger slot. No always-on server, no persistent WebSocket process on our infra. |
-| Cost | $0/month for the beta, with one explicitly flagged possible exception (Live mode, §4.3, owner decides). |
+| Cost | $0/month expected for the beta. One Google Cloud project carries a billing account (required for Cloud TTS even within its free allotment, §4.5) but stays at $0 spend via free monthly quotas + budget alerts. The only possible real charge is Live mode (§4.3, owner decides). |
 | Stack | Next.js (App Router) + TypeScript + Tailwind. Drizzle ORM. Auth.js with Google OAuth. |
 | Database | **Neon** free tier (decision + tradeoff in §3.1). |
 | Curriculum | ALL lesson content is supplied by the owner. **Never generate curriculum content.** Build only the delivery mechanism and an import path. |
@@ -72,6 +74,15 @@ before Phase 3 and Phase 7, and update this file if they've drifted.
   that owns the Gemini API key, the free-tier allowance for that project is gone (you pay from
   the first token). Therefore: **the lesson-mode API key must live in a project that never gets
   billing linked.** This drives the two-project setup in Phase 0.
+- **Google Cloud Text-to-Speech (tutor voice, §4.5):** Neural2 voices have a **1M
+  characters/month free allotment** (Standard: 4M/month); usage beyond that is charged
+  ($16/1M chars Neural2). **The TTS API cannot be enabled without a billing account on the
+  project** — even to use only the free allotment. Hence project B (billed) exists from Phase 0
+  regardless of the Live-mode decision, with budget alerts so expected spend is $0. Latin
+  American Spanish is served by `es-US` Neural2 voices; English by `en-US` Neural2. REST
+  endpoint `https://texttospeech.googleapis.com/v1/text:synthesize` (API-key auth works),
+  returns base64 audio; request MP3 encoding. Exact voice variant names: builder lists current
+  voices at build time and records the chosen ones in `language_pairs.tts_voice`.
 - **iOS Safari gotcha:** MediaRecorder on iOS produces `audio/mp4` (AAC), not `audio/webm`. Both
   are accepted by Gemini, so the client must send its *actual* recorded MIME type dynamically —
   never hardcode `audio/webm`.
@@ -164,6 +175,7 @@ idioma/
 │   │   │   └── prompts.ts           # system-prompt ASSEMBLY from language_pairs rows.
 │   │   │                            #   Templating only — all pair-specific wording
 │   │   │                            #   comes from the DB, never hardcoded here.
+│   │   ├── tts.ts                   # Google Cloud TTS Neural2 wrapper (§4.5)
 │   │   ├── errorPatterns.ts         # upsert/aggregate logic for error_patterns
 │   │   ├── usage.ts                 # per-user daily caps + usage_log writes (§6.5)
 │   │   └── zodSchemas.ts            # request/response validation
@@ -190,7 +202,7 @@ All routes are Next.js App Router route handlers (serverless functions on Vercel
 | `/api/auth/[...nextauth]` | GET/POST | — | Auth.js handlers (Google OAuth sign-in/callback/session). |
 | `/api/me` | GET | learner | Current user profile incl. `native_lang`, `target_lang`, `level`, `role`, active language pair. |
 | `/api/me` | PATCH | learner | Update profile (onboarding sets langs + level; settings edits them). Validates `target_lang` against active `language_pairs`. |
-| `/api/lesson/attempt` | POST | learner | **Core route.** Body: `{ audioBase64, mimeType, lessonId?, promptContext? }`. Flow: ① enforce per-user daily cap (§6.5) ② load user + language pair + top recurring `error_patterns` ③ assemble system prompt (§4.1) ④ call Gemini `generateContent` with inline audio + `responseSchema` ⑤ persist utterance + errors, upsert `error_patterns`, log usage ⑥ return the structured feedback JSON. `export const maxDuration = 60` (Gemini audio calls can take 5–20 s; Vercel Hobby default is 10 s but allows up to 60). |
+| `/api/lesson/attempt` | POST | learner | **Core route.** Body: `{ audioBase64, mimeType, lessonId?, promptContext? }`. Flow: ① enforce per-user daily cap (§6.5) ② load user + language pair + top recurring `error_patterns` ③ assemble system prompt (§4.1) ④ call Gemini `generateContent` with inline audio + `responseSchema` ⑤ synthesize `tutorReply + " " + followUpQuestion` to MP3 via Cloud TTS (§4.5; non-fatal on failure — return feedback without audio) ⑥ persist utterance + errors, upsert `error_patterns`, log usage (incl. `tts_chars`) ⑦ return the structured feedback JSON + `tutorAudioBase64` (nullable). TTS is server-side only — the client never sends free text to be synthesized, so the TTS quota can't be abused as a generic synthesizer. `export const maxDuration = 60` (Gemini audio calls can take 5–20 s; Vercel Hobby default is 10 s but allows up to 60). |
 | `/api/lessons` | GET | learner | List lesson_content for the user's language pair, filtered by `level`/`topic` query params. |
 | `/api/lessons/[lessonId]` | GET | learner | One lesson's full content JSON. |
 | `/api/progress` | GET | learner | Dashboard payload: `error_patterns` ranked by `occurrence_count` and recency, per-category counts over time, recent practice sessions with utterance counts. |
@@ -297,6 +309,9 @@ export const languagePairs = pgTable('language_pairs', {
                                                 // with {{dialect_notes}} {{correction_style}}
                                                 // {{level}} {{recurring_errors}} {{lesson_context}} slots
   errorTaxonomy: jsonb('error_taxonomy').$type<string[]>().notNull(), // allowed pattern_keys (§10.3)
+  ttsVoice: text('tts_voice'),                  // Cloud TTS voice for the TARGET language, e.g.
+                                                // 'es-US-Neural2-…' / 'en-US-Neural2-…' (§4.5).
+                                                // NULL = no TTS for this pair (e.g. Guaraní later)
   active: boolean('active').notNull().default(true),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
@@ -368,7 +383,7 @@ export const lessonContent = pgTable('lesson_content', {
 export const usageLog = pgTable('usage_log', {
   id: uuid('id').defaultRandom().primaryKey(),
   userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  kind: text('kind').notNull(),                 // 'lesson_attempt' | 'live_minutes' | 'transcript_analysis'
+  kind: text('kind').notNull(),                 // 'lesson_attempt' | 'live_minutes' | 'transcript_analysis' | 'tts_chars'
   amount: integer('amount').notNull().default(1),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 }, (t) => [index('ul_user_day_idx').on(t.userId, t.createdAt)]);
@@ -401,13 +416,16 @@ the exercise's `prompt` + `targetHints` sent as `promptContext` to `/api/lesson/
 
 ## 4. Gemini integration
 
-SDK: **`@google/genai`** (the current official JS SDK). Two API keys / two Google projects
-(see Phase 0 and the billing trap in §0):
+SDK: **`@google/genai`** (the current official JS SDK) for Gemini; plain REST for Cloud TTS.
+Two Google projects / three keys (see Phase 0 and the billing trap in §0):
 
-- `GEMINI_API_KEY` — project **A** (billing never linked → keeps free tier). Lesson mode +
-  transcript analysis.
-- `GEMINI_LIVE_API_KEY` — project **B** (billing enabled, Tier 1). Live-mode ephemeral tokens
-  only. Only exists if the owner approves §4.3 option 1.
+- `GEMINI_API_KEY` — project **A** (billing NEVER linked → keeps the Gemini free tier). Lesson
+  mode + transcript analysis.
+- `GOOGLE_TTS_API_KEY` — project **B** (billing enabled — Cloud TTS requires it even for the
+  free 1M-chars/month allotment; budget alerts keep it $0). API key restricted to the
+  Text-to-Speech API only.
+- `GEMINI_LIVE_API_KEY` — project **B** as well. Live-mode ephemeral tokens only; created only
+  if the owner approves §4.3 option 1.
 
 ### 4.1 Lesson mode — `generateContent` with inline audio + structured output
 
@@ -507,16 +525,17 @@ not available on the free tier. And a raw API key must never ship to the browser
 serverless cannot proxy a WebSocket. So true Live mode cannot be 100 % free with this
 architecture. Options:
 
-1. **(Recommended) Two-project split:** keep project A free (lesson mode untouched), enable
-   billing on project B used *only* for Live. Cost is usage-based: at 2 users × a few 8-minute
-   sessions/week on a Flash-class live model, expect **single-digit dollars per month, likely
-   $1–5**. Enforce our own `usage_log` daily cap (e.g. 20 live minutes/user/day) and set a
-   Google Cloud **budget alert at $5 and $10** so a surprise is impossible.
+1. **(Recommended) Use the already-billed project B:** project B exists anyway for Cloud TTS
+   (§4.5), so real Live mode needs no new infrastructure — just a Gemini key on project B.
+   Cost is usage-based: at 2 users × a few 8-minute sessions/week on a Flash-class live model,
+   expect **single-digit dollars per month, likely $1–5** (~$1–3/hour of actual talk time).
+   Enforce our own `usage_log` daily cap (e.g. 20 live minutes/user/day); the project-B budget
+   alerts (Phase 0) make a surprise impossible.
 2. **$0 fallback — "turn-based conversation mode":** reuse the *lesson-mode* pipeline in a free
    conversation loop: user speaks → `generateContent` (free tier) returns tutor reply text →
-   browser speaks it via the Web Speech API (`speechSynthesis`, free, has es/en voices). Feels
-   like walkie-talkie turns, not a live call, but costs nothing and needs no new infra. This can
-   even be built as Phase 7-lite first and upgraded to real Live later.
+   the reply is spoken via Cloud TTS Neural2 (§4.5 — same voice as lesson mode, free allotment).
+   Feels like walkie-talkie turns, not a live call, but costs nothing and needs no new infra.
+   This can even be built as Phase 7-lite first and upgraded to real Live later.
 3. Self-hosted WebSocket proxy on a free non-Vercel host (Cloudflare Workers etc.) — **rejected**:
    adds an always-on-ish moving part, another platform, and free-tier CPU/duration risk; it
    contradicts the "no persistent socket on our infra" principle.
@@ -531,6 +550,54 @@ runs `transcriptAnalysis.ts`: one **text-only** `gemini-3.5-flash` call (free ti
 the user's turns + the same error schema (minus pronunciation, which text can't capture) and the
 same `patternKey` taxonomy → upserts `error_patterns`. This keeps the recurring-mistakes
 dashboard unified across both modes.
+
+### 4.5 Tutor voice — Google Cloud Text-to-Speech (Neural2)
+
+**Why not the browser's `speechSynthesis`:** Web Speech API voice quality is whatever the
+visitor's OS provides — decent on Android/Chrome, but iOS Safari exposes only low-quality
+voices (Apple's good ones aren't available to the API), and one of the two beta users is likely
+on iPhone. Cloud TTS Neural2 is synthesized server-side, so it sounds identical — and good — on
+every device, and its free allotment (1M chars/month) covers thousands of tutor replies at this
+scale for $0. Upgrade path if ever wanted: ElevenLabs (better voices, ~$6/mo) — swap inside
+`lib/tts.ts` only.
+
+**Implementation (`src/lib/tts.ts`):**
+
+```ts
+export async function synthesizeTutorSpeech(text: string, voiceName: string):
+  Promise<string | null> {  // base64 MP3, or null on any failure (TTS is never fatal)
+  const res = await fetch(
+    `https://texttospeech.googleapis.com/v1/text:synthesize?key=${process.env.GOOGLE_TTS_API_KEY}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        input: { text },
+        voice: { languageCode: voiceName.split('-').slice(0, 2).join('-'), name: voiceName },
+        audioConfig: { audioEncoding: 'MP3', speakingRate: 0.95 }, // slightly slow for learners
+      }),
+    },
+  );
+  if (!res.ok) return null;
+  return (await res.json()).audioContent; // base64 MP3
+}
+```
+
+Rules:
+- Voice comes from `language_pairs.tts_voice` (target-language voice). If NULL (e.g. a future
+  Guaraní pair, which Cloud TTS may not support), skip TTS gracefully — the UI shows text only.
+  **This keeps the Guaraní config-only guarantee intact.**
+- Called ONLY server-side from `/api/lesson/attempt` (and the §4.3-option-2 conversation loop)
+  on model-generated text — never on client-supplied text.
+- Synthesize `tutorReply + ' ' + followUpQuestion` as one call (one quota hit, one audio blob).
+- Log `tts_chars` in `usage_log`; admin page (§6.5) tracks monthly total vs the 1M free cap.
+- Speaking-rate note: consider making `speakingRate` follow user level (0.85 for A1/A2, 1.0 for
+  B2+) — nice-to-have, builder's choice in Phase 3.
+- **Client playback (iOS-critical):** iOS blocks `audio.play()` outside a user-gesture call
+  chain. The lesson flow's Record/Stop button tap starts the async request, so: create ONE
+  reusable `Audio` element on first user tap (play a silent buffer to "unlock" it), then set
+  `src = 'data:audio/mp3;base64,' + tutorAudioBase64` and play when the response arrives.
+  Provide a replay button on the `FeedbackCard`.
 
 ---
 
@@ -577,6 +644,7 @@ dashboard unified across both modes.
 | 6.9 | **Vercel Hobby is for non-commercial use** | Fine for a free 2-person beta | — | Flag: if the app ever charges users, upgrade to Pro ($20/mo) or move hosting |
 | 6.10 | **Google OAuth consent screen in Testing mode** | 100-user cap, test users must be listed | New sign-ups fail with `access_denied` | Both beta emails added as test users in Phase 0; publish the consent screen only when opening the beta |
 | 6.11 | **Model deprecations** (2.0 models were shut down June 2026; live model is a `-preview`) | `-preview` models can be replaced with short notice | Gemini API changelog; 404/400 "model not found" errors | Model IDs live in env vars (`GEMINI_LESSON_MODEL`, `GEMINI_LIVE_MODEL`), not code, so a swap is a redeploy-free config change |
+| 6.12 | **Cloud TTS free allotment (1M Neural2 chars/month) on a BILLED project** — overage bills silently at $16/1M chars | 2 users ≈ 100–300 chars/reply → tens of thousands of chars/month; ~3 % of the cap. Would only bite via a bug (e.g. a retry loop) | `tts_chars` monthly total on the admin page; Google budget alerts ($2, $10) email the owner | `usage_log` tracking + budget alerts (Phase 0 step 4); TTS failures are non-fatal so a quota stop degrades to text-only, never an outage |
 
 ---
 
@@ -635,9 +703,16 @@ The owner has **zero** Google/Vercel/Neon setup today. Checklist:
 3. **Google project A (free Gemini)**: go to **Google AI Studio** (aistudio.google.com) → sign
    in → "Get API key" → **Create API key in a NEW project** (name it `idioma-free`) →
    `GEMINI_API_KEY`. **NEVER link billing to this project.**
-4. **Google project B (Live, only if §9 Q1 = option 1)**: repeat, project `idioma-live`, then in
-   Google Cloud console link a billing account to `idioma-live` only, and create **budget alerts
-   at $5 and $10** → `GEMINI_LIVE_API_KEY`. (Skip entirely if option 2 is chosen.)
+4. **Google project B (`idioma-cloud`) — REQUIRED (hosts Cloud TTS; later maybe Live):**
+   in console.cloud.google.com create project `idioma-cloud`; link a billing account to **this
+   project only** (card required — expected spend $0); create **budget alerts at $2 and $10**
+   (Billing → Budgets & alerts); enable the **Cloud Text-to-Speech API** (APIs & Services →
+   Library); create an API key (APIs & Services → Credentials) and **restrict it to the
+   Text-to-Speech API** → `GOOGLE_TTS_API_KEY`.
+   *Only if §9 Q1 = option 1:* also get a Gemini API key tied to this same project via AI Studio
+   → `GEMINI_LIVE_API_KEY`.
+   ⚠️ Double-check you are in `idioma-cloud`, not `idioma-free`, when linking billing — linking
+   billing to `idioma-free` permanently kills its Gemini free tier (§0).
 5. **Google OAuth**: console.cloud.google.com → select project (either; suggest `idioma-free`) →
    "APIs & Services → OAuth consent screen": External, app name, owner email; **Publishing
    status: Testing**; add BOTH beta users' Gmail addresses as test users. Then "Credentials →
@@ -656,7 +731,8 @@ Create the Next.js app (App Router, TS, Tailwind, `src/` dir) matching §1; add 
 `drizzle.config.ts`; generate + run the first migration against Neon; write `scripts/seed.ts`
 inserting the two `language_pairs` rows (template text can be placeholder pending §9 Q5);
 `.env.example` with all vars (incl. `GEMINI_LESSON_MODEL=gemini-3.5-flash`,
-`GEMINI_LIVE_MODEL=gemini-3.1-flash-live-preview`); deploy to Vercel (blank landing page OK).
+`GEMINI_LIVE_MODEL=gemini-3.1-flash-live-preview`, `GOOGLE_TTS_API_KEY`); deploy to Vercel
+(blank landing page OK).
 **Acceptance:** `npx drizzle-kit migrate` succeeds; seed script runs; deployed URL renders.
 
 ### Phase 2 — Auth + onboarding (blocked by: 1)
@@ -671,14 +747,20 @@ exactly once; `/admin` 403s for learners.
 ### Phase 3 — Lesson mode core loop (blocked by: 2) ← the product's heart
 `useRecorder.ts` + `UtteranceRecorder.tsx` (permission handling, record ≤90 s, real MIME type,
 level-meter feedback while recording); `lib/gemini/{client,prompts,lessonFeedback}.ts` per §4.1;
-`/api/lesson/attempt` per §2 (incl. `usage_log` daily cap + `maxDuration = 60`); free-practice
-page at `/lesson` (no curriculum needed yet: one "talk about anything" prompt) rendering
-`FeedbackCard` (transcription, color-coded errors by severity, corrected version, tutor reply,
-follow-up question) and chaining follow-ups into a continuing session (`practice_sessions` row
-created on first utterance, ended on leave).
+`lib/tts.ts` per §4.5 (builder: list available voices via
+`GET https://texttospeech.googleapis.com/v1/voices?key=…`, pick one `es-US` Neural2 and one
+`en-US` Neural2 voice, store in the seeded `language_pairs.tts_voice`); `/api/lesson/attempt`
+per §2 (incl. `usage_log` daily cap, TTS step, `maxDuration = 60`); free-practice page at
+`/lesson` (no curriculum needed yet: one "talk about anything" prompt) rendering `FeedbackCard`
+(transcription, color-coded errors by severity, corrected version, tutor reply, follow-up
+question) with **auto-played spoken tutor reply + replay button** (iOS audio-unlock pattern,
+§4.5) and chaining follow-ups into a continuing session (`practice_sessions` row created on
+first utterance, ended on leave).
 **Acceptance:** on a real phone (Android Chrome AND iOS Safari), record a Spanish/English
-sentence with a deliberate error → structured feedback renders in <25 s; rows appear in
-`practice_sessions`, `utterances`, `usage_log`.
+sentence with a deliberate error → structured feedback renders in <25 s AND the tutor's reply
+is heard aloud on both phones (incl. iOS); rows appear in `practice_sessions`, `utterances`,
+`usage_log` (incl. `tts_chars`); killing the TTS key still returns text feedback (non-fatal
+degradation).
 
 ### Phase 4 — Error aggregation + dashboard (blocked by: 3)
 `lib/errorPatterns.ts` upsert (called from `/api/lesson/attempt`); backfill nothing (beta);
@@ -733,7 +815,7 @@ promote-to-admin, import content); TWA runbook per §7.3 left as documented-not-
 
 | # | Question | Blocks | Default if unanswered |
 |---|---|---|---|
-| Q1 | **Live mode billing:** option 1 (billed project B, ~$1–5/mo, real Live API) or option 2 ($0 turn-based voice loop)? See §4.3. | Phase 0 step 4, Phase 7 | Option 2 ($0) |
+| Q1 | **Live mode:** option 1 (real Live API on the already-billed project B, ~$1–5/mo of actual usage) or option 2 ($0 turn-based voice loop with Cloud TTS replies)? See §4.3. Note the billed project exists either way (TTS needs it), so this is now purely "pay ~$1–3/hour of talk time for true real-time, or not". | Phase 0 step 4 (Live key only), Phase 7 | Option 2 ($0) |
 | Q2 | Google-only sign-in OK for the beta, or is magic-link email needed too (adds Resend signup)? | Phase 2 | Google-only |
 | Q3 | Store learners' audio recordings? Recommendation: **no** for beta (privacy, storage, zero product need — transcripts suffice). If yes later: Cloudflare R2 free tier, `audioRef` column is ready. | Phase 3 | Don't store |
 | Q4 | Level system: is CEFR (A1–C1) right, or do you want custom levels (e.g. beginner/intermediate)? Affects the enum + content tagging. | Phase 1 (enum), Phase 5 | CEFR |
