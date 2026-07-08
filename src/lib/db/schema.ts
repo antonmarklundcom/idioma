@@ -11,9 +11,7 @@ import {
   uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
-// Matches Auth.js AdapterAccountType; typed locally so Phase 1 doesn't need
-// the next-auth package installed yet (it arrives in Phase 2).
-type AdapterAccountType = 'oauth' | 'oidc' | 'email' | 'webauthn';
+import type { AdapterAccountType } from 'next-auth/adapters';
 
 export const roleEnum = pgEnum('role', ['learner', 'admin']);
 export const modeEnum = pgEnum('practice_mode', ['lesson', 'live']);
