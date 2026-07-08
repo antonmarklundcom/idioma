@@ -1,0 +1,63 @@
+[
+  {
+    "languagePairCode": "es-PY>en-speaker",
+    "level": "A1",
+    "topic": "greetings",
+    "title": "Saludos y presentaciones",
+    "position": 1,
+    "content": {
+      "intro": "En Paraguay la gente saluda de forma cálida y usa 'vos' en vez de 'tú'. En esta lección vas a aprender a saludar, presentarte y preguntar de dónde es alguien.",
+      "vocab": [
+        {
+          "term": "Hola, ¿cómo estás?",
+          "gloss": "Hi, how are you?",
+          "note": "Casual greeting, used any time of day."
+        },
+        {
+          "term": "¿Cómo te llamás?",
+          "gloss": "What's your name?",
+          "note": "Voseo form (used in Paraguay instead of '¿cómo te llamas?')."
+        },
+        {
+          "term": "Me llamo...",
+          "gloss": "My name is..."
+        },
+        {
+          "term": "¿De dónde sos?",
+          "gloss": "Where are you from?",
+          "note": "'sos' is the voseo form of 'eres'."
+        },
+        {
+          "term": "Soy de...",
+          "gloss": "I'm from..."
+        },
+        {
+          "term": "Mucho gusto",
+          "gloss": "Nice to meet you"
+        },
+        {
+          "term": "tereré",
+          "gloss": "a cold herbal drink; a Paraguayan social ritual",
+          "note": "Often offered when meeting someone: 'Vamos a tomar un tereré' = Let's have a tereré."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Preséntate: decí tu nombre y de dónde sos.",
+          "targetHints": ["me llamo", "soy de"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Preguntale a alguien cómo se llama y de dónde es, usando 'vos'.",
+          "targetHints": ["¿cómo te llamás?", "¿de dónde sos?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Invitá a alguien a tomar un tereré, usando una oración completa.",
+          "targetHints": ["vamos a tomar un tereré", "¿querés..."]
+        }
+      ]
+    }
+  }
+]
