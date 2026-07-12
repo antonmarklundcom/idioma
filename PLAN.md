@@ -1,7 +1,11 @@
 # PLAN.md — "Idioma" Language-Learning Web App
 
-**Status: DRAFT — awaiting owner approval. Do not begin coding until the owner replies
-"approved, proceed to Phase 1".**
+**Status: v2 (July 2026). Phase 1 (scaffold + schema + migration + seed) is built and merged
+to `main`. Next up: Phase 2 (auth + onboarding). v2 incorporates the owner's July-2026
+requirements update: the learning-science coaching layer (§11), gamification (§12), the
+spaced-repetition review queue (§13), and the LLM-provider abstraction (§14). Builders: read
+§11–§14 before starting any phase — they modify the schema (§3.3), prompt assembly (§4.1),
+and the phase list (§8).**
 
 This document is a self-contained build spec. It is written so that a Claude model (Opus 4.8 /
 Sonnet 5) in a fresh session, with no memory of the planning conversation, can execute any phase
@@ -33,6 +37,25 @@ Two practice modes sharing one backend:
    fully specced in §4.2 as a **documented future upgrade** (~$1–3/hour of talk time if ever
    wanted) but is NOT part of this build.
 
+### Product goals (owner, July 2026)
+
+- **End state:** both learners functionally independent in the target language — able to live a
+  normal daily life in a Spanish-speaking and an English-speaking country (≈ CEFR B1–B2). The
+  app optimizes for real communicative ability, not test scores or engagement metrics.
+- **Her priority:** the **confidence to start speaking** English from day one. The single
+  biggest risk for her is anxiety-driven silence, not lack of knowledge (§11.3
+  `confidence_first` profile).
+- **His priority:** **grammar accuracy and listening comprehension** in Spanish (§11.3
+  `accuracy_focus` profile + listening exercises, §13/Phase 5B).
+- **Same structure both directions:** identical lesson format, pipeline, dashboard, and
+  gamification for both learners. Only the coaching *style* differs, and that is per-user data
+  (§11.3), never a fork in the code.
+- **Habit-forming by design:** lightweight gamification (§12) so both users *want* to come back
+  daily. **No ads, ever.** No engagement dark patterns.
+- **Every learning feature must trace to evidence** — §11 maps each mechanism in the app to the
+  learning-science finding that justifies it. If a proposed feature has no such mapping, it
+  doesn't get built.
+
 ### Hard constraints (violating any of these is a spec failure)
 
 | Constraint | Detail |
@@ -44,6 +67,9 @@ Two practice modes sharing one backend:
 | Curriculum | ALL lesson content is supplied by the owner. **Never generate curriculum content.** Build only the delivery mechanism and an import path. |
 | PWA | Manifest + service worker from day one; installable on Android/iOS/desktop; later wrappable as an Android TWA (§7). |
 | Extensibility | Language-pair behavior (dialect notes, correction style, tutor prompts) lives in DB config, never hardcoded. |
+| Pedagogy | Correction/coaching behavior is driven by the per-user coaching profile (§11.3) and grounded in §11's evidence table. Detected errors are ALWAYS fully recorded; the profile only filters what is *shown/spoken*, never what is *stored*. |
+| Gamification | Per §12. **No ads, no paid boosts, no dark patterns** (no guilt notifications, no decay leagues). Rewards tie to effort and mastery only. |
+| Model provider | Every LLM call goes through the `lib/llm` provider interface (§14). Google Gemini is the launch provider; swapping later = one new adapter file + an env change, zero route changes. |
 
 ### Verified external facts (verified July 2026 — re-verify at build time, see §9 Q7)
 
@@ -129,6 +155,7 @@ idioma/
 │   │   │   ├── dashboard/page.tsx   # progress + recurring-mistakes dashboard
 │   │   │   ├── lesson/page.tsx      # lesson list (by level/topic)
 │   │   │   ├── lesson/[lessonId]/page.tsx   # lesson player: record → feedback loop
+│   │   │   ├── review/page.tsx      # daily spaced-repetition review queue (§13, Phase 5B)
 │   │   │   ├── live/page.tsx        # turn-based conversation mode (Phase 7, decided §4.3)
 │   │   │   └── settings/page.tsx    # profile: langs, level, sign out
 │   │   │
@@ -161,6 +188,10 @@ idioma/
 │   │   │                                #   no lessonId, tutor audio auto-plays.
 │   │   │   # LiveSession.tsx / useLiveAudio.ts / pcm-worklet.ts (WebSocket, PCM streaming)
 │   │   │   # only get built if the §4.2 future real-time upgrade is ever undertaken.
+│   │   ├── gamification/
+│   │   │   ├── DailyGoalRing.tsx        # app-shell header: progress toward daily goal (§12)
+│   │   │   ├── StreakBadge.tsx          # current streak + milestone states
+│   │   │   └── Celebration.tsx          # lesson-complete / milestone moment (confetti etc.)
 │   │   └── dashboard/
 │   │       ├── ErrorPatternList.tsx
 │   │       └── SessionHistory.tsx
@@ -170,6 +201,9 @@ idioma/
 │   │   │   ├── index.ts             # Neon HTTP driver + drizzle instance
 │   │   │   └── schema.ts            # ALL tables (§3.3)
 │   │   ├── auth.ts                  # Auth.js config (§5)
+│   │   ├── llm/
+│   │   │   ├── provider.ts          # LlmProvider interface + getProvider() (§14)
+│   │   │   └── gemini.ts            # Gemini adapter — the ONLY consumer of lib/gemini/*
 │   │   ├── gemini/
 │   │   │   ├── client.ts            # @google/genai instances (lesson key / live key)
 │   │   │   ├── lessonFeedback.ts    # generateContent call + responseSchema (§4.1)
@@ -180,6 +214,8 @@ idioma/
 │   │   │                            #   comes from the DB, never hardcoded here.
 │   │   ├── tts.ts                   # Google Cloud TTS Neural2 wrapper (§4.5)
 │   │   ├── errorPatterns.ts         # upsert/aggregate logic for error_patterns
+│   │   ├── gamification.ts          # XP + streak updates, user_stats writes (§12)
+│   │   ├── srs.ts                   # SM-2-lite scheduling + review_items enqueue (§13)
 │   │   ├── usage.ts                 # per-user daily caps + usage_log writes (§6.5)
 │   │   └── zodSchemas.ts            # request/response validation
 │   │
@@ -205,10 +241,12 @@ All routes are Next.js App Router route handlers (serverless functions on Vercel
 | `/api/auth/[...nextauth]` | GET/POST | — | Auth.js handlers (Google OAuth sign-in/callback/session). |
 | `/api/me` | GET | learner | Current user profile incl. `native_lang`, `target_lang`, `level`, `role`, active language pair. |
 | `/api/me` | PATCH | learner | Update profile (onboarding sets langs + level; settings edits them). Validates `target_lang` against active `language_pairs`. |
-| `/api/lesson/attempt` | POST | learner | **Core route.** Body: `{ audioBase64, mimeType, lessonId?, promptContext? }`. Flow: ① enforce per-user daily cap (§6.5) ② load user + language pair + top recurring `error_patterns` ③ assemble system prompt (§4.1) ④ call Gemini `generateContent` with inline audio + `responseSchema` ⑤ synthesize `tutorReply + " " + followUpQuestion` to MP3 via Cloud TTS (§4.5; non-fatal on failure — return feedback without audio) ⑥ persist utterance + errors, upsert `error_patterns`, log usage (incl. `tts_chars`) ⑦ return the structured feedback JSON + `tutorAudioBase64` (nullable). TTS is server-side only — the client never sends free text to be synthesized, so the TTS quota can't be abused as a generic synthesizer. `export const maxDuration = 60` (Gemini audio calls can take 5–20 s; Vercel Hobby default is 10 s but allows up to 60). |
+| `/api/lesson/attempt` | POST | learner | **Core route.** Body: `{ audioBase64, mimeType, lessonId?, promptContext? }`. Flow: ① enforce per-user daily cap (§6.5) ② load user + language pair + top recurring `error_patterns` ③ assemble system prompt (§4.1) ④ call Gemini `generateContent` with inline audio + `responseSchema` ⑤ synthesize `tutorReply + " " + followUpQuestion` to MP3 via Cloud TTS (§4.5; non-fatal on failure — return feedback without audio) ⑥ persist utterance + errors, upsert `error_patterns` (which also enqueues/reactivates SRS items, §13.2), log usage (incl. `tts_chars`) ⑦ update `user_stats` — XP + timezone-aware streak/daily-goal (§12; from Phase 4B) ⑧ return the structured feedback JSON + `tutorAudioBase64` (nullable) + `gamification: { xpAwarded, xpTotal, currentStreak, dailyGoalMet }` (nullable pre-4B). TTS is server-side only — the client never sends free text to be synthesized, so the TTS quota can't be abused as a generic synthesizer. `export const maxDuration = 60` (Gemini audio calls can take 5–20 s; Vercel Hobby default is 10 s but allows up to 60). |
 | `/api/lessons` | GET | learner | List lesson_content for the user's language pair, filtered by `level`/`topic` query params. |
 | `/api/lessons/[lessonId]` | GET | learner | One lesson's full content JSON. |
-| `/api/progress` | GET | learner | Dashboard payload: `error_patterns` ranked by `occurrence_count` and recency, per-category counts over time, recent practice sessions with utterance counts. |
+| `/api/progress` | GET | learner | Dashboard payload: `error_patterns` ranked by `occurrence_count` and recency (incl. "conquered" flags, §12.2), per-category counts over time, recent practice sessions with utterance counts, `user_stats` (XP/streak), count of due review items. |
+| `/api/review` | GET | learner | Today's due `review_items` for the user's pair, oldest-due first, capped at 10 (§13.4). |
+| `/api/review` | POST | learner | Grade one item: `{ itemId, outcome: 'again'\|'good'\|'easy' }` → SM-2-lite reschedule (§13.3), award review XP (§12.2). Spoken review answers themselves go through `/api/lesson/attempt` with `mode: 'review'`; this route only records the resulting grade. |
 | `/api/admin/content` | GET/POST/PUT/DELETE | admin | Import/manage `lesson_content`. POST accepts a JSON array of lessons (§3.4 shape) for bulk import — the owner pastes/uploads his own material here. Zod-validates every item. |
 
 **Live mode (Phase 7, decided as the $0 turn-based loop, §4.3) needs NO new route** — it reuses
@@ -267,6 +305,8 @@ users N──1 language_pairs         (via users.language_pair_id, nullable unti
 language_pairs 1──N lesson_content
 language_pairs 1──N practice_sessions
 users 1──N usage_log              (quota early-warning, §6.5)
+users 1──1 user_stats             (XP + streaks, §12 — added in Phase 4B)
+users 1──N review_items           (spaced repetition, §13 — added in Phase 5B)
 ```
 
 ### 3.3 Drizzle schema sketch (`src/lib/db/schema.ts`)
@@ -299,8 +339,13 @@ export const users = pgTable('users', {
   targetLang: text('target_lang'),
   level: cefrEnum('level'),
   languagePairId: uuid('language_pair_id').references(() => languagePairs.id),
+  // ---- v2 coaching/gamification columns (migration added in Phase 2; §11.3, §12) ----
+  coachingProfile: coachingProfileEnum('coaching_profile'), // 'confidence_first' | 'accuracy_focus'
+  focusSkills: jsonb('focus_skills').$type<string[]>(),     // e.g. ['grammar','listening']
+  timezone: text('timezone'),                   // IANA, e.g. 'America/Asuncion', 'Europe/Stockholm'
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
+// export const coachingProfileEnum = pgEnum('coaching_profile', ['confidence_first', 'accuracy_focus']);
 // accounts, sessions, verification_tokens: copy verbatim from the
 // @auth/drizzle-adapter Postgres documentation. Do not improvise these.
 
@@ -391,10 +436,44 @@ export const lessonContent = pgTable('lesson_content', {
 export const usageLog = pgTable('usage_log', {
   id: uuid('id').defaultRandom().primaryKey(),
   userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  kind: text('kind').notNull(),                 // 'lesson_attempt' | 'live_minutes' | 'transcript_analysis' | 'tts_chars'
+  kind: text('kind').notNull(),                 // 'lesson_attempt' | 'live_minutes' | 'transcript_analysis' | 'tts_chars' | 'review_grade'
   amount: integer('amount').notNull().default(1),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 }, (t) => [index('ul_user_day_idx').on(t.userId, t.createdAt)]);
+
+// ---- Gamification (§12 — migration added in Phase 4B) ----
+export const userStats = pgTable('user_stats', {
+  userId: uuid('user_id').primaryKey().references(() => users.id, { onDelete: 'cascade' }),
+  xpTotal: integer('xp_total').notNull().default(0),
+  currentStreak: integer('current_streak').notNull().default(0),
+  longestStreak: integer('longest_streak').notNull().default(0),
+  lastGoalMetDate: text('last_goal_met_date'),  // 'YYYY-MM-DD' in the USER's timezone (§12.2)
+  streakShieldUsedInWeek: text('streak_shield_used_in_week'), // ISO week 'YYYY-Www' or NULL
+  dailyGoalTarget: integer('daily_goal_target').notNull().default(3), // utterances/day
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+// XP event history is NOT a separate table: usage_log already records every
+// metered action, so the weekly recap (§12.2) aggregates usage_log + utterances.
+
+// ---- Spaced repetition (§13 — migration added in Phase 5B) ----
+export const reviewItems = pgTable('review_items', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  languagePairId: uuid('language_pair_id').notNull().references(() => languagePairs.id),
+  kind: text('kind').notNull(),                 // 'vocab' | 'error_pattern'
+  sourceRef: text('source_ref').notNull(),      // vocab: '<lessonContentId>#<vocabIndex>'; pattern: errorPatterns.id
+  front: text('front').notNull(),               // prompt shown/spoken to the learner (native language)
+  back: text('back').notNull(),                 // expected production (target language)
+  easeFactor: integer('ease_factor_x100').notNull().default(250), // ×100 to avoid float cols
+  intervalDays: integer('interval_days').notNull().default(0),
+  dueAt: timestamp('due_at').notNull().defaultNow(),
+  reps: integer('reps').notNull().default(0),
+  lapses: integer('lapses').notNull().default(0),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+}, (t) => [
+  uniqueIndex('ri_unique').on(t.userId, t.kind, t.sourceRef),
+  index('ri_due_idx').on(t.userId, t.dueAt),
+]);
 ```
 
 Seed data (a Drizzle seed script, run once): two `language_pairs` rows — Paraguayan Spanish for
@@ -413,12 +492,24 @@ later = a third row + lesson content, nothing else.
       "type": "speak_prompt",           // the only type Phase 3 must support
       "prompt": "Tell me what you did yesterday, using at least two past-tense verbs.",
       "targetHints": ["pretérito", "voseo"]   // passed to Gemini as lesson_context
+    },
+    {
+      "type": "listen_prompt",          // Phase 5B (§11.1 comprehensible input): listening comprehension
+      "audioText": "Ayer fui al mercado y compré chipa y yuyos para el tereré.",
+      // ↑ synthesized to speech via Cloud TTS (§4.5) and PLAYED, never displayed
+      "prompt": "What did the speaker buy? Answer in a full Spanish sentence.",
+      "targetHints": ["listening comprehension", "past tense"]
     }
   ]
 }
 ```
 The lesson player iterates `exercises`; each `speak_prompt` runs one record→feedback cycle with
-the exercise's `prompt` + `targetHints` sent as `promptContext` to `/api/lesson/attempt`.
+the exercise's `prompt` + `targetHints` sent as `promptContext` to `/api/lesson/attempt`. A
+`listen_prompt` (Phase 5B) first plays the TTS-synthesized `audioText` (replayable, max 3 plays
+before answering — desirable difficulty, §11.1), then runs the same cycle with `audioText` +
+`prompt` in `promptContext` so Gemini can judge comprehension. **The player MUST skip exercise
+`type` values it doesn't recognize** (forward compatibility — Phase 3 builds only
+`speak_prompt` but must not crash on `listen_prompt` content).
 
 ---
 
@@ -498,6 +589,15 @@ System prompt is **assembled, not written**: `lib/gemini/prompts.ts` fills
 the user's top ~5 `error_patterns` (so the tutor watches for known weaknesses — this is the
 personalization loop), the lesson's `promptContext`, and the pair's `errorTaxonomy` list with an
 instruction that every error's `patternKey` MUST come from that list (or `"other"`).
+
+**v2 addition — the `{{coaching_profile}}` slot (§11.3):** prompt assembly also injects the
+per-user coaching text derived from `users.coachingProfile` + `users.focusSkills`. This slot is
+added to both seeded templates in Phase 2 (update `scripts/seed.ts` and re-seed, or run the
+one-line SQL in the Phase 2 notes). The profile texts themselves live in `lib/gemini/prompts.ts`
+as two named constants (they are app behavior, not pair-specific data — the same two profiles
+apply to every language pair, so they do NOT belong in `language_pairs`). Wording in §11.3.
+Note it changes only the tutor's *response style*; the `errors` array must remain complete and
+schema-valid in both profiles.
 
 Always Zod-parse Gemini's JSON before persisting; on schema mismatch, retry once, then return a
 graceful "couldn't analyze, try again" error. Never store unvalidated model output.
@@ -764,14 +864,23 @@ inserting the two `language_pairs` rows (template text can be placeholder pendin
 `lib/auth.ts` (Auth.js v5, Google provider, Drizzle adapter, database sessions, session callback
 exposing `role`/`languagePairId`/`level`); auth route; `middleware.ts` per §5; landing page with
 "Sign in with Google"; `/onboarding` (choose language pair from `language_pairs` where
-`active`, choose CEFR level → PATCH `/api/me`); `/api/me` GET/PATCH; `(app)` shell layout with
-nav + sign-out; document the one-line SQL to make the owner admin.
+`active`, choose CEFR level, **plus the v2 coaching questions (§11.3): coaching profile
+("I want gentle encouragement — help me dare to speak" → `confidence_first` / "Correct
+everything and tell me why" → `accuracy_focus`), focus skills (multi-pick from
+speaking-confidence / grammar / listening / pronunciation / vocabulary), and timezone
+(auto-detect via `Intl.DateTimeFormat().resolvedOptions().timeZone`, confirmable)** → PATCH
+`/api/me`); migration adding `users.coachingProfile/focusSkills/timezone` (§3.3); add the
+`{{coaching_profile}}` slot to both seeded prompt templates (§4.1); `/api/me` GET/PATCH;
+`(app)` shell layout with nav + sign-out; document the one-line SQL to make the owner admin.
 **Acceptance:** both test users can sign in on desktop + phone; new user lands on onboarding
-exactly once; `/admin` 403s for learners.
+exactly once and their coaching answers persist on `users`; `/admin` 403s for learners.
 
 ### Phase 3 — Lesson mode core loop (blocked by: 2) ← the product's heart
 `useRecorder.ts` + `UtteranceRecorder.tsx` (permission handling, record ≤90 s, real MIME type,
-level-meter feedback while recording); `lib/gemini/{client,prompts,lessonFeedback}.ts` per §4.1;
+level-meter feedback while recording); `lib/llm/{provider,gemini}.ts` per §14 (routes call the
+interface, never `@google/genai` directly); `lib/gemini/{client,prompts,lessonFeedback}.ts` per
+§4.1 incl. the `{{coaching_profile}}` slot (§11.3) and the profile-aware `FeedbackCard`
+presentation (§11.4);
 `lib/tts.ts` per §4.5 (builder: list available voices via
 `GET https://texttospeech.googleapis.com/v1/voices?key=…`, pick one `es-US` Neural2 and one
 `en-US` Neural2 voice, store in the seeded `language_pairs.tts_voice`); `/api/lesson/attempt`
@@ -796,6 +905,26 @@ lesson prompt (§4.1 personalization loop).
 `error_patterns` row (not two); dashboard shows it; the next lesson's system prompt (log it in
 dev) contains the pattern.
 
+### Phase 4B — Gamification core (blocked by: 3; build right after 4) ← §12
+Migration: `user_stats` table (§3.3); `lib/gamification.ts` (XP rules from the §12.2 constants
+table — keep values in ONE exported constants object; timezone-aware streak/daily-goal update
+using `users.timezone`; weekly auto streak-shield); wire step ⑦ into `/api/lesson/attempt`
+(§2); `DailyGoalRing` + `StreakBadge` in the `(app)` shell header; `Celebration` on lesson
+completion and streak milestones (7/30/100); XP toast after each turn; "mistakes conquered"
+flag in the `/api/progress` payload + dashboard (§12.2).
+**Acceptance:** with dev-faked dates: meeting the daily goal on two consecutive days shows
+streak 2; skipping one day with the shield unused keeps the streak and consumes the shield;
+skipping two days resets it; XP visibly increments after each recorded turn on a real phone;
+lesson completion triggers the celebration; an error pattern untouched for >14 days with ≥3
+occurrences renders as "conquered".
+
+### Phase 4C — Provider-abstraction audit (tiny; blocked by: 3) ← §14
+Not a build phase so much as an enforced checkpoint: verify no file outside `lib/llm/` +
+`lib/gemini/` imports `@google/genai` (add the ESLint `no-restricted-imports` rule from §14.3
+so it stays true); verify `LLM_PROVIDER=gemini` env switch exists and `.env.example` documents
+it. Fold into Phase 4B's PR if trivial.
+**Acceptance:** the ESLint rule fails the build when a route imports `@google/genai` directly.
+
 ### Phase 5 — Curriculum delivery + admin import (blocked by: 3; needs §9 Q5 answered)
 Finalize the `content` JSON shape with the owner's real material; `/api/admin/content` +
 `/admin/content` UI (paste/upload JSON array, Zod-validated, bulk insert; list + delete);
@@ -804,6 +933,19 @@ Finalize the `content` JSON shape with the owner's real material; `/api/admin/co
 lesson attempts + live minutes per user vs caps).
 **Acceptance:** owner imports ≥1 real lesson via the UI; partner completes it end-to-end on her
 phone; usage page shows the day's numbers.
+
+### Phase 5B — Spaced-repetition review queue + listening exercises (blocked by: 4, 5) ← §13
+Migration: `review_items` (§3.3) + add `'review'` to the `practice_mode` enum; `lib/srs.ts`
+(SM-2-lite per §13.3; enqueue-on-lesson-complete for vocab; enqueue/reactivate from the
+`error_patterns` upsert per §13.2); `/api/review` GET/POST (§2); `/review` page (§13.4 spoken
+review loop, text-answer fallback); review-count nudge on the dashboard ("5 reviews waiting —
+2 minutes"); `listen_prompt` exercise support in the lesson player (§3.4: TTS-play `audioText`,
+≤3 replays, then the normal record→feedback cycle).
+**Acceptance:** completing a lesson enqueues its vocab as due-now items; answering an item
+wrong reschedules it ~10 min out and correct schedules ≥1 day out with growing intervals on
+repeat successes; a 5-item review round completes end-to-end by voice on a real phone; a
+`listen_prompt` exercise plays audio without displaying `audioText` and grades the spoken
+answer; review grades award XP and count toward the daily goal.
 
 ### Phase 6 — PWA (blocked by: 2; ideally after 5)
 Everything in §7.1–7.2: manifest, icons (generate maskable 192/512 + apple-touch from one
@@ -831,8 +973,11 @@ owner explicitly asks for it later.)*
 ### Phase 8 — Polish + beta hardening (blocked by: all)
 Error boundaries + retry UX on every Gemini call; loading/empty states; Spanish UI strings for
 the partner (simple i18n dictionary — two locales, no library needed); mobile audit of every
-screen; 429/timeout friendly messages; README (runbook: local dev, migrate, seed, deploy,
-promote-to-admin, import content); TWA runbook per §7.3 left as documented-not-built.
+screen; 429/timeout friendly messages; **weekly recap card on the dashboard (§12.2: utterances,
+practice days, top conquered mistake, XP vs last week — computed from `usage_log` +
+`utterances`, no new tables); partner-streak display (§12.2 couple mechanic)**; README (runbook:
+local dev, migrate, seed, deploy, promote-to-admin, import content); TWA runbook per §7.3 left
+as documented-not-built.
 **Acceptance:** both users use the app for a full week without the owner touching a terminal.
 
 ---
@@ -848,6 +993,10 @@ promote-to-admin, import content); TWA runbook per §7.3 left as documented-not-
 | Q5 | Send a **sample of your real lesson material** (even one lesson) so the `content` JSON shape (§3.4) and the two `tutorPromptTemplate` texts (incl. voseo/dialect guidance and correction style/tone) can be finalized. Also: confirm the initial `errorTaxonomy` lists (I can draft ~20 keys per pair for your review — but the wording of tutor behavior is yours to approve). | Phase 5 fully; Phase 1 seed uses placeholders | Placeholders until provided |
 | Q6 | ~~App name + domain?~~ | — | **DECIDED (owner): name = "Idioma", domain = `idioma.com.py`** (available; chosen partly for SEO — "idioma" is a real Spanish search term, generic enough to cover future language pairs beyond ES/EN/Guaraní). Logo/icon source image still needed before Phase 6. **Domain registration note:** `.com.py` typically wants a local Paraguay contact/presence and can take time to register (~30 days per some registrars) — start this in Phase 0, not Phase 6, so it's ready by launch. Once registered, add it as the Vercel custom domain (Settings → Domains) and update the Google OAuth authorized origins/redirect URIs (§5, Phase 0 step 5) and the PWA manifest `start_url`/`id` (§7.1) to match — `*.vercel.app` remains the fallback if registration is delayed. |
 | Q7 | The two model IDs, free-tier numbers, and the "ephemeral tokens need billing" claim came from July-2026 research (partly via Gemini itself). **Builder must re-verify all three against ai.google.dev at Phase 3 / Phase 7 start** and update §0. Confirm you're OK with that re-verification step. | Phases 3, 7 | Re-verify at build time |
+| Q8 | ~~Gamification?~~ | — | **DECIDED (owner, July 2026): yes — §12.** Streaks, XP, daily goal, celebrations. **No ads, ever**; no dark patterns. |
+| Q9 | ~~Per-learner coaching focus?~~ | — | **DECIDED (owner, July 2026):** her = confidence to start speaking (`confidence_first`); him = grammar accuracy + listening (`accuracy_focus`). Same lesson structure and pipeline in both directions — only the coaching style differs, per user (§11.3). Profiles are user-choosable at onboarding, not hardcoded to the two people. |
+| Q10 | ~~Locked to Google?~~ | — | **DECIDED (owner, July 2026):** Google (Gemini + Cloud TTS) at launch, but all LLM calls go through the §14 provider interface so another model (e.g. Claude) can be swapped in later via one adapter + env change. |
+| Q11 | ~~Target outcome?~~ | — | **DECIDED (owner, July 2026):** functional independence in daily life in a Spanish- and an English-speaking country (≈ CEFR B1–B2). Curriculum authored by the owner (using Gemini) should aim there; the two Claude-authored demo lessons in `content/lessons/` are placeholder super-basics only. |
 
 ---
 
@@ -883,9 +1032,204 @@ promote-to-admin, import content); TWA runbook per §7.3 left as documented-not-
    English" experience for a beginner. Fix: tiny two-locale string dictionary in Phase 8 — cheap
    now, painful later.
 10. **Vercel Hobby non-commercial clause** (§6.9): fine today; revisit before ever charging
-    users or adding ads.
+    users. (Ads are ruled out permanently by §12.1 regardless.)
+11. **Gamification can backfire.** Rewarding streaks harder than learning invites hollow
+    grinding; shame-flavored mechanics (guilt notifications, decaying leagues) would directly
+    attack the confidence goal for the anxious learner. §12.1's design rules exist to prevent
+    both — builders must not add mechanics beyond §12.2 without an owner decision.
+12. **The two learners need different coaching, but a forked app would rot.** The temptation is
+    `if (user === her)`. The fix is §11.3: coaching profiles are per-user DATA feeding one
+    prompt-assembly path; any future user picks a profile at onboarding.
 
 ---
 
-*End of PLAN.md. Await owner review. Builders: do not proceed past this line's instructions —
-the first coding session starts at the phase the owner names, after "approved, proceed".*
+## 11. Learning science & coaching layer (v2)
+
+The owner's requirement: "use the top science for how to learn and coach." This section maps
+each mechanism in the app to the research finding that justifies it, and defines the per-user
+coaching profiles. **Rule: a learning feature that can't be added to table §11.1 doesn't get
+built.**
+
+### 11.1 Evidence → feature map
+
+| Principle (research) | What it says | Where it lives in Idioma |
+|---|---|---|
+| **Retrieval practice / testing effect** (Roediger & Karpicke 2008) | Actively producing from memory beats re-reading/recognition by a wide margin | Every exercise demands *spoken production*; the review queue (§13) asks the learner to SAY the answer, never to pick from options |
+| **Spaced repetition** (Ebbinghaus; Cepeda et al. 2006) | Expanding review intervals flatten the forgetting curve | §13: SM-2-lite scheduling over lesson vocab AND the learner's own recurring mistakes |
+| **Comprehensible input, "i+1"** (Krashen) | Acquisition comes from input slightly above current level | Tutor replies pitched to `{{level}}`; TTS `speakingRate` slowed for A1/A2 (§4.5); `listen_prompt` exercises (§3.4, Phase 5B) |
+| **Pushed output** (Swain) + **interaction hypothesis** (Long) | Being made to produce, and negotiating meaning in interaction, drive acquisition | The record→feedback→`followUpQuestion` loop forces output and keeps a real exchange going every turn |
+| **Corrective-feedback research** (Lyster & Ranta 1997; Li 2010 meta-analysis) | Explicit metalinguistic feedback beats recasts for grammar accuracy — but selective correction protects willingness to communicate in anxious beginners | The two coaching profiles (§11.3): `accuracy_focus` gets explicit corrections + the rule; `confidence_first` gets recasts + capped explicit corrections |
+| **Affective filter** (Krashen) / **willingness to communicate** (MacIntyre) | Anxiety measurably suppresses acquisition and speaking attempts | `confidence_first` profile; §12.1's ban on shame mechanics; praise must be *specific*, not generic |
+| **Desirable difficulties** (Bjork) | Learning sticks when effortful (but not overwhelming) | Prompts pitched slightly above comfort; listening replays capped at 3; hints exist but aren't shown by default |
+| **Habit formation** (Lally et al. 2010; implementation intentions, Gollwitzer) | Small consistent daily practice beats bingeing; cues + visible progress sustain habits | Daily goal + streak (§12); the review queue gives a guaranteed-short "2-minute" re-entry point on busy days |
+
+### 11.2 Where coaching behavior lives
+
+Correction/coaching behavior is **data + prompt assembly, never branching code**: language-pair
+tone lives in `language_pairs.correctionStyle` (per pair), and learner-specific style lives in
+`users.coachingProfile` + `users.focusSkills` (per user), injected via the
+`{{coaching_profile}}` slot (§4.1). One pipeline serves both learners and any future user.
+
+### 11.3 Coaching profiles (per USER — chosen at onboarding, editable in settings)
+
+`users.coachingProfile`: `'confidence_first' | 'accuracy_focus'`.
+`users.focusSkills`: subset of `['speaking-confidence', 'grammar', 'listening',
+'pronunciation', 'vocabulary']`.
+
+**`confidence_first`** (her starting choice — anyone can pick it): prompt text instructs the
+tutor to:
+- open `tutorReply` by naming *specifically* what the learner communicated successfully;
+- explicitly correct only the 1–2 highest-severity errors per turn; fold all other corrections
+  into the reply as **recasts** (model the correct form naturally, without flagging it);
+- never re-correct the same minor slip twice in one session;
+- keep the follow-up question inviting and answerable at the learner's level.
+
+**`accuracy_focus`** (his starting choice): prompt text instructs the tutor to:
+- report every real error explicitly with a one-line metalinguistic explanation (the *rule*,
+  not just the fixed form);
+- craft the `followUpQuestion` to **elicit the corrected structure again** in the learner's
+  next turn (elicitation — the strongest feedback type in Lyster & Ranta's data);
+- still react to the *content* of what was said; a grammar coach who ignores meaning kills the
+  conversation.
+
+**Invariant (both profiles):** the structured `errors` array is always complete and
+schema-valid. Profiles filter what the tutor *says and shows*, never what the app *records* —
+the dashboard, `error_patterns`, and SRS see everything either way.
+
+`focusSkills` effects: `listening` weights `listen_prompt` exercises into "suggested next"
+ordering (Phase 5B); `grammar` biases the top-5 recurring-errors slot toward grammar-category
+patterns; `speaking-confidence` is informational for the prompt ("this learner's stated goal is
+daring to speak").
+
+### 11.4 Feedback UI follows the profile
+
+One `FeedbackCard` component with a profile prop: `confidence_first` renders the praise line
+first and collapses the error list behind "N things to polish — tap to see";
+`accuracy_focus` expands errors by default with the explanation visible. No forked components.
+
+---
+
+## 12. Gamification (v2)
+
+### 12.1 Design rules (non-negotiable)
+
+1. Reward **showing up + effort** (turns spoken, streaks) and **mastery** (mistakes conquered)
+   — never engagement for its own sake.
+2. **No ads, ever.** No paid boosts. (Also keeps §6.9's Vercel non-commercial clause safely
+   satisfied.)
+3. **No dark patterns:** no guilt/shame notifications, no decaying leagues, no fake scarcity.
+   A missed day is met with a warm re-entry ("pick up where you left off"), not a crying owl.
+4. The dopamine moments celebrate *learning* (finished lesson, conquered mistake, streak
+   milestone), so the reward loop reinforces the actual goal (§11.1 habit-formation row).
+
+### 12.2 Mechanics (all values live in ONE exported constants object in `lib/gamification.ts`)
+
+| Mechanic | Spec |
+|---|---|
+| **XP** | +10 per completed spoken turn; +5 bonus for a zero-error turn; +25 lesson completed; +5 per review item graded; +15 daily goal met. Shown as a small toast after each turn; total on dashboard. |
+| **Daily goal** | Default 3 spoken turns/day (`user_stats.dailyGoalTarget`, user-editable). `DailyGoalRing` in the app-shell header fills as turns complete. Review items count toward it. |
+| **Streak** | A day counts when the daily goal is met, computed in the USER's timezone (`users.timezone` — Asunción and Stockholm are 5–6 h apart; server UTC dates would corrupt both). `current`/`longest` on dashboard; milestone celebrations at 7/30/100. |
+| **Streak shield** | ONE automatic shield per ISO week: the first missed day is silently bridged (`user_stats.streakShieldUsedInWeek`). Protects the habit from a busy day without nagging. Not purchasable, not stackable. |
+| **Mistakes conquered** | An `error_patterns` row with ≥3 occurrences and `lastSeenAt` > 14 days ago renders as "conquered ✅" on the dashboard. The highest-value dopamine hit in the app — it is *proof of learning*. Un-conquers automatically if the pattern recurs. |
+| **Celebrations** | `Celebration.tsx` on lesson completion and streak milestones. Short (<2 s), skippable, no sound by default. |
+| **Couple mechanic** | Dashboard shows the partner's current streak next to yours (beta has exactly two users — render the other user's streak behind a simple env/config flag). Gentle mutual accountability, no competition mechanics. |
+| **Weekly recap** (Phase 8) | Dashboard card: turns spoken, practice days, top conquered mistake, XP vs last week. Aggregated from `usage_log` + `utterances` — no new tables. |
+
+### 12.3 Data
+
+`user_stats` (§3.3): one row per user, updated transactionally in step ⑦ of
+`/api/lesson/attempt` and on `/api/review` POST via `lib/gamification.ts`. XP history is not
+stored separately — `usage_log` already records every metered action with timestamps, which is
+enough for the weekly recap.
+
+---
+
+## 13. Spaced-repetition review queue (v2)
+
+### 13.1 Why
+
+Spacing and retrieval are the two most robust effects in the learning literature (§11.1), and
+the app already harvests exactly the right material: lesson vocab and the learner's OWN
+recurring mistakes. This also supplies the "guaranteed-short daily re-entry point" the habit
+loop needs (§12.2 daily goal on busy days).
+
+### 13.2 Item sources (`review_items`, schema in §3.3)
+
+- **Vocab:** completing a lesson enqueues each `content.vocab[]` entry as a due-now item
+  (`front` = gloss + note in the native language, `back` = the target-language term,
+  `sourceRef` = `<lessonContentId>#<index>`). Idempotent via the unique index.
+- **Error patterns:** every `error_patterns` upsert (§4.1 pipeline) enqueues or *reactivates*
+  the pattern's item — if the pattern recurred, set `dueAt = now()` regardless of schedule
+  (`front` = an elicitation prompt for the structure, e.g. "Say: *she works on Mondays*" for
+  `third-person-s`; `back` = the corrected example). Generated from the pattern's stored
+  `description`/`exampleQuote` — no extra LLM call.
+
+### 13.3 Scheduling — SM-2-lite (deliberately simplified; three grades, no sub-day scheduling)
+
+On POST `/api/review` with `outcome`:
+- `again` → `lapses+1`, `intervalDays = 0` (re-due in 10 minutes), `easeFactor -= 0.20`
+  (floor 1.30);
+- `good` → `intervalDays = max(1, round(intervalDays × easeFactor))`;
+- `easy` → `intervalDays = max(2, round(intervalDays × easeFactor × 1.3))`,
+  `easeFactor += 0.05`;
+- cap `intervalDays` at 60; `reps+1`; `dueAt = now() + intervalDays` (or +10 min for `again`).
+(`easeFactor` stored ×100 as an integer, §3.3.)
+
+### 13.4 Review UX (`/review`)
+
+≤10 due items per round. Default flow is **spoken** (retrieval + production in one, §11.1):
+the app shows/speaks `front` → learner records their answer → sent through
+`/api/lesson/attempt` with `mode: 'review'` and the expected `back` in `promptContext` →
+Gemini judges the match → zero errors maps to a `good`/`easy` choice for the user, errors map
+to `again` (with the normal feedback shown). A "type instead" fallback (text-only provider
+call, §14) exists for quiet environments. Grades POST to `/api/review`; XP per §12.2.
+
+---
+
+## 14. LLM provider abstraction (v2)
+
+Owner requirement: Google now, but swappable later. The abstraction is one thin interface —
+**no framework, no plugin system.**
+
+### 14.1 Interface (`src/lib/llm/provider.ts`)
+
+```ts
+export type FeedbackArgs = {
+  systemPrompt: string;
+  userTurnContext: string;
+  input: { kind: 'audio'; base64: string; mimeType: string } | { kind: 'text'; text: string };
+};
+
+export interface LlmProvider {
+  /** Returns the §4.1 feedback JSON (caller Zod-validates — never trust the provider). */
+  getFeedback(args: FeedbackArgs): Promise<unknown>;
+}
+
+export function getProvider(): LlmProvider; // reads LLM_PROVIDER env, default 'gemini'
+```
+
+### 14.2 Rules
+
+- The §4.1 feedback JSON shape is the **provider-neutral contract**; each adapter maps it to
+  its native structured-output mechanism (Gemini: `responseSchema`; a future Claude adapter:
+  tool-use/structured outputs). Zod validation stays in the route, once, provider-independent.
+- `lib/llm/gemini.ts` is the ONLY consumer of `lib/gemini/*`; routes and components import
+  only `lib/llm/provider.ts`.
+- Audio-input capability differs across providers. If a future provider can't take audio
+  directly, its adapter handles transcription internally (e.g. a separate STT step) — the
+  app's calling code never changes.
+- TTS is already isolated the same way in `lib/tts.ts` (§4.5) — swapping to e.g. ElevenLabs
+  touches that one file.
+- Prompt *assembly* (§4.1) stays outside the adapters — prompts are provider-agnostic text.
+
+### 14.3 Enforcement
+
+ESLint `no-restricted-imports`: importing `@google/genai` anywhere outside `src/lib/llm/**`
+and `src/lib/gemini/**` fails the lint (added in Phase 4C). `LLM_PROVIDER=gemini` documented
+in `.env.example`.
+
+---
+
+*End of PLAN.md. v2 approved scope. Builders: pick up at the next unbuilt phase in §8
+(currently Phase 2), read §11–§14 first, and keep every acceptance check honest — they are
+tested on the two real phones, not desktop.*

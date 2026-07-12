@@ -1,0 +1,64 @@
+[
+  {
+    "languagePairCode": "en>es-speaker",
+    "level": "A1",
+    "topic": "greetings",
+    "title": "Greetings and introductions",
+    "position": 1,
+    "content": {
+      "intro": "En esta lección vas a aprender a saludar en inglés, presentarte y preguntar de dónde es alguien. Son las frases que más vas a usar todos los días — ¡animate a decirlas en voz alta!",
+      "vocab": [
+        {
+          "term": "Hi, how are you?",
+          "gloss": "Hola, ¿cómo estás?",
+          "note": "Saludo informal, sirve a cualquier hora. Respuesta típica: \"I'm good, thanks!\""
+        },
+        {
+          "term": "What's your name?",
+          "gloss": "¿Cómo te llamás?",
+          "note": "\"What's\" = \"what is\". Casi siempre se usa la forma corta."
+        },
+        {
+          "term": "My name is...",
+          "gloss": "Me llamo...",
+          "note": "También podés decir simplemente \"I'm...\" (soy...)."
+        },
+        {
+          "term": "Where are you from?",
+          "gloss": "¿De dónde sos?"
+        },
+        {
+          "term": "I'm from Paraguay",
+          "gloss": "Soy de Paraguay",
+          "note": "Ojo con la 'h' de \"I'm from\": no existe — se dice /aim from/."
+        },
+        {
+          "term": "Nice to meet you",
+          "gloss": "Mucho gusto",
+          "note": "Respuesta común: \"Nice to meet you too\" (igualmente)."
+        },
+        {
+          "term": "See you later!",
+          "gloss": "¡Nos vemos!"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Presentate en inglés: decí tu nombre y de dónde sos. No importa si no sale perfecto — ¡lo importante es hablar!",
+          "targetHints": ["my name is", "I'm from"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Preguntale a alguien cómo se llama y de dónde es, en inglés.",
+          "targetHints": ["what's your name?", "where are you from?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Saludá a alguien, decile que es un gusto conocerlo y despedite.",
+          "targetHints": ["hi, how are you?", "nice to meet you", "see you later"]
+        }
+      ]
+    }
+  }
+]

@@ -6,7 +6,7 @@
     "title": "Saludos y presentaciones",
     "position": 1,
     "content": {
-      "intro": "En Paraguay la gente saluda de forma cálida y usa 'vos' en vez de 'tú'. En esta lección vas a aprender a saludar, presentarte y preguntar de dónde es alguien.",
+      "intro": "In Paraguay people greet each other warmly and use 'vos' instead of 'tú'. In this lesson you'll learn to say hello, introduce yourself, and ask where someone is from.",
       "vocab": [
         {
           "term": "Hola, ¿cómo estás?",
@@ -44,17 +44,17 @@
       "exercises": [
         {
           "type": "speak_prompt",
-          "prompt": "Preséntate: decí tu nombre y de dónde sos.",
+          "prompt": "Introduce yourself in Spanish: say your name and where you're from.",
           "targetHints": ["me llamo", "soy de"]
         },
         {
           "type": "speak_prompt",
-          "prompt": "Preguntale a alguien cómo se llama y de dónde es, usando 'vos'.",
+          "prompt": "Ask someone what their name is and where they're from — use 'vos' forms.",
           "targetHints": ["¿cómo te llamás?", "¿de dónde sos?"]
         },
         {
           "type": "speak_prompt",
-          "prompt": "Invitá a alguien a tomar un tereré, usando una oración completa.",
+          "prompt": "Invite someone to have a tereré with you, in a full sentence.",
           "targetHints": ["vamos a tomar un tereré", "¿querés..."]
         }
       ]
