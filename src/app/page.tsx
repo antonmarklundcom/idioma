@@ -1,4 +1,12 @@
-export default function Home() {
+import { redirect } from 'next/navigation';
+import { auth, signIn } from '@/lib/auth';
+
+export default async function Home() {
+  const session = await auth();
+  if (session?.user) {
+    redirect('/dashboard');
+  }
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-8 bg-gradient-to-b from-sky-50 to-white px-6 text-center font-sans dark:from-slate-950 dark:to-slate-900">
       <div className="flex flex-col items-center gap-3">
@@ -17,9 +25,22 @@ export default function Home() {
         </p>
       </div>
 
+      <form
+        action={async () => {
+          'use server';
+          await signIn('google', { redirectTo: '/dashboard' });
+        }}
+      >
+        <button
+          type="submit"
+          className="rounded-full bg-slate-900 px-6 py-3 font-medium text-white dark:bg-white dark:text-slate-900"
+        >
+          Sign in with Google
+        </button>
+      </form>
+
       <div className="rounded-full border border-slate-200 px-5 py-2 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
-        Beta privada — el inicio de sesión llega pronto · private beta —
-        sign-in coming soon
+        Beta privada · private beta — invite only
       </div>
     </main>
   );

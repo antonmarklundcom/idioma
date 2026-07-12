@@ -24,6 +24,15 @@ export const errorCategoryEnum = pgEnum('error_category', [
 ]);
 export const severityEnum = pgEnum('severity', ['minor', 'moderate', 'major']);
 export const cefrEnum = pgEnum('cefr_level', ['A1', 'A2', 'B1', 'B2', 'C1']);
+// Per-user coaching style (PLAN.md §11.3) — not per language pair. Same pipeline
+// for every learner; this only changes how the tutor phrases feedback.
+export const coachingProfileEnum = pgEnum('coaching_profile', [
+  'confidence_first',
+  'accuracy_focus',
+]);
+
+export type CefrLevel = (typeof cefrEnum.enumValues)[number];
+export type CoachingProfile = (typeof coachingProfileEnum.enumValues)[number];
 
 // ---------------------------------------------------------------------------
 // Language-pair config: THE extensibility point. Adding Guaraní later must be
@@ -65,6 +74,10 @@ export const users = pgTable('users', {
   targetLang: text('target_lang'),
   level: cefrEnum('level'),
   languagePairId: uuid('language_pair_id').references(() => languagePairs.id),
+  // Onboarding sets these (PLAN.md §11.3, Phase 2). NULL until onboarding completes.
+  coachingProfile: coachingProfileEnum('coaching_profile'),
+  focusSkills: jsonb('focus_skills').$type<string[]>(),
+  timezone: text('timezone'), // IANA, e.g. 'America/Asuncion', 'Europe/Stockholm'
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
 

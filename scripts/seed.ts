@@ -70,6 +70,7 @@ native language is ${nativeLabel}. Learner level: {{level}}.
 
 Dialect and style guidance: {{dialect_notes}}
 Correction approach: {{correction_style}}
+Coaching style for this learner: {{coaching_profile}}
 
 The learner's known recurring weaknesses (watch for these especially):
 {{recurring_errors}}
@@ -100,6 +101,7 @@ not a graded exercise.
 
 Dialect and style guidance: {{dialect_notes}}
 Correction approach: {{correction_style}}
+Coaching style for this learner: {{coaching_profile}}
 Known recurring weaknesses: {{recurring_errors}}
 
 Respond ONLY with JSON matching the given schema. Prioritize natural

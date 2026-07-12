@@ -62,7 +62,7 @@ Two practice modes sharing one backend:
 |---|---|
 | Hosting | Vercel **Hobby (free)** tier only. No Hostinger slot. No always-on server, no persistent WebSocket process on our infra. |
 | Cost | **$0/month, confirmed** for the beta. One Google Cloud project carries a billing account (required for Cloud TTS even within its free allotment, §4.5) but stays at $0 spend via free monthly quotas + budget alerts. Live mode ships as the $0 turn-based option (§4.3 — decided); true simultaneous Live API is a documented future upgrade, not built now. |
-| Stack | Next.js (App Router) + TypeScript + Tailwind. Drizzle ORM. Auth.js with Google OAuth. |
+| Stack | Next.js (App Router) + TypeScript + Tailwind. Drizzle ORM. Auth.js with Google OAuth. **This repo pins Next.js 16 (see `next` in package.json), which has real breaking changes from older training data — e.g. `middleware.ts` was renamed to `proxy.ts` (§5). Read `node_modules/next/dist/docs/` before writing App Router code, per AGENTS.md.** |
 | Database | **Neon** free tier (decision + tradeoff in §3.1). |
 | Curriculum | ALL lesson content is supplied by the owner. **Never generate curriculum content.** Build only the delivery mechanism and an import path. |
 | PWA | Manifest + service worker from day one; installable on Android/iOS/desktop; later wrappable as an Android TWA (§7). |
@@ -141,7 +141,9 @@ idioma/
 │       └── assetlinks.json          # added only in the TWA phase (§7.3)
 │
 ├── src/
-│   ├── middleware.ts                # auth guard for /app/** and /admin/**
+│   ├── proxy.ts                     # auth guard for /app/** and /admin/** (Next.js 16 renamed
+│   │                                #   middleware.ts → proxy.ts / middleware() → proxy(); same
+│   │                                #   mechanism, new name — see AGENTS.md, re-verify at build time)
 │   │
 │   ├── app/
 │   │   ├── layout.tsx               # root layout: fonts, manifest link, theme-color
@@ -159,7 +161,7 @@ idioma/
 │   │   │   ├── live/page.tsx        # turn-based conversation mode (Phase 7, decided §4.3)
 │   │   │   └── settings/page.tsx    # profile: langs, level, sign out
 │   │   │
-│   │   ├── admin/                   # role === 'admin' only (middleware-guarded)
+│   │   ├── admin/                   # role === 'admin' only (proxy-guarded)
 │   │   │   ├── page.tsx             # usage stats (quota early-warning, §6.5)
 │   │   │   └── content/page.tsx     # lesson-content import/manage UI
 │   │   │
@@ -730,7 +732,10 @@ Rules:
 
 - **Version:** Auth.js v5 (`next-auth@5`) with the App Router pattern: config in `lib/auth.ts`
   exporting `{ handlers, auth, signIn, signOut }`; `app/api/auth/[...nextauth]/route.ts` re-exports
-  `handlers`.
+  `handlers`. **v5 is still tagged `beta` on npm** (`next-auth@beta`, e.g. `5.0.0-beta.31` — verify
+  the latest beta at build time); its `peerDependencies` explicitly list `next: ^16.0.0`, so this
+  is the correct choice for this repo's Next 16 pin, not a downgrade risk. Do not install plain
+  `next-auth@latest` (currently resolves to the unrelated v4 line).
 - **Provider:** Google OAuth only for the beta (both users have Gmail). Magic-link email is §9 Q2 —
   if wanted, add the Resend provider (free tier: 100 emails/day) in a later phase; the adapter
   tables already support it (`verification_tokens`).
@@ -740,12 +745,17 @@ Rules:
   callback, copy `user.role`, `user.languagePairId`, `user.level` onto `session.user` (with a TS
   module augmentation for the types). Promote the owner to admin with one manual SQL
   `UPDATE users SET role='admin' WHERE email='<owner email>'` (documented in Phase 2).
-- **Route protection:** `src/middleware.ts` — unauthenticated → redirect to `/`;
-  `/admin/**` additionally requires `role === 'admin'`; authenticated users without
-  `languagePairId` are redirected to `/onboarding` from any `(app)` route.
+- **Route protection:** `src/proxy.ts` (Next.js 16 renamed `middleware.ts` → `proxy.ts`, the
+  exported function `middleware` → `proxy`; identical mechanism/timing, verify against
+  `node_modules/next/dist/docs` at build time per AGENTS.md — do not use the old file name) —
+  unauthenticated → redirect to `/`; `/admin/**` additionally requires `role === 'admin'`;
+  authenticated users without `languagePairId` are redirected to `/onboarding` from any
+  `(app)` route. Proxy does only this **optimistic** cookie-presence redirect; every route
+  handler still re-checks the real session server-side (Next's own auth guidance warns proxy
+  must never be the sole authorization layer).
 - **Flow against the schema:** Google sign-in → adapter creates `users` row (email, name, image)
   + `accounts` row (provider tokens) + `sessions` row (cookie `authjs.session-token`). First
-  login: `languagePairId` is NULL → middleware forces `/onboarding`, which PATCHes `/api/me`
+  login: `languagePairId` is NULL → proxy forces `/onboarding`, which PATCHes `/api/me`
   with language pair + level. Progress is keyed to `users.id`, so it syncs across any device
   they sign into.
 - **Google Cloud console setup** is in Phase 0 (consent screen in **Testing** mode with both
@@ -860,9 +870,15 @@ inserting the two `language_pairs` rows (template text can be placeholder pendin
 (blank landing page OK).
 **Acceptance:** `npx drizzle-kit migrate` succeeds; seed script runs; deployed URL renders.
 
-### Phase 2 — Auth + onboarding (blocked by: 1)
+### Phase 2 — Auth + onboarding (blocked by: 1) — CODE COMPLETE, untested pending Phase 0
+All items below are implemented and pass `npm run build` + `npx tsc --noEmit` + `npm run lint`
+against placeholder env vars. **Not yet live-tested** — that needs real Neon/Google credentials
+(Phase 0, still the owner's open item). Next builder: once Phase 0 is done, run
+`npx drizzle-kit migrate`, `npm run db:seed`, then walk the acceptance checklist below on both
+phones before starting Phase 3.
+
 `lib/auth.ts` (Auth.js v5, Google provider, Drizzle adapter, database sessions, session callback
-exposing `role`/`languagePairId`/`level`); auth route; `middleware.ts` per §5; landing page with
+exposing `role`/`languagePairId`/`level`); auth route; `proxy.ts` per §5; landing page with
 "Sign in with Google"; `/onboarding` (choose language pair from `language_pairs` where
 `active`, choose CEFR level, **plus the v2 coaching questions (§11.3): coaching profile
 ("I want gentle encouragement — help me dare to speak" → `confidence_first` / "Correct
