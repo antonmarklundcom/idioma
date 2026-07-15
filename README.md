@@ -19,7 +19,8 @@ repetition, LLM-provider abstraction) — before writing code.
 | 0 — Accounts & keys (owner, manual) | ⏳ owner checklist in PLAN.md §8 — not started |
 | 1 — Scaffold + database | ✅ merged |
 | 2 — Auth + onboarding | ✅ code complete, untested (needs Phase 0 credentials) |
-| 3 — Lesson mode core loop | next up |
+| 3 — Lesson mode core loop | ✅ code complete, untested (needs Phase 0 credentials) |
+| 4 — Error aggregation + dashboard | next up |
 | 3 — Lesson mode core loop | — |
 | 4 — Error aggregation + dashboard | — |
 | 4B — Gamification core | — |

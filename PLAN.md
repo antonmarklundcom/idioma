@@ -891,7 +891,14 @@ speaking-confidence / grammar / listening / pronunciation / vocabulary), and tim
 **Acceptance:** both test users can sign in on desktop + phone; new user lands on onboarding
 exactly once and their coaching answers persist on `users`; `/admin` 403s for learners.
 
-### Phase 3 — Lesson mode core loop (blocked by: 2) ← the product's heart
+### Phase 3 — Lesson mode core loop (blocked by: 2) ← the product's heart — CODE COMPLETE, untested pending Phase 0
+Same caveat as Phase 2: implemented and passing `npm run build` (with a fully empty
+environment, matching Vercel pre-Phase-0) + `npx tsc --noEmit` + `npm run lint`, but the
+Gemini call, TTS synthesis, and recording flow have never run against real credentials or a
+real phone. `language_pairs.tts_voice` was seeded with a best-guess Neural2 voice name from
+Google's documented catalog, not verified against the live `/v1/voices` endpoint — low risk
+since TTS failures are non-fatal (degrades to text-only), but re-verify at Phase 0.
+
 `useRecorder.ts` + `UtteranceRecorder.tsx` (permission handling, record ≤90 s, real MIME type,
 level-meter feedback while recording); `lib/llm/{provider,gemini}.ts` per §14 (routes call the
 interface, never `@google/genai` directly); `lib/gemini/{client,prompts,lessonFeedback}.ts` per

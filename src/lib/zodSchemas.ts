@@ -17,3 +17,37 @@ export const onboardingSchema = z.object({
 });
 
 export type OnboardingInput = z.infer<typeof onboardingSchema>;
+
+// --- /api/lesson/attempt (PLAN.md §2, §4.1) ---------------------------------
+
+export const lessonAttemptRequestSchema = z.object({
+  audioBase64: z.string().min(1),
+  mimeType: z.string().min(1),
+  lessonId: z.uuid().optional(),
+  promptContext: z.string().optional(),
+  mode: z.enum(['lesson', 'live']).default('lesson'),
+});
+
+export type LessonAttemptInput = z.infer<typeof lessonAttemptRequestSchema>;
+
+// Mirrors the Gemini responseSchema (§4.1) - the provider-neutral contract every
+// LlmProvider adapter must satisfy. Never trust model output without this passing.
+export const utteranceErrorSchema = z.object({
+  category: z.enum(['pronunciation', 'grammar', 'vocab']),
+  severity: z.enum(['minor', 'moderate', 'major']),
+  quote: z.string(),
+  correction: z.string(),
+  explanation: z.string(),
+  patternKey: z.string(),
+});
+
+export const feedbackResultSchema = z.object({
+  transcription: z.string(),
+  errors: z.array(utteranceErrorSchema),
+  correctedUtterance: z.string(),
+  tutorReply: z.string(),
+  followUpQuestion: z.string(),
+});
+
+export type FeedbackResult = z.infer<typeof feedbackResultSchema>;
+
