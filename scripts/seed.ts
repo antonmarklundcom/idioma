@@ -128,7 +128,11 @@ const PAIRS = [
     tutorPromptTemplate: tutorTemplate('Paraguayan Spanish', 'English'),
     conversationPromptTemplate: conversationTemplate('Paraguayan Spanish', 'English'),
     errorTaxonomy: ES_TAXONOMY,
-    ttsVoice: null as string | null, // set in Phase 3 after listing available es-US Neural2 voices
+    // Best-guess default from Google's documented es-US Neural2 catalog (PLAN.md §4.5).
+    // Re-verify against GET https://texttospeech.googleapis.com/v1/voices once a real
+    // GOOGLE_TTS_API_KEY exists (Phase 0) - a wrong name just degrades to text-only
+    // (TTS failures are non-fatal), so this is a safe placeholder either way.
+    ttsVoice: 'es-US-Neural2-A',
   },
   {
     code: 'en>es-speaker',
@@ -144,7 +148,9 @@ const PAIRS = [
     tutorPromptTemplate: tutorTemplate('English', 'Paraguayan Spanish'),
     conversationPromptTemplate: conversationTemplate('English', 'Paraguayan Spanish'),
     errorTaxonomy: EN_TAXONOMY,
-    ttsVoice: null as string | null, // set in Phase 3 after listing available en-US Neural2 voices
+    // Best-guess default from Google's documented en-US Neural2 catalog - same
+    // re-verify-at-Phase-0 caveat as the es-US voice above.
+    ttsVoice: 'en-US-Neural2-C',
   },
 ];
 
