@@ -2,12 +2,13 @@
 
 **Authored by Fable 5 (planning/architecture model) for handoff to Sonnet 5 / Opus 4.8.**
 
-**Status: v3 (July 2026). Phases 1–3 are built and merged to `main`: scaffold + schema +
-seed (Phase 1), auth + onboarding (Phase 2), and the lesson-mode core loop (Phase 3).
-Phases 2–3 are code complete but UNTESTED live — Phase 0 (the owner's manual accounts/keys
-checklist, §8) is still not done and blocks all live verification. Next build phase: Phase 4
-(error aggregation + dashboard). v3 adds the model-tiering guidance and the "what's needed
-to finish" section below; the underlying spec (§0–§14) is unchanged from v2, which
+**Status: v3 (July 2026). Phases 1–4 are built and merged to `main`: scaffold + schema +
+seed (Phase 1), auth + onboarding (Phase 2), the lesson-mode core loop (Phase 3), and error
+aggregation + dashboard (Phase 4). Phases 2–4 are code complete but UNTESTED live — Phase 0
+(the owner's manual accounts/keys checklist, §8) is still not done and blocks all live
+verification. Next build phase: Phase 4B (gamification core). v3 adds the model-tiering
+guidance and the "what's needed to finish" section below; the underlying spec (§0–§14) is
+unchanged from v2, which
 incorporated the learning-science coaching layer (§11), gamification (§12), the
 spaced-repetition review queue (§13), and the LLM-provider abstraction (§14). Builders: read
 §11–§14 before starting any phase — they modify the schema (§3.3), prompt assembly (§4.1),
@@ -46,27 +47,27 @@ Verified against the actual code on `main` (not just docs) in July 2026:
 | 1 — Scaffold + database | Full §3.3 Drizzle schema (`src/lib/db/schema.ts`, incl. `error_patterns`), migrations in `drizzle/`, `scripts/seed.ts`, two sample lessons in `content/lessons/` |
 | 2 — Auth + onboarding | `src/lib/auth.ts` (Auth.js v5 + Google + Drizzle adapter), `src/proxy.ts`, `/onboarding` with §11.3 coaching-profile capture, `/api/me`, `(app)` shell |
 | 3 — Lesson mode core loop | `useRecorder`/`UtteranceRecorder`, `lib/llm/{provider,gemini}.ts` (§14 abstraction), `lib/gemini/*`, `lib/tts.ts`, `/api/lesson/attempt` with `usage_log` caps, `LessonPlayer` + `FeedbackCard` + tutor-audio player |
+| 4 — Error aggregation + dashboard | `lib/errorPatterns.ts` (upsert on `(userId, languagePairId, patternKey)`, wired into `/api/lesson/attempt` step ⑥), `lib/progress.ts`, `/api/progress`, `/dashboard` with `ErrorPatternList` (per-category badges, first/last seen, example quote, "conquered" flag) + `SessionHistory` |
 
 **Blockers (owner, no code):**
 
 1. **Phase 0 — accounts & keys.** Still untouched. Nothing can be live-tested (auth, Gemini,
    TTS, DB) until this is done. The very next build session after Phase 0 must live-verify the
-   Phase 2 and Phase 3 acceptance checklists on both phones before building anything new.
+   Phase 2–4 acceptance checklists on both phones before building anything new.
 2. **§9 Q5 — real lesson material.** Still open. Blocks Phase 5's content-shape finalization;
    placeholders everywhere until provided.
 
-**Remaining build work (estimate: ~7–8 Sonnet sessions to launch):**
+**Remaining build work (estimate: ~6–7 Sonnet sessions to launch):**
 
 | Session | Phase | Blocked by |
 |---|---|---|
-| 1 | Live-verify Phases 2–3 acceptance on real phones (+ fix fallout) | Phase 0 |
-| 2 | Phase 4 — error aggregation + dashboard | Phase 3 (buildable now; live-verify needs Phase 0) |
-| 3 | Phase 4B + 4C — gamification core + provider audit | Phase 4 |
-| 4 | Phase 5 — curriculum delivery + admin import | Q5 |
-| 5 | Phase 5B — SRS review queue + listening exercises | Phases 4, 5 |
-| 6 | Phase 6 — PWA (manifest, Serwist SW, install) | Phase 2 (icon source image needed, §9 Q6) |
-| 7 | Phase 7 — live conversation (turn-based voice loop) | Phase 4 |
-| 8 | Phase 8 — polish + beta hardening | all |
+| 1 | Live-verify Phases 2–4 acceptance on real phones (+ fix fallout) | Phase 0 |
+| 2 | Phase 4B + 4C — gamification core + provider audit | Phase 4 (buildable now; live-verify needs Phase 0) |
+| 3 | Phase 5 — curriculum delivery + admin import | Q5 |
+| 4 | Phase 5B — SRS review queue + listening exercises | Phases 4, 5 |
+| 5 | Phase 6 — PWA (manifest, Serwist SW, install) | Phase 2 (icon source image needed, §9 Q6) |
+| 6 | Phase 7 — live conversation (turn-based voice loop) | Phase 4 |
+| 7 | Phase 8 — polish + beta hardening | all |
 
 Dashboard (`/dashboard`) and lesson browser (`/lesson`) are currently stubs by design — they
 gain their real content in Phases 4/4B and 5 respectively. No gamification, SRS, or

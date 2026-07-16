@@ -12,6 +12,7 @@ import { getProvider } from '@/lib/llm/provider';
 import { assembleSystemPrompt, FREE_PRACTICE_LESSON_CONTEXT } from '@/lib/gemini/prompts';
 import { synthesizeTutorSpeech } from '@/lib/tts';
 import { isUnderDailyLessonAttemptCap, logUsage } from '@/lib/usage';
+import { recordErrorPatterns } from '@/lib/errorPatterns';
 
 // Gemini audio calls can take 5-20s; Vercel Hobby's default is 10s but allows up to 60
 // (PLAN.md §6.1).
@@ -177,6 +178,14 @@ export async function POST(request: Request) {
     followUpQuestion: feedback.followUpQuestion,
     errors: feedback.errors,
   });
+
+  if (feedback.errors.length > 0) {
+    await recordErrorPatterns({
+      userId: session.user.id,
+      languagePairId: pair.id,
+      errors: feedback.errors,
+    });
+  }
 
   await logUsage(session.user.id, 'lesson_attempt');
 
