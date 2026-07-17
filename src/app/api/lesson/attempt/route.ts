@@ -13,6 +13,7 @@ import { assembleSystemPrompt, FREE_PRACTICE_LESSON_CONTEXT } from '@/lib/gemini
 import { synthesizeTutorSpeech } from '@/lib/tts';
 import { isUnderDailyLessonAttemptCap, logUsage } from '@/lib/usage';
 import { recordErrorPatterns } from '@/lib/errorPatterns';
+import { recordTurnAndUpdateStats } from '@/lib/gamification';
 
 // Gemini audio calls can take 5-20s; Vercel Hobby's default is 10s but allows up to 60
 // (PLAN.md §6.1).
@@ -189,10 +190,16 @@ export async function POST(request: Request) {
 
   await logUsage(session.user.id, 'lesson_attempt');
 
+  // PLAN.md §2 step ⑦ / §12: XP + timezone-aware streak/daily-goal update.
+  const gamification = await recordTurnAndUpdateStats({
+    userId: session.user.id,
+    timezone: session.user.timezone,
+    hadZeroErrors: feedback.errors.length === 0,
+  });
+
   return NextResponse.json({
     ...feedback,
     tutorAudioBase64,
-    // Wired up in Phase 4B (PLAN.md §12) - the response shape is stable from Phase 3 on.
-    gamification: null,
+    gamification,
   });
 }

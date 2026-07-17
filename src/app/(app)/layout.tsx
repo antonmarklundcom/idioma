@@ -1,12 +1,17 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { auth, signOut } from '@/lib/auth';
+import { getUserStatsSummary } from '@/lib/gamification';
+import { DailyGoalRing } from '@/components/gamification/DailyGoalRing';
+import { StreakBadge } from '@/components/gamification/StreakBadge';
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
   if (!session?.user) {
     redirect('/');
   }
+
+  const stats = await getUserStatsSummary(session.user.id, session.user.timezone);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -15,6 +20,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           🗣️ Idioma
         </Link>
         <nav className="flex items-center gap-4 text-sm text-slate-600 dark:text-slate-300">
+          <DailyGoalRing turnsToday={stats.turnsToday} dailyGoalTarget={stats.dailyGoalTarget} />
+          <StreakBadge currentStreak={stats.currentStreak} />
           <Link href="/dashboard">Dashboard</Link>
           <Link href="/lesson">Lessons</Link>
           <Link href="/settings">Settings</Link>

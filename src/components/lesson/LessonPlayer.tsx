@@ -1,9 +1,12 @@
 'use client';
 
 import { useCallback, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { UtteranceRecorder } from '@/components/recorder/UtteranceRecorder';
 import { FeedbackCard } from './FeedbackCard';
 import { useTutorAudioPlayer } from './useTutorAudioPlayer';
+import { XpToast } from '@/components/gamification/XpToast';
+import { Celebration } from '@/components/gamification/Celebration';
 import type { CoachingProfile } from '@/lib/db/schema';
 import type { LessonAttemptResponse } from '@/types';
 
@@ -31,10 +34,13 @@ export function LessonPlayer({
   initialPrompt: string;
   lessonId?: string;
 }) {
+  const router = useRouter();
   const [promptContext, setPromptContext] = useState(initialPrompt);
   const [feedback, setFeedback] = useState<LessonAttemptResponse | null>(null);
   const [status, setStatus] = useState<'idle' | 'sending' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [xpEvent, setXpEvent] = useState<{ id: number; xp: number } | null>(null);
+  const [celebrationMessage, setCelebrationMessage] = useState<string | null>(null);
   const player = useTutorAudioPlayer();
 
   const handleRecorded = useCallback(
@@ -59,12 +65,21 @@ export function LessonPlayer({
         setPromptContext(data.followUpQuestion);
         setStatus('idle');
         if (data.tutorAudioBase64) player.play(data.tutorAudioBase64);
+
+        // PLAN.md §12.2: XP toast after every turn; a short celebration on streak
+        // milestones. (Lesson-completion celebrations activate in Phase 5, once real
+        // lesson content gives free practice a completion event to hook.)
+        setXpEvent({ id: Date.now(), xp: data.gamification.xpAwarded });
+        if (data.gamification.celebration?.type === 'streak_milestone') {
+          setCelebrationMessage(`🔥 ${data.gamification.celebration.milestone}-day streak!`);
+        }
+        router.refresh(); // updates the app-shell header's DailyGoalRing/StreakBadge
       } catch {
         setErrorMessage('Network error - please try again.');
         setStatus('error');
       }
     },
-    [lessonId, promptContext, player],
+    [lessonId, promptContext, player, router],
   );
 
   return (
@@ -89,6 +104,13 @@ export function LessonPlayer({
           coachingProfile={coachingProfile}
           onReplay={() => feedback.tutorAudioBase64 && player.play(feedback.tutorAudioBase64)}
         />
+      )}
+
+      {xpEvent && (
+        <XpToast key={xpEvent.id} xpAwarded={xpEvent.xp} onDismiss={() => setXpEvent(null)} />
+      )}
+      {celebrationMessage && (
+        <Celebration message={celebrationMessage} onDismiss={() => setCelebrationMessage(null)} />
       )}
     </div>
   );
