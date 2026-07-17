@@ -230,3 +230,22 @@ export const usageLog = pgTable(
   },
   (t) => [index('ul_user_day_idx').on(t.userId, t.createdAt)],
 );
+
+// Gamification (PLAN.md §12, Phase 4B): one row per user. XP history isn't stored
+// separately - usage_log already has every metered action with timestamps, which is
+// enough for the Phase 8 weekly recap.
+export const userStats = pgTable('user_stats', {
+  userId: uuid('user_id')
+    .primaryKey()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  xpTotal: integer('xp_total').notNull().default(0),
+  currentStreak: integer('current_streak').notNull().default(0),
+  longestStreak: integer('longest_streak').notNull().default(0),
+  // 'YYYY-MM-DD' in the USER's timezone (§12.2) - never server UTC, or Asunción and
+  // Stockholm's streaks would corrupt each other across the day boundary.
+  lastGoalMetDate: text('last_goal_met_date'),
+  // ISO week 'YYYY-Www' the auto-shield was last consumed in, or NULL. One shield/week.
+  streakShieldUsedInWeek: text('streak_shield_used_in_week'),
+  dailyGoalTarget: integer('daily_goal_target').notNull().default(3),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});

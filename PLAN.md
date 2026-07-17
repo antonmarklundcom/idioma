@@ -993,7 +993,15 @@ lesson prompt (§4.1 personalization loop).
 `error_patterns` row (not two); dashboard shows it; the next lesson's system prompt (log it in
 dev) contains the pattern.
 
-### Phase 4B — Gamification core (blocked by: 3; build right after 4) ← §12
+### Phase 4B — Gamification core (blocked by: 3; build right after 4) ← §12 — CODE COMPLETE, untested pending Phase 0
+Same caveat as Phases 2–4: passes `npm run build` (empty environment) + `tsc --noEmit` +
+`eslint`, and the pure streak/shield transition logic was hand-verified in isolation against
+the exact acceptance scenarios below (consecutive days, single-day-shield-save, shield
+exhaustion within an ISO week, wider gaps resetting) — but nothing has run against a real
+database yet. Also implements the §12.2 couple mechanic (`getPartnerStreak`, gated by
+`SHOW_PARTNER_STREAK`), one increment beyond this phase's explicit deliverable list, since it
+had no schema cost and completes §12 cleanly.
+
 Migration: `user_stats` table (§3.3); `lib/gamification.ts` (XP rules from the §12.2 constants
 table — keep values in ONE exported constants object; timezone-aware streak/daily-goal update
 using `users.timezone`; weekly auto streak-shield); wire step ⑦ into `/api/lesson/attempt`
