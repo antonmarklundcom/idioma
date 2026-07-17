@@ -20,10 +20,8 @@ repetition, LLM-provider abstraction) — before writing code.
 | 1 — Scaffold + database | ✅ merged |
 | 2 — Auth + onboarding | ✅ code complete, untested (needs Phase 0 credentials) |
 | 3 — Lesson mode core loop | ✅ code complete, untested (needs Phase 0 credentials) |
-| 4 — Error aggregation + dashboard | next up |
-| 3 — Lesson mode core loop | — |
-| 4 — Error aggregation + dashboard | — |
-| 4B — Gamification core | — |
+| 4 — Error aggregation + dashboard | ✅ code complete, untested (needs Phase 0 credentials) |
+| 4B — Gamification core | next up |
 | 5 — Curriculum delivery + admin import | — |
 | 5B — SRS review queue + listening | — |
 | 6 — PWA | — |

@@ -1,15 +1,80 @@
 # PLAN.md — "Idioma" Language-Learning Web App
 
-**Status: v2 (July 2026). Phase 1 (scaffold + schema + migration + seed) is built and merged
-to `main`. Next up: Phase 2 (auth + onboarding). v2 incorporates the owner's July-2026
-requirements update: the learning-science coaching layer (§11), gamification (§12), the
+**Authored by Fable 5 (planning/architecture model) for handoff to Sonnet 5 / Opus 4.8.**
+
+**Status: v3 (July 2026). Phases 1–4 are built and merged to `main`: scaffold + schema +
+seed (Phase 1), auth + onboarding (Phase 2), the lesson-mode core loop (Phase 3), and error
+aggregation + dashboard (Phase 4). Phases 2–4 are code complete but UNTESTED live — Phase 0
+(the owner's manual accounts/keys checklist, §8) is still not done and blocks all live
+verification. Next build phase: Phase 4B (gamification core). v3 adds the model-tiering
+guidance and the "what's needed to finish" section below; the underlying spec (§0–§14) is
+unchanged from v2, which
+incorporated the learning-science coaching layer (§11), gamification (§12), the
 spaced-repetition review queue (§13), and the LLM-provider abstraction (§14). Builders: read
 §11–§14 before starting any phase — they modify the schema (§3.3), prompt assembly (§4.1),
 and the phase list (§8).**
 
-This document is a self-contained build spec. It is written so that a Claude model (Opus 4.8 /
-Sonnet 5) in a fresh session, with no memory of the planning conversation, can execute any phase
+**Business scope (re-confirmed by owner, July 2026): personal beta only.** Idioma serves
+exactly two beta users at $0/month. There is NO revenue model, no pricing, no public signup,
+and none is planned in this build. "Launch" means both users practicing daily on their phones
+without the owner touching a terminal (Phase 8 acceptance). Do not add billing, multi-tenancy,
+or marketing surface area.
+
+## Model tiering — who does what
+
+- **Fable 5** (this document's author) handles architecture, spec/schema decisions, gap
+  analysis, and review gates. Do not burn Fable time on routine implementation. Bring work
+  back to Fable when: a phase's acceptance check fails twice for non-obvious reasons, a
+  builder believes the spec itself is wrong, or the owner changes scope.
+- **Sonnet 5** executes the build phases (§8). Every remaining phase (4 → 8) is specced
+  tightly enough for Sonnet in a fresh session — one phase per session/PR.
+- **Opus 4.8** is the escalation tier for the hardest problems only — e.g. if Phase 3's
+  audio pipeline misbehaves on real iOS hardware during live verification, or Phase 6's
+  service-worker caching fights Next.js 16. Start with Sonnet; escalate, don't default.
+
+This document is a self-contained build spec. It is written so that a Claude model (Sonnet 5 /
+Opus 4.8) in a fresh session, with no memory of the planning conversation, can execute any phase
 from this document alone. Read the whole document before starting any phase.
+
+## What's needed to finish — gap analysis (v3, July 2026)
+
+Verified against the actual code on `main` (not just docs) in July 2026:
+
+**Built and merged:**
+
+| Phase | Evidence in repo |
+|---|---|
+| 1 — Scaffold + database | Full §3.3 Drizzle schema (`src/lib/db/schema.ts`, incl. `error_patterns`), migrations in `drizzle/`, `scripts/seed.ts`, two sample lessons in `content/lessons/` |
+| 2 — Auth + onboarding | `src/lib/auth.ts` (Auth.js v5 + Google + Drizzle adapter), `src/proxy.ts`, `/onboarding` with §11.3 coaching-profile capture, `/api/me`, `(app)` shell |
+| 3 — Lesson mode core loop | `useRecorder`/`UtteranceRecorder`, `lib/llm/{provider,gemini}.ts` (§14 abstraction), `lib/gemini/*`, `lib/tts.ts`, `/api/lesson/attempt` with `usage_log` caps, `LessonPlayer` + `FeedbackCard` + tutor-audio player |
+| 4 — Error aggregation + dashboard | `lib/errorPatterns.ts` (upsert on `(userId, languagePairId, patternKey)`, wired into `/api/lesson/attempt` step ⑥), `lib/progress.ts`, `/api/progress`, `/dashboard` with `ErrorPatternList` (per-category badges, first/last seen, example quote, "conquered" flag) + `SessionHistory` |
+
+**Blockers (owner, no code):**
+
+1. **Phase 0 — accounts & keys.** Still untouched. Nothing can be live-tested (auth, Gemini,
+   TTS, DB) until this is done. The very next build session after Phase 0 must live-verify the
+   Phase 2–4 acceptance checklists on both phones before building anything new.
+2. **§9 Q5 — real lesson material.** Still open. Blocks Phase 5's content-shape finalization;
+   placeholders everywhere until provided.
+
+**Remaining build work (estimate: ~6–7 Sonnet sessions to launch):**
+
+| Session | Phase | Blocked by |
+|---|---|---|
+| 1 | Live-verify Phases 2–4 acceptance on real phones (+ fix fallout) | Phase 0 |
+| 2 | Phase 4B + 4C — gamification core + provider audit | Phase 4 (buildable now; live-verify needs Phase 0) |
+| 3 | Phase 5 — curriculum delivery + admin import | Q5 |
+| 4 | Phase 5B — SRS review queue + listening exercises | Phases 4, 5 |
+| 5 | Phase 6 — PWA (manifest, Serwist SW, install) | Phase 2 (icon source image needed, §9 Q6) |
+| 6 | Phase 7 — live conversation (turn-based voice loop) | Phase 4 |
+| 7 | Phase 8 — polish + beta hardening | all |
+
+Dashboard (`/dashboard`) and lesson browser (`/lesson`) are currently stubs by design — they
+gain their real content in Phases 4/4B and 5 respectively. No gamification, SRS, or
+error-aggregation code exists yet (correct for the current phase). No reusable specs/skills
+from sibling portfolio repos apply here — this repo predates them and is self-contained by
+design; if a sibling later needs an LLM-provider abstraction or SRS spec, §13–§14 here are the
+reference, not the other way around.
 
 ---
 
