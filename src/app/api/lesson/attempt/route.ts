@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { and, desc, eq, isNull } from 'drizzle-orm';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
-import { errorPatterns, languagePairs, practiceSessions, utterances } from '@/lib/db/schema';
+import { languagePairs, practiceSessions, utterances } from '@/lib/db/schema';
 import {
   feedbackResultSchema,
   lessonAttemptRequestSchema,
@@ -12,6 +12,7 @@ import { getProvider } from '@/lib/llm/provider';
 import { assembleSystemPrompt, FREE_PRACTICE_LESSON_CONTEXT } from '@/lib/gemini/prompts';
 import { synthesizeTutorSpeech } from '@/lib/tts';
 import { isUnderDailyLessonAttemptCap, logUsage } from '@/lib/usage';
+import { getTopErrorPatterns, upsertErrorPattern } from '@/lib/errorPatterns';
 
 // Gemini audio calls can take 5-20s; Vercel Hobby's default is 10s but allows up to 60
 // (PLAN.md §6.1).
@@ -118,12 +119,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const recurringErrorRows = await db
-    .select({ category: errorPatterns.category, description: errorPatterns.description })
-    .from(errorPatterns)
-    .where(and(eq(errorPatterns.userId, session.user.id), eq(errorPatterns.languagePairId, pair.id)))
-    .orderBy(desc(errorPatterns.occurrenceCount), desc(errorPatterns.lastSeenAt))
-    .limit(5);
+  const recurringErrorRows = await getTopErrorPatterns(session.user.id, pair.id);
 
   const lessonContext = promptContext ?? FREE_PRACTICE_LESSON_CONTEXT;
   const systemPrompt = assembleSystemPrompt({
@@ -134,6 +130,11 @@ export async function POST(request: Request) {
     recurringErrors: recurringErrorRows,
     lessonContext,
   });
+  // PLAN.md §4 Phase 4 acceptance: verify the personalization loop by inspecting the
+  // assembled prompt in dev logs.
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('[lesson/attempt] system prompt:\n', systemPrompt);
+  }
 
   let feedback: FeedbackResult;
   try {
@@ -177,6 +178,13 @@ export async function POST(request: Request) {
     followUpQuestion: feedback.followUpQuestion,
     errors: feedback.errors,
   });
+
+  // PLAN.md §4 Phase 4: aggregate into error_patterns so the dashboard and the next
+  // turn's personalization loop see it. Every real error is recorded regardless of
+  // coaching profile (§11.3 invariant) - profiles only change what the tutor SAYS.
+  for (const error of feedback.errors) {
+    await upsertErrorPattern({ userId: session.user.id, languagePairId: pair.id, error });
+  }
 
   await logUsage(session.user.id, 'lesson_attempt');
 

@@ -919,7 +919,12 @@ is heard aloud on both phones (incl. iOS); rows appear in `practice_sessions`, `
 `usage_log` (incl. `tts_chars`); killing the TTS key still returns text feedback (non-fatal
 degradation).
 
-### Phase 4 — Error aggregation + dashboard (blocked by: 3)
+### Phase 4 — Error aggregation + dashboard (blocked by: 3) — CODE COMPLETE, untested pending Phase 0
+Same caveat as Phases 2–3: passes `npm run build` (empty environment) + `tsc --noEmit` +
+`eslint`, but the upsert/aggregation behavior has never run against a real database — the
+acceptance check below (same mistake twice → one row, not two) needs Phase 0 + a live Gemini
+key to actually exercise.
+
 `lib/errorPatterns.ts` upsert (called from `/api/lesson/attempt`); backfill nothing (beta);
 `/api/progress`; `/dashboard` with `ErrorPatternList` (ranked recurring mistakes, per-category
 badges, first/last seen, example quote) and `SessionHistory`; inject top-5 patterns into the
