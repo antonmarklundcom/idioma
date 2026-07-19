@@ -24,10 +24,10 @@ repetition, LLM-provider abstraction) — before writing code.
 | 4B — Gamification core | ✅ code complete, untested (needs Phase 0 credentials) |
 | 4C — Provider-abstraction audit | ✅ done and verified (ESLint rule tested directly) |
 | 5 — Curriculum delivery + admin import | blocked on real lesson material (§9 Q5) |
-| 5B — SRS review queue + listening | — |
-| 6 — PWA | — |
-| 7 — Live conversation (turn-based) | — |
-| 8 — Polish + beta hardening | — |
+| 5B — SRS review queue + listening | blocked on Phase 5 |
+| 6 — PWA | blocked on an app icon image from the owner |
+| 7 — Live conversation (turn-based) | ✅ code complete, untested (needs Phase 0 credentials) |
+| 8 — Polish + beta hardening | needs all of the above |
 
 ## Quick start
 

@@ -1056,7 +1056,13 @@ fallback page, install-hint UI for Android + iOS.
 opens standalone; airplane mode shows the offline page instead of a browser error; API responses
 are never served from cache.
 
-### Phase 7 — Live conversation mode: turn-based voice loop (blocked by: 4; DECIDED, §9 Q1 = $0)
+### Phase 7 — Live conversation mode: turn-based voice loop (blocked by: 4; DECIDED, §9 Q1 = $0) — CODE COMPLETE, untested pending Phase 0
+Same caveat as Phases 2–4B: passes `npm run build` (empty environment) + `tsc --noEmit` +
+`eslint`, but never run against a real database/Gemini key. Notably light-touch: the backend
+(`conversationPromptTemplate` column, `/api/lesson/attempt`'s `mode` branch, prompt assembly's
+template selection) was ALREADY fully built in Phases 1/3 - this phase only needed the
+frontend (`ConversationLoop.tsx` + `/live` page + nav link).
+
 Build `/live` per §4.3: add a `conversationPromptTemplate` slot to `language_pairs`; `ConversationLoop.tsx`
 reusing `UtteranceRecorder`/`FeedbackCard` in a loop with no `lessonId`; POST to
 `/api/lesson/attempt` with `mode: 'live'`; auto-play the synthesized `tutorReply` audio (§4.5)
