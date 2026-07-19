@@ -22,8 +22,8 @@ repetition, LLM-provider abstraction) — before writing code.
 | 3 — Lesson mode core loop | ✅ code complete, untested (needs Phase 0 credentials) |
 | 4 — Error aggregation + dashboard | ✅ code complete, untested (needs Phase 0 credentials) |
 | 4B — Gamification core | ✅ code complete, untested (needs Phase 0 credentials) |
-| 4C — Provider-abstraction audit | next up |
-| 5 — Curriculum delivery + admin import | — |
+| 4C — Provider-abstraction audit | ✅ done and verified (ESLint rule tested directly) |
+| 5 — Curriculum delivery + admin import | blocked on real lesson material (§9 Q5) |
 | 5B — SRS review queue + listening | — |
 | 6 — PWA | — |
 | 7 — Live conversation (turn-based) | — |
