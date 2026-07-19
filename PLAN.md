@@ -1014,12 +1014,17 @@ skipping two days resets it; XP visibly increments after each recorded turn on a
 lesson completion triggers the celebration; an error pattern untouched for >14 days with ≥3
 occurrences renders as "conquered".
 
-### Phase 4C — Provider-abstraction audit (tiny; blocked by: 3) ← §14
+### Phase 4C — Provider-abstraction audit (tiny; blocked by: 3) ← §14 — DONE
 Not a build phase so much as an enforced checkpoint: verify no file outside `lib/llm/` +
 `lib/gemini/` imports `@google/genai` (add the ESLint `no-restricted-imports` rule from §14.3
 so it stays true); verify `LLM_PROVIDER=gemini` env switch exists and `.env.example` documents
 it. Fold into Phase 4B's PR if trivial.
 **Acceptance:** the ESLint rule fails the build when a route imports `@google/genai` directly.
+Verified directly: a deliberately violating file outside `lib/gemini/**` was added, confirmed
+`npm run lint` fails on it with the rule's message, then removed. Audit found the codebase
+already compliant (only `lib/gemini/client.ts` and `lib/gemini/lessonFeedback.ts` import the
+SDK) - this phase only had to add the enforcement, not fix a violation. This is a fully
+verified phase, not just build/lint-clean - the acceptance check itself was exercised.
 
 ### Phase 5 — Curriculum delivery + admin import (blocked by: 3; needs §9 Q5 answered)
 Finalize the `content` JSON shape with the owner's real material; `/api/admin/content` +
