@@ -24,6 +24,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           <StreakBadge currentStreak={stats.currentStreak} />
           <Link href="/dashboard">Dashboard</Link>
           <Link href="/lesson">Lessons</Link>
+          <Link href="/live">Live</Link>
           <Link href="/settings">Settings</Link>
           {session.user.role === 'admin' && <Link href="/admin">Admin</Link>}
           <form
