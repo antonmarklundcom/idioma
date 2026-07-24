@@ -1,18 +1,22 @@
 # PLAN.md — "Idioma" Language-Learning Web App
 
-**Authored by Fable 5 (planning/architecture model) for handoff to Sonnet 5 / Opus 4.8.**
+**Authored by Fable 5 (planning/architecture model) for handoff to Opus 5.**
 
-**Status: v3 (July 2026). Phases 1–4 are built and merged to `main`: scaffold + schema +
-seed (Phase 1), auth + onboarding (Phase 2), the lesson-mode core loop (Phase 3), and error
-aggregation + dashboard (Phase 4). Phases 2–4 are code complete but UNTESTED live — Phase 0
-(the owner's manual accounts/keys checklist, §8) is still not done and blocks all live
-verification. Next build phase: Phase 4B (gamification core). v3 adds the model-tiering
-guidance and the "what's needed to finish" section below; the underlying spec (§0–§14) is
-unchanged from v2, which
-incorporated the learning-science coaching layer (§11), gamification (§12), the
-spaced-repetition review queue (§13), and the LLM-provider abstraction (§14). Builders: read
-§11–§14 before starting any phase — they modify the schema (§3.3), prompt assembly (§4.1),
-and the phase list (§8).**
+**Status: v4 (July 2026). Phases 1–4, 4B, 4C and 7 are built and merged to `main`: scaffold +
+schema + seed (Phase 1), auth + onboarding (Phase 2), the lesson-mode core loop (Phase 3),
+error aggregation + dashboard (Phase 4), gamification (Phase 4B), the provider-abstraction
+audit (Phase 4C), and the turn-based live conversation loop (Phase 7). Everything except
+Phase 4C is code complete but UNTESTED live — Phase 0 (the owner's manual accounts/keys
+checklist, §8) is still not done and blocks all live verification.**
+
+**What v4 changes:** model tiering moves to Opus 5 (§ below); a real cost model for the three
+voice-conversation paths replaces the old "$1–3/hour" guess and adds the tier-gating design
+(§15); two defects found by reading the shipped code are recorded and scheduled (§16); a new
+Phase 7B covers conversation latency, which is the difference between the live mode feeling
+like a chat and feeling like a form; and §9 Q5 now points at a concrete curriculum-generation
+prompt pack instead of waiting on the owner indefinitely. The underlying spec (§0–§14) is
+unchanged from v2/v3 apart from the model IDs in §0. Builders: read §11–§16 before starting
+any phase — they modify the schema (§3.3), prompt assembly (§4.1), and the phase list (§8).**
 
 **Business scope (re-confirmed by owner, July 2026): personal beta only.** Idioma serves
 exactly two beta users at $0/month. There is NO revenue model, no pricing, no public signup,
@@ -22,21 +26,27 @@ or marketing surface area.
 
 ## Model tiering — who does what
 
+*(Updated v4: Opus 5 has replaced Opus 4.8 as the top implementation tier.)*
+
 - **Fable 5** (this document's author) handles architecture, spec/schema decisions, gap
   analysis, and review gates. Do not burn Fable time on routine implementation. Bring work
   back to Fable when: a phase's acceptance check fails twice for non-obvious reasons, a
   builder believes the spec itself is wrong, or the owner changes scope.
-- **Sonnet 5** executes the build phases (§8). Every remaining phase (4 → 8) is specced
-  tightly enough for Sonnet in a fresh session — one phase per session/PR.
-- **Opus 4.8** is the escalation tier for the hardest problems only — e.g. if Phase 3's
-  audio pipeline misbehaves on real iOS hardware during live verification, or Phase 6's
-  service-worker caching fights Next.js 16. Start with Sonnet; escalate, don't default.
+- **Opus 5** executes the build phases (§8) — one phase per session/PR. Use it in particular
+  for the phases where a wrong call is expensive to unwind: the Phase 0 live-verification
+  session (five untested phases land at once, and the failures will interleave), Phase 5B's
+  SRS scheduling logic, Phase 6's service worker against Next.js 16, and Phase 7B's streaming
+  rework of the request path. Opus 5 is also the review tier for anything touching money
+  (§15) or auth.
+- **Sonnet 5** is the right tool for mechanical, well-specced work where the spec is already
+  unambiguous — content import plumbing, UI states, the Spanish string dictionary in Phase 8.
+  Prefer it when the phase text reads like instructions rather than decisions.
 
-This document is a self-contained build spec. It is written so that a Claude model (Sonnet 5 /
-Opus 4.8) in a fresh session, with no memory of the planning conversation, can execute any phase
-from this document alone. Read the whole document before starting any phase.
+This document is a self-contained build spec. It is written so that a Claude model in a fresh
+session, with no memory of the planning conversation, can execute any phase from this document
+alone. Read the whole document before starting any phase.
 
-## What's needed to finish — gap analysis (v3, July 2026)
+## What's needed to finish — gap analysis (v4, July 2026)
 
 Verified against the actual code on `main` (not just docs) in July 2026:
 
@@ -48,33 +58,37 @@ Verified against the actual code on `main` (not just docs) in July 2026:
 | 2 — Auth + onboarding | `src/lib/auth.ts` (Auth.js v5 + Google + Drizzle adapter), `src/proxy.ts`, `/onboarding` with §11.3 coaching-profile capture, `/api/me`, `(app)` shell |
 | 3 — Lesson mode core loop | `useRecorder`/`UtteranceRecorder`, `lib/llm/{provider,gemini}.ts` (§14 abstraction), `lib/gemini/*`, `lib/tts.ts`, `/api/lesson/attempt` with `usage_log` caps, `LessonPlayer` + `FeedbackCard` + tutor-audio player |
 | 4 — Error aggregation + dashboard | `lib/errorPatterns.ts` (upsert on `(userId, languagePairId, patternKey)`, wired into `/api/lesson/attempt` step ⑥), `lib/progress.ts`, `/api/progress`, `/dashboard` with `ErrorPatternList` (per-category badges, first/last seen, example quote, "conquered" flag) + `SessionHistory` |
+| 4B — Gamification core | `lib/gamification.ts` (XP constants, timezone-aware streak + weekly shield), `user_stats` migration, `DailyGoalRing`/`StreakBadge`/`Celebration`/`XpToast`, step ⑦ wired into `/api/lesson/attempt` |
+| 4C — Provider-abstraction audit | ESLint `no-restricted-imports` rule enforced and exercised against a deliberate violation — the one fully verified phase in the repo |
+| 7 — Live conversation (turn-based) | `ConversationLoop.tsx` + `/live`; backend already existed (`conversation_prompt_template` column, `mode: 'live'` branch, template selection in `prompts.ts`) |
 
 **Blockers (owner, no code):**
 
-1. **Phase 0 — accounts & keys.** Still untouched. Nothing can be live-tested (auth, Gemini,
-   TTS, DB) until this is done. The very next build session after Phase 0 must live-verify the
-   Phase 2–4 acceptance checklists on both phones before building anything new.
-2. **§9 Q5 — real lesson material.** Still open. Blocks Phase 5's content-shape finalization;
-   placeholders everywhere until provided.
+1. **Phase 0 — accounts & keys.** Still untouched, and now blocking *six* code-complete phases
+   at once. Nothing has ever run against a real Gemini key, a real TTS key, or a real database.
+   The next build session after Phase 0 must live-verify the Phase 2/3/4/4B/7 acceptance
+   checklists on both phones before anything new is built — and should expect real fallout, not
+   a formality. Budget a full session for it.
+2. **§9 Q5 — real lesson material.** Still open, but no longer a hard block: the owner-run
+   prompt pack at `content/prompts/curriculum-generation.md` (added v4) produces import-ready
+   A1/A2 content in three passes. Phase 5 needs one validated batch, not the whole curriculum.
 
-**Remaining build work (estimate: ~6–7 Sonnet sessions to launch):**
+**Remaining build work (estimate: ~7–8 sessions to launch):**
 
 | Session | Phase | Blocked by |
 |---|---|---|
-| 1 | Live-verify Phases 2–4 acceptance on real phones (+ fix fallout) | Phase 0 |
-| 2 | Phase 4B + 4C — gamification core + provider audit | Phase 4 (buildable now; live-verify needs Phase 0) |
-| 3 | Phase 5 — curriculum delivery + admin import | Q5 |
-| 4 | Phase 5B — SRS review queue + listening exercises | Phases 4, 5 |
+| 1 | Live-verify Phases 2–4B + 7 acceptance on real phones (+ fix fallout) — **Opus 5** | Phase 0 |
+| 2 | §16 defect fixes: session close-out + TTS monthly cap | Phase 0 (verify against real data) |
+| 3 | Phase 5 — curriculum delivery + admin import | Q5 (one validated batch) |
+| 4 | Phase 5B — SRS review queue + listening exercises — **Opus 5** | Phases 4, 5 |
 | 5 | Phase 6 — PWA (manifest, Serwist SW, install) | Phase 2 (icon source image needed, §9 Q6) |
-| 6 | Phase 7 — live conversation (turn-based voice loop) | Phase 4 |
+| 6 | Phase 7B — conversation latency + hands-free turn-taking — **Opus 5** | Phase 7 live-verified |
 | 7 | Phase 8 — polish + beta hardening | all |
 
-Dashboard (`/dashboard`) and lesson browser (`/lesson`) are currently stubs by design — they
-gain their real content in Phases 4/4B and 5 respectively. No gamification, SRS, or
-error-aggregation code exists yet (correct for the current phase). No reusable specs/skills
-from sibling portfolio repos apply here — this repo predates them and is self-contained by
-design; if a sibling later needs an LLM-provider abstraction or SRS spec, §13–§14 here are the
-reference, not the other way around.
+The two remaining stubs are `/lesson` (becomes a real browser in Phase 5) and the admin usage
+page (§6.5, Phase 5). No reusable specs/skills from sibling portfolio repos apply here — this
+repo predates them and is self-contained by design; if a sibling later needs an LLM-provider
+abstraction or SRS spec, §13–§14 here are the reference, not the other way around.
 
 ---
 
@@ -142,9 +156,18 @@ These were confirmed against Google's docs/community sources in July 2026. Model
 quotas change often; the builder should sanity-check them at https://ai.google.dev/gemini-api/docs
 before Phase 3 and Phase 7, and update this file if they've drifted.
 
-- **Lesson-mode model:** `gemini-3.5-flash` (GA; also behind the `gemini-flash-latest` alias).
-  Multimodal, accepts inline audio, supports structured output. Free tier: **15 RPM,
-  1,500 requests/day (resets 00:00 US-Pacific), 1M tokens/min**.
+- **Lesson-mode model:** `gemini-3.6-flash` (launched 21 July 2026; supersedes
+  `gemini-3.5-flash`, also behind the `gemini-flash-latest` alias). Multimodal, accepts inline
+  audio, supports structured output, supports extended thinking. Free tier: available (Flash
+  and Flash-Lite kept free access when Pro models moved behind billing on 1 April 2026);
+  roughly **10–15 RPM, 1,500 requests/day** (resets 00:00 US-Pacific). Paid rates, needed only
+  for the §15 cost model: **$1.50/1M input, $7.50/1M output**, cached input $0.15/1M, batch
+  half price. ⚠️ Thinking tokens bill as **output** — leave extended thinking OFF for the
+  per-turn feedback call (it is a structured extraction task, not a reasoning one) and use it
+  only for owner-run curriculum generation.
+  ⚠️ **Free-tier data caveat:** Google may use free-tier API content to improve its products.
+  Acceptable for a two-person personal beta; **not** acceptable the moment there are third-party
+  users, which is one of the constraints in §15.3.
 - **Live-mode model:** `gemini-3.1-flash-live-preview` (native audio, low latency). Free tier:
   max **3 concurrent sessions**; ~**10-minute** connection duration before session resumption is
   required (audio-only session cap ~15 min without context compression). Input must be **raw
@@ -636,7 +659,7 @@ export async function getLessonFeedback(args: {
   audioBase64: string; mimeType: string; systemPrompt: string; userTurnContext: string;
 }) {
   const res = await ai.models.generateContent({
-    model: 'gemini-3.5-flash',
+    model: 'gemini-3.6-flash',
     contents: [
       { inlineData: { mimeType: args.mimeType, data: args.audioBase64 } },
       { text: args.userTurnContext },  // lesson prompt, targetHints, prior follow-up question
@@ -836,7 +859,7 @@ Rules:
 | 6.1 | **Vercel Hobby 10 s default function timeout** — Gemini audio calls take 5–20 s | Would bite on day one | 504s / `FUNCTION_INVOCATION_TIMEOUT` in Vercel logs | `export const maxDuration = 60` on `/api/lesson/attempt` and `/api/live/session` (Hobby allows up to 60 s) |
 | 6.2 | **Neon autosuspend** (~5 min idle) → ~0.5–1 s cold start | Noticeable on first request after idle; harmless | First-load latency spikes in Vercel logs after quiet periods | Accept for beta; UI shows loading states. Don't add keep-alive pings (burns Neon compute hours) |
 | 6.3 | **Vercel ~4.5 MB request-body limit** | Only if recordings run long | 413 responses | 90 s client-side recording cap (~1 MB Opus) |
-| 6.4 | **Gemini free tier: 15 RPM / 1,500 RPD** on `gemini-3.5-flash` | 1,500/day is plenty; 15 RPM could be hit by rapid-fire retries or a runaway client loop | 429 responses with quota error details | §6.5 caps + surface a friendly "daily practice limit reached" state; exponential backoff on 429, never tight-loop retries |
+| 6.4 | **Gemini free tier: 15 RPM / 1,500 RPD** on `gemini-3.6-flash` | 1,500/day is plenty; 15 RPM could be hit by rapid-fire retries or a runaway client loop | 429 responses with quota error details | §6.5 caps + surface a friendly "daily practice limit reached" state; exponential backoff on 429, never tight-loop retries |
 | 6.5 | **No native quota dashboard alerting on free tier** | You find out when you hit the wall | — | `usage_log` table + admin page showing today's counts vs. limits (lesson attempts/user/day capped at e.g. 100; live minutes/user/day capped at 20). This is the early-warning system |
 | 6.6 | **Billing trap** (linking billing kills project-A free tier permanently) | Catastrophic for $0 goal if done accidentally | — | Two-project split is mandatory (Phase 0); PLAN states project A must never get billing |
 | 6.7 | *(N/A for this build — only applies if the §4.2 future real-time upgrade is ever built)* Live free-tier: 3 concurrent sessions / ~10-min connections | 2 users → fine; duration cap is real | Sessions dying at ~10 min | 8-minute session design (§4.2) |
@@ -930,7 +953,7 @@ Create the Next.js app (App Router, TS, Tailwind, `src/` dir) matching §1; add 
 `@neondatabase/serverless`; implement the full §3.3 schema incl. Auth.js adapter tables;
 `drizzle.config.ts`; generate + run the first migration against Neon; write `scripts/seed.ts`
 inserting the two `language_pairs` rows (template text can be placeholder pending §9 Q5);
-`.env.example` with all vars (incl. `GEMINI_LESSON_MODEL=gemini-3.5-flash`,
+`.env.example` with all vars (incl. `GEMINI_LESSON_MODEL=gemini-3.6-flash`,
 `GEMINI_LIVE_MODEL=gemini-3.1-flash-live-preview`, `GOOGLE_TTS_API_KEY`); deploy to Vercel
 (blank landing page OK).
 **Acceptance:** `npx drizzle-kit migrate` succeeds; seed script runs; deployed URL renders.
@@ -1074,8 +1097,45 @@ several turns; `utterances`/`error_patterns` populate from live-mode turns exact
 mode; cost stays $0 (verify via the admin usage page, §6.5).
 
 *(Future upgrade, not part of this build: true real-time voice-to-voice via the Gemini Live API
-— fully specced in §4.2 + §4.4, gated on billing, ~$1–3/hour of talk time. Revisit only if the
-owner explicitly asks for it later.)*
+— fully specced in §4.2 + §4.4, gated on billing, **~$0.90/hour of talk time** per the §15 cost
+model. Revisit only if Phase 7B's latency work proves insufficient.)*
+
+### Phase 7B — Conversation latency + hands-free turn-taking (blocked by: 7 live-verified) ← §15.2
+The turn-based loop works but is **fully serial**: record → base64 upload → one Gemini call that
+generates transcription + errors + correction + reply + follow-up → *then* a Cloud TTS round trip
+→ *then* the response reaches the client. Nothing is heard until all of it finishes. That is the
+difference between a conversation and a form, and it costs **$0 to fix** — it is engineering, not
+spend (§15.1). Do this before considering the Live API upgrade (§4.2), not after.
+
+Three changes, in order of payoff:
+
+1. **Speak before you analyze.** Split the per-turn work so audio starts flowing at the earliest
+   possible moment. Either stream the model response and fire `synthesizeTutorSpeech` as soon as
+   `tutorReply` is complete, or split into two calls: a short conversational-reply call whose
+   output goes straight to TTS, and the full structured-feedback call. Persisting utterances,
+   `error_patterns`, usage and gamification must move off the response path into Next.js 16's
+   `after()` so the client is never waiting on database writes. **Constraint: the response
+   contract to the client must not change** — `FeedbackCard` and `ConversationLoop` consume
+   `LessonAttemptResponse`, and the mode's whole value is that live turns feed the same
+   dashboard as lesson turns (§4.3 point 5). If you split into two calls, both still populate
+   the same `utterances` row.
+2. **Hands-free turn-taking.** `useRecorder` already runs an `AnalyserNode` for the level meter.
+   Use it for silence detection: auto-stop after ~1.5 s below a noise-floor threshold (calibrate
+   the floor from the first ~300 ms of the recording, don't hardcode it), with a visible
+   countdown so the learner can see it coming and a manual stop that always wins. Gate it behind
+   a per-user setting, default ON in `/live` and OFF in `/lesson` (in a graded exercise, a
+   thinking pause must not end the turn).
+3. **Don't re-upload silence.** The 90 s cap is a safety limit, not a target. Trim leading and
+   trailing silence client-side before base64-encoding — it cuts upload time on a phone
+   connection and cuts audio input tokens, which is the one part of the request that scales with
+   recording length.
+
+**Acceptance:** measured on a real phone on mobile data, median time from "stop talking" to
+"first audio out of the speaker" is **under 4 s** (measure it — log timestamps, don't estimate);
+a full turn completes hands-free with no taps between turns in `/live`; `utterances`,
+`error_patterns` and `user_stats` rows are identical to what the serial path produced (verify by
+comparing a lesson-mode turn and a live-mode turn on the same sentence); killing TTS still
+returns text feedback.
 
 ### Phase 8 — Polish + beta hardening (blocked by: all)
 Error boundaries + retry UX on every Gemini call; loading/empty states; Spanish UI strings for
@@ -1097,7 +1157,7 @@ as documented-not-built.
 | Q2 | ~~Google-only sign-in vs email+password?~~ | — | **DECIDED (owner): Google OAuth only**, as originally speced in §5. No Credentials provider, no password reset flow to build. |
 | Q3 | ~~Store learners' audio recordings?~~ | — | **DECIDED (owner): don't store audio.** Transcripts suffice; `audioRef` column stays NULL. If ever revisited: Cloudflare R2 free tier is the path, column is ready. |
 | Q4 | ~~CEFR vs custom levels?~~ | — | **DECIDED (owner): CEFR**, `cefrEnum` stays A1–C1 (§3.3, no schema change needed). Content-authoring order: **owner writes A1 + A2 lesson content first** (Phase 5); B1/B2/C1 rows get added later once A1/A2 are solid. The enum already supports all 5 from day one — this is purely a content-writing sequencing choice, not an architecture one. |
-| Q5 | Send a **sample of your real lesson material** (even one lesson) so the `content` JSON shape (§3.4) and the two `tutorPromptTemplate` texts (incl. voseo/dialect guidance and correction style/tone) can be finalized. Also: confirm the initial `errorTaxonomy` lists (I can draft ~20 keys per pair for your review — but the wording of tutor behavior is yours to approve). | Phase 5 fully; Phase 1 seed uses placeholders | Placeholders until provided |
+| Q5 | **PARTIALLY RESOLVED (v4):** the owner authors the curriculum with Gemini's help (§9 Q11 allows this — the app still never generates content at request time). The three-pass prompt pack lives at **`content/prompts/curriculum-generation.md`** and emits import-ready JSON matching §3.4. **What's still needed from the owner:** run pass 1 for each language pair, *edit the map by hand* (that pass is where owner judgment actually matters), then generate + validate one A1 batch. Phase 5 needs only that first batch. Still open separately: approve the two `tutorPromptTemplate` wordings and the seeded `errorTaxonomy` lists in `scripts/seed.ts`. | Phase 5 (needs 1 validated batch) | Sample lessons remain in place; lesson browser shows placeholders |
 | Q6 | ~~App name + domain?~~ | — | **DECIDED (owner): name = "Idioma", domain = `idioma.com.py`** (available; chosen partly for SEO — "idioma" is a real Spanish search term, generic enough to cover future language pairs beyond ES/EN/Guaraní). Logo/icon source image still needed before Phase 6. **Domain registration note:** `.com.py` typically wants a local Paraguay contact/presence and can take time to register (~30 days per some registrars) — start this in Phase 0, not Phase 6, so it's ready by launch. Once registered, add it as the Vercel custom domain (Settings → Domains) and update the Google OAuth authorized origins/redirect URIs (§5, Phase 0 step 5) and the PWA manifest `start_url`/`id` (§7.1) to match — `*.vercel.app` remains the fallback if registration is delayed. |
 | Q7 | The two model IDs, free-tier numbers, and the "ephemeral tokens need billing" claim came from July-2026 research (partly via Gemini itself). **Builder must re-verify all three against ai.google.dev at Phase 3 / Phase 7 start** and update §0. Confirm you're OK with that re-verification step. | Phases 3, 7 | Re-verify at build time |
 | Q8 | ~~Gamification?~~ | — | **DECIDED (owner, July 2026): yes — §12.** Streaks, XP, daily goal, celebrations. **No ads, ever**; no dark patterns. |
@@ -1337,6 +1397,119 @@ in `.env.example`.
 
 ---
 
-*End of PLAN.md. v2 approved scope. Builders: pick up at the next unbuilt phase in §8
-(currently Phase 2), read §11–§14 first, and keep every acceptance check honest — they are
-tested on the two real phones, not desktop.*
+## 15. Cost model for the three voice paths + tier gating (v4)
+
+Replaces the v2/v3 hand-wave ("~$1–3/hour"). Re-verify prices at build time (§9 Q7) — they moved
+twice in the first half of 2026.
+
+### 15.1 The three paths
+
+- **A — what ships today.** `generateContent` with inline audio → one structured JSON response →
+  Cloud TTS synthesizes the reply → client plays it. Serial; nothing is heard until every step
+  finishes.
+- **B — A, parallelized (Phase 7B).** Same models, same calls, same tokens. Audio starts playing
+  as soon as `tutorReply` exists; persistence moves off the response path. **Purely an
+  engineering change — it buys latency for zero additional spend.**
+- **C — Gemini Live API (§4.2).** True simultaneous voice-to-voice over a WebSocket, native audio
+  in and out, no separate TTS step.
+
+### 15.2 What they actually cost
+
+Unit assumptions, stated so they can be argued with: a **turn** is ~15 s of learner speech;
+audio bills at ~32 tokens/second; a per-turn request carries ~900 tokens of assembled system
+prompt (template + dialect notes + correction style + coaching profile + ~20 taxonomy keys +
+top-5 error patterns + lesson context) and returns ~350 tokens of structured JSON; the tutor's
+spoken reply is ~200 characters. A **session** is 20 turns ≈ 12 minutes. Beta scale is 2 users ×
+1 session/day ≈ **1,200 turns/month**.
+
+| | Path A / B | Path C |
+|---|---|---|
+| Gemini, per turn | ~1,400 in @ $1.50/M + ~350 out @ $7.50/M ≈ **$0.0047** | n/a (billed by audio duration) |
+| Cloud TTS, per turn | ~200 chars @ $16/M ≈ **$0.0032** | n/a (native audio out) |
+| **Per turn, paid rates** | **≈ $0.008** | ≈ $0.008 equivalent |
+| **Per hour of practice, paid rates** | **≈ $0.95** | input 115k tok/h @ $3/M + output ~46k tok/h @ $12/M ≈ **$0.90** |
+| **Beta cost (2 users, 1 session/day)** | **$0/month** — 40 req/day vs the 1,500 RPD free cap; ~240k TTS chars/month vs the 1M free allotment | **≈ $11/month** |
+
+**The headline finding: A/B and C cost roughly the same per hour at paid rates.** Real-time is
+not intrinsically expensive. The entire practical difference is that A/B fit inside two free
+allowances and C does not — Live audio has no meaningful free tier, and ephemeral tokens are
+reported (unverified — Google's docs were unreachable at v4 authoring time; **the builder must
+test this with an unbilled key before planning around it**) to require a billing-enabled
+project. So the decision is not "cheap vs expensive", it is **"free vs ~$11/month"**, and it
+should be made on whether Phase 7B's latency work is good enough, not on cost alone.
+
+Two second-order costs C carries that the table doesn't show, and they are the real reason to
+defer it: the Live API returns **plain transcripts, not structured errors**, so §4.4's post-hoc
+analysis pass has to be built or the dashboard and the whole error-pattern loop go dark for live
+practice — splitting the product in two (§10 item 4). And Vercel Hobby cannot proxy a WebSocket,
+so the browser must connect directly, which is what drags ephemeral tokens in at all.
+
+**Free-tier headroom, for planning:** 1,500 requests/day ÷ 20 turns ≈ **75 sessions/day**, i.e.
+roughly 35 daily-active users on path A (about 18 on B if it splits into two calls per turn).
+The tighter ceiling is concurrency: 10–15 RPM shared across one key ≈ **6–8 people practicing at
+the same moment**. Both are per *project*, not per user.
+
+### 15.3 Tier gating — build the gate, not the commerce
+
+The owner has floated free-tier A with a premium unlock for B/C. The gate is cheap and worth
+having; the commerce around it is a different project.
+
+**In scope now (one migration, ~30 lines):** a `users.tier` column (`'free' | 'premium'`,
+default `'free'`) plus a server-side capability check in `/api/lesson/attempt` and any future
+live-token route. The owner flips it by hand with one SQL statement. This gives per-user control
+of expensive modes with no billing infrastructure, and it is the thing that must exist *first*
+under any future model — including "the owner enables real-time for himself for a month to see
+if it's worth it." Enforce it **server-side only**; a client-side flag is decoration.
+
+**Explicitly out of scope, and each one is real work, not a checkbox:**
+
+- **Vercel Hobby forbids commercial use** (§6.9, §10 item 10). The moment money changes hands the
+  project must move to Pro (~$20/month) — which by itself exceeds the entire current cost model.
+- **The Gemini free tier's data caveat** (§0) makes project A unusable for third-party users'
+  recordings. Paying customers means the paid tier, which means path A's true COGS is ~$0.008 per
+  turn — about **$0.30 per user per month** at beta usage, before Vercel, before TTS overage.
+- **The shared free-tier ceiling** (above) is per project, not per user. Growth past a few dozen
+  daily users forces the paid tier regardless of what anyone is charged.
+- **Google OAuth is in "Testing" publishing status** with two hardcoded test users (Phase 0 step
+  5). Public signup requires publishing and, for sensitive scopes, verification.
+- **Billing, invoicing and Swedish/Paraguayan tax handling** are an entire separate build.
+
+Nothing above says don't — it says the premium tier is a business decision with a floor of about
+$20/month in fixed costs, and it should be made deliberately rather than arrived at by adding a
+column. Until then: build the gate, keep both beta users on `premium`, and keep the app at $0.
+
+---
+
+## 16. Known defects in shipped code (found v4 by reading `main`)
+
+Neither is hypothetical; both are in merged, code-complete phases. Fix both in the session after
+Phase 0 live verification, when there is real data to verify against.
+
+1. **`practice_sessions` rows are never closed.** `endedAt` is declared in the schema
+   (`src/lib/db/schema.ts`), read by `getOrCreateSession` (`isNull(practiceSessions.endedAt)`)
+   and surfaced by `lib/progress.ts` — but **nothing anywhere sets it**. Phase 3 specifies
+   "ended on leave" and that was never built. Consequence: `getOrCreateSession` finds the same
+   open row forever, so every turn a user ever records collapses into one endless "session".
+   `SessionHistory` degenerates to a single row, and any future per-session metric (session
+   length, turns per session, the Phase 8 weekly recap) is wrong from the first day of real use.
+   **Fix:** close on explicit leave (a `sendBeacon` to a small `/api/session/end`, since
+   `beforeunload` is unreliable on mobile) *and* defensively in `getOrCreateSession` — treat an
+   open session whose latest utterance is older than ~30 minutes as ended, and start a new one.
+   The defensive half matters more than the beacon: phones background tabs without warning.
+2. **No monthly cap on TTS characters.** `lib/usage.ts` enforces only
+   `DAILY_LESSON_ATTEMPT_CAP` on `lesson_attempt`. `tts_chars` is logged and never checked
+   against the 1M/month free allotment. Cloud TTS lives in project B, **which has billing
+   enabled** — so unlike Gemini's free tier, it fails *open* and silently starts charging
+   ($16/1M chars) instead of returning 429. This is the one place where the "$0/month,
+   confirmed" constraint is enforced by nothing but low usage. **Fix:** a
+   `isUnderMonthlyTtsCharCap()` check summing `tts_chars` for the calendar month against a
+   constant set to ~80% of the free allotment; over the cap, skip synthesis and return text-only
+   feedback — the degradation path already exists and is already non-fatal (§4.5). Surface the
+   running total on the admin usage page (§6.5).
+
+---
+
+*End of PLAN.md, v4. Builders: pick up at the next unblocked item in the §"what's needed to
+finish" table, read §11–§16 first, and keep every acceptance check honest — they are tested on
+the two real phones, not desktop. The single highest-value thing anyone can do for this project
+right now is Phase 0, and it is not a coding task.*
