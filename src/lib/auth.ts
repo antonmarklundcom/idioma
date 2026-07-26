@@ -20,6 +20,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async session({ session, user }) {
       session.user.id = user.id;
       session.user.role = user.role;
+      session.user.tier = user.tier;
       session.user.languagePairId = user.languagePairId;
       session.user.level = user.level;
       session.user.coachingProfile = user.coachingProfile;

@@ -1480,10 +1480,13 @@ column. Until then: build the gate, keep both beta users on `premium`, and keep 
 
 ---
 
-## 16. Known defects in shipped code (found v4 by reading `main`)
+## 16. Known defects in shipped code (found v4 by reading `main`) — FIXED, unverified
 
-Neither is hypothetical; both are in merged, code-complete phases. Fix both in the session after
-Phase 0 live verification, when there is real data to verify against.
+**Status: both fixed in code (v4), neither verified against a real database.** They join the
+pile of code-complete-but-untested work that Phase 0 unblocks. The fixes are described below
+each defect; the Phase 0 verification session must exercise both (leave a practice page and
+confirm `ended_at` is set; check the admin usage page's monthly TTS total is non-zero and
+plausible).
 
 1. **`practice_sessions` rows are never closed.** `endedAt` is declared in the schema
    (`src/lib/db/schema.ts`), read by `getOrCreateSession` (`isNull(practiceSessions.endedAt)`)
@@ -1496,6 +1499,12 @@ Phase 0 live verification, when there is real data to verify against.
    `beforeunload` is unreliable on mobile) *and* defensively in `getOrCreateSession` — treat an
    open session whose latest utterance is older than ~30 minutes as ended, and start a new one.
    The defensive half matters more than the beacon: phones background tabs without warning.
+   **Fixed (v4):** `getOrCreateSession` moved out of the route into `lib/practiceSessions.ts`
+   with a 30-minute idle close-out (closing stale sessions at their *last activity*, not at
+   `now()`, so an abandoned session doesn't report a week-long duration), plus
+   `POST /api/session/end` and the `useSessionEndBeacon` hook wired into both practice
+   components. The hook uses `pagehide` + `sendBeacon` (not `beforeunload` + `fetch`) and also
+   fires on unmount, which is what catches client-side navigation between `/lesson` and `/live`.
 2. **No monthly cap on TTS characters.** `lib/usage.ts` enforces only
    `DAILY_LESSON_ATTEMPT_CAP` on `lesson_attempt`. `tts_chars` is logged and never checked
    against the 1M/month free allotment. Cloud TTS lives in project B, **which has billing
@@ -1506,6 +1515,18 @@ Phase 0 live verification, when there is real data to verify against.
    constant set to ~80% of the free allotment; over the cap, skip synthesis and return text-only
    feedback — the degradation path already exists and is already non-fatal (§4.5). Surface the
    running total on the admin usage page (§6.5).
+   **Fixed (v4):** `MONTHLY_TTS_CHAR_CAP = 800_000` in `lib/usage.ts`, with
+   `isUnderMonthlyTtsCharCap()` (project-wide sum, since the allotment is per project, not per
+   user) checked in `/api/lesson/attempt` before synthesis, and `getMonthlyTtsChars()` exported
+   for the Phase 5 admin usage page — which still has to render it.
+
+**Also built in v4: the §15.3 tier gate.** `users.tier` (`free`/`premium`, default `free`,
+migration `0003`), `lib/tiers.ts` holding the capability map, resolved server-side in
+`/api/lesson/attempt`. `free` keeps Phase 3's daily cap of 100 exactly, so the gate is not a
+regression for anyone; `premium` gets 300 and the `realtimeVoice` flag that will guard the §4.2
+route if it is ever built. Turn-based live conversation is deliberately **not** gated — it costs
+$0, and putting a free thing behind a tier is theatre. Promote the two beta users by hand
+(README).
 
 ---
 

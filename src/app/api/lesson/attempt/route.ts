@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import { and, desc, eq, isNull } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
-import { errorPatterns, languagePairs, practiceSessions, utterances } from '@/lib/db/schema';
+import { errorPatterns, languagePairs, utterances } from '@/lib/db/schema';
 import {
   feedbackResultSchema,
   lessonAttemptRequestSchema,
@@ -11,53 +11,15 @@ import {
 import { getProvider } from '@/lib/llm/provider';
 import { assembleSystemPrompt, FREE_PRACTICE_LESSON_CONTEXT } from '@/lib/gemini/prompts';
 import { synthesizeTutorSpeech } from '@/lib/tts';
-import { isUnderDailyLessonAttemptCap, logUsage } from '@/lib/usage';
+import { isUnderDailyLessonAttemptCap, isUnderMonthlyTtsCharCap, logUsage } from '@/lib/usage';
 import { recordErrorPatterns } from '@/lib/errorPatterns';
 import { recordTurnAndUpdateStats } from '@/lib/gamification';
+import { getOrCreateSession } from '@/lib/practiceSessions';
+import { capabilitiesFor } from '@/lib/tiers';
 
 // Gemini audio calls can take 5-20s; Vercel Hobby's default is 10s but allows up to 60
 // (PLAN.md §6.1).
 export const maxDuration = 60;
-
-async function getOrCreateSession(args: {
-  userId: string;
-  languagePairId: string;
-  mode: 'lesson' | 'live';
-  lessonId?: string;
-}) {
-  const lessonIdCondition = args.lessonId
-    ? eq(practiceSessions.lessonId, args.lessonId)
-    : isNull(practiceSessions.lessonId);
-
-  const [existing] = await db
-    .select({ id: practiceSessions.id })
-    .from(practiceSessions)
-    .where(
-      and(
-        eq(practiceSessions.userId, args.userId),
-        eq(practiceSessions.languagePairId, args.languagePairId),
-        eq(practiceSessions.mode, args.mode),
-        isNull(practiceSessions.endedAt),
-        lessonIdCondition,
-      ),
-    )
-    .orderBy(desc(practiceSessions.startedAt))
-    .limit(1);
-
-  if (existing) return existing.id;
-
-  const [created] = await db
-    .insert(practiceSessions)
-    .values({
-      userId: args.userId,
-      languagePairId: args.languagePairId,
-      mode: args.mode,
-      lessonId: args.lessonId ?? null,
-    })
-    .returning({ id: practiceSessions.id });
-
-  return created.id;
-}
 
 async function getValidatedFeedback(args: {
   systemPrompt: string;
@@ -101,7 +63,13 @@ export async function POST(request: Request) {
   }
   const { audioBase64, mimeType, lessonId, promptContext, mode } = parsedBody.data;
 
-  const underCap = await isUnderDailyLessonAttemptCap(session.user.id);
+  // §15.3: capabilities come from the user's tier, resolved server-side.
+  const capabilities = capabilitiesFor(session.user.tier);
+
+  const underCap = await isUnderDailyLessonAttemptCap(
+    session.user.id,
+    capabilities.dailyAttemptCap,
+  );
   if (!underCap) {
     return NextResponse.json(
       { error: 'Daily practice limit reached - come back tomorrow!', code: 'daily_limit_reached' },
@@ -152,8 +120,12 @@ export async function POST(request: Request) {
     );
   }
 
+  // §16 defect 2: Cloud TTS lives in the BILLED project, so it fails open - past
+  // the free allotment it charges instead of 429ing. Check the project-wide
+  // monthly total before synthesizing; over the cap we fall back to the text-only
+  // path that already exists for a missing key or a NULL voice (§4.5).
   let tutorAudioBase64: string | null = null;
-  if (pair.ttsVoice) {
+  if (pair.ttsVoice && (await isUnderMonthlyTtsCharCap())) {
     const spoken = `${feedback.tutorReply} ${feedback.followUpQuestion}`;
     const tts = await synthesizeTutorSpeech(spoken, pair.ttsVoice, session.user.level);
     if (tts) {

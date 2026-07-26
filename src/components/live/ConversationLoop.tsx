@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { UtteranceRecorder } from '@/components/recorder/UtteranceRecorder';
 import { FeedbackCard } from '@/components/lesson/FeedbackCard';
 import { useTutorAudioPlayer } from '@/components/lesson/useTutorAudioPlayer';
+import { useSessionEndBeacon } from '@/components/recorder/useSessionEndBeacon';
 import { XpToast } from '@/components/gamification/XpToast';
 import { Celebration } from '@/components/gamification/Celebration';
 import type { CoachingProfile } from '@/lib/db/schema';
@@ -38,6 +39,7 @@ export function ConversationLoop({ coachingProfile }: { coachingProfile: Coachin
   const [xpEvent, setXpEvent] = useState<{ id: number; xp: number } | null>(null);
   const [celebrationMessage, setCelebrationMessage] = useState<string | null>(null);
   const player = useTutorAudioPlayer();
+  useSessionEndBeacon();
 
   const handleRecorded = useCallback(
     async (blob: Blob, mimeType: string) => {

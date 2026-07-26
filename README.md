@@ -47,8 +47,27 @@ After signing in once (so the `users` row exists), run:
 UPDATE users SET role = 'admin' WHERE email = '<owner email>';
 ```
 
+## Set a user's tier
+
+Every account starts on `free`. Tiers gate expensive capabilities server-side (PLAN.md §15.3) —
+today that means a higher daily practice cap, and later the paid real-time voice path (§4.2).
+Turn-based live conversation is **not** gated: it costs $0, so both tiers get it.
+
+Both beta users should be on `premium`:
+
+```sql
+UPDATE users SET tier = 'premium' WHERE email = '<user email>';
+```
+
+Capability values live in `src/lib/tiers.ts`. This is a gate, not a billing system — see §15.3
+for what charging money would actually require.
+
 ## Content
 
 All curriculum is authored by the owner (with Gemini) and imported — the app never generates
 lesson content. The two files in `content/lessons/*.sample.json` are placeholder demo lessons
 (A1 greetings, one per direction) showing the required JSON shape (PLAN.md §3.4).
+
+The three-pass prompt pack for authoring real curriculum is in
+`content/prompts/curriculum-generation.md` — run it in AI Studio, edit the map by hand, import
+the validated JSON.

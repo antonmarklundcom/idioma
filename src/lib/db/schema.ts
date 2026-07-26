@@ -31,8 +31,14 @@ export const coachingProfileEnum = pgEnum('coaching_profile', [
   'accuracy_focus',
 ]);
 
+// Per-user access tier (PLAN.md §15.3). Exists so the owner can switch expensive
+// modes on for one person with a single SQL statement - NOT a billing system.
+// Enforced server-side only; a client-side check is decoration.
+export const tierEnum = pgEnum('user_tier', ['free', 'premium']);
+
 export type CefrLevel = (typeof cefrEnum.enumValues)[number];
 export type CoachingProfile = (typeof coachingProfileEnum.enumValues)[number];
+export type UserTier = (typeof tierEnum.enumValues)[number];
 
 // ---------------------------------------------------------------------------
 // Language-pair config: THE extensibility point. Adding Guaraní later must be
@@ -70,6 +76,9 @@ export const users = pgTable('users', {
   image: text('image'),
   // --- app-specific ---
   role: roleEnum('role').notNull().default('learner'),
+  // §15.3. Defaults to 'free' so a new account can never silently unlock a paid
+  // path; the two beta users are promoted by hand (see README).
+  tier: tierEnum('tier').notNull().default('free'),
   nativeLang: text('native_lang'),
   targetLang: text('target_lang'),
   level: cefrEnum('level'),
