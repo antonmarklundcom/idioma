@@ -112,6 +112,80 @@ ${targetLabel}), always continue the topic the learner raised, and ask a
 reply itself.
 `.trim();
 
+// PLAN.md §9 Q12: Swedish-native -> Paraguayan-Spanish learner. Templates are
+// written IN SWEDISH (the learner reads explanations in their native language),
+// following the same slot structure as the English/es-PY pair above.
+const SV_ES_TAXONOMY = [
+  'ser-vs-estar', // är/vara kollapsas till ett enda spanskt verb
+  'gender-agreement',
+  'number-agreement',
+  'verb-conjugation-present',
+  'verb-conjugation-past',
+  'voseo-conjugation',
+  'por-vs-para',
+  'preposition-choice',
+  'missing-article',
+  'definite-suffix-transfer', // svenska slutartiklar (-en/-et) i stället för spansk artikel
+  'att-infinitive-transfer', // "att" + infinitiv appliceras rakt av på spanska infinitiv
+  'word-order-v2', // svensk V2-ordföljd läcker in i spanskan
+  'false-friend', // falska vänner
+  'anglicism',
+  'vocabulary-choice',
+  'reflexive-verbs',
+  'subjunctive-missing',
+  'pronunciation-vowels',
+  'pronunciation-rr',
+  'pronunciation-stress',
+  'pronunciation-sj-tj', // sj-/tj-ljud används i stället för spanskt j/ll/rr
+  'other',
+];
+
+const svTutorTemplate = (targetLabel: string) => `
+Du är en vänlig, tålmodig ${targetLabel}-lärare som hjälper en elev vars
+modersmål är svenska. Elevens nivå: {{level}}.
+
+Dialekt och stil: {{dialect_notes}}
+Rättningsstil: {{correction_style}}
+Elevens coachningsstil: {{coaching_profile}}
+
+Elevens kända återkommande svagheter (var extra uppmärksam på dessa):
+{{recurring_errors}}
+
+Aktuellt lektionssammanhang: {{lesson_context}}
+
+Lyssna på elevens inspelning. Svara ENDAST med JSON enligt det givna schemat:
+- "transcription": exakt vad eleven sa, på ${targetLabel}.
+- "errors": varje verkligt fel med category (pronunciation|grammar|vocab),
+  severity (minor|moderate|major), det citerade fragmentet, rättningen och en
+  kort förklaring skriven på svenska. För "patternKey" MÅSTE du välja den
+  närmaste nyckeln från denna lista (använd "other" endast om inget passar):
+  {{error_taxonomy}}
+- "correctedUtterance": elevens yttrande, rättat, på ${targetLabel}.
+- "tutorReply": ett varmt, naturligt svar på enkel ${targetLabel} anpassat
+  efter elevens nivå. Reagera på VAD eleven sa, inte bara hur de sa det.
+- "followUpQuestion": en kort fråga på ${targetLabel} som håller samtalet
+  igång.
+Hitta inte på fel. Om yttrandet är helt korrekt, returnera en tom errors-lista
+och beröm kort i tutorReply.
+`.trim();
+
+const svConversationTemplate = (targetLabel: string) => `
+Du är en vänlig samtalspartner på ${targetLabel} (elevens modersmål: svenska;
+nivå: {{level}}). Detta är fri samtalsträning, inte en betygsatt övning.
+
+Dialekt och stil: {{dialect_notes}}
+Rättningsstil: {{correction_style}}
+Elevens coachningsstil: {{coaching_profile}}
+Kända återkommande svagheter: {{recurring_errors}}
+
+Svara ENDAST med JSON enligt det givna schemat. Prioritera naturlig
+fram-och-tillbaka-dialog: håll "tutorReply" KORT (1-2 samtalsmeningar på
+${targetLabel}), fortsätt alltid på ämnet eleven tog upp, och ställ en
+"followUpQuestion" som en vän skulle fråga. Rapportera ändå riktiga fel i
+"errors" (patternKey från: {{error_taxonomy}}), men predika aldrig i själva
+svaret.
+`.trim();
+
 const PAIRS = [
   {
     code: 'es-PY>en-speaker',
@@ -151,6 +225,27 @@ const PAIRS = [
     // Best-guess default from Google's documented en-US Neural2 catalog - same
     // re-verify-at-Phase-0 caveat as the es-US voice above.
     ttsVoice: 'en-US-Neural2-C',
+  },
+  {
+    code: 'es-PY>sv-speaker',
+    targetLang: 'es-PY',
+    nativeLang: 'sv',
+    displayName: 'Spanska (Paraguay) för svensktalande',
+    // Same substance as the English-speaker es-PY row above (PLAN.md §9 Q12):
+    // Paraguayan Spanish, voseo, local vocabulary.
+    dialectNotes:
+      'Paraguayan Spanish: use voseo (vos tenés, vos sos, ¿qué querés?) not tuteo. ' +
+      'Prefer local vocabulary where natural (tereré, yuyos, chipa). Avoid Guaraní words unless the learner uses them first. ' +
+      'Accept both voseo and tuteo from the learner but model voseo in replies.',
+    correctionStyle:
+      'Uppmuntrande och kortfattad. Rätta varje verkligt fel men överväldiga aldrig eleven; ' +
+      'lyft först fram det som kommunicerades framgångsrikt. Förklaringar på svenska, en eller två meningar var.',
+    tutorPromptTemplate: svTutorTemplate('paraguayansk spanska'),
+    conversationPromptTemplate: svConversationTemplate('paraguayansk spanska'),
+    errorTaxonomy: SV_ES_TAXONOMY,
+    // Same voice as the English-speaker es-PY row: the TUTOR speaks Spanish,
+    // the learner's native language only changes the explanation language.
+    ttsVoice: 'es-US-Neural2-A',
   },
 ];
 
