@@ -4,7 +4,8 @@ import { getProvider } from '@/lib/llm/provider';
 import { feedbackResultSchema, modelTestRequestSchema } from '@/lib/zodSchemas';
 import { logUsage } from '@/lib/usage';
 
-// Real API calls take time; keep well inside Vercel Hobby's ceiling (PLAN.md §6.1).
+// Real API calls take time. Hostinger's long-lived Node process imposes no function
+// timeout (PLAN.md §6.1/§6.13); kept as documented intent and portability insurance.
 export const maxDuration = 60;
 
 // A text-only probe: does this key work, does this model exist, does it return

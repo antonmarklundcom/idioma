@@ -15,8 +15,9 @@ import { isUnderDailyLessonAttemptCap, logUsage } from '@/lib/usage';
 import { recordErrorPatterns } from '@/lib/errorPatterns';
 import { recordTurnAndUpdateStats } from '@/lib/gamification';
 
-// Gemini audio calls can take 5-20s; Vercel Hobby's default is 10s but allows up to 60
-// (PLAN.md §6.1).
+// Gemini audio calls can take 5-20s. Hostinger's long-lived Node process imposes no
+// function timeout (PLAN.md §6.1/§6.13); kept as documented intent and portability
+// insurance if hosting ever moves back to a serverless platform.
 export const maxDuration = 60;
 
 async function getOrCreateSession(args: {
