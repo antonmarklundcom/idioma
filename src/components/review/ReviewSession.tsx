@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { UtteranceRecorder } from '@/components/recorder/UtteranceRecorder';
 import { blobToBase64 } from '@/components/recorder/blobToBase64';
+import { useSessionEndBeacon } from '@/components/practice/useSessionEndBeacon';
 import { FeedbackCard } from '@/components/lesson/FeedbackCard';
 import { useTutorAudioPlayer } from '@/components/lesson/useTutorAudioPlayer';
 import { TEXT_ANSWER_MAX_CHARS } from '@/lib/zodSchemas';
@@ -46,6 +47,9 @@ export function ReviewSession({
   const [gradedCount, setGradedCount] = useState(0);
   const [done, setDone] = useState(false);
   const player = useTutorAudioPlayer();
+  // A review round opens a practice session of its own (mode 'review'), so it needs
+  // the same leave-close as lessons and live conversation (PLAN.md §16 defect 1).
+  const { markTurnRecorded } = useSessionEndBeacon('review');
 
   const card = cards[index];
   const answeredCorrectly = feedback !== null && feedback.errors.length === 0;
@@ -68,6 +72,7 @@ export function ReviewSession({
           return;
         }
         const data: LessonAttemptResponse = await res.json();
+        markTurnRecorded();
         setFeedback(data);
         setRevealed(true);
         setXpEarned((xp) => xp + data.gamification.xpAwarded);
@@ -79,7 +84,7 @@ export function ReviewSession({
         setStatus('error');
       }
     },
-    [card, player, router],
+    [card, player, router, markTurnRecorded],
   );
 
   const handleRecorded = useCallback(

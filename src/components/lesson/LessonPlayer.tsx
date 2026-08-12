@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { UtteranceRecorder } from '@/components/recorder/UtteranceRecorder';
 import { blobToBase64 } from '@/components/recorder/blobToBase64';
+import { useSessionEndBeacon } from '@/components/practice/useSessionEndBeacon';
 import { FeedbackCard } from './FeedbackCard';
 import { useTutorAudioPlayer } from './useTutorAudioPlayer';
 import { XpToast } from '@/components/gamification/XpToast';
@@ -53,6 +54,10 @@ export function LessonPlayer({
   const [audioStatus, setAudioStatus] = useState<'idle' | 'loading' | 'error'>('idle');
   const [summary, setSummary] = useState<LessonCompleteResponse | null>(null);
   const player = useTutorAudioPlayer();
+  // PLAN.md §16 defect 1: closes the practice_sessions row when the learner leaves.
+  // Finishing a lesson closes it too (via /complete), so the beacon is the backstop
+  // for leaving mid-lesson.
+  const { markTurnRecorded } = useSessionEndBeacon('lesson', lessonId);
   // Keyed by exercise index: a replay must not cost another TTS call (§6.12 quota).
   const audioCache = useRef<Map<number, string>>(new Map());
 
@@ -112,6 +117,7 @@ export function LessonPlayer({
           return;
         }
         const data: LessonAttemptResponse = await res.json();
+        markTurnRecorded();
         setFeedback(data);
         if (!isGuided) setPromptContext(data.followUpQuestion);
         setStatus('idle');
@@ -129,7 +135,7 @@ export function LessonPlayer({
         setStatus('error');
       }
     },
-    [isGuided, exercise, lessonId, promptContext, player, router],
+    [isGuided, exercise, lessonId, promptContext, player, router, markTurnRecorded],
   );
 
   const goToNextExercise = useCallback(() => {

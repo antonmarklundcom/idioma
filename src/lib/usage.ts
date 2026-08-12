@@ -11,6 +11,14 @@ const DAILY_LESSON_ATTEMPT_CAP = 100;
 // bills at $16/1M chars - the admin page exists so that bill is never a surprise.
 const MONTHLY_TTS_CHAR_CAP = 1_000_000;
 
+// PLAN.md §16 defect 2: synthesis stops at ~80% of the allotment, which is also the
+// point the admin dashboard turns amber (§6.5). One fraction, derived once - so "warn
+// at 80%, stop at 80%" cannot drift into two numbers that quietly disagree. The gap
+// between the stop point and the allotment is deliberate headroom: TTS lives in the
+// billed Google project, so overshooting the real 1M silently costs money.
+const TTS_STOP_FRACTION = 0.8;
+const MONTHLY_TTS_CHAR_STOP = Math.floor(MONTHLY_TTS_CHAR_CAP * TTS_STOP_FRACTION);
+
 function startOfUtcDay(): Date {
   const now = new Date();
   return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
@@ -51,6 +59,22 @@ export async function getMonthlyTtsCharCount(): Promise<number> {
   return Number(row?.total ?? 0);
 }
 
+/**
+ * PLAN.md §16 defect 2. Global, not per-user: the allotment belongs to the Google
+ * project, so one user's runaway retry loop spends the other's quota too.
+ *
+ * `pendingChars` is the length of the reply we are about to synthesize, counted before
+ * the call rather than after it - Google bills on input characters, so the only way to
+ * never knowingly cross the line is to add the request's own cost before deciding. Two
+ * requests reading the same total concurrently can still overshoot by a reply or two
+ * (~300 chars each); that is why the stop point sits 200,000 chars below the billed
+ * threshold instead of on it.
+ */
+export async function isUnderMonthlyTtsCharCap(pendingChars = 0): Promise<boolean> {
+  const used = await getMonthlyTtsCharCount();
+  return used + pendingChars <= MONTHLY_TTS_CHAR_STOP;
+}
+
 export type AdminUsageDailyPoint = {
   date: string; // 'YYYY-MM-DD', UTC
   lessonAttempts: number;
@@ -67,6 +91,8 @@ export type AdminUsagePerUser = {
 export type AdminUsageSummary = {
   dailyLessonAttemptCap: number;
   monthlyTtsCharCap: number;
+  /** Where synthesis actually stops - always < monthlyTtsCharCap. */
+  monthlyTtsCharStop: number;
   monthlyTtsCharCount: number;
   perUserToday: AdminUsagePerUser[];
   dailySeries: AdminUsageDailyPoint[];
@@ -130,6 +156,7 @@ export async function getAdminUsageSummary(): Promise<AdminUsageSummary> {
   return {
     dailyLessonAttemptCap: DAILY_LESSON_ATTEMPT_CAP,
     monthlyTtsCharCap: MONTHLY_TTS_CHAR_CAP,
+    monthlyTtsCharStop: MONTHLY_TTS_CHAR_STOP,
     monthlyTtsCharCount,
     perUserToday: perUserToday.map((r) => ({
       userId: r.userId,

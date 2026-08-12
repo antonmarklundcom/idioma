@@ -98,6 +98,16 @@ export const reviewGradeRequestSchema = z.object({
 
 export type ReviewGradeInput = z.infer<typeof reviewGradeRequestSchema>;
 
+// --- /api/session/end (PLAN.md §16 defect 1) --------------------------------
+// Deliberately no session id: the server re-resolves the caller's own open session
+// from these two fields, so a beacon can never close someone else's row.
+// 'review' joins the list in Phase 5B: a review round opens a practice session of
+// its own, so it needs the same leave-close as the other two modes.
+export const sessionEndRequestSchema = z.object({
+  mode: z.enum(['lesson', 'live', 'review']).default('lesson'),
+  lessonId: z.uuid().optional(),
+});
+
 // Mirrors the Gemini responseSchema (§4.1) - the provider-neutral contract every
 // LlmProvider adapter must satisfy. Never trust model output without this passing.
 export const utteranceErrorSchema = z.object({

@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { UtteranceRecorder } from '@/components/recorder/UtteranceRecorder';
 import { blobToBase64 } from '@/components/recorder/blobToBase64';
+import { useSessionEndBeacon } from '@/components/practice/useSessionEndBeacon';
 import { FeedbackCard } from '@/components/lesson/FeedbackCard';
 import { useTutorAudioPlayer } from '@/components/lesson/useTutorAudioPlayer';
 import { XpToast } from '@/components/gamification/XpToast';
@@ -27,6 +28,8 @@ export function ConversationLoop({ coachingProfile }: { coachingProfile: Coachin
   const [xpEvent, setXpEvent] = useState<{ id: number; xp: number } | null>(null);
   const [celebrationMessage, setCelebrationMessage] = useState<string | null>(null);
   const player = useTutorAudioPlayer();
+  // PLAN.md §16 defect 1: closes the practice_sessions row when the learner leaves.
+  const { markTurnRecorded } = useSessionEndBeacon('live');
 
   const handleRecorded = useCallback(
     async (blob: Blob, mimeType: string) => {
@@ -46,6 +49,7 @@ export function ConversationLoop({ coachingProfile }: { coachingProfile: Coachin
           return;
         }
         const data: LessonAttemptResponse = await res.json();
+        markTurnRecorded();
         setFeedback(data);
         setPromptContext(data.followUpQuestion);
         setTurnCount((n) => n + 1);
@@ -62,7 +66,7 @@ export function ConversationLoop({ coachingProfile }: { coachingProfile: Coachin
         setStatus('error');
       }
     },
-    [promptContext, player, router],
+    [promptContext, player, router, markTurnRecorded],
   );
 
   return (

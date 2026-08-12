@@ -5,7 +5,7 @@ import { db } from '@/lib/db';
 import { languagePairs } from '@/lib/db/schema';
 import { getLessonForPair, getListenAudioText } from '@/lib/lessons';
 import { synthesizeTutorSpeech } from '@/lib/tts';
-import { logUsage } from '@/lib/usage';
+import { isUnderMonthlyTtsCharCap, logUsage } from '@/lib/usage';
 
 /**
  * Audio for one `listen_prompt` exercise (PLAN.md §3.4, Phase 5B).
@@ -60,6 +60,18 @@ export async function GET(request: Request, { params }: { params: Promise<{ less
     return NextResponse.json(
       { error: 'Listening audio is unavailable for this language', code: 'tts_unavailable' },
       { status: 409 },
+    );
+  }
+
+  // §16 defect 2 / §6.12: this is the second place in the app that spends TTS
+  // characters, so it observes the same monthly stop point. Unlike tutor feedback
+  // there is no text-only degradation here - a listening exercise with no audio is
+  // not an exercise - so it says so instead of silently going quiet.
+  if (!(await isUnderMonthlyTtsCharCap(audioText.length))) {
+    console.warn('[lessons/audio] monthly TTS char cap reached - refusing synthesis');
+    return NextResponse.json(
+      { error: 'Listening audio is paused for this month.', code: 'tts_cap_reached' },
+      { status: 429 },
     );
   }
 
