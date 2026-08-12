@@ -215,6 +215,26 @@ export async function recordTurnAndUpdateStats(args: {
   };
 }
 
+export type XpAward = { xpAwarded: number; xpTotal: number };
+
+// PLAN.md §12.2 XP that isn't tied to a spoken turn: a graded review item (+5) and
+// a completed lesson (+25). Streak and daily-goal state are deliberately untouched
+// - both are driven by turns, and a review answer has already been through
+// recordTurnAndUpdateStats (via /api/lesson/attempt) by the time its grade lands,
+// which is how review counts toward the daily goal. Incremented in SQL rather than
+// read-modify-write so a grade and a turn landing together can't lose XP.
+export async function awardXp(userId: string, amount: number): Promise<XpAward> {
+  await getOrCreateUserStats(userId);
+
+  const [row] = await db
+    .update(userStats)
+    .set({ xpTotal: sql`${userStats.xpTotal} + ${amount}`, updatedAt: new Date() })
+    .where(eq(userStats.userId, userId))
+    .returning({ xpTotal: userStats.xpTotal });
+
+  return { xpAwarded: amount, xpTotal: row?.xpTotal ?? amount };
+}
+
 export type UserStatsSummary = {
   xpTotal: number;
   currentStreak: number;

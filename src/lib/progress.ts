@@ -1,6 +1,7 @@
 import { count, desc, eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
-import { errorPatterns, practiceSessions, utterances } from '@/lib/db/schema';
+import { errorPatterns, practiceSessions, utterances, type PracticeMode } from '@/lib/db/schema';
+import { countDueReviewItems } from '@/lib/srs';
 
 // PLAN.md §4B "conquered" flag: a pattern untouched for 14+ days with 3+
 // occurrences reads as mastered rather than still-a-problem.
@@ -11,15 +12,23 @@ export type ErrorPatternWithFlag = typeof errorPatterns.$inferSelect & { conquer
 
 export type SessionSummary = {
   id: string;
-  mode: 'lesson' | 'live';
+  mode: PracticeMode;
   startedAt: Date;
   endedAt: Date | null;
   utteranceCount: number;
 };
 
+export type ProgressData = {
+  errorPatterns: ErrorPatternWithFlag[];
+  sessions: SessionSummary[];
+  /** Due review items (PLAN.md §2 /api/progress); 0 when the user has no pair yet. */
+  dueReviewCount: number;
+};
+
 export async function getProgressData(
   userId: string,
-): Promise<{ errorPatterns: ErrorPatternWithFlag[]; sessions: SessionSummary[] }> {
+  languagePairId?: string | null,
+): Promise<ProgressData> {
   const patternRows = await db
     .select()
     .from(errorPatterns)
@@ -48,5 +57,9 @@ export async function getProgressData(
     .orderBy(desc(practiceSessions.startedAt))
     .limit(20);
 
-  return { errorPatterns: patterns, sessions };
+  const dueReviewCount = languagePairId
+    ? await countDueReviewItems(userId, languagePairId)
+    : 0;
+
+  return { errorPatterns: patterns, sessions, dueReviewCount };
 }

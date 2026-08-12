@@ -16,7 +16,9 @@ import {
 type AdapterAccountType = 'oauth' | 'oidc' | 'email' | 'webauthn';
 
 export const roleEnum = pgEnum('role', ['learner', 'admin']);
-export const modeEnum = pgEnum('practice_mode', ['lesson', 'live']);
+// 'review' added in Phase 5B (PLAN.md §13): a spaced-repetition round is its own
+// practice mode, so review turns are separable from lessons in the history.
+export const modeEnum = pgEnum('practice_mode', ['lesson', 'live', 'review']);
 export const errorCategoryEnum = pgEnum('error_category', [
   'pronunciation',
   'grammar',
@@ -33,6 +35,7 @@ export const coachingProfileEnum = pgEnum('coaching_profile', [
 
 export type CefrLevel = (typeof cefrEnum.enumValues)[number];
 export type CoachingProfile = (typeof coachingProfileEnum.enumValues)[number];
+export type PracticeMode = (typeof modeEnum.enumValues)[number];
 
 // ---------------------------------------------------------------------------
 // Language-pair config: THE extensibility point. Adding Guaraní later must be
@@ -262,3 +265,42 @@ export const userStats = pgTable('user_stats', {
   dailyGoalTarget: integer('daily_goal_target').notNull().default(3),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
+
+// Spaced repetition (PLAN.md §13, Phase 5B). Two sources feed this queue: lesson
+// vocab (on lesson completion) and the learner's own recurring mistakes (on every
+// error_patterns upsert) - see lib/srs.ts. `kind` is text rather than a pg enum
+// because the source list is expected to grow and an enum would need a migration
+// per addition; `sourceRef` points back into the source table (see below).
+export const reviewItemKinds = ['vocab', 'error_pattern'] as const;
+export type ReviewItemKind = (typeof reviewItemKinds)[number];
+
+export const reviewItems = pgTable(
+  'review_items',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    languagePairId: uuid('language_pair_id')
+      .notNull()
+      .references(() => languagePairs.id),
+    kind: text('kind').$type<ReviewItemKind>().notNull(),
+    // vocab: '<lessonContentId>#<vocabIndex>'; error_pattern: errorPatterns.id
+    sourceRef: text('source_ref').notNull(),
+    front: text('front').notNull(), // prompt shown to the learner (native language)
+    back: text('back').notNull(), // expected production (target language)
+    // ×100 so the ease factor is an integer column: 250 = 2.50 (PLAN.md §3.3/§13.3).
+    easeFactor: integer('ease_factor_x100').notNull().default(250),
+    intervalDays: integer('interval_days').notNull().default(0),
+    dueAt: timestamp('due_at').notNull().defaultNow(),
+    reps: integer('reps').notNull().default(0),
+    lapses: integer('lapses').notNull().default(0),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+  },
+  (t) => [
+    // Makes enqueueing idempotent: re-completing a lesson or hitting the same
+    // mistake again must never duplicate an item (PLAN.md §13.2).
+    uniqueIndex('ri_unique').on(t.userId, t.kind, t.sourceRef),
+    index('ri_due_idx').on(t.userId, t.dueAt),
+  ],
+);

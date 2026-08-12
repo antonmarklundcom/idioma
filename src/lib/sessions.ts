@@ -1,6 +1,6 @@
 import { and, desc, eq, isNull, sql, type SQL } from 'drizzle-orm';
 import { db } from '@/lib/db';
-import { practiceSessions, utterances } from '@/lib/db/schema';
+import { practiceSessions, utterances, type PracticeMode } from '@/lib/db/schema';
 
 // PLAN.md §16 defect 1: a practice session ends when the learner leaves, or - because
 // phones background and kill tabs without warning - when it has been idle this long.
@@ -9,7 +9,7 @@ export const SESSION_IDLE_TIMEOUT_MINUTES = 30;
 export type PracticeSessionKey = {
   userId: string;
   languagePairId: string;
-  mode: 'lesson' | 'live';
+  mode: PracticeMode;
   lessonId?: string | null;
 };
 

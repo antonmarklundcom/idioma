@@ -1,50 +1,98 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { UtteranceRecorder } from '@/components/recorder/UtteranceRecorder';
+import { blobToBase64 } from '@/components/recorder/blobToBase64';
 import { useSessionEndBeacon } from '@/components/practice/useSessionEndBeacon';
 import { FeedbackCard } from './FeedbackCard';
 import { useTutorAudioPlayer } from './useTutorAudioPlayer';
 import { XpToast } from '@/components/gamification/XpToast';
 import { Celebration } from '@/components/gamification/Celebration';
 import type { CoachingProfile } from '@/lib/db/schema';
-import type { LessonAttemptResponse } from '@/types';
+import type { PlayerExercise } from '@/lib/lessons';
+import type { LessonAttemptResponse, LessonCompleteResponse } from '@/types';
 
-function blobToBase64(blob: Blob): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const result = reader.result as string;
-      resolve(result.split(',')[1] ?? '');
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
-}
+/** §3.4 desirable difficulty: a listening clip can be replayed, but not indefinitely. */
+const MAX_LISTEN_PLAYS = 3;
 
-// PLAN.md §2/§3.4: chains follow-up questions into a continuing session - each
-// turn's followUpQuestion becomes the next turn's promptContext. Free-practice mode
-// (no lessonId) starts from one "talk about anything" prompt.
+/**
+ * The record→feedback loop, in two shapes:
+ *
+ * - **Guided** (a lesson, Phase 5B): walks `exercises` one at a time and reports
+ *   completion to /api/lessons/[id]/complete, which enqueues the lesson's vocab for
+ *   review (§13.2). `speak_prompt` records straight away; `listen_prompt` plays
+ *   TTS audio first (≤3 plays, text never shown) and then records the same way.
+ *   The exercise's index is sent to the server, which assembles the promptContext -
+ *   see lib/lessons.ts.
+ * - **Free practice** (no exercises): the Phase 3 behaviour, where each turn's
+ *   followUpQuestion becomes the next turn's promptContext.
+ */
 export function LessonPlayer({
   coachingProfile,
   initialPrompt,
   lessonId,
+  exercises = [],
 }: {
   coachingProfile: CoachingProfile | null;
   initialPrompt: string;
   lessonId?: string;
+  exercises?: PlayerExercise[];
 }) {
   const router = useRouter();
+  const isGuided = lessonId !== undefined && exercises.length > 0;
+
+  const [step, setStep] = useState(0);
   const [promptContext, setPromptContext] = useState(initialPrompt);
   const [feedback, setFeedback] = useState<LessonAttemptResponse | null>(null);
   const [status, setStatus] = useState<'idle' | 'sending' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [xpEvent, setXpEvent] = useState<{ id: number; xp: number } | null>(null);
   const [celebrationMessage, setCelebrationMessage] = useState<string | null>(null);
+  const [plays, setPlays] = useState(0);
+  const [audioStatus, setAudioStatus] = useState<'idle' | 'loading' | 'error'>('idle');
+  const [summary, setSummary] = useState<LessonCompleteResponse | null>(null);
   const player = useTutorAudioPlayer();
   // PLAN.md §16 defect 1: closes the practice_sessions row when the learner leaves.
+  // Finishing a lesson closes it too (via /complete), so the beacon is the backstop
+  // for leaving mid-lesson.
   const { markTurnRecorded } = useSessionEndBeacon('lesson', lessonId);
+  // Keyed by exercise index: a replay must not cost another TTS call (§6.12 quota).
+  const audioCache = useRef<Map<number, string>>(new Map());
+
+  const exercise: PlayerExercise | null = isGuided ? (exercises[step] ?? null) : null;
+  const isLastExercise = isGuided && step === exercises.length - 1;
+
+  const playListenAudio = useCallback(async () => {
+    if (!lessonId || !exercise || exercise.kind !== 'listen') return;
+    if (plays >= MAX_LISTEN_PLAYS || audioStatus === 'loading') return;
+    // Must happen inside the tap's own call stack for iOS (PLAN.md §4.5).
+    player.unlock();
+
+    const cached = audioCache.current.get(exercise.index);
+    if (cached) {
+      player.play(cached);
+      setPlays((n) => n + 1);
+      return;
+    }
+
+    setAudioStatus('loading');
+    try {
+      const res = await fetch(`/api/lessons/${lessonId}/audio?exercise=${exercise.index}`);
+      if (!res.ok) {
+        setAudioStatus('error');
+        return;
+      }
+      const data: { audioBase64: string } = await res.json();
+      audioCache.current.set(exercise.index, data.audioBase64);
+      player.play(data.audioBase64);
+      setPlays((n) => n + 1);
+      setAudioStatus('idle');
+    } catch {
+      setAudioStatus('error');
+    }
+  }, [lessonId, exercise, plays, audioStatus, player]);
 
   const handleRecorded = useCallback(
     async (blob: Blob, mimeType: string) => {
@@ -52,10 +100,15 @@ export function LessonPlayer({
       setErrorMessage(null);
       try {
         const audioBase64 = await blobToBase64(blob);
+        const body =
+          isGuided && exercise
+            ? { audioBase64, mimeType, lessonId, exerciseIndex: exercise.index }
+            : { audioBase64, mimeType, lessonId, promptContext };
+
         const res = await fetch('/api/lesson/attempt', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ audioBase64, mimeType, lessonId, promptContext }),
+          body: JSON.stringify(body),
         });
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
@@ -66,13 +119,12 @@ export function LessonPlayer({
         const data: LessonAttemptResponse = await res.json();
         markTurnRecorded();
         setFeedback(data);
-        setPromptContext(data.followUpQuestion);
+        if (!isGuided) setPromptContext(data.followUpQuestion);
         setStatus('idle');
         if (data.tutorAudioBase64) player.play(data.tutorAudioBase64);
 
         // PLAN.md §12.2: XP toast after every turn; a short celebration on streak
-        // milestones. (Lesson-completion celebrations activate in Phase 5, once real
-        // lesson content gives free practice a completion event to hook.)
+        // milestones (lesson completion has its own, below).
         setXpEvent({ id: Date.now(), xp: data.gamification.xpAwarded });
         if (data.gamification.celebration?.type === 'streak_milestone') {
           setCelebrationMessage(`🔥 ${data.gamification.celebration.milestone}-day streak!`);
@@ -83,13 +135,110 @@ export function LessonPlayer({
         setStatus('error');
       }
     },
-    [lessonId, promptContext, player, router, markTurnRecorded],
+    [isGuided, exercise, lessonId, promptContext, player, router, markTurnRecorded],
   );
+
+  const goToNextExercise = useCallback(() => {
+    setFeedback(null);
+    setPlays(0);
+    setAudioStatus('idle');
+    setStep((s) => s + 1);
+  }, []);
+
+  const finishLesson = useCallback(async () => {
+    if (!lessonId) return;
+    setStatus('sending');
+    try {
+      const res = await fetch(`/api/lessons/${lessonId}/complete`, { method: 'POST' });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setErrorMessage(data.error ?? "Couldn't save your progress. Try again.");
+        setStatus('error');
+        return;
+      }
+      const data: LessonCompleteResponse = await res.json();
+      setSummary(data);
+      setFeedback(null);
+      setStatus('idle');
+      setCelebrationMessage('🎉 Lesson complete!');
+      router.refresh();
+    } catch {
+      setErrorMessage('Network error - please try again.');
+      setStatus('error');
+    }
+  }, [lessonId, router]);
+
+  if (summary) {
+    return (
+      <div className="flex flex-1 flex-col items-center gap-4 px-6 py-10">
+        <p className="text-lg font-semibold text-slate-900 dark:text-white">Lesson complete 🎉</p>
+        {summary.gamification.xpAwarded > 0 && (
+          <p className="text-sm text-emerald-600 dark:text-emerald-400">
+            +{summary.gamification.xpAwarded} XP
+          </p>
+        )}
+        <p className="max-w-sm text-center text-sm text-slate-600 dark:text-slate-300">
+          {summary.enqueuedCount > 0
+            ? `${summary.enqueuedCount} new word${summary.enqueuedCount === 1 ? '' : 's'} added to your review queue.`
+            : 'Nothing new for your review queue this time.'}
+        </p>
+        <div className="flex flex-col items-center gap-2">
+          {summary.dueReviewCount > 0 && (
+            <Link
+              href="/review"
+              className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white"
+            >
+              Review {summary.dueReviewCount} item{summary.dueReviewCount === 1 ? '' : 's'} now
+            </Link>
+          )}
+          <Link
+            href="/lesson"
+            className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 dark:border-slate-700 dark:text-slate-200"
+          >
+            Back to lessons
+          </Link>
+        </div>
+        {celebrationMessage && (
+          <Celebration message={celebrationMessage} onDismiss={() => setCelebrationMessage(null)} />
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-1 flex-col items-center gap-6 px-6 py-10">
+      {isGuided && (
+        <p className="text-xs uppercase tracking-wide text-slate-400">
+          Exercise {step + 1} of {exercises.length}
+          {exercise?.kind === 'listen' ? ' · listening' : ''}
+        </p>
+      )}
+
+      {exercise?.kind === 'listen' && (
+        <div className="flex flex-col items-center gap-2">
+          <button
+            type="button"
+            onClick={playListenAudio}
+            disabled={plays >= MAX_LISTEN_PLAYS || audioStatus === 'loading'}
+            className="rounded-full bg-indigo-600 px-5 py-3 text-sm font-medium text-white transition disabled:opacity-50"
+          >
+            {audioStatus === 'loading' ? 'Loading…' : plays === 0 ? '🔊 Play the clip' : '🔊 Play again'}
+          </button>
+          <span className="text-xs text-slate-400">
+            {plays >= MAX_LISTEN_PLAYS
+              ? 'No plays left — answer from what you heard.'
+              : `${MAX_LISTEN_PLAYS - plays} play${MAX_LISTEN_PLAYS - plays === 1 ? '' : 's'} left`}
+          </span>
+          {audioStatus === 'error' && (
+            <span className="text-sm text-red-600 dark:text-red-400">
+              Couldn&apos;t load the audio. Try again.
+            </span>
+          )}
+        </div>
+      )}
+
       <p className="max-w-lg text-center text-lg text-slate-700 dark:text-slate-200">
-        {promptContext}
+        {exercise ? exercise.prompt : promptContext}
       </p>
 
       <UtteranceRecorder
@@ -108,6 +257,17 @@ export function LessonPlayer({
           coachingProfile={coachingProfile}
           onReplay={() => feedback.tutorAudioBase64 && player.play(feedback.tutorAudioBase64)}
         />
+      )}
+
+      {isGuided && feedback && (
+        <button
+          type="button"
+          onClick={isLastExercise ? finishLesson : goToNextExercise}
+          disabled={status === 'sending'}
+          className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+        >
+          {isLastExercise ? 'Finish lesson' : 'Next exercise →'}
+        </button>
       )}
 
       {xpEvent && (

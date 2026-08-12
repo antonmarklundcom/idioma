@@ -1170,7 +1170,7 @@ lesson attempts + live minutes per user vs caps).
 **Acceptance:** owner imports ≥1 real lesson via the UI; partner completes it end-to-end on her
 phone; usage page shows the day's numbers.
 
-### Phase 5B — Spaced-repetition review queue + listening exercises (blocked by: 4, 5) ← §13
+### Phase 5B — Spaced-repetition review queue + listening exercises (blocked by: 4, 5) ← §13 — CODE COMPLETE, untested pending Phase 0
 Migration: `review_items` (§3.3) + add `'review'` to the `practice_mode` enum; `lib/srs.ts`
 (SM-2-lite per §13.3; enqueue-on-lesson-complete for vocab; enqueue/reactivate from the
 `error_patterns` upsert per §13.2); `/api/review` GET/POST (§2); `/review` page (§13.4 spoken
@@ -1182,6 +1182,30 @@ wrong reschedules it ~10 min out and correct schedules ≥1 day out with growing
 repeat successes; a 5-item review round completes end-to-end by voice on a real phone; a
 `listen_prompt` exercise plays audio without displaying `audioText` and grades the spoken
 answer; review grades award XP and count toward the daily goal.
+
+**As built.** Two things §13 left open had to be decided:
+
+1. **The "lesson complete" event** did not exist anywhere in this plan. It is now
+   `POST /api/lessons/[lessonId]/complete`, called by `LessonPlayer` once it has run the
+   lesson's last exercise. The client picks the moment (it is the only party that knows the
+   learner worked through the last exercise) but not the reward: the vocab is read from the
+   lesson row server-side, and the +25 XP (§12.2) is gated on there being an *open practice
+   session* for that lesson — i.e. on the learner having actually recorded something. The
+   route closes that session (§16 defect 1's `closeOpenSessions`), which is also what makes it
+   idempotent: a second call finds nothing open and awards nothing. Redoing the lesson later
+   opens a new session and counts again, which is intended — that is more practice.
+2. **Where the prompt text is assembled.** The browser sends an *id* — `exerciseIndex` for a
+   lesson exercise, `reviewItemId` for a review drill — and `/api/lesson/attempt` builds the
+   `promptContext` from the row. This is what keeps a `listen_prompt`'s `audioText` out of the
+   client entirely (it is played, never displayed, §3.4) and keeps the expected review answer
+   authoritative rather than client-supplied (§13.4). Listening audio comes from
+   `GET /api/lessons/[lessonId]/audio?exercise=N`, so TTS stays server-side-only (§2) and
+   observes the §16 defect 2 monthly cap; replays are cached in the browser, so the ≤3 plays
+   cost one synthesis.
+
+`error_patterns` recurrences enqueue exactly what §13.2 says — `dueAt = now()`, nothing else
+touched. Interval and ease deliberately survive a recurrence: the next grade moves the item
+normally, and the `again` that a just-repeated mistake usually earns resets the interval anyway.
 
 ### Phase 6 — PWA (blocked by: 2; ideally after 5)
 Everything in §7.1–7.2: manifest, icons (generate maskable 192/512 + apple-touch from one

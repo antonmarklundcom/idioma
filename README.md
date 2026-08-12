@@ -29,7 +29,7 @@ repetition, LLM-provider abstraction, cost model, known defects) — before writ
 | 4B — Gamification core | ✅ code complete, untested (needs Phase 0 credentials) |
 | 4C — Provider-abstraction audit | ✅ done and verified (ESLint rule tested directly) |
 | 5 — Curriculum delivery + admin import | blocked on real lesson material (§9 Q5) |
-| 5B — SRS review queue + listening | blocked on Phase 5 |
+| 5B — SRS review queue + listening | ✅ code complete, untested (needs Phase 0 credentials) |
 | 6 — PWA | blocked on an app icon image from the owner |
 | 7 — Live conversation (turn-based) | ✅ code complete, untested (needs Phase 0 credentials) |
 | 8 — Polish + beta hardening | needs all of the above |
@@ -60,4 +60,12 @@ UPDATE users SET role = 'admin' WHERE email = '<owner email>';
 
 All curriculum is authored by the owner (with Gemini) and imported — the app never generates
 lesson content. The two files in `content/lessons/*.sample.json` are placeholder demo lessons
-(A1 greetings, one per direction) showing the required JSON shape (PLAN.md §3.4).
+(A1 greetings, one per direction) showing the required JSON shape (PLAN.md §3.4), including a
+`listen_prompt` exercise whose `audioText` is synthesized and played but never displayed.
+
+## Review queue
+
+Completing a lesson enqueues its `vocab` for spaced repetition, and every recurring mistake the
+tutor records enqueues (or re-activates) a drill of its own — see `src/lib/srs.ts` for the
+SM-2-lite scheduler (PLAN.md §13.3). `/review` runs a round of up to 10 due items by voice, with
+a typed fallback for quiet places.

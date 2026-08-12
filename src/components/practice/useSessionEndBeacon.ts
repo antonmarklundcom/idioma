@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef } from 'react';
+import type { PracticeMode } from '@/lib/db/schema';
 
 /**
  * Tells the server the learner has left, so their `practice_sessions` row gets closed
@@ -20,7 +21,7 @@ import { useCallback, useEffect, useRef } from 'react';
  * and leaves without speaking has no session to close, and React's dev-mode double-mount
  * has nothing to report either.
  */
-export function useSessionEndBeacon(mode: 'lesson' | 'live', lessonId?: string) {
+export function useSessionEndBeacon(mode: PracticeMode, lessonId?: string) {
   const hasUnreportedTurn = useRef(false);
 
   const send = useCallback(() => {

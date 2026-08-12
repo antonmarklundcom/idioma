@@ -2,14 +2,20 @@ import { NextResponse } from 'next/server';
 import { and, desc, eq } from 'drizzle-orm';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
-import { errorPatterns, languagePairs, utterances } from '@/lib/db/schema';
+import { errorPatterns, languagePairs, utterances, type PracticeMode } from '@/lib/db/schema';
 import {
   feedbackResultSchema,
   lessonAttemptRequestSchema,
   type FeedbackResult,
 } from '@/lib/zodSchemas';
-import { getProviderForTask } from '@/lib/llm/provider';
-import { assembleSystemPrompt, FREE_PRACTICE_LESSON_CONTEXT } from '@/lib/gemini/prompts';
+import { getProviderForTask, type FeedbackArgs } from '@/lib/llm/provider';
+import {
+  assembleSystemPrompt,
+  buildReviewPromptContext,
+  FREE_PRACTICE_LESSON_CONTEXT,
+} from '@/lib/gemini/prompts';
+import { buildExercisePromptContext, getLessonForPair } from '@/lib/lessons';
+import { getReviewItemForUser } from '@/lib/srs';
 import { synthesizeTutorSpeech } from '@/lib/tts';
 import { getOrCreateSession } from '@/lib/sessions';
 import { isUnderDailyLessonAttemptCap, isUnderMonthlyTtsCharCap, logUsage } from '@/lib/usage';
@@ -24,11 +30,11 @@ export const maxDuration = 60;
 async function getValidatedFeedback(args: {
   systemPrompt: string;
   userTurnContext: string;
-  audioBase64: string;
-  mimeType: string;
-  mode: 'lesson' | 'live';
+  input: FeedbackArgs['input'];
+  mode: PracticeMode;
 }): Promise<FeedbackResult> {
   // Which model runs this turn is admin-configurable per task (PLAN.md §14.4).
+  // A review drill is graded by the lesson-feedback model, same as a lesson turn.
   const { provider, model } = await getProviderForTask(
     args.mode === 'live' ? 'live_conversation' : 'lesson_feedback',
   );
@@ -37,7 +43,7 @@ async function getValidatedFeedback(args: {
     const raw = await provider.getFeedback({
       systemPrompt: args.systemPrompt,
       userTurnContext: args.userTurnContext,
-      input: { kind: 'audio', base64: args.audioBase64, mimeType: args.mimeType },
+      input: args.input,
       model,
     });
     const parsed = feedbackResultSchema.safeParse(raw);
@@ -66,7 +72,7 @@ export async function POST(request: Request) {
       { status: 400 },
     );
   }
-  const { audioBase64, mimeType, lessonId, promptContext, mode } = parsedBody.data;
+  const { input, lessonId, exerciseIndex, reviewItemId, promptContext, mode } = parsedBody.data;
 
   const underCap = await isUnderDailyLessonAttemptCap(session.user.id);
   if (!underCap) {
@@ -94,7 +100,36 @@ export async function POST(request: Request) {
     .orderBy(desc(errorPatterns.occurrenceCount), desc(errorPatterns.lastSeenAt))
     .limit(5);
 
-  const lessonContext = promptContext ?? FREE_PRACTICE_LESSON_CONTEXT;
+  // What the learner is being asked to do. A review drill and a numbered lesson
+  // exercise are both assembled HERE, from the row in the database - the browser
+  // sends an id, not the text. That keeps a listen_prompt's `audioText` out of the
+  // client entirely (§3.4) and keeps the expected review answer authoritative (§13.4).
+  let lessonContext = promptContext ?? FREE_PRACTICE_LESSON_CONTEXT;
+
+  if (mode === 'review' && reviewItemId) {
+    const item = await getReviewItemForUser(reviewItemId, session.user.id);
+    if (!item) {
+      return NextResponse.json(
+        { error: 'Review item not found', code: 'not_found' },
+        { status: 404 },
+      );
+    }
+    lessonContext = buildReviewPromptContext(item);
+  } else if (lessonId && exerciseIndex !== undefined) {
+    const lesson = await getLessonForPair(lessonId, pair.id);
+    if (!lesson) {
+      return NextResponse.json({ error: 'Lesson not found', code: 'not_found' }, { status: 404 });
+    }
+    const exerciseContext = buildExercisePromptContext(lesson.content, exerciseIndex);
+    if (!exerciseContext) {
+      return NextResponse.json(
+        { error: 'Unknown exercise', code: 'invalid_exercise' },
+        { status: 400 },
+      );
+    }
+    lessonContext = exerciseContext;
+  }
+
   const systemPrompt = assembleSystemPrompt({
     pair,
     mode,
@@ -109,8 +144,7 @@ export async function POST(request: Request) {
     feedback = await getValidatedFeedback({
       systemPrompt,
       userTurnContext: lessonContext,
-      audioBase64,
-      mimeType,
+      input,
       mode,
     });
   } catch (err) {
