@@ -1391,9 +1391,46 @@ export function getProvider(): LlmProvider; // reads LLM_PROVIDER env, default '
 
 ### 14.3 Enforcement
 
-ESLint `no-restricted-imports`: importing `@google/genai` anywhere outside `src/lib/llm/**`
-and `src/lib/gemini/**` fails the lint (added in Phase 4C). `LLM_PROVIDER=gemini` documented
-in `.env.example`.
+ESLint `no-restricted-imports`: importing `@google/genai` anywhere outside `src/lib/llm/**`,
+`src/lib/gemini/**` and `src/lib/openai/**` fails the lint (added in Phase 4C, extended in
+§14.4). `LLM_PROVIDER=gemini` documented in `.env.example`.
+
+### 14.4 Admin-selectable provider + model (v5 — BUILT)
+
+Owner requirement (August 2026): choose the model **per task, from the browser**, across both
+Google and OpenAI, without a redeploy — and see what a switch costs before making it.
+
+**Storage.** New `app_settings` table (key → JSONB value + `updatedAt`/`updatedByUserId`), one
+row: `llm_models`. Shape (`llmSettingsSchema` in `zodSchemas.ts`):
+`{ tasks: { lesson_feedback: {providerId, modelId}, live_conversation: {…} }, openaiTranscribeModelId }`.
+Validated on **write and read** — the row is hand-editable in the database and a malformed one
+must never reach a provider. Env vars (`LLM_PROVIDER`, `GEMINI_LESSON_MODEL`, `OPENAI_*`)
+remain as the fallback used before anything is saved, so behavior with no row is exactly what
+it was before this existed.
+
+**Resolution.** `getProviderForTask(task)` in `lib/llm/provider.ts` returns `{ provider, model }`;
+the route passes `model` in `FeedbackArgs` and adapters never choose their own. Settings are
+cached in-process for 30 s (a stale model choice is a billing surprise, so the TTL stays short)
+and the cache is invalidated on save.
+
+**Model IDs are free text, deliberately.** `lib/llm/catalog.ts` lists what we know, but /admin
+accepts any model ID for a provider, because provider model names churn faster than we redeploy
+(§10.7). **Only verified prices appear in the catalog** — Gemini's, from §0. Unknown prices
+render as "unknown, check the pricing page", never as a guess; the per-100-turns figure is a
+stated estimate from `TURN_TOKEN_ESTIMATE`, not a billing figure.
+
+**OpenAI adapter (`lib/llm/openai.ts` + `lib/openai/**`, plain `fetch`, no SDK).** The
+capability gap §14.2 anticipated is real: OpenAI's chat models don't take the recording, so a
+spoken turn is **transcribe → feedback**, two calls. Consequences, stated in the admin UI rather
+than buried here: more latency, more cost, and **no pronunciation feedback** — a transcript
+cannot carry it, so the prompt explicitly forbids guessing at it (the same call §4.4 made for
+the true-Live transcript path). Gemini stays the right default for a *speaking* app; this exists
+so the choice is the owner's and is reversible in one click.
+
+**Test button.** `/api/admin/models/test` runs a text-only probe against the selected
+provider+model and reports latency, whether the JSON passed the Zod contract, and a sample
+reply. Text, not audio: cheap, fast, provider-independent — it proves the key and the model,
+**not** that audio input works. Admin-only, logged to `usage_log` as `admin_model_test`.
 
 ---
 

@@ -231,6 +231,19 @@ export const usageLog = pgTable(
   (t) => [index('ul_user_day_idx').on(t.userId, t.createdAt)],
 );
 
+// Admin-editable runtime configuration (PLAN.md §14.4). One row per setting key,
+// value is the setting's own JSON shape - Zod-validated on write AND on read, since
+// a bad row here would otherwise reach the provider layer. Currently only
+// 'llm_models' (the per-task provider/model selection) lives here.
+export const appSettings = pgTable('app_settings', {
+  key: text('key').primaryKey(),
+  value: jsonb('value').notNull(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  updatedByUserId: uuid('updated_by_user_id').references(() => users.id, {
+    onDelete: 'set null',
+  }),
+});
+
 // Gamification (PLAN.md §12, Phase 4B): one row per user. XP history isn't stored
 // separately - usage_log already has every metered action with timestamps, which is
 // enough for the Phase 8 weekly recap.

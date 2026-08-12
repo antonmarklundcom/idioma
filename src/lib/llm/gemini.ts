@@ -11,12 +11,14 @@ export const geminiProvider: LlmProvider = {
         mimeType: args.input.mimeType,
         systemPrompt: args.systemPrompt,
         userTurnContext: args.userTurnContext,
+        model: args.model,
       });
     }
     return getLessonFeedbackFromText({
       text: args.input.text,
       systemPrompt: args.systemPrompt,
       userTurnContext: args.userTurnContext,
+      model: args.model,
     });
   },
 };

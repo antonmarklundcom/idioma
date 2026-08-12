@@ -1,5 +1,5 @@
 import { Type, type Schema } from '@google/genai';
-import { geminiClient, GEMINI_LESSON_MODEL } from './client';
+import { geminiClient } from './client';
 
 // Mirrors src/lib/zodSchemas.ts feedbackResultSchema - the provider-neutral contract
 // (PLAN.md §4.1, §14.2). Keep the two in sync if either changes.
@@ -34,9 +34,10 @@ export async function getLessonFeedbackFromAudio(args: {
   mimeType: string;
   systemPrompt: string;
   userTurnContext: string;
+  model: string;
 }): Promise<unknown> {
   const res = await geminiClient.models.generateContent({
-    model: GEMINI_LESSON_MODEL,
+    model: args.model,
     contents: [
       { inlineData: { mimeType: args.mimeType, data: args.audioBase64 } },
       { text: args.userTurnContext },
@@ -54,9 +55,10 @@ export async function getLessonFeedbackFromText(args: {
   text: string;
   systemPrompt: string;
   userTurnContext: string;
+  model: string;
 }): Promise<unknown> {
   const res = await geminiClient.models.generateContent({
-    model: GEMINI_LESSON_MODEL,
+    model: args.model,
     contents: [{ text: `${args.userTurnContext}\n\nLearner's answer: ${args.text}` }],
     config: {
       systemInstruction: args.systemPrompt,

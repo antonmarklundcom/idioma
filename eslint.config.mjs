@@ -34,7 +34,7 @@ const eslintConfig = defineConfig([
     },
   },
   {
-    files: ["src/lib/llm/**", "src/lib/gemini/**"],
+    files: ["src/lib/llm/**", "src/lib/gemini/**", "src/lib/openai/**"],
     rules: {
       "no-restricted-imports": "off",
     },
