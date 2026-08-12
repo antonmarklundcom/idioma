@@ -10,7 +10,10 @@ export const MAX_RECORDING_SECONDS = 90;
 
 export type RecorderStatus = 'idle' | 'requesting' | 'recording' | 'stopped' | 'error';
 
-export function useRecorder(onStop?: (blob: Blob, mimeType: string) => void) {
+export function useRecorder(
+  onStop?: (blob: Blob, mimeType: string) => void,
+  micDeniedMessage = 'Microphone permission was denied or unavailable.',
+) {
   const [status, setStatus] = useState<RecorderStatus>('idle');
   const [level, setLevel] = useState(0);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
@@ -100,9 +103,9 @@ export function useRecorder(onStop?: (blob: Blob, mimeType: string) => void) {
       }, 1000);
     } catch {
       setStatus('error');
-      setError('Microphone permission was denied or unavailable.');
+      setError(micDeniedMessage);
     }
-  }, [cleanupAudioGraph, stop, stopStream]);
+  }, [cleanupAudioGraph, stop, stopStream, micDeniedMessage]);
 
   const reset = useCallback(() => {
     setStatus('idle');

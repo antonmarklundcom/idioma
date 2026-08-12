@@ -11,16 +11,22 @@ import { XpToast } from '@/components/gamification/XpToast';
 import { Celebration } from '@/components/gamification/Celebration';
 import type { CoachingProfile } from '@/lib/db/schema';
 import type { LessonAttemptResponse } from '@/types';
-
-const OPENING_PROMPT = "Say hi and tell your tutor what's on your mind today - anything goes.";
+import { t, type Locale } from '@/lib/i18n';
 
 // PLAN.md §4.3: the $0 turn-based conversation loop. A thin wrapper around the same
 // /api/lesson/attempt pipeline as lesson mode (mode: 'live', no lessonId) - walkie-talkie
 // style back-and-forth instead of a fixed exercise. No new API routes, no ephemeral
 // tokens, no true real-time voice (that's the documented-but-deferred §4.2 upgrade).
-export function ConversationLoop({ coachingProfile }: { coachingProfile: CoachingProfile | null }) {
+export function ConversationLoop({
+  coachingProfile,
+  locale,
+}: {
+  coachingProfile: CoachingProfile | null;
+  locale: Locale;
+}) {
+  const strings = t(locale).live;
   const router = useRouter();
-  const [promptContext, setPromptContext] = useState(OPENING_PROMPT);
+  const [promptContext, setPromptContext] = useState(strings.openingPrompt);
   const [feedback, setFeedback] = useState<LessonAttemptResponse | null>(null);
   const [status, setStatus] = useState<'idle' | 'sending' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -44,7 +50,7 @@ export function ConversationLoop({ coachingProfile }: { coachingProfile: Coachin
         });
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
-          setErrorMessage(data.error ?? "Couldn't analyze that recording. Try again.");
+          setErrorMessage(data.error ?? strings.couldntAnalyze);
           setStatus('error');
           return;
         }
@@ -58,21 +64,21 @@ export function ConversationLoop({ coachingProfile }: { coachingProfile: Coachin
 
         setXpEvent({ id: Date.now(), xp: data.gamification.xpAwarded });
         if (data.gamification.celebration?.type === 'streak_milestone') {
-          setCelebrationMessage(`🔥 ${data.gamification.celebration.milestone}-day streak!`);
+          setCelebrationMessage(strings.streakMilestone(data.gamification.celebration.milestone));
         }
         router.refresh();
       } catch {
-        setErrorMessage('Network error - please try again.');
+        setErrorMessage(strings.networkError);
         setStatus('error');
       }
     },
-    [promptContext, player, router, markTurnRecorded],
+    [promptContext, player, router, markTurnRecorded, strings],
   );
 
   return (
     <div className="flex flex-1 flex-col items-center gap-6 px-6 py-10">
       <p className="text-xs uppercase tracking-wide text-slate-400">
-        Turn {turnCount + 1} · free conversation
+        {strings.turnOf(turnCount + 1)}
       </p>
       <p className="max-w-lg text-center text-lg text-slate-700 dark:text-slate-200">
         {promptContext}
@@ -82,9 +88,10 @@ export function ConversationLoop({ coachingProfile }: { coachingProfile: Coachin
         onRecorded={handleRecorded}
         onBeforeStart={player.unlock}
         disabled={status === 'sending'}
+        locale={locale}
       />
 
-      {status === 'sending' && <p className="text-sm text-slate-400">Listening back…</p>}
+      {status === 'sending' && <p className="text-sm text-slate-400">{strings.listeningBack}</p>}
       {errorMessage && <p className="text-sm text-red-600 dark:text-red-400">{errorMessage}</p>}
 
       {feedback && (
@@ -93,11 +100,17 @@ export function ConversationLoop({ coachingProfile }: { coachingProfile: Coachin
           tutorAudioBase64={feedback.tutorAudioBase64}
           coachingProfile={coachingProfile}
           onReplay={() => feedback.tutorAudioBase64 && player.play(feedback.tutorAudioBase64)}
+          locale={locale}
         />
       )}
 
       {xpEvent && (
-        <XpToast key={xpEvent.id} xpAwarded={xpEvent.xp} onDismiss={() => setXpEvent(null)} />
+        <XpToast
+          key={xpEvent.id}
+          xpAwarded={xpEvent.xp}
+          onDismiss={() => setXpEvent(null)}
+          locale={locale}
+        />
       )}
       {celebrationMessage && (
         <Celebration message={celebrationMessage} onDismiss={() => setCelebrationMessage(null)} />

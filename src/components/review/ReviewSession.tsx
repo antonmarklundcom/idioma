@@ -12,11 +12,7 @@ import { TEXT_ANSWER_MAX_CHARS } from '@/lib/zodSchemas';
 import type { CoachingProfile } from '@/lib/db/schema';
 import type { ReviewOutcome } from '@/lib/srs';
 import type { LessonAttemptResponse, ReviewCard, ReviewGradeResponse } from '@/types';
-
-const KIND_LABEL: Record<ReviewCard['kind'], string> = {
-  vocab: 'Vocabulary',
-  error_pattern: 'A mistake you keep making',
-};
+import { t, type Locale } from '@/lib/i18n';
 
 /**
  * The §13.4 review round. Spoken by default: the card's `front` is shown, the
@@ -31,10 +27,13 @@ const KIND_LABEL: Record<ReviewCard['kind'], string> = {
 export function ReviewSession({
   cards,
   coachingProfile,
+  locale,
 }: {
   cards: ReviewCard[];
   coachingProfile: CoachingProfile | null;
+  locale: Locale;
 }) {
+  const strings = t(locale).reviewSession;
   const router = useRouter();
   const [index, setIndex] = useState(0);
   const [feedback, setFeedback] = useState<LessonAttemptResponse | null>(null);
@@ -67,7 +66,7 @@ export function ReviewSession({
         });
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
-          setErrorMessage(data.error ?? "Couldn't check that answer. Try again.");
+          setErrorMessage(data.error ?? strings.couldntCheckAnswer);
           setStatus('error');
           return;
         }
@@ -80,11 +79,11 @@ export function ReviewSession({
         if (data.tutorAudioBase64) player.play(data.tutorAudioBase64);
         router.refresh(); // app-shell DailyGoalRing: review turns count toward the goal
       } catch {
-        setErrorMessage('Network error - please try again.');
+        setErrorMessage(strings.networkError);
         setStatus('error');
       }
     },
-    [card, player, router, markTurnRecorded],
+    [card, player, router, markTurnRecorded, strings],
   );
 
   const handleRecorded = useCallback(
@@ -108,7 +107,7 @@ export function ReviewSession({
         });
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
-          setErrorMessage(data.error ?? "Couldn't save that grade. Try again.");
+          setErrorMessage(data.error ?? strings.couldntSaveGrade);
           setStatus('error');
           return;
         }
@@ -126,32 +125,34 @@ export function ReviewSession({
         else setIndex((i) => i + 1);
         router.refresh();
       } catch {
-        setErrorMessage('Network error - please try again.');
+        setErrorMessage(strings.networkError);
         setStatus('error');
       }
     },
-    [card, cards.length, index, router],
+    [card, cards.length, index, router, strings],
   );
 
   if (done || !card) {
     return (
       <div className="flex flex-1 flex-col items-center gap-4 px-6 py-10">
-        <p className="text-lg font-semibold text-slate-900 dark:text-white">Round complete 🎉</p>
+        <p className="text-lg font-semibold text-slate-900 dark:text-white">
+          {strings.roundComplete}
+        </p>
         <p className="text-sm text-slate-600 dark:text-slate-300">
-          {gradedCount} item{gradedCount === 1 ? '' : 's'} reviewed · +{xpEarned} XP
+          {strings.roundSummary(gradedCount, xpEarned)}
         </p>
         <div className="flex flex-col items-center gap-2">
           <Link
             href="/review"
             className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white"
           >
-            Another round
+            {strings.anotherRound}
           </Link>
           <Link
             href="/dashboard"
             className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 dark:border-slate-700 dark:text-slate-200"
           >
-            Back to dashboard
+            {strings.backToDashboard}
           </Link>
         </div>
       </div>
@@ -163,15 +164,13 @@ export function ReviewSession({
   return (
     <div className="flex flex-1 flex-col items-center gap-6 px-6 py-10">
       <div className="flex w-full max-w-lg items-center justify-between text-xs uppercase tracking-wide text-slate-400">
-        <span>
-          Card {index + 1} of {cards.length}
-        </span>
-        <span>+{xpEarned} XP</span>
+        <span>{strings.cardOf(index + 1, cards.length)}</span>
+        <span>{t(locale).gamification.xpAwarded(xpEarned)}</span>
       </div>
 
       <div className="flex w-full max-w-lg flex-col gap-3 rounded-2xl border border-slate-200 p-5 text-center dark:border-slate-700">
         <p className="text-xs font-medium uppercase tracking-wide text-indigo-500">
-          {KIND_LABEL[card.kind]}
+          {strings.kindLabel[card.kind]}
         </p>
         <p className="text-lg text-slate-800 dark:text-slate-100">{card.front}</p>
         {revealed ? (
@@ -179,7 +178,7 @@ export function ReviewSession({
             {card.back}
           </p>
         ) : (
-          <p className="text-sm text-slate-400">Say it out loud, then tap the mic.</p>
+          <p className="text-sm text-slate-400">{strings.sayItOutLoud}</p>
         )}
       </div>
 
@@ -191,7 +190,7 @@ export function ReviewSession({
               onChange={(e) => setTypedAnswer(e.target.value)}
               maxLength={TEXT_ANSWER_MAX_CHARS}
               rows={2}
-              placeholder="Type your answer"
+              placeholder={strings.typePlaceholder}
               className="w-full rounded-xl border border-slate-200 bg-transparent px-3 py-2 text-slate-800 dark:border-slate-700 dark:text-slate-100"
             />
             <div className="flex items-center justify-between gap-2">
@@ -200,7 +199,7 @@ export function ReviewSession({
                 onClick={() => setTyping(false)}
                 className="text-sm text-slate-500 dark:text-slate-400"
               >
-                Use the mic instead
+                {strings.useMicInstead}
               </button>
               <button
                 type="button"
@@ -208,7 +207,7 @@ export function ReviewSession({
                 onClick={() => submitAnswer({ text: typedAnswer.trim() })}
                 className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
               >
-                Check answer
+                {strings.checkAnswer}
               </button>
             </div>
           </div>
@@ -218,6 +217,7 @@ export function ReviewSession({
               onRecorded={handleRecorded}
               onBeforeStart={player.unlock}
               disabled={busy}
+              locale={locale}
             />
             <div className="flex items-center gap-4">
               {/* §13.4: the quiet-environment fallback. Same pipeline, text input. */}
@@ -226,7 +226,7 @@ export function ReviewSession({
                 onClick={() => setTyping(true)}
                 className="text-sm text-slate-500 underline dark:text-slate-400"
               >
-                Type instead
+                {strings.typeInstead}
               </button>
               <button
                 type="button"
@@ -237,13 +237,13 @@ export function ReviewSession({
                 }}
                 className="text-sm text-slate-500 underline disabled:opacity-50 dark:text-slate-400"
               >
-                I don&apos;t know
+                {strings.dontKnow}
               </button>
             </div>
           </div>
         ))}
 
-      {status === 'sending' && <p className="text-sm text-slate-400">Checking your answer…</p>}
+      {status === 'sending' && <p className="text-sm text-slate-400">{strings.checkingAnswer}</p>}
       {errorMessage && <p className="text-sm text-red-600 dark:text-red-400">{errorMessage}</p>}
 
       {feedback && (
@@ -252,6 +252,7 @@ export function ReviewSession({
           tutorAudioBase64={feedback.tutorAudioBase64}
           coachingProfile={coachingProfile}
           onReplay={() => feedback.tutorAudioBase64 && player.play(feedback.tutorAudioBase64)}
+          locale={locale}
         />
       )}
 
@@ -267,7 +268,7 @@ export function ReviewSession({
                 onClick={() => grade('good')}
                 className="flex-1 rounded-lg bg-emerald-600 px-4 py-3 text-sm font-medium text-white disabled:opacity-50"
               >
-                Got it
+                {strings.gotIt}
               </button>
               <button
                 type="button"
@@ -275,7 +276,7 @@ export function ReviewSession({
                 onClick={() => grade('easy')}
                 className="flex-1 rounded-lg bg-sky-600 px-4 py-3 text-sm font-medium text-white disabled:opacity-50"
               >
-                Easy
+                {strings.easy}
               </button>
             </div>
           ) : (
@@ -285,7 +286,7 @@ export function ReviewSession({
               onClick={() => grade('again')}
               className="rounded-lg bg-slate-700 px-4 py-3 text-sm font-medium text-white disabled:opacity-50 dark:bg-slate-600"
             >
-              Show me again in 10 minutes
+              {strings.showAgain}
             </button>
           )}
         </div>

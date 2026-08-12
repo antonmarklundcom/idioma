@@ -1,11 +1,13 @@
 'use client';
 
 import { useRecorder } from './useRecorder';
+import { t, type Locale } from '@/lib/i18n';
 
 export function UtteranceRecorder({
   onRecorded,
   onBeforeStart,
   disabled,
+  locale,
 }: {
   onRecorded: (blob: Blob, mimeType: string) => void;
   /** Called synchronously inside the tap handler, before recording starts - use
@@ -13,9 +15,13 @@ export function UtteranceRecorder({
    * unlock to happen inside the same user-gesture call stack. */
   onBeforeStart?: () => void;
   disabled?: boolean;
+  locale: Locale;
 }) {
-  const { status, level, elapsedSeconds, error, start, stop, maxSeconds } =
-    useRecorder(onRecorded);
+  const strings = t(locale).recorder;
+  const { status, level, elapsedSeconds, error, start, stop, maxSeconds } = useRecorder(
+    onRecorded,
+    strings.micDenied,
+  );
 
   const isRecording = status === 'recording';
 
@@ -35,7 +41,7 @@ export function UtteranceRecorder({
         className={`flex h-20 w-20 items-center justify-center rounded-full text-3xl text-white transition disabled:opacity-50 ${
           isRecording ? 'bg-red-500' : 'bg-sky-600'
         }`}
-        aria-label={isRecording ? 'Stop recording' : 'Start recording'}
+        aria-label={isRecording ? strings.stopRecording : strings.startRecording}
       >
         {isRecording ? '■' : '🎙️'}
       </button>
@@ -56,7 +62,7 @@ export function UtteranceRecorder({
 
       {!isRecording && status !== 'requesting' && (
         <p className="text-sm text-slate-500 dark:text-slate-400">
-          {status === 'stopped' ? 'Sending…' : 'Tap to record'}
+          {status === 'stopped' ? strings.sending : strings.tapToRecord}
         </p>
       )}
 

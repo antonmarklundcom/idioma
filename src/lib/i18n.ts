@@ -1,0 +1,530 @@
+// PLAN.md §8 Phase 8 / §9 Q12: a plain string dictionary, no i18n library. `en` is
+// the source of truth - `Dictionary` is derived from it, so `es`/`sv` missing (or
+// mistyping) a key is a compile error, not a silent runtime fallback to English.
+
+export type Locale = 'en' | 'es' | 'sv';
+
+const en = {
+  nav: {
+    brand: '🗣️ Idioma',
+    dashboard: 'Dashboard',
+    lessons: 'Lessons',
+    review: 'Review',
+    live: 'Live',
+    settings: 'Settings',
+    admin: 'Admin',
+    signOut: 'Sign out',
+  },
+  dashboard: {
+    welcomeBack: (name?: string) => (name ? `Hi again, ${name}!` : 'Hi again!'),
+    xp: 'XP',
+    currentStreak: 'Current streak',
+    longestStreak: 'Longest streak',
+    today: 'Today',
+    reviewWaiting: (count: number, minutes: number) =>
+      `${count} review${count === 1 ? '' : 's'} waiting — ${minutes} minute${minutes === 1 ? '' : 's'}`,
+    reviewSubtitle: 'Words and mistakes from your own practice.',
+    partnerDefaultName: 'Your partner',
+    partnerStreak: (name: string, streak: number) => `${name} is on a 🔥 ${streak}-day streak.`,
+    recurringMistakes: 'Recurring mistakes',
+    practiceHistory: 'Practice history',
+  },
+  lessons: {
+    title: 'Lessons',
+    freePractice: 'Free practice',
+    allLevels: 'All levels',
+    allTopics: 'All topics',
+    emptyBefore: 'No lessons here yet. Try',
+    emptyLink: 'free practice',
+    emptyAfter: 'in the meantime.',
+  },
+  onboarding: {
+    title: "Let's set you up",
+    subtitle: 'A few quick questions so your tutor coaches you the right way from the start.',
+    whatLearning: 'What are you learning?',
+    currentLevel: 'Current level',
+    levelHint: "Not sure? A1 is total beginner — that's a perfectly good place to start.",
+    coachHeading: 'How should your tutor coach you?',
+    gentleTitle: 'I want gentle encouragement — help me dare to speak',
+    gentleDesc:
+      'Your tutor praises what you got right, keeps corrections light, and never re-corrects the same small slip twice.',
+    accuracyTitle: 'Correct everything and tell me why',
+    accuracyDesc:
+      'Your tutor explains every real mistake and asks follow-up questions that make you practice the fix.',
+    focusHeading: 'What do you want to focus on?',
+    focusSkills: {
+      'speaking-confidence': 'Confidence to speak',
+      grammar: 'Grammar accuracy',
+      listening: 'Listening comprehension',
+      pronunciation: 'Pronunciation',
+      vocabulary: 'Vocabulary',
+    },
+    timezoneNote: (tz: string) => `Timezone detected as ${tz} — used to time your daily streak.`,
+    pickFocusError: 'Pick at least one thing to focus on.',
+    genericError: 'Something went wrong. Try again.',
+    saving: 'Saving…',
+    startLearning: 'Start learning',
+  },
+  review: {
+    title: 'Review',
+    emptyState:
+      'Nothing due right now. Finish a lesson to add its vocabulary to your review queue — mistakes you make along the way get added automatically.',
+    goToLessons: 'Go to lessons',
+    itemsDue: (count: number) =>
+      `${count} item${count === 1 ? '' : 's'} due. Answer out loud — or type if you're somewhere quiet.`,
+  },
+  reviewSession: {
+    kindLabel: {
+      vocab: 'Vocabulary',
+      error_pattern: 'A mistake you keep making',
+    },
+    sayItOutLoud: 'Say it out loud, then tap the mic.',
+    typePlaceholder: 'Type your answer',
+    useMicInstead: 'Use the mic instead',
+    checkAnswer: 'Check answer',
+    typeInstead: 'Type instead',
+    dontKnow: "I don't know",
+    checkingAnswer: 'Checking your answer…',
+    gotIt: 'Got it',
+    easy: 'Easy',
+    showAgain: 'Show me again in 10 minutes',
+    roundComplete: 'Round complete 🎉',
+    roundSummary: (count: number, xp: number) =>
+      `${count} item${count === 1 ? '' : 's'} reviewed · +${xp} XP`,
+    anotherRound: 'Another round',
+    backToDashboard: 'Back to dashboard',
+    cardOf: (n: number, total: number) => `Card ${n} of ${total}`,
+    couldntCheckAnswer: "Couldn't check that answer. Try again.",
+    couldntSaveGrade: "Couldn't save that grade. Try again.",
+    networkError: 'Network error - please try again.',
+  },
+  lessonPlayer: {
+    couldntAnalyze: "Couldn't analyze that recording. Try again.",
+    networkError: 'Network error - please try again.',
+    couldntSaveProgress: "Couldn't save your progress. Try again.",
+    lessonCompleteCelebration: '🎉 Lesson complete!',
+    lessonComplete: 'Lesson complete 🎉',
+    newWordsAdded: (count: number) =>
+      `${count} new word${count === 1 ? '' : 's'} added to your review queue.`,
+    nothingNewForReview: 'Nothing new for your review queue this time.',
+    reviewNow: (count: number) => `Review ${count} item${count === 1 ? '' : 's'} now`,
+    backToLessons: 'Back to lessons',
+    exerciseOf: (n: number, total: number) => `Exercise ${n} of ${total}`,
+    listeningSuffix: ' · listening',
+    loading: 'Loading…',
+    playClip: '🔊 Play the clip',
+    playAgain: '🔊 Play again',
+    noPlaysLeft: 'No plays left — answer from what you heard.',
+    playsLeft: (n: number) => `${n} play${n === 1 ? '' : 's'} left`,
+    couldntLoadAudio: "Couldn't load the audio. Try again.",
+    analyzing: 'Analyzing your recording…',
+    finishLesson: 'Finish lesson',
+    nextExercise: 'Next exercise →',
+    streakMilestone: (n: number) => `🔥 ${n}-day streak!`,
+  },
+  live: {
+    openingPrompt: "Say hi and tell your tutor what's on your mind today - anything goes.",
+    turnOf: (n: number) => `Turn ${n} · free conversation`,
+    listeningBack: 'Listening back…',
+    couldntAnalyze: "Couldn't analyze that recording. Try again.",
+    networkError: 'Network error - please try again.',
+    streakMilestone: (n: number) => `🔥 ${n}-day streak!`,
+  },
+  feedbackCard: {
+    youSaid: 'You said',
+    replay: '🔊 Replay',
+    noErrors: 'No errors — nicely done!',
+    hideDetails: 'Hide details',
+    thingsToPolish: (count: number) =>
+      `${count} thing${count > 1 ? 's' : ''} to polish — tap to see`,
+  },
+  recorder: {
+    stopRecording: 'Stop recording',
+    startRecording: 'Start recording',
+    sending: 'Sending…',
+    tapToRecord: 'Tap to record',
+    micDenied: 'Microphone permission was denied or unavailable.',
+  },
+  settings: {
+    title: 'Settings',
+    name: 'Name',
+    email: 'Email',
+    level: 'Level',
+    coachingStyle: 'Coaching style',
+    timezone: 'Timezone',
+    editingNote: 'Editing these values in-place arrives alongside the lesson flow (Phase 3+).',
+  },
+  gamification: {
+    turnsToday: (turns: number, target: number) => `${turns}/${target} turns today`,
+    dayStreak: (n: number) => `${n}-day streak`,
+    xpAwarded: (xp: number) => `+${xp} XP`,
+  },
+  dashboardComponents: {
+    noMistakesYet: 'No recurring mistakes yet — keep practicing and patterns will show up here.',
+    conquered: '✓ Conquered — no longer showing up',
+    modeLabels: {
+      lesson: 'Lesson practice',
+      live: 'Live conversation',
+      review: 'Review round',
+    },
+    noSessionsYet: 'No practice sessions yet — head to Lessons to get started.',
+    utteranceCount: (count: number) => `${count} utterance${count === 1 ? '' : 's'}`,
+  },
+};
+
+export type Dictionary = typeof en;
+
+const es: Dictionary = {
+  nav: {
+    brand: '🗣️ Idioma',
+    dashboard: 'Panel',
+    lessons: 'Lecciones',
+    review: 'Repaso',
+    live: 'En vivo',
+    settings: 'Ajustes',
+    admin: 'Admin',
+    signOut: 'Cerrar sesión',
+  },
+  dashboard: {
+    welcomeBack: (name?: string) => (name ? `¡Hola de nuevo, ${name}!` : '¡Hola de nuevo!'),
+    xp: 'XP',
+    currentStreak: 'Racha actual',
+    longestStreak: 'Racha más larga',
+    today: 'Hoy',
+    reviewWaiting: (count: number, minutes: number) =>
+      `${count} repaso${count === 1 ? '' : 's'} pendiente${count === 1 ? '' : 's'} — ${minutes} minuto${minutes === 1 ? '' : 's'}`,
+    reviewSubtitle: 'Palabras y errores de tu propia práctica.',
+    partnerDefaultName: 'Tu pareja',
+    partnerStreak: (name: string, streak: number) =>
+      `${name} lleva una racha de 🔥 ${streak} día${streak === 1 ? '' : 's'}.`,
+    recurringMistakes: 'Errores recurrentes',
+    practiceHistory: 'Historial de práctica',
+  },
+  lessons: {
+    title: 'Lecciones',
+    freePractice: 'Práctica libre',
+    allLevels: 'Todos los niveles',
+    allTopics: 'Todos los temas',
+    emptyBefore: 'Todavía no hay lecciones acá. Probá',
+    emptyLink: 'práctica libre',
+    emptyAfter: 'mientras tanto.',
+  },
+  onboarding: {
+    title: 'Preparemos tu perfil',
+    subtitle: 'Unas preguntas rápidas para que tu tutor te enseñe de la manera correcta desde el principio.',
+    whatLearning: '¿Qué estás aprendiendo?',
+    currentLevel: 'Nivel actual',
+    levelHint: '¿No estás segura? A1 es principiante total — es un buen lugar para empezar.',
+    coachHeading: '¿Cómo querés que te guíe tu tutor?',
+    gentleTitle: 'Quiero ánimo suave — ayudame a animarme a hablar',
+    gentleDesc:
+      'Tu tutor destaca lo que hiciste bien, corrige con suavidad, y nunca te corrige la misma pequeña falla dos veces.',
+    accuracyTitle: 'Corregime todo y explicame por qué',
+    accuracyDesc:
+      'Tu tutor te explica cada error real y te hace preguntas para que practiques la corrección.',
+    focusHeading: '¿En qué querés enfocarte?',
+    focusSkills: {
+      'speaking-confidence': 'Confianza para hablar',
+      grammar: 'Precisión gramatical',
+      listening: 'Comprensión auditiva',
+      pronunciation: 'Pronunciación',
+      vocabulary: 'Vocabulario',
+    },
+    timezoneNote: (tz: string) => `Zona horaria detectada: ${tz} — se usa para calcular tu racha diaria.`,
+    pickFocusError: 'Elegí al menos una cosa para enfocarte.',
+    genericError: 'Algo salió mal. Intentá de nuevo.',
+    saving: 'Guardando…',
+    startLearning: 'Empezar a aprender',
+  },
+  review: {
+    title: 'Repaso',
+    emptyState:
+      'No hay nada pendiente ahora. Terminá una lección para agregar su vocabulario a tu cola de repaso — los errores que cometés en el camino se agregan automáticamente.',
+    goToLessons: 'Ir a las lecciones',
+    itemsDue: (count: number) =>
+      `${count} elemento${count === 1 ? '' : 's'} pendiente${count === 1 ? '' : 's'}. Respondé en voz alta — o escribí si estás en un lugar tranquilo.`,
+  },
+  reviewSession: {
+    kindLabel: {
+      vocab: 'Vocabulario',
+      error_pattern: 'Un error que repetís',
+    },
+    sayItOutLoud: 'Decilo en voz alta y tocá el micrófono.',
+    typePlaceholder: 'Escribí tu respuesta',
+    useMicInstead: 'Usar el micrófono en su lugar',
+    checkAnswer: 'Comprobar respuesta',
+    typeInstead: 'Escribir en su lugar',
+    dontKnow: 'No sé',
+    checkingAnswer: 'Comprobando tu respuesta…',
+    gotIt: 'Lo sabía',
+    easy: 'Fácil',
+    showAgain: 'Mostrame de nuevo en 10 minutos',
+    roundComplete: '¡Ronda completa! 🎉',
+    roundSummary: (count: number, xp: number) =>
+      `${count} elemento${count === 1 ? '' : 's'} repasado${count === 1 ? '' : 's'} · +${xp} XP`,
+    anotherRound: 'Otra ronda',
+    backToDashboard: 'Volver al panel',
+    cardOf: (n: number, total: number) => `Tarjeta ${n} de ${total}`,
+    couldntCheckAnswer: 'No pudimos comprobar esa respuesta. Intentá de nuevo.',
+    couldntSaveGrade: 'No pudimos guardar esa calificación. Intentá de nuevo.',
+    networkError: 'Error de red - intentá de nuevo.',
+  },
+  lessonPlayer: {
+    couldntAnalyze: 'No pudimos analizar esa grabación. Intentá de nuevo.',
+    networkError: 'Error de red - intentá de nuevo.',
+    couldntSaveProgress: 'No pudimos guardar tu progreso. Intentá de nuevo.',
+    lessonCompleteCelebration: '🎉 ¡Lección completa!',
+    lessonComplete: '¡Lección completa! 🎉',
+    newWordsAdded: (count: number) =>
+      `${count} palabra${count === 1 ? '' : 's'} nueva${count === 1 ? '' : 's'} agregada${count === 1 ? '' : 's'} a tu cola de repaso.`,
+    nothingNewForReview: 'Nada nuevo para tu cola de repaso esta vez.',
+    reviewNow: (count: number) => `Repasar ${count} elemento${count === 1 ? '' : 's'} ahora`,
+    backToLessons: 'Volver a las lecciones',
+    exerciseOf: (n: number, total: number) => `Ejercicio ${n} de ${total}`,
+    listeningSuffix: ' · escucha',
+    loading: 'Cargando…',
+    playClip: '🔊 Reproducir el audio',
+    playAgain: '🔊 Reproducir de nuevo',
+    noPlaysLeft: 'No quedan reproducciones — respondé con lo que escuchaste.',
+    playsLeft: (n: number) => `${n} reproducción${n === 1 ? '' : 'es'} restante${n === 1 ? '' : 's'}`,
+    couldntLoadAudio: 'No pudimos cargar el audio. Intentá de nuevo.',
+    analyzing: 'Analizando tu grabación…',
+    finishLesson: 'Terminar lección',
+    nextExercise: 'Siguiente ejercicio →',
+    streakMilestone: (n: number) => `🔥 ¡Racha de ${n} día${n === 1 ? '' : 's'}!`,
+  },
+  live: {
+    openingPrompt: 'Saludá y contale a tu tutor qué tenés en mente hoy - lo que sea.',
+    turnOf: (n: number) => `Turno ${n} · conversación libre`,
+    listeningBack: 'Escuchando…',
+    couldntAnalyze: 'No pudimos analizar esa grabación. Intentá de nuevo.',
+    networkError: 'Error de red - intentá de nuevo.',
+    streakMilestone: (n: number) => `🔥 ¡Racha de ${n} día${n === 1 ? '' : 's'}!`,
+  },
+  feedbackCard: {
+    youSaid: 'Dijiste',
+    replay: '🔊 Repetir',
+    noErrors: 'Sin errores — ¡muy bien!',
+    hideDetails: 'Ocultar detalles',
+    thingsToPolish: (count: number) =>
+      `${count} cosa${count > 1 ? 's' : ''} para pulir — tocá para ver`,
+  },
+  recorder: {
+    stopRecording: 'Detener grabación',
+    startRecording: 'Iniciar grabación',
+    sending: 'Enviando…',
+    tapToRecord: 'Tocá para grabar',
+    micDenied: 'El permiso del micrófono fue denegado o no está disponible.',
+  },
+  settings: {
+    title: 'Ajustes',
+    name: 'Nombre',
+    email: 'Correo electrónico',
+    level: 'Nivel',
+    coachingStyle: 'Estilo de coaching',
+    timezone: 'Zona horaria',
+    editingNote: 'Poder editar estos valores llega junto con el flujo de lecciones (Fase 3+).',
+  },
+  gamification: {
+    turnsToday: (turns: number, target: number) => `${turns}/${target} turnos hoy`,
+    dayStreak: (n: number) => `Racha de ${n} día${n === 1 ? '' : 's'}`,
+    xpAwarded: (xp: number) => `+${xp} XP`,
+  },
+  dashboardComponents: {
+    noMistakesYet:
+      'Todavía no hay errores recurrentes — seguí practicando y los patrones van a aparecer acá.',
+    conquered: '✓ Superado — ya no aparece',
+    modeLabels: {
+      lesson: 'Práctica de lección',
+      live: 'Conversación en vivo',
+      review: 'Ronda de repaso',
+    },
+    noSessionsYet: 'Todavía no hay sesiones de práctica — andá a Lecciones para empezar.',
+    utteranceCount: (count: number) => `${count} intervención${count === 1 ? '' : 'es'}`,
+  },
+};
+
+const sv: Dictionary = {
+  nav: {
+    brand: '🗣️ Idioma',
+    dashboard: 'Översikt',
+    lessons: 'Lektioner',
+    review: 'Repetition',
+    live: 'Live',
+    settings: 'Inställningar',
+    admin: 'Admin',
+    signOut: 'Logga ut',
+  },
+  dashboard: {
+    welcomeBack: (name?: string) => (name ? `Välkommen tillbaka, ${name}!` : 'Välkommen tillbaka!'),
+    xp: 'XP',
+    currentStreak: 'Nuvarande streak',
+    longestStreak: 'Längsta streak',
+    today: 'Idag',
+    reviewWaiting: (count: number, minutes: number) =>
+      `${count} repetition${count === 1 ? '' : 'er'} väntar — ${minutes} minut${minutes === 1 ? '' : 'er'}`,
+    reviewSubtitle: 'Ord och misstag från din egen övning.',
+    partnerDefaultName: 'Din partner',
+    partnerStreak: (name: string, streak: number) => `${name} har en 🔥 ${streak}-dagars streak.`,
+    recurringMistakes: 'Återkommande misstag',
+    practiceHistory: 'Övningshistorik',
+  },
+  lessons: {
+    title: 'Lektioner',
+    freePractice: 'Fri övning',
+    allLevels: 'Alla nivåer',
+    allTopics: 'Alla ämnen',
+    emptyBefore: 'Inga lektioner än. Prova',
+    emptyLink: 'fri övning',
+    emptyAfter: 'under tiden.',
+  },
+  onboarding: {
+    title: 'Nu ställer vi in dig',
+    subtitle: 'Några snabba frågor så att din handledare kan coacha dig på rätt sätt från början.',
+    whatLearning: 'Vad lär du dig?',
+    currentLevel: 'Nuvarande nivå',
+    levelHint: 'Osäker? A1 är nybörjarnivå — det är en perfekt plats att börja på.',
+    coachHeading: 'Hur ska din handledare coacha dig?',
+    gentleTitle: 'Jag vill ha mild uppmuntran — hjälp mig våga prata',
+    gentleDesc:
+      'Din handledare berömmer det du gjorde rätt, håller rättelserna milda och rättar aldrig samma lilla miss två gånger.',
+    accuracyTitle: 'Rätta allt och förklara varför',
+    accuracyDesc:
+      'Din handledare förklarar varje verkligt misstag och ställer följdfrågor som får dig att öva på rättelsen.',
+    focusHeading: 'Vad vill du fokusera på?',
+    focusSkills: {
+      'speaking-confidence': 'Självförtroende att prata',
+      grammar: 'Grammatik',
+      listening: 'Hörförståelse',
+      pronunciation: 'Uttal',
+      vocabulary: 'Ordförråd',
+    },
+    timezoneNote: (tz: string) => `Tidszon identifierad som ${tz} — används för att räkna din dagliga streak.`,
+    pickFocusError: 'Välj minst en sak att fokusera på.',
+    genericError: 'Något gick fel. Försök igen.',
+    saving: 'Sparar…',
+    startLearning: 'Börja lära dig',
+  },
+  review: {
+    title: 'Repetition',
+    emptyState:
+      'Inget att repetera just nu. Avsluta en lektion för att lägga till dess ordförråd i din repetitionskö — misstag du gör längs vägen läggs till automatiskt.',
+    goToLessons: 'Gå till lektioner',
+    itemsDue: (count: number) =>
+      `${count} kort väntar. Svara högt — eller skriv om du är någonstans tyst.`,
+  },
+  reviewSession: {
+    kindLabel: {
+      vocab: 'Ordförråd',
+      error_pattern: 'Ett misstag du upprepar',
+    },
+    sayItOutLoud: 'Säg det högt och tryck på mikrofonen.',
+    typePlaceholder: 'Skriv ditt svar',
+    useMicInstead: 'Använd mikrofonen istället',
+    checkAnswer: 'Kontrollera svar',
+    typeInstead: 'Skriv istället',
+    dontKnow: 'Vet inte',
+    checkingAnswer: 'Kontrollerar ditt svar…',
+    gotIt: 'Kunde det',
+    easy: 'Lätt',
+    showAgain: 'Visa igen om 10 minuter',
+    roundComplete: 'Omgång klar! 🎉',
+    roundSummary: (count: number, xp: number) =>
+      `${count} ${count === 1 ? 'kort repeterat' : 'kort repeterade'} · +${xp} XP`,
+    anotherRound: 'En omgång till',
+    backToDashboard: 'Tillbaka till översikten',
+    cardOf: (n: number, total: number) => `Kort ${n} av ${total}`,
+    couldntCheckAnswer: 'Kunde inte kontrollera svaret. Försök igen.',
+    couldntSaveGrade: 'Kunde inte spara bedömningen. Försök igen.',
+    networkError: 'Nätverksfel – försök igen.',
+  },
+  lessonPlayer: {
+    couldntAnalyze: 'Kunde inte analysera inspelningen. Försök igen.',
+    networkError: 'Nätverksfel – försök igen.',
+    couldntSaveProgress: 'Kunde inte spara ditt framsteg. Försök igen.',
+    lessonCompleteCelebration: '🎉 Lektion klar!',
+    lessonComplete: 'Lektion klar! 🎉',
+    newWordsAdded: (count: number) =>
+      `${count} ${count === 1 ? 'nytt ord tillagt' : 'nya ord tillagda'} i din repetitionskö.`,
+    nothingNewForReview: 'Inget nytt till repetitionskön den här gången.',
+    reviewNow: (count: number) => `Repetera ${count} kort nu`,
+    backToLessons: 'Tillbaka till lektionerna',
+    exerciseOf: (n: number, total: number) => `Övning ${n} av ${total}`,
+    listeningSuffix: ' · lyssning',
+    loading: 'Laddar…',
+    playClip: '🔊 Spela klippet',
+    playAgain: '🔊 Spela igen',
+    noPlaysLeft: 'Inga fler uppspelningar — svara utifrån vad du hörde.',
+    playsLeft: (n: number) => `${n} uppspelning${n === 1 ? '' : 'ar'} kvar`,
+    couldntLoadAudio: 'Kunde inte ladda ljudet. Försök igen.',
+    analyzing: 'Analyserar din inspelning…',
+    finishLesson: 'Avsluta lektion',
+    nextExercise: 'Nästa övning →',
+    streakMilestone: (n: number) => `🔥 ${n} dagars streak!`,
+  },
+  live: {
+    openingPrompt: 'Säg hej och berätta för din handledare vad du tänker på idag - vad som helst.',
+    turnOf: (n: number) => `Tur ${n} · fri konversation`,
+    listeningBack: 'Lyssnar…',
+    couldntAnalyze: 'Kunde inte analysera inspelningen. Försök igen.',
+    networkError: 'Nätverksfel – försök igen.',
+    streakMilestone: (n: number) => `🔥 ${n} dagars streak!`,
+  },
+  feedbackCard: {
+    youSaid: 'Du sa',
+    replay: '🔊 Spela igen',
+    noErrors: 'Inga fel — snyggt jobbat!',
+    hideDetails: 'Dölj detaljer',
+    thingsToPolish: (count: number) =>
+      `${count} ${count > 1 ? 'saker' : 'sak'} att förbättra — tryck för att se`,
+  },
+  recorder: {
+    stopRecording: 'Stoppa inspelning',
+    startRecording: 'Starta inspelning',
+    sending: 'Skickar…',
+    tapToRecord: 'Tryck för att spela in',
+    micDenied: 'Mikrofonbehörighet nekades eller är inte tillgänglig.',
+  },
+  settings: {
+    title: 'Inställningar',
+    name: 'Namn',
+    email: 'E-post',
+    level: 'Nivå',
+    coachingStyle: 'Coachningsstil',
+    timezone: 'Tidszon',
+    editingNote: 'Möjlighet att redigera dessa värden kommer tillsammans med lektionsflödet (Fas 3+).',
+  },
+  gamification: {
+    turnsToday: (turns: number, target: number) => `${turns}/${target} turer idag`,
+    dayStreak: (n: number) => `${n} dagars streak`,
+    xpAwarded: (xp: number) => `+${xp} XP`,
+  },
+  dashboardComponents: {
+    noMistakesYet: 'Inga återkommande misstag än — fortsätt öva så dyker mönster upp här.',
+    conquered: '✓ Övervunnet — visas inte längre',
+    modeLabels: {
+      lesson: 'Lektionsövning',
+      live: 'Live-konversation',
+      review: 'Repetitionsomgång',
+    },
+    noSessionsYet: 'Inga övningspass än — gå till Lektioner för att komma igång.',
+    utteranceCount: (count: number) => `${count} yttrande${count === 1 ? '' : 'n'}`,
+  },
+};
+
+const dictionaries: Record<Locale, Dictionary> = { en, es, sv };
+
+export function t(locale: Locale): Dictionary {
+  return dictionaries[locale];
+}
+
+/**
+ * `users.nativeLang` holds raw language-pair codes (`'en' | 'es-PY' | 'sv'`, per
+ * PLAN.md §9 Q12) - this strips any dialect suffix and falls back to `en` for
+ * null/unrecognized values.
+ */
+export function normalizeLocale(nativeLang: string | null | undefined): Locale {
+  const base = nativeLang?.split('-')[0].toLowerCase();
+  if (base === 'es' || base === 'sv' || base === 'en') return base;
+  return 'en';
+}

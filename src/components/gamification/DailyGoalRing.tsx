@@ -1,3 +1,5 @@
+import { t, type Locale } from '@/lib/i18n';
+
 const SIZE = 32;
 const STROKE = 4;
 const RADIUS = (SIZE - STROKE) / 2;
@@ -6,9 +8,11 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 export function DailyGoalRing({
   turnsToday,
   dailyGoalTarget,
+  locale,
 }: {
   turnsToday: number;
   dailyGoalTarget: number;
+  locale: Locale;
 }) {
   const pct = dailyGoalTarget > 0 ? Math.min(1, turnsToday / dailyGoalTarget) : 0;
   const offset = CIRCUMFERENCE * (1 - pct);
@@ -16,7 +20,7 @@ export function DailyGoalRing({
   return (
     <div
       className="relative flex items-center justify-center"
-      title={`${turnsToday}/${dailyGoalTarget} turns today`}
+      title={t(locale).gamification.turnsToday(turnsToday, dailyGoalTarget)}
     >
       <svg width={SIZE} height={SIZE} className="-rotate-90">
         <circle
