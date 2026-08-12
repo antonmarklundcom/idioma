@@ -2,8 +2,10 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-// PLAN.md §4.1 / §6.3: 90s client-side cap keeps recordings well under Vercel's
-// ~4.5MB request body limit.
+// PLAN.md §4.1 / §6.3: this cap is load-bearing. It used to be a second line of defence
+// behind Vercel's ~4.5MB request body limit; on Hostinger no platform ceiling exists, so
+// it is now the ONLY bound on upload size. 90s of Opus is roughly 1MB. Don't raise it
+// without adding a server-side length check on audioBase64.
 export const MAX_RECORDING_SECONDS = 90;
 
 export type RecorderStatus = 'idle' | 'requesting' | 'recording' | 'stopped' | 'error';

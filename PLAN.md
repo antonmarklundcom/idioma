@@ -2,14 +2,23 @@
 
 **Authored by Fable 5 (planning/architecture model) for handoff to Opus 5.**
 
-**Status: v4 (July 2026). Phases 1–4, 4B, 4C and 7 are built and merged to `main`: scaffold +
+**Status: v5 (August 2026). Phases 1–4, 4B, 4C and 7 are built and merged to `main`: scaffold +
 schema + seed (Phase 1), auth + onboarding (Phase 2), the lesson-mode core loop (Phase 3),
 error aggregation + dashboard (Phase 4), gamification (Phase 4B), the provider-abstraction
 audit (Phase 4C), and the turn-based live conversation loop (Phase 7). Everything except
 Phase 4C is code complete but UNTESTED live — Phase 0 (the owner's manual accounts/keys
 checklist, §8) is still not done and blocks all live verification.**
 
-**What v4 changes:** model tiering moves to Opus 5 (§ below); a real cost model for the three
+**What v5 changes — read this before anything else if you know the v4 document:** the hosting
+target moved from **Vercel Hobby to a Hostinger managed Node.js slot** (§6.13 explains why and
+what it changes). This is not cosmetic: it removes the 10-second function timeout, the ~4.5 MB
+body limit, the non-commercial clause, and one of the two cold starts, and it makes a persistent
+WebSocket *possible* on our own infra for the first time — which reopens §4.2's true Live mode as
+an option rather than an impossibility. Also new in v5: the admin model/provider switcher is
+built (§14.4), Swedish joins Spanish and English as a supported UI/native language (§9 Q12), and
+the owner holds a **$10 Google Cloud credit** with a specific allowed use (§15.3).
+
+**What v4 changed:** model tiering moves to Opus 5 (§ below); a real cost model for the three
 voice-conversation paths replaces the old "$1–3/hour" guess and adds the tier-gating design
 (§15); two defects found by reading the shipped code are recorded and scheduled (§16); a new
 Phase 7B covers conversation latency, which is the difference between the live mode feeling
@@ -39,8 +48,16 @@ or marketing surface area.
   rework of the request path. Opus 5 is also the review tier for anything touching money
   (§15) or auth.
 - **Sonnet 5** is the right tool for mechanical, well-specced work where the spec is already
-  unambiguous — content import plumbing, UI states, the Spanish string dictionary in Phase 8.
+  unambiguous — content import plumbing, UI states, the seed row and prompt templates for a new
+  language pair (§9 Q12), the string dictionary in Phase 8.
   Prefer it when the phase text reads like instructions rather than decisions.
+
+**The dividing line, stated once so it doesn't have to be re-argued per phase:** use Opus 5 where
+a wrong call **costs money, corrupts data, or is expensive to unwind** — anything touching the
+usage caps (§6.5, §16), auth, the cost model (§15), schema migrations, or a live-verification
+session where failures interleave. Use Sonnet 5 where this document already says what to type and
+the failure mode is a visibly wrong screen you can just fix. Phases that are pure content or pure
+rendering do not get more correct with a bigger model; phases that guard a limit do.
 
 This document is a self-contained build spec. It is written so that a Claude model in a fresh
 session, with no memory of the planning conversation, can execute any phase from this document
@@ -78,12 +95,14 @@ Verified against the actual code on `main` (not just docs) in July 2026:
 | Session | Phase | Blocked by |
 |---|---|---|
 | 1 | Live-verify Phases 2–4B + 7 acceptance on real phones (+ fix fallout) — **Opus 5** | Phase 0 |
-| 2 | §16 defect fixes: session close-out + TTS monthly cap | Phase 0 (verify against real data) |
-| 3 | Phase 5 — curriculum delivery + admin import | Q5 (one validated batch) |
-| 4 | Phase 5B — SRS review queue + listening exercises — **Opus 5** | Phases 4, 5 |
-| 5 | Phase 6 — PWA (manifest, Serwist SW, install) | Phase 2 (icon source image needed, §9 Q6) |
-| 6 | Phase 7B — conversation latency + hands-free turn-taking — **Opus 5** | Phase 7 live-verified |
-| 7 | Phase 8 — polish + beta hardening | all |
+| 2 | §16 defect fixes: session close-out + TTS monthly cap — **Opus 5** (guards real money and a data invariant) | Phase 0 (verify against real data) |
+| 3 | Admin usage page (§6.5) — **Sonnet 5** | 2 (shows the caps that session adds) |
+| 4 | `sv` → `es-PY` language pair + Swedish prompt templates (§9 Q12) — **Sonnet 5** | — (content only) |
+| 5 | Phase 5 — curriculum delivery + admin import — **Sonnet 5** | Q5 (one validated batch) |
+| 6 | Phase 5B — SRS review queue + listening exercises — **Opus 5** | Phases 4, 5 |
+| 7 | Phase 6 — PWA (manifest, Serwist SW, install) | Phase 2 (icon source image needed, §9 Q6) |
+| 8 | Phase 7B — conversation latency + hands-free turn-taking — **Opus 5** | Phase 7 live-verified |
+| 9 | Phase 8 — polish + beta hardening (now three UI locales, §9 Q12) | all |
 
 The two remaining stubs are `/lesson` (becomes a real browser in Phase 5) and the admin usage
 page (§6.5, Phase 5). No reusable specs/skills from sibling portfolio repos apply here — this
@@ -139,8 +158,8 @@ Two practice modes sharing one backend:
 
 | Constraint | Detail |
 |---|---|
-| Hosting | Vercel **Hobby (free)** tier only. No Hostinger slot. No always-on server, no persistent WebSocket process on our infra. |
-| Cost | **$0/month, confirmed** for the beta. One Google Cloud project carries a billing account (required for Cloud TTS even within its free allotment, §4.5) but stays at $0 spend via free monthly quotas + budget alerts. Live mode ships as the $0 turn-based option (§4.3 — decided); true simultaneous Live API is a documented future upgrade, not built now. |
+| Hosting | **One Hostinger managed Node.js slot** (§6.13), deployed from GitHub `main`, no SSH/PM2/Nginx. LATAM account preferred (closest to both beta users). The slot is already paid for as part of the owner's existing plan, so hosting adds **$0 marginal cost**. A persistent WebSocket is now technically possible on our infra — it is still **not built**, and adding one requires an explicit owner decision (§4.2, §6.13). |
+| Cost | **$0/month marginal, confirmed** for the beta. Hosting comes out of an already-paid Hostinger plan; one Google Cloud project carries a billing account (required for Cloud TTS even within its free allotment, §4.5) but stays at $0 spend via free monthly quotas + budget alerts. Live mode ships as the $0 turn-based option (§4.3 — decided); true simultaneous Live API is a documented future upgrade, not built now. |
 | Stack | Next.js (App Router) + TypeScript + Tailwind. Drizzle ORM. Auth.js with Google OAuth. **This repo pins Next.js 16 (see `next` in package.json), which has real breaking changes from older training data — e.g. `middleware.ts` was renamed to `proxy.ts` (§5). Read `node_modules/next/dist/docs/` before writing App Router code, per AGENTS.md.** |
 | Database | **Neon** free tier (decision + tradeoff in §3.1). |
 | Curriculum | ALL lesson content is supplied by the owner. **Never generate curriculum content.** Build only the delivery mechanism and an import path. |
@@ -324,14 +343,18 @@ Conventions for builders:
 
 ## 2. API routes
 
-All routes are Next.js App Router route handlers (serverless functions on Vercel).
+All routes are Next.js App Router route handlers, running in **one long-lived Node process** on
+the Hostinger slot (§6.13) — not in per-request serverless functions. Nothing in the code depends
+on that: keep every handler stateless and side-effect-free apart from the database, so a move
+back to a serverless host is never blocked by in-memory state. In particular, **do not** cache
+per-user data in module scope "because we have a real server now."
 
 | Route | Method | Auth | Purpose |
 |---|---|---|---|
 | `/api/auth/[...nextauth]` | GET/POST | — | Auth.js handlers (Google OAuth sign-in/callback/session). |
 | `/api/me` | GET | learner | Current user profile incl. `native_lang`, `target_lang`, `level`, `role`, active language pair. |
 | `/api/me` | PATCH | learner | Update profile (onboarding sets langs + level; settings edits them). Validates `target_lang` against active `language_pairs`. |
-| `/api/lesson/attempt` | POST | learner | **Core route.** Body: `{ audioBase64, mimeType, lessonId?, promptContext? }`. Flow: ① enforce per-user daily cap (§6.5) ② load user + language pair + top recurring `error_patterns` ③ assemble system prompt (§4.1) ④ call Gemini `generateContent` with inline audio + `responseSchema` ⑤ synthesize `tutorReply + " " + followUpQuestion` to MP3 via Cloud TTS (§4.5; non-fatal on failure — return feedback without audio) ⑥ persist utterance + errors, upsert `error_patterns` (which also enqueues/reactivates SRS items, §13.2), log usage (incl. `tts_chars`) ⑦ update `user_stats` — XP + timezone-aware streak/daily-goal (§12; from Phase 4B) ⑧ return the structured feedback JSON + `tutorAudioBase64` (nullable) + `gamification: { xpAwarded, xpTotal, currentStreak, dailyGoalMet }` (nullable pre-4B). TTS is server-side only — the client never sends free text to be synthesized, so the TTS quota can't be abused as a generic synthesizer. `export const maxDuration = 60` (Gemini audio calls can take 5–20 s; Vercel Hobby default is 10 s but allows up to 60). |
+| `/api/lesson/attempt` | POST | learner | **Core route.** Body: `{ audioBase64, mimeType, lessonId?, promptContext? }`. Flow: ① enforce per-user daily cap (§6.5) ② load user + language pair + top recurring `error_patterns` ③ assemble system prompt (§4.1) ④ call Gemini `generateContent` with inline audio + `responseSchema` ⑤ synthesize `tutorReply + " " + followUpQuestion` to MP3 via Cloud TTS (§4.5; non-fatal on failure — return feedback without audio) ⑥ persist utterance + errors, upsert `error_patterns` (which also enqueues/reactivates SRS items, §13.2), log usage (incl. `tts_chars`) ⑦ update `user_stats` — XP + timezone-aware streak/daily-goal (§12; from Phase 4B) ⑧ return the structured feedback JSON + `tutorAudioBase64` (nullable) + `gamification: { xpAwarded, xpTotal, currentStreak, dailyGoalMet }` (nullable pre-4B). TTS is server-side only — the client never sends free text to be synthesized, so the TTS quota can't be abused as a generic synthesizer. `export const maxDuration = 60` — **keep it** even though Hostinger's long-lived Node process has no platform-imposed function timeout (§6.13). It costs nothing, documents the expected worst case, and is the one line that would otherwise have to be rediscovered if hosting ever moves back to a serverless platform. |
 | `/api/lessons` | GET | learner | List lesson_content for the user's language pair, filtered by `level`/`topic` query params. |
 | `/api/lessons/[lessonId]` | GET | learner | One lesson's full content JSON. |
 | `/api/progress` | GET | learner | Dashboard payload: `error_patterns` ranked by `occurrence_count` and recency (incl. "conquered" flags, §12.2), per-category counts over time, recent practice sessions with utterance counts, `user_stats` (XP/streak), count of due review items. |
@@ -347,11 +370,15 @@ owner later upgrades to the true real-time Live API (§4.2, future/optional, not
 | `/api/live/session` *(future upgrade only)* | POST | learner | End-of-live-session save. Body: `{ sessionId, turns: [{ speaker: 'user'\|'tutor', text }] }` (accumulated client-side from Live transcription events). Persists turns as `utterances`, marks the session ended, then runs **text-only** error extraction on the user's turns via `gemini-3.5-flash` (§4.4) and upserts `error_patterns`. |
 
 Notes:
-- Audio is sent as base64 JSON rather than multipart to keep the route dead simple; Vercel's
-  ~4.5 MB body limit then caps recordings at roughly ~3 MB of audio ≈ 2–3 minutes of Opus — far
-  more than a single utterance needs. Enforce a 90-second client-side recording cap anyway.
-- No `/api/live` WebSocket route exists, by design or otherwise: serverless can't hold sockets.
-  A future true-Live upgrade would still be browser↔Google direct, never touching our infra.
+- Audio is sent as base64 JSON rather than multipart to keep the route dead simple. On Hostinger
+  there is no ~4.5 MB platform body limit (that was Vercel's, §6.13), so the **90-second
+  client-side recording cap is now the only thing bounding upload size** — it is load-bearing,
+  not a belt-and-braces nicety, and must not be removed. 90 s of Opus ≈ 1 MB, well inside
+  Node's own defaults.
+- **No `/api/live` WebSocket route exists, and none should be added without an owner decision.**
+  The reason changed in v5: it used to be impossible (serverless can't hold sockets), and is now
+  merely *unbuilt* (a Hostinger Node process can). See §6.13 and §4.2 — the cost argument against
+  true Live mode (~$11/month, §15.2) still stands on its own, independent of hosting.
 
 ---
 
@@ -366,13 +393,22 @@ Notes:
    real SQL aggregates fit this natively; SQLite/libSQL stores JSON as text with a thinner
    function set and no native upsert-increment ergonomics for this shape.
 2. **Auth.js Drizzle adapter is first-class on Postgres** — the documented, most-trodden path.
-3. **Neon's HTTP driver (`@neondatabase/serverless`)** is designed for exactly this deployment:
-   stateless serverless functions on Vercel, no connection-pool management.
+3. **Neon's HTTP driver (`@neondatabase/serverless`)** — no connection-pool management, and, as
+   of v5, the single most load-bearing dependency choice in the repo. **⚠️ DO NOT swap
+   `drizzle-orm/neon-http` for a TCP driver** (`neon-serverless` over WebSocket, `node-postgres`,
+   `postgres.js`) as a "now that we're on a real server, let's use a proper pool" optimization.
+   Hostinger's shared servers have **broken IPv6 routing to Neon's Postgres endpoints** — raw
+   TCP resolves IPv6 and hangs. This has already cost real debugging time on two sibling
+   projects. `neon-http` issues each query as an **HTTPS fetch**, which routes fine, so this app
+   sidesteps the trap entirely *by accident of a choice made for a different reason*. Anyone
+   touching `src/lib/db/index.ts` must read this paragraph first.
 4. Enum types, `uuid`, `timestamptz` keep the schema self-documenting.
 
 **The tradeoff (why Turso was tempting):** Neon's free tier **autosuspends compute after ~5
-minutes idle**, so the first request after a quiet period pays a ~0.5–1 s DB cold start on top of
-the Vercel function cold start. Turso has no comparable cold start and a very generous free tier.
+minutes idle**, so the first request after a quiet period pays a ~0.5–1 s DB cold start. In v4
+this stacked on top of a Vercel function cold start; on Hostinger the Node process stays warm
+(§6.13), so **only the Neon half remains** and first-request latency roughly halves. Turso has no
+comparable cold start and a very generous free tier.
 For a 2-user beta this occasional extra second on the *first* page load is acceptable; the richer
 query surface for the mistakes dashboard is worth more. (Detection: see §6.2.)
 
@@ -723,12 +759,20 @@ true simultaneous voice-to-voice later — skip it for Phase 7 as currently plan
 ### 4.3 Live mode: the $0 turn-based conversation loop (BUILD THIS — decided §9 Q1)
 
 **Background on why this exists instead of true real-time Live API:** ephemeral tokens
-(`authTokens.create`, §4.2) require a billing-enabled Tier-1 project, a raw API key must never
-ship to the browser, and Vercel serverless cannot proxy a WebSocket — so a fully free *true*
-Live mode isn't possible with this architecture. The owner chose the $0 path (option 2 below)
-over paying ~$1–3/hour for real-time (option 1, §4.2, kept as a documented future upgrade). A
-self-hosted WebSocket proxy (option 3) was rejected — it adds an always-on-ish moving part and
-contradicts the "no persistent socket on our infra" principle.
+(`authTokens.create`, §4.2) require a billing-enabled Tier-1 project and a raw API key must never
+ship to the browser. The owner chose the $0 path (option 2 below) over paying for real-time
+(option 1, §4.2, kept as a documented future upgrade).
+
+**v5 correction — one of the three original reasons has expired.** The v4 text also said "Vercel
+serverless cannot proxy a WebSocket", and rejected option 3 (a self-hosted WebSocket proxy)
+because it "contradicts the no-persistent-socket-on-our-infra principle". On Hostinger that
+principle no longer applies: the app runs as a long-lived Node process and *can* hold a socket
+(§6.13). Option 3 is therefore now technically available. **It is still rejected**, but for the
+reasons that were always the real ones and are unaffected by hosting: Live-mode audio has no
+meaningful free tier (~$11/month, §15.2), and the Live API returns plain transcripts rather than
+structured errors, so the entire `error_patterns` dashboard — the product's long-term value —
+goes dark for live practice unless §4.4's post-hoc analysis pass is built too. Do not reopen this
+on the grounds that "we have a real server now"; that was never the binding constraint.
 
 **What to build — turn-based voice conversation:** this reuses the lesson-mode pipeline in a
 loop with no fixed lesson prompt, framed as free-flowing conversation practice rather than
@@ -856,18 +900,64 @@ Rules:
 
 | # | Risk | Reality at this scale | Early-warning signal | Mitigation (built into this plan) |
 |---|---|---|---|---|
-| 6.1 | **Vercel Hobby 10 s default function timeout** — Gemini audio calls take 5–20 s | Would bite on day one | 504s / `FUNCTION_INVOCATION_TIMEOUT` in Vercel logs | `export const maxDuration = 60` on `/api/lesson/attempt` and `/api/live/session` (Hobby allows up to 60 s) |
-| 6.2 | **Neon autosuspend** (~5 min idle) → ~0.5–1 s cold start | Noticeable on first request after idle; harmless | First-load latency spikes in Vercel logs after quiet periods | Accept for beta; UI shows loading states. Don't add keep-alive pings (burns Neon compute hours) |
-| 6.3 | **Vercel ~4.5 MB request-body limit** | Only if recordings run long | 413 responses | 90 s client-side recording cap (~1 MB Opus) |
+| 6.1 | ~~Vercel Hobby 10 s function timeout~~ — **RETIRED in v5.** Hostinger runs a long-lived Node process with no platform function timeout | Was the single most likely day-one failure; now cannot occur | — | `maxDuration = 60` is kept as documentation only (§2). The *real* remaining timeout risk is the reverse proxy in front of the Node app — verify at Phase 0 by timing one deliberately slow `/api/lesson/attempt` call against the live URL |
+| 6.2 | **Neon autosuspend** (~5 min idle) → ~0.5–1 s cold start | Noticeable on first request after idle; harmless — and now the *only* cold start, since the Node process stays warm | First-load latency spikes in Hostinger runtime logs after quiet periods | Accept for beta; UI shows loading states. Don't add keep-alive pings (burns Neon compute hours) |
+| 6.3 | ~~Vercel ~4.5 MB request-body limit~~ — **RETIRED in v5**, but this makes the app *less* safe, not more | No platform ceiling now backstops a runaway upload | Unexpectedly large rows / slow requests in runtime logs | The 90 s client-side recording cap is now load-bearing (§2). Consider an explicit server-side length check on `audioBase64` in the §16 defect session |
 | 6.4 | **Gemini free tier: 15 RPM / 1,500 RPD** on `gemini-3.6-flash` | 1,500/day is plenty; 15 RPM could be hit by rapid-fire retries or a runaway client loop | 429 responses with quota error details | §6.5 caps + surface a friendly "daily practice limit reached" state; exponential backoff on 429, never tight-loop retries |
 | 6.5 | **No native quota dashboard alerting on free tier** | You find out when you hit the wall | — | `usage_log` table + admin page showing today's counts vs. limits (lesson attempts/user/day capped at e.g. 100; live minutes/user/day capped at 20). This is the early-warning system |
 | 6.6 | **Billing trap** (linking billing kills project-A free tier permanently) | Catastrophic for $0 goal if done accidentally | — | Two-project split is mandatory (Phase 0); PLAN states project A must never get billing |
 | 6.7 | *(N/A for this build — only applies if the §4.2 future real-time upgrade is ever built)* Live free-tier: 3 concurrent sessions / ~10-min connections | 2 users → fine; duration cap is real | Sessions dying at ~10 min | 8-minute session design (§4.2) |
 | 6.8 | **Neon 0.5 GB storage** | Text-only rows: years of headroom | Neon dashboard storage graph | No audio blobs in beta (§9 Q3); revisit only if audio storage is approved |
-| 6.9 | **Vercel Hobby is for non-commercial use** | Fine for a free 2-person beta | — | Flag: if the app ever charges users, upgrade to Pro ($20/mo) or move hosting |
+| 6.9 | ~~Vercel Hobby non-commercial clause~~ — **RETIRED in v5.** Hostinger's plan carries no non-commercial restriction | Removes the ~$20/month floor that v4's §15.3 put under any paid tier | — | Charging users is still gated on everything *else* in §15.3 (OAuth publishing, the free tier's data caveat, tax handling) — hosting simply stopped being one of the blockers |
 | 6.10 | **Google OAuth consent screen in Testing mode** | 100-user cap, test users must be listed | New sign-ups fail with `access_denied` | Both beta emails added as test users in Phase 0; publish the consent screen only when opening the beta |
 | 6.11 | **Model deprecations** (2.0 models were shut down June 2026; live model is a `-preview`) | `-preview` models can be replaced with short notice | Gemini API changelog; 404/400 "model not found" errors | Model IDs live in env vars (`GEMINI_LESSON_MODEL`, `GEMINI_LIVE_MODEL`), not code, so a swap is a redeploy-free config change |
-| 6.12 | **Cloud TTS free allotment (1M Neural2 chars/month) on a BILLED project** — overage bills silently at $16/1M chars | 2 users ≈ 100–300 chars/reply → tens of thousands of chars/month; ~3 % of the cap. Would only bite via a bug (e.g. a retry loop) | `tts_chars` monthly total on the admin page; Google budget alerts ($2, $10) email the owner | `usage_log` tracking + budget alerts (Phase 0 step 4); TTS failures are non-fatal so a quota stop degrades to text-only, never an outage |
+| 6.12 | **Cloud TTS free allotment (1M Neural2 chars/month) on a BILLED project** — overage bills silently at $16/1M chars | 2 users ≈ 100–300 chars/reply → tens of thousands of chars/month; ~3 % of the cap. Would only bite via a bug (e.g. a retry loop) | `tts_chars` monthly total on the admin page; Google budget alerts ($2, $10) email the owner | `usage_log` tracking + budget alerts (Phase 0 step 4); TTS failures are non-fatal so a quota stop degrades to text-only, never an outage. **Still unbuilt — §16 defect 2.** |
+| 6.13 | **Hostinger-specific: broken IPv6 routing to Neon** (§3.1, §6.13) | Would be fatal, and is dodged only because the app uses the HTTP driver | `ETIMEDOUT`/hang on every query after a driver swap | Never replace `drizzle-orm/neon-http` with a TCP driver. Run migrations from the owner's machine, never Hostinger SSH |
+| 6.14 | **Env var changes on Hostinger need a redeploy**, not a restart — and a stale value fails as a generic "Application error" page with no cause in the logs | Guaranteed to bite once, during Phase 0 | Blank `Digest: …` error page after any env edit | Change env vars and redeploy in the same sitting; check hPanel → Environment Variables *before* rotating any credential |
+
+---
+
+### 6.13 Hosting: Hostinger managed Node.js (v5 decision — replaces Vercel Hobby)
+
+**The decision.** The app deploys to **one Hostinger managed Node.js slot**, imported from the
+GitHub repo's `main` branch through hPanel's Git integration — no SSH, no PM2, no Nginx config.
+Build `npm run build`, start `npm start`, framework auto-detected as Next.js. The slot is part of
+a plan the owner already pays for, so this is $0 marginal cost, the same as Vercel Hobby was.
+
+**Why it changed.** Vercel Hobby was chosen in v2 when the owner had no hosting at all. He does
+have hosting, the slot is free to him, and Hobby's non-commercial clause put a permanent asterisk
+on §15.3. Nothing about Vercel failed; the cheaper option simply became the better one.
+
+**What genuinely improved** (each of these deleted a real risk row above, not a hypothetical):
+
+| Was | Now |
+|---|---|
+| 10 s default function timeout vs. 5–20 s Gemini audio calls (§6.1) | Long-lived Node process, no platform function timeout |
+| ~4.5 MB request body ceiling (§6.3) | No platform ceiling — but see the warning below |
+| Function cold start *plus* Neon cold start (§3.1) | Process stays warm; only Neon's ~0.5–1 s remains |
+| Non-commercial use forbidden (§6.9) | No such clause |
+| A persistent WebSocket was impossible (§4.3) | Possible — and still deliberately not built |
+
+**What newly matters, and is easy to get wrong:**
+
+1. **The Neon driver is now safety-critical.** Hostinger's shared servers cannot route IPv6 to
+   Neon; a TCP Postgres driver hangs on every query. `neon-http` queries over HTTPS and is fine.
+   See the warning in §3.1. This is the single most likely way to break the app while "improving"
+   it.
+2. **Run migrations and seeds from the owner's machine**, pointed at Neon — never from Hostinger
+   SSH, for the same IPv6 reason. The deployed app's runtime path (HTTPS) is not the same network
+   path as the SSH shell, so "the site works" tells you nothing about whether SSH will.
+3. **Env var edits require a redeploy** (§6.14), and a stale value surfaces as a blank
+   "Application error" page with nothing useful in the runtime logs.
+4. **The 90-second recording cap is now the only upload bound** (§2). Do not relax it.
+5. **Losing the platform's edge network** costs a little static-asset latency versus Vercel's CDN.
+   At two users on the same continent as the LATAM slot, this is not worth one line of work.
+6. **The reverse proxy in front of the Node process may still impose its own request timeout** —
+   this is the one Vercel-era risk that might have survived in a different form. Measure it at
+   Phase 0 (§6.1) rather than assuming either way.
+
+**Not in scope:** a VPS. That is only warranted when several live dynamic apps contend for
+resources, which is not the case and would not be caused by two beta users.
 
 ---
 
@@ -885,7 +975,10 @@ Rules:
   a minimal offline fallback page ("Idioma needs a connection to hear you 🎙️").
 - Install prompts: Android/Chrome fires `beforeinstallprompt` (show a custom "Install" button);
   iOS requires manual "Add to Home Screen" — show a one-time hint.
-- Microphone works in installed PWAs on both platforms (HTTPS is given on Vercel). iOS quirk
+- Microphone works in installed PWAs on both platforms (HTTPS is automatic on Hostinger, on both
+  the `*.hostingersite.com` URL and any mapped custom domain — **verify the certificate is
+  actually valid before testing mic access**, since a broken cert silently kills
+  `getUserMedia`). iOS quirk
   reminder: create/resume `AudioContext` inside a tap handler.
 
 ### 7.2 What the SW must NOT do
@@ -917,9 +1010,14 @@ ends with its **acceptance check** passing; do not start a phase whose "blocked 
 Update `.env.example` whenever an env var is added.
 
 ### Phase 0 — Accounts & keys (OWNER does this by hand; no code)
-The owner has **zero** Google/Vercel/Neon setup today. Checklist:
-1. **GitHub** repo (exists) connected to **Vercel** (sign up free with GitHub; "Import project";
-   framework auto-detected later once Next.js exists).
+The owner has **zero** Google/Neon setup today; the Hostinger account already exists (§6.13).
+Checklist:
+1. **Hostinger**: hPanel → Websites → Add Website → **Node.js Apps** → **Import Git Repository**
+   → authorize GitHub → select `antonmarklundcom/idioma`, branch `main`. Confirm the
+   auto-detected settings (framework Next.js, build `npm run build`, start `npm start`). Prefer
+   the **LATAM account** — both beta users are in Paraguay. **Record which account and slot were
+   used**, and how many slots that account has left. The app will be live at a temporary
+   `*.hostingersite.com` URL; the custom domain comes later (§9 Q6).
 2. **Neon**: sign up free → create project `idioma` (region: AWS `us-east-1` or `sa-east-1`;
    pick the one closest to Paraguay that Neon offers — `sa-east-1` if available) → copy the
    **pooled connection string** → this becomes `DATABASE_URL`.
@@ -938,15 +1036,28 @@ The owner has **zero** Google/Vercel/Neon setup today. Checklist:
    billing to `idioma-free` permanently kills its Gemini free tier (§0).
 5. **Google OAuth**: console.cloud.google.com → select project (either; suggest `idioma-free`) →
    "APIs & Services → OAuth consent screen": External, app name, owner email; **Publishing
-   status: Testing**; add BOTH beta users' Gmail addresses as test users. Then "Credentials →
-   Create credentials → OAuth client ID → Web application": authorized origins
-   `http://localhost:3000` + `https://<app>.vercel.app`; redirect URIs
+   status: Testing**; add **every** tester's Gmail address as a test user — both beta users, plus
+   anyone added under §9 Q12 (the 100-user Testing cap is not the constraint; forgetting someone
+   is, and it fails as an opaque `access_denied`). Then "Credentials → Create credentials →
+   OAuth client ID → Web application": authorized origins `http://localhost:3000` +
+   `https://<app>.hostingersite.com`; redirect URIs
    `http://localhost:3000/api/auth/callback/google` +
-   `https://<app>.vercel.app/api/auth/callback/google` → `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`.
+   `https://<app>.hostingersite.com/api/auth/callback/google` → `AUTH_GOOGLE_ID`,
+   `AUTH_GOOGLE_SECRET`. (Both get a second entry once the real domain lands — §9 Q6.)
 6. Generate `AUTH_SECRET` (`npx auth secret` or any 32-byte random string).
-7. Put all values in Vercel project → Settings → Environment Variables, and in local `.env.local`.
+7. Put all values in **hPanel → the app → Environment Variables**, and in local `.env.local`.
+   Set `AUTH_URL` to the live URL. Paste **only the raw value** into the Value field — pasting
+   `KEY=value` there is a recurring mistake and surfaces as `ERR_INVALID_URL` at build time with
+   the variable name visibly duplicated inside the error's `input`. **Redeploy after any env
+   change** (§6.14) — restarting is not enough.
+8. **Run the migrations and seed from the owner's own machine**, never from Hostinger SSH
+   (§6.13): set `DATABASE_URL` locally, then `npx drizzle-kit migrate` and `npm run db:seed`.
+   On Windows PowerShell, set it with `$env:DATABASE_URL = "..."` and never create `.env` with
+   `>` redirection — PowerShell writes UTF-16 and the dotenv parser fails silently.
 
-**Acceptance:** every env var in `.env.example` (Phase 1) has a real value locally and on Vercel.
+**Acceptance:** every env var in `.env.example` (Phase 1) has a real value locally and in hPanel;
+the Hostinger URL renders; a Google sign-in completes end to end; one deliberately slow
+`/api/lesson/attempt` call confirms no proxy-level request timeout (§6.1).
 
 ### Phase 1 — Scaffold + database (blocked by: Phase 0 items 1–2)
 Create the Next.js app (App Router, TS, Tailwind, `src/` dir) matching §1; add Drizzle +
@@ -954,8 +1065,9 @@ Create the Next.js app (App Router, TS, Tailwind, `src/` dir) matching §1; add 
 `drizzle.config.ts`; generate + run the first migration against Neon; write `scripts/seed.ts`
 inserting the two `language_pairs` rows (template text can be placeholder pending §9 Q5);
 `.env.example` with all vars (incl. `GEMINI_LESSON_MODEL=gemini-3.6-flash`,
-`GEMINI_LIVE_MODEL=gemini-3.1-flash-live-preview`, `GOOGLE_TTS_API_KEY`); deploy to Vercel
-(blank landing page OK).
+`GEMINI_LIVE_MODEL=gemini-3.1-flash-live-preview`, `GOOGLE_TTS_API_KEY`); deploy to the
+Hostinger slot (blank landing page OK). Migrations run from the owner's machine, not the
+server (§6.13).
 **Acceptance:** `npx drizzle-kit migrate` succeeds; seed script runs; deployed URL renders.
 
 ### Phase 2 — Auth + onboarding (blocked by: 1) — CODE COMPLETE, untested pending Phase 0
@@ -981,7 +1093,7 @@ exactly once and their coaching answers persist on `users`; `/admin` 403s for le
 
 ### Phase 3 — Lesson mode core loop (blocked by: 2) ← the product's heart — CODE COMPLETE, untested pending Phase 0
 Same caveat as Phase 2: implemented and passing `npm run build` (with a fully empty
-environment, matching Vercel pre-Phase-0) + `npx tsc --noEmit` + `npm run lint`, but the
+environment, matching the deploy target pre-Phase-0) + `npx tsc --noEmit` + `npm run lint`, but the
 Gemini call, TTS synthesis, and recording flow have never run against real credentials or a
 real phone. `language_pairs.tts_voice` was seeded with a best-guess Neural2 voice name from
 Google's documented catalog, not verified against the live `/v1/voices` endpoint — low risk
@@ -1158,12 +1270,13 @@ as documented-not-built.
 | Q3 | ~~Store learners' audio recordings?~~ | — | **DECIDED (owner): don't store audio.** Transcripts suffice; `audioRef` column stays NULL. If ever revisited: Cloudflare R2 free tier is the path, column is ready. |
 | Q4 | ~~CEFR vs custom levels?~~ | — | **DECIDED (owner): CEFR**, `cefrEnum` stays A1–C1 (§3.3, no schema change needed). Content-authoring order: **owner writes A1 + A2 lesson content first** (Phase 5); B1/B2/C1 rows get added later once A1/A2 are solid. The enum already supports all 5 from day one — this is purely a content-writing sequencing choice, not an architecture one. |
 | Q5 | **PARTIALLY RESOLVED (v4):** the owner authors the curriculum with Gemini's help (§9 Q11 allows this — the app still never generates content at request time). The three-pass prompt pack lives at **`content/prompts/curriculum-generation.md`** and emits import-ready JSON matching §3.4. **What's still needed from the owner:** run pass 1 for each language pair, *edit the map by hand* (that pass is where owner judgment actually matters), then generate + validate one A1 batch. Phase 5 needs only that first batch. Still open separately: approve the two `tutorPromptTemplate` wordings and the seeded `errorTaxonomy` lists in `scripts/seed.ts`. | Phase 5 (needs 1 validated batch) | Sample lessons remain in place; lesson browser shows placeholders |
-| Q6 | ~~App name + domain?~~ | — | **DECIDED (owner): name = "Idioma", domain = `idioma.com.py`** (available; chosen partly for SEO — "idioma" is a real Spanish search term, generic enough to cover future language pairs beyond ES/EN/Guaraní). Logo/icon source image still needed before Phase 6. **Domain registration note:** `.com.py` typically wants a local Paraguay contact/presence and can take time to register (~30 days per some registrars) — start this in Phase 0, not Phase 6, so it's ready by launch. Once registered, add it as the Vercel custom domain (Settings → Domains) and update the Google OAuth authorized origins/redirect URIs (§5, Phase 0 step 5) and the PWA manifest `start_url`/`id` (§7.1) to match — `*.vercel.app` remains the fallback if registration is delayed. |
+| Q6 | ~~App name + domain?~~ | — | **DECIDED (owner): name = "Idioma", domain = `idioma.com.py`** (available; chosen partly for SEO — "idioma" is a real Spanish search term, generic enough to cover future language pairs beyond ES/EN/Guaraní). Logo/icon source image still needed before Phase 6. **Domain registration note:** `.com.py` typically wants a local Paraguay contact/presence and can take time to register (~30 days per some registrars) — start this in Phase 0, not Phase 6, so it's ready by launch. **Do not wait for it** — ship on the temporary `https://<app>.hostingersite.com` URL and move later; the move is a ~10-minute job in exactly three places, and knowing that up front is the point of writing it down: ① map the domain inside the Hostinger app's settings (DNS is at NIC.py, so point an A/CNAME record at the target Hostinger gives you; SSL is automatic once it resolves) ② add the new origin + `/api/auth/callback/google` redirect URI to the Google OAuth client (§5, Phase 0 step 5) and update `AUTH_URL`, then **redeploy** (§6.14) ③ update the PWA manifest `start_url`/`id` (§7.1). Keep the `*.hostingersite.com` entries in place alongside the new ones — that's the rollback. |
 | Q7 | The two model IDs, free-tier numbers, and the "ephemeral tokens need billing" claim came from July-2026 research (partly via Gemini itself). **Builder must re-verify all three against ai.google.dev at Phase 3 / Phase 7 start** and update §0. Confirm you're OK with that re-verification step. | Phases 3, 7 | Re-verify at build time |
 | Q8 | ~~Gamification?~~ | — | **DECIDED (owner, July 2026): yes — §12.** Streaks, XP, daily goal, celebrations. **No ads, ever**; no dark patterns. |
 | Q9 | ~~Per-learner coaching focus?~~ | — | **DECIDED (owner, July 2026):** her = confidence to start speaking (`confidence_first`); him = grammar accuracy + listening (`accuracy_focus`). Same lesson structure and pipeline in both directions — only the coaching style differs, per user (§11.3). Profiles are user-choosable at onboarding, not hardcoded to the two people. |
 | Q10 | ~~Locked to Google?~~ | — | **DECIDED (owner, July 2026):** Google (Gemini + Cloud TTS) at launch, but all LLM calls go through the §14 provider interface so another model (e.g. Claude) can be swapped in later via one adapter + env change. |
 | Q11 | ~~Target outcome?~~ | — | **DECIDED (owner, July 2026):** functional independence in daily life in a Spanish- and an English-speaking country (≈ CEFR B1–B2). Curriculum authored by the owner (using Gemini) should aim there; the two Claude-authored demo lessons in `content/lessons/` are placeholder super-basics only. |
+| Q12 | **Swedish as a native language — DECIDED (owner, August 2026): yes.** The owner's parents want to learn Spanish from Swedish, so an **`sv` → `es-PY` language pair** joins the existing two. **This is deliberately not an architecture change** — it is one row in `language_pairs` plus content, and if it turns out to require code changes then §0's "language-pair behavior lives in DB config, never hardcoded" constraint has already been violated somewhere and *that* is the bug to fix. What it actually needs: ① a seed row with a Swedish-language `tutorPromptTemplate` + `conversationPromptTemplate` and an `errorTaxonomy` reflecting Swedish-speaker interference patterns (falska vänner, `att`/infinitive mapping, V2 word order leaking into Spanish, `är`/`ser`/`estar` collapse) ② A1 lesson content for the pair ③ Swedish strings in the Phase 8 UI dictionary, which now covers three locales rather than two (§10 item 9). **Open sub-question, owner to decide knowingly:** the Gemini free tier's terms allow Google to use submitted data — including voice recordings — to improve its products. §15.3 calls that acceptable for a two-person personal beta and explicitly *not* acceptable for third parties. Parents and a girlfriend are neither, exactly. Decide it on purpose rather than by default; if the answer is "not acceptable for them", their traffic must run on the billed project B key, which costs roughly $0.30/user/month (§15.3) and is what the §15.3 tier gate exists to control. | Phase 5 (content), Phase 8 (UI strings) | Ship ES/EN first; add the pair when its A1 batch exists |
 
 ---
 
@@ -1198,8 +1311,9 @@ as documented-not-built.
 9. **The partner's UI language:** an English-only UI undermines the "Paraguayan learning
    English" experience for a beginner. Fix: tiny two-locale string dictionary in Phase 8 — cheap
    now, painful later.
-10. **Vercel Hobby non-commercial clause** (§6.9): fine today; revisit before ever charging
-    users. (Ads are ruled out permanently by §12.1 regardless.)
+10. ~~Vercel Hobby non-commercial clause~~ — **resolved in v5** by the move to Hostinger (§6.9,
+    §6.13). Hosting is no longer a blocker to ever charging; the §15.3 blockers that remain are
+    all non-infrastructural. (Ads are ruled out permanently by §12.1 regardless.)
 11. **Gamification can backfire.** Rewarding streaks harder than learning invites hollow
     grinding; shame-flavored mechanics (guilt notifications, decaying leagues) would directly
     attack the confidence goal for the anxious learner. §12.1's design rules exist to prevent
@@ -1282,8 +1396,9 @@ first and collapses the error list behind "N things to polish — tap to see";
 
 1. Reward **showing up + effort** (turns spoken, streaks) and **mastery** (mistakes conquered)
    — never engagement for its own sake.
-2. **No ads, ever.** No paid boosts. (Also keeps §6.9's Vercel non-commercial clause safely
-   satisfied.)
+2. **No ads, ever.** No paid boosts. (This was additionally convenient under v4's Vercel
+   non-commercial clause; that clause is gone as of v5 (§6.9) and the rule is unchanged —
+   it was always a product decision, never a licensing one.)
 3. **No dark patterns:** no guilt/shame notifications, no decaying leagues, no fake scarcity.
    A missed day is met with a warm re-entry ("pick up where you left off"), not a crying owl.
 4. The dopamine moments celebrate *learning* (finished lesson, conquered mistake, streak
@@ -1478,8 +1593,12 @@ should be made on whether Phase 7B's latency work is good enough, not on cost al
 Two second-order costs C carries that the table doesn't show, and they are the real reason to
 defer it: the Live API returns **plain transcripts, not structured errors**, so §4.4's post-hoc
 analysis pass has to be built or the dashboard and the whole error-pattern loop go dark for live
-practice — splitting the product in two (§10 item 4). And Vercel Hobby cannot proxy a WebSocket,
-so the browser must connect directly, which is what drags ephemeral tokens in at all.
+practice — splitting the product in two (§10 item 4). **That one is unaffected by v5 and is now
+the whole case against C.** The second reason v4 gave — that Vercel Hobby cannot proxy a
+WebSocket, forcing a direct browser connection and dragging in ephemeral tokens — **no longer
+holds**: a Hostinger Node process can proxy a socket (§6.13), so a server-side proxy could keep
+the API key off the client and skip ephemeral tokens entirely. That removes an obstacle, not the
+$11/month.
 
 **Free-tier headroom, for planning:** 1,500 requests/day ÷ 20 turns ≈ **75 sessions/day**, i.e.
 roughly 35 daily-active users on path A (about 18 on B if it splits into two calls per turn).
@@ -1500,20 +1619,43 @@ if it's worth it." Enforce it **server-side only**; a client-side flag is decora
 
 **Explicitly out of scope, and each one is real work, not a checkbox:**
 
-- **Vercel Hobby forbids commercial use** (§6.9, §10 item 10). The moment money changes hands the
-  project must move to Pro (~$20/month) — which by itself exceeds the entire current cost model.
+- ~~Vercel Hobby forbids commercial use~~ — **removed in v5** (§6.9, §6.13). This was the
+  ~$20/month fixed floor under any paid tier, and it is gone: the Hostinger slot carries no
+  non-commercial clause and is already paid for. **The floor is now roughly $0**, which makes the
+  remaining blockers below the real ones rather than an afterthought.
 - **The Gemini free tier's data caveat** (§0) makes project A unusable for third-party users'
   recordings. Paying customers means the paid tier, which means path A's true COGS is ~$0.008 per
-  turn — about **$0.30 per user per month** at beta usage, before Vercel, before TTS overage.
+  turn — about **$0.30 per user per month** at beta usage, before TTS overage. Note this now also
+  bears on §9 Q12's tester group, who are not paying but are also not "the two of us".
 - **The shared free-tier ceiling** (above) is per project, not per user. Growth past a few dozen
   daily users forces the paid tier regardless of what anyone is charged.
 - **Google OAuth is in "Testing" publishing status** with two hardcoded test users (Phase 0 step
   5). Public signup requires publishing and, for sensitive scopes, verification.
 - **Billing, invoicing and Swedish/Paraguayan tax handling** are an entire separate build.
 
-Nothing above says don't — it says the premium tier is a business decision with a floor of about
-$20/month in fixed costs, and it should be made deliberately rather than arrived at by adding a
-column. Until then: build the gate, keep both beta users on `premium`, and keep the app at $0.
+Nothing above says don't — it says the premium tier is a business decision that should be made
+deliberately rather than arrived at by adding a column. Until then: build the gate, keep both
+beta users on `premium`, and keep the app at $0.
+
+**The $10 Google Cloud credit (owner, August 2026).** Apply it to **project B only** — the
+billed one. Applying anything to project A permanently destroys its Gemini free tier (§6.6), and
+a credit is not worth that. What $10 actually buys, at the §15.2 rates:
+
+| Spend | Buys |
+|---|---|
+| True real-time Live mode (path C) | ~**1 month** at beta usage (~$11/month) |
+| Cloud TTS beyond the free 1M chars/month | ~**600k characters** |
+| Paid-rate path-A turns | ~**2,000 turns** — more than a year of one user's beta usage |
+
+The recommended use is the first: **one month of real-time voice for the owner alone**, gated
+through the `users.tier` flag above, to answer empirically whether path C is worth $11/month once
+Phase 7B's latency work has landed. That is exactly the experiment the tier gate was designed to
+make possible, and it is a far better use of $10 than shaving TTS overage that isn't happening.
+
+**What the credit must not become:** a reason to relax the free-tier caps (§6.5) or to defer
+§16's monthly TTS cap. The credit is a one-time $10, not a budget; when it runs out, the caps are
+the only thing standing between the project and a recurring bill. Keep the $2/$10 budget alerts
+from Phase 0 step 4 — with a credit applied, those alerts are how the owner finds out it is gone.
 
 ---
 
@@ -1546,7 +1688,7 @@ Phase 0 live verification, when there is real data to verify against.
 
 ---
 
-*End of PLAN.md, v4. Builders: pick up at the next unblocked item in the §"what's needed to
+*End of PLAN.md, v5. Builders: pick up at the next unblocked item in the §"what's needed to
 finish" table, read §11–§16 first, and keep every acceptance check honest — they are tested on
 the two real phones, not desktop. The single highest-value thing anyone can do for this project
 right now is Phase 0, and it is not a coding task.*
