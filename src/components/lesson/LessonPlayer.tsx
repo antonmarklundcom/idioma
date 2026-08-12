@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { UtteranceRecorder } from '@/components/recorder/UtteranceRecorder';
 import { FeedbackCard } from './FeedbackCard';
 import { useTutorAudioPlayer } from './useTutorAudioPlayer';
+import { useSessionCloseOut } from '@/components/practice/useSessionCloseOut';
 import { XpToast } from '@/components/gamification/XpToast';
 import { Celebration } from '@/components/gamification/Celebration';
 import type { CoachingProfile } from '@/lib/db/schema';
@@ -41,7 +42,11 @@ export function LessonPlayer({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [xpEvent, setXpEvent] = useState<{ id: number; xp: number } | null>(null);
   const [celebrationMessage, setCelebrationMessage] = useState<string | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const player = useTutorAudioPlayer();
+
+  // PLAN.md §16 defect 1: close the practice session when the learner leaves.
+  useSessionCloseOut(sessionId);
 
   const handleRecorded = useCallback(
     async (blob: Blob, mimeType: string) => {
@@ -62,6 +67,7 @@ export function LessonPlayer({
         }
         const data: LessonAttemptResponse = await res.json();
         setFeedback(data);
+        setSessionId(data.sessionId);
         setPromptContext(data.followUpQuestion);
         setStatus('idle');
         if (data.tutorAudioBase64) player.play(data.tutorAudioBase64);

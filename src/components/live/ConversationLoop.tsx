@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { UtteranceRecorder } from '@/components/recorder/UtteranceRecorder';
 import { FeedbackCard } from '@/components/lesson/FeedbackCard';
 import { useTutorAudioPlayer } from '@/components/lesson/useTutorAudioPlayer';
+import { useSessionCloseOut } from '@/components/practice/useSessionCloseOut';
 import { XpToast } from '@/components/gamification/XpToast';
 import { Celebration } from '@/components/gamification/Celebration';
 import type { CoachingProfile } from '@/lib/db/schema';
@@ -37,7 +38,11 @@ export function ConversationLoop({ coachingProfile }: { coachingProfile: Coachin
   const [turnCount, setTurnCount] = useState(0);
   const [xpEvent, setXpEvent] = useState<{ id: number; xp: number } | null>(null);
   const [celebrationMessage, setCelebrationMessage] = useState<string | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const player = useTutorAudioPlayer();
+
+  // PLAN.md §16 defect 1: close the conversation session when the learner leaves.
+  useSessionCloseOut(sessionId);
 
   const handleRecorded = useCallback(
     async (blob: Blob, mimeType: string) => {
@@ -58,6 +63,7 @@ export function ConversationLoop({ coachingProfile }: { coachingProfile: Coachin
         }
         const data: LessonAttemptResponse = await res.json();
         setFeedback(data);
+        setSessionId(data.sessionId);
         setPromptContext(data.followUpQuestion);
         setTurnCount((n) => n + 1);
         setStatus('idle');

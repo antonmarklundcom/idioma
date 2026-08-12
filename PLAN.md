@@ -95,8 +95,8 @@ Verified against the actual code on `main` (not just docs) in July 2026:
 | Session | Phase | Blocked by |
 |---|---|---|
 | 1 | Live-verify Phases 2–4B + 7 acceptance on real phones (+ fix fallout) — **Opus 5** | Phase 0 |
-| 2 | §16 defect fixes: session close-out + TTS monthly cap — **Opus 5** (guards real money and a data invariant) | Phase 0 (verify against real data) |
-| 3 | Admin usage page (§6.5) — **Sonnet 5** | 2 (shows the caps that session adds) |
+| 2 | ~~§16 defect fixes: session close-out + TTS monthly cap~~ — **DONE in code (v5)**; acceptance checks in §16 still unrun | Phase 0 (verify against real data) |
+| 3 | Admin usage page (§6.5) — **Sonnet 5** | — (the caps it renders now exist) |
 | 4 | `sv` → `es-PY` language pair + Swedish prompt templates (§9 Q12) — **Sonnet 5** | — (content only) |
 | 5 | Phase 5 — curriculum delivery + admin import — **Sonnet 5** | Q5 (one validated batch) |
 | 6 | Phase 5B — SRS review queue + listening exercises — **Opus 5** | Phases 4, 5 |
@@ -911,7 +911,7 @@ Rules:
 | 6.9 | ~~Vercel Hobby non-commercial clause~~ — **RETIRED in v5.** Hostinger's plan carries no non-commercial restriction | Removes the ~$20/month floor that v4's §15.3 put under any paid tier | — | Charging users is still gated on everything *else* in §15.3 (OAuth publishing, the free tier's data caveat, tax handling) — hosting simply stopped being one of the blockers |
 | 6.10 | **Google OAuth consent screen in Testing mode** | 100-user cap, test users must be listed | New sign-ups fail with `access_denied` | Both beta emails added as test users in Phase 0; publish the consent screen only when opening the beta |
 | 6.11 | **Model deprecations** (2.0 models were shut down June 2026; live model is a `-preview`) | `-preview` models can be replaced with short notice | Gemini API changelog; 404/400 "model not found" errors | Model IDs live in env vars (`GEMINI_LESSON_MODEL`, `GEMINI_LIVE_MODEL`), not code, so a swap is a redeploy-free config change |
-| 6.12 | **Cloud TTS free allotment (1M Neural2 chars/month) on a BILLED project** — overage bills silently at $16/1M chars | 2 users ≈ 100–300 chars/reply → tens of thousands of chars/month; ~3 % of the cap. Would only bite via a bug (e.g. a retry loop) | `tts_chars` monthly total on the admin page; Google budget alerts ($2, $10) email the owner | `usage_log` tracking + budget alerts (Phase 0 step 4); TTS failures are non-fatal so a quota stop degrades to text-only, never an outage. **Still unbuilt — §16 defect 2.** |
+| 6.12 | **Cloud TTS free allotment (1M Neural2 chars/month) on a BILLED project** — overage bills silently at $16/1M chars | 2 users ≈ 100–300 chars/reply → tens of thousands of chars/month; ~3 % of the cap. Would only bite via a bug (e.g. a retry loop) | `tts_chars` monthly total on the admin page; Google budget alerts ($2, $10) email the owner | `usage_log` tracking + budget alerts (Phase 0 step 4); TTS failures are non-fatal so a quota stop degrades to text-only, never an outage. **Enforced as of v5** by `MONTHLY_TTS_CHAR_CAP` (§16 defect 2) — global across users, since the allotment is per Google project |
 | 6.13 | **Hostinger-specific: broken IPv6 routing to Neon** (§3.1, §6.13) | Would be fatal, and is dodged only because the app uses the HTTP driver | `ETIMEDOUT`/hang on every query after a driver swap | Never replace `drizzle-orm/neon-http` with a TCP driver. Run migrations from the owner's machine, never Hostinger SSH |
 | 6.14 | **Env var changes on Hostinger need a redeploy**, not a restart — and a stale value fails as a generic "Application error" page with no cause in the logs | Guaranteed to bite once, during Phase 0 | Blank `Digest: …` error page after any env edit | Change env vars and redeploy in the same sitting; check hPanel → Environment Variables *before* rotating any credential |
 
@@ -1661,8 +1661,12 @@ from Phase 0 step 4 — with a credit applied, those alerts are how the owner fi
 
 ## 16. Known defects in shipped code (found v4 by reading `main`)
 
-Neither is hypothetical; both are in merged, code-complete phases. Fix both in the session after
-Phase 0 live verification, when there is real data to verify against.
+**Status (v5): both are FIXED IN CODE, and neither is verified against real data.** Phase 0 has
+still never run, so nothing below has executed against a live Postgres, a real phone, or a real
+TTS bill. The v4 text said to fix these "in the session after Phase 0 live verification"; they
+were fixed before it instead, because the code is unambiguous and the TTS one guards real money.
+**What Phase 0's verification session must still do** is listed under each item — treat these as
+acceptance checks that have not been run, not as finished work.
 
 1. **`practice_sessions` rows are never closed.** `endedAt` is declared in the schema
    (`src/lib/db/schema.ts`), read by `getOrCreateSession` (`isNull(practiceSessions.endedAt)`)
@@ -1675,6 +1679,18 @@ Phase 0 live verification, when there is real data to verify against.
    `beforeunload` is unreliable on mobile) *and* defensively in `getOrCreateSession` — treat an
    open session whose latest utterance is older than ~30 minutes as ended, and start a new one.
    The defensive half matters more than the beacon: phones background tabs without warning.
+   **FIXED (v5)** in `src/lib/sessions.ts` — `getOrCreateSession` moved out of the route and now
+   sweeps stale rows before looking for an open one; `/api/session/end` accepts a `sendBeacon`
+   close-out (parsed as text, since a beacon can't set `Content-Type`), scoped to the owner;
+   `useSessionCloseOut` fires on `pagehide` and on unmount. Two decisions worth not re-litigating:
+   `endedAt` is set to the session's **last utterance**, not `now()` — closing at discovery time
+   would inflate every abandoned session by however long it sat idle, which is the exact metric
+   this defect corrupts — and `beforeunload` is deliberately unused, as it is unreliable on the
+   only platform this app targets.
+   **Still to verify at Phase 0:** record a turn, leave the page, confirm `ended_at` is set and
+   equals the last utterance's timestamp; then record again and confirm a *new* session row
+   appears rather than the old one being reused; and confirm the 30-minute sweep closes a session
+   abandoned without a beacon (background the tab on a real phone, don't just close it on desktop).
 2. **No monthly cap on TTS characters.** `lib/usage.ts` enforces only
    `DAILY_LESSON_ATTEMPT_CAP` on `lesson_attempt`. `tts_chars` is logged and never checked
    against the 1M/month free allotment. Cloud TTS lives in project B, **which has billing
@@ -1685,6 +1701,23 @@ Phase 0 live verification, when there is real data to verify against.
    constant set to ~80% of the free allotment; over the cap, skip synthesis and return text-only
    feedback — the degradation path already exists and is already non-fatal (§4.5). Surface the
    running total on the admin usage page (§6.5).
+   **FIXED (v5)** in `src/lib/usage.ts` — `MONTHLY_TTS_CHAR_CAP = 800_000` (80% of the 1M
+   allotment; the remaining 200k is the margin that absorbs whatever slips through, so crossing
+   the cap costs the tutor's voice rather than money), checked in `/api/lesson/attempt` before
+   synthesis. **The cap is global across all users, not per user** — the allotment belongs to the
+   Google Cloud project, so a per-user 800k would let two learners bill for 600k while both sat
+   "under the cap". `getMonthlyTtsCharCount()` is exported for the admin usage page to render.
+   Month boundaries are UTC, matching Google's billing period rather than the learner's timezone
+   (§12's streak logic asks a different question and deliberately answers it differently).
+   **Still to verify at Phase 0:** temporarily lower the constant, confirm synthesis is skipped
+   and the UI degrades to text-only without an error, then restore it. Also confirm the number
+   `getMonthlyTtsCharCount()` reports matches Google Cloud's own reported usage for the month —
+   if those two disagree, the cap is guarding the wrong number and the $0 constraint is unguarded.
+
+3. **(v5, related)** With Vercel's ~4.5 MB body limit gone (§6.3), nothing server-side bounded
+   upload size — a client-side recording cap bounds nothing an attacker controls. Fixed by
+   `MAX_AUDIO_BASE64_CHARS` in `lib/zodSchemas.ts`, deliberately set to the old platform ceiling.
+   90 s of Opus is ~1 MB, so it stops runaways without touching a real recording.
 
 ---
 

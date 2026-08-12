@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import { and, desc, eq, isNull } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
-import { errorPatterns, languagePairs, practiceSessions, utterances } from '@/lib/db/schema';
+import { errorPatterns, languagePairs, utterances } from '@/lib/db/schema';
 import {
   feedbackResultSchema,
   lessonAttemptRequestSchema,
@@ -11,54 +11,15 @@ import {
 import { getProviderForTask } from '@/lib/llm/provider';
 import { assembleSystemPrompt, FREE_PRACTICE_LESSON_CONTEXT } from '@/lib/gemini/prompts';
 import { synthesizeTutorSpeech } from '@/lib/tts';
-import { isUnderDailyLessonAttemptCap, logUsage } from '@/lib/usage';
+import { isUnderDailyLessonAttemptCap, isUnderMonthlyTtsCharCap, logUsage } from '@/lib/usage';
 import { recordErrorPatterns } from '@/lib/errorPatterns';
 import { recordTurnAndUpdateStats } from '@/lib/gamification';
+import { getOrCreateSession } from '@/lib/sessions';
 
 // Gemini audio calls can take 5-20s. Hostinger's long-lived Node process imposes no
 // function timeout (PLAN.md §6.1/§6.13); kept as documented intent and portability
 // insurance if hosting ever moves back to a serverless platform.
 export const maxDuration = 60;
-
-async function getOrCreateSession(args: {
-  userId: string;
-  languagePairId: string;
-  mode: 'lesson' | 'live';
-  lessonId?: string;
-}) {
-  const lessonIdCondition = args.lessonId
-    ? eq(practiceSessions.lessonId, args.lessonId)
-    : isNull(practiceSessions.lessonId);
-
-  const [existing] = await db
-    .select({ id: practiceSessions.id })
-    .from(practiceSessions)
-    .where(
-      and(
-        eq(practiceSessions.userId, args.userId),
-        eq(practiceSessions.languagePairId, args.languagePairId),
-        eq(practiceSessions.mode, args.mode),
-        isNull(practiceSessions.endedAt),
-        lessonIdCondition,
-      ),
-    )
-    .orderBy(desc(practiceSessions.startedAt))
-    .limit(1);
-
-  if (existing) return existing.id;
-
-  const [created] = await db
-    .insert(practiceSessions)
-    .values({
-      userId: args.userId,
-      languagePairId: args.languagePairId,
-      mode: args.mode,
-      lessonId: args.lessonId ?? null,
-    })
-    .returning({ id: practiceSessions.id });
-
-  return created.id;
-}
 
 async function getValidatedFeedback(args: {
   systemPrompt: string;
@@ -163,7 +124,11 @@ export async function POST(request: Request) {
   }
 
   let tutorAudioBase64: string | null = null;
-  if (pair.ttsVoice) {
+  // PLAN.md §6.12 / §16 defect 2: Cloud TTS runs in the BILLED project, so it fails open -
+  // past the free allotment it bills silently instead of returning 429. Check before
+  // synthesizing; over the cap we degrade to text-only feedback, which is the same
+  // non-fatal path a TTS outage already takes (§4.5).
+  if (pair.ttsVoice && (await isUnderMonthlyTtsCharCap())) {
     const spoken = `${feedback.tutorReply} ${feedback.followUpQuestion}`;
     const tts = await synthesizeTutorSpeech(spoken, pair.ttsVoice, session.user.level);
     if (tts) {
@@ -209,6 +174,10 @@ export async function POST(request: Request) {
 
   return NextResponse.json({
     ...feedback,
+    // Returned so the client can name the session it is leaving in its /api/session/end
+    // beacon (§16 defect 1). Non-secret: it is the caller's own session, and the end
+    // route re-checks ownership regardless.
+    sessionId,
     tutorAudioBase64,
     gamification,
   });
