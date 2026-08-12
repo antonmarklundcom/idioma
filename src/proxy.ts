@@ -36,6 +36,13 @@ export default auth((req) => {
   return NextResponse.next();
 });
 
+// PWA assets are excluded (PLAN.md §7.1). `offline` and `sw.js` matter in particular:
+// the service worker fetches `/offline` from the network at install time to precache it,
+// and if Proxy answered that request with an auth redirect the precached "offline page"
+// would be a redirect to `/` — i.e. airplane mode would show a blank page instead of the
+// fallback. None of these paths expose user data.
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|icons/|manifest.webmanifest).*)'],
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico|icons/|manifest.webmanifest|sw.js|offline).*)',
+  ],
 };

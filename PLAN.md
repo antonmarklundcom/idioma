@@ -1207,13 +1207,26 @@ answer; review grades award XP and count toward the daily goal.
 touched. Interval and ease deliberately survive a recurrence: the next grade moves the item
 normally, and the `again` that a just-repeated mistake usually earns resets the interval anyway.
 
-### Phase 6 — PWA (blocked by: 2; ideally after 5)
+### Phase 6 — PWA (blocked by: 2; ideally after 5) — CODE COMPLETE; icons are PLACEHOLDERS
 Everything in §7.1–7.2: manifest, icons (generate maskable 192/512 + apple-touch from one
 source image the owner provides — §9 Q6), Serwist SW with the §7.1 caching strategy, offline
 fallback page, install-hint UI for Android + iOS.
 **Acceptance:** Lighthouse "installable" passes; installs to home screen on both phones; app
 opens standalone; airplane mode shows the offline page instead of a browser error; API responses
 are never served from cache.
+
+**Build notes (v5):**
+- `@serwist/next`'s default export is a **webpack** plugin and Next 16 builds with Turbopack.
+  The SW is therefore built in Serwist's **configurator mode**: `serwist.config.mjs` +
+  `serwist build`, chained after `next build` in `npm run build`. Do not "fix" this by
+  wrapping `next.config.ts` — that silently emits no service worker.
+- `src/sw.ts` deliberately does **not** use Serwist's `defaultCache`: that preset caches
+  `/api/**` GETs in an `apis` cache, which §7.2 forbids. The route table is written by hand
+  and documented at the top of the file.
+- The SW writes to exactly one cache: the precache. No runtime strategy caches anything, so
+  no API response, RSC payload or authenticated HTML page can ever be served from cache.
+- `public/icon-source.png` was still missing at build time (§9 Q6), so `npm run icons`
+  emitted its built-in placeholder mark. Drop the real artwork in and re-run to replace it.
 
 ### Phase 7 — Live conversation mode: turn-based voice loop (blocked by: 4; DECIDED, §9 Q1 = $0) — CODE COMPLETE, untested pending Phase 0
 Same caveat as Phases 2–4B: passes `npm run build` (empty environment) + `tsc --noEmit` +

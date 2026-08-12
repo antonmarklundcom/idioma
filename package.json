@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && npm run build:sw",
+    "build:sw": "serwist build serwist.config.mjs",
+    "icons": "tsx scripts/generate-icons.ts",
     "start": "next start",
     "lint": "eslint",
     "db:generate": "drizzle-kit generate",
@@ -24,6 +26,8 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@serwist/cli": "^9.5.12",
+    "@serwist/next": "^9.5.12",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -31,6 +35,8 @@
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",
     "eslint-config-next": "16.2.10",
+    "serwist": "^9.5.12",
+    "sharp": "^0.35.3",
     "tailwindcss": "^4",
     "tsx": "^4.23.0",
     "typescript": "^5"
