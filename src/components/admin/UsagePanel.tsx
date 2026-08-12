@@ -11,38 +11,57 @@ function barColor(percent: number): string {
   return 'bg-emerald-500';
 }
 
+// `stopAt`, when given, is the point where the app itself stops spending the allotment
+// (PLAN.md §16 defect 2) - so the amber flag means "about to stop", not just "getting
+// close to Google's number", and the bar shows where that line sits.
 function CapBar({
   label,
   value,
   cap,
   unit,
+  stopAt,
 }: {
   label: string;
   value: number;
   cap: number;
   unit: string;
+  stopAt?: number;
 }) {
   const percent = pct(value, cap);
-  const flagged = percent >= 80;
+  const percentOfLimit = pct(value, stopAt ?? cap);
+  const flagged = percentOfLimit >= 80;
   return (
     <div className="rounded-xl border border-slate-200 px-4 py-3 dark:border-slate-700">
       <div className="flex items-center justify-between gap-2">
         <p className="text-xs text-slate-400">{label}</p>
         {flagged && (
           <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
-            {percent >= 100 ? 'over cap' : `${percent}% of cap`}
+            {percentOfLimit >= 100 ? 'over cap' : `${percentOfLimit}% of cap`}
           </span>
         )}
       </div>
       <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-white">
         {value.toLocaleString()} / {cap.toLocaleString()} {unit}
       </p>
-      <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+      <div className="relative mt-2 h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
         <div
-          className={`h-full rounded-full ${barColor(percent)}`}
+          className={`h-full rounded-full ${barColor(percentOfLimit)}`}
           style={{ width: `${percent}%` }}
         />
+        {stopAt !== undefined && (
+          <div
+            className="absolute inset-y-0 w-px bg-slate-500 dark:bg-slate-300"
+            style={{ left: `${pct(stopAt, cap)}%` }}
+          />
+        )}
       </div>
+      {stopAt !== undefined && (
+        <p className="mt-2 text-xs text-slate-400">
+          {value >= stopAt
+            ? `Synthesis paused — resumes on the 1st (UTC). Replies stay text-only until then.`
+            : `Synthesis auto-pauses at ${stopAt.toLocaleString()} to stay inside the free allotment.`}
+        </p>
+      )}
     </div>
   );
 }
@@ -96,6 +115,7 @@ export function UsagePanel({ usage }: { usage: AdminUsageSummary }) {
           label="Cloud TTS characters this month (global)"
           value={usage.monthlyTtsCharCount}
           cap={usage.monthlyTtsCharCap}
+          stopAt={usage.monthlyTtsCharStop}
           unit="characters"
         />
         <div className="rounded-xl border border-slate-200 px-4 py-3 dark:border-slate-700">
