@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { LLM_TASKS, PROVIDER_IDS } from '@/lib/llm/catalog';
 
 export const focusSkillValues = [
   'speaking-confidence',
@@ -50,4 +51,26 @@ export const feedbackResultSchema = z.object({
 });
 
 export type FeedbackResult = z.infer<typeof feedbackResultSchema>;
+
+// --- Admin model settings (PLAN.md §14.4) ----------------------------------
+// Model IDs are free text on purpose: providers rename and retire models faster
+// than we can redeploy an enum (§10.7). Validated for shape, not membership.
+export const modelSelectionSchema = z.object({
+  providerId: z.enum(PROVIDER_IDS),
+  modelId: z.string().trim().min(1).max(120),
+});
+
+export const llmSettingsSchema = z.object({
+  tasks: z.record(z.enum(LLM_TASKS), modelSelectionSchema),
+  /**
+   * Speech-to-text model for providers whose chat models can't take audio
+   * (OpenAI today). Ignored by providers that accept audio directly.
+   */
+  openaiTranscribeModelId: z.string().trim().min(1).max(120),
+});
+
+export type ModelSelection = z.infer<typeof modelSelectionSchema>;
+export type LlmSettings = z.infer<typeof llmSettingsSchema>;
+
+export const modelTestRequestSchema = modelSelectionSchema;
 

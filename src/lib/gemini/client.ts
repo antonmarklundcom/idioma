@@ -5,6 +5,8 @@ import { GoogleGenAI } from '@google/genai';
 // that error belongs (see src/lib/db/index.ts for the same pattern/reasoning).
 export const geminiClient = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-// PLAN.md §9 Q7: model IDs were verified July 2026 and must be re-verified against
-// ai.google.dev before this is trusted in production - preview/GA model names churn.
-export const GEMINI_LESSON_MODEL = process.env.GEMINI_LESSON_MODEL || 'gemini-3.6-flash';
+// Model IDs are no longer read here: the model comes from the admin-selected
+// setting per task (PLAN.md §14.4, src/lib/llm/settings.ts), with
+// GEMINI_LESSON_MODEL as the fallback when nothing has been chosen yet.
+// §9 Q7 still applies - re-verify model IDs against ai.google.dev before trusting
+// them in production, since preview/GA names churn.

@@ -8,7 +8,7 @@ import {
   lessonAttemptRequestSchema,
   type FeedbackResult,
 } from '@/lib/zodSchemas';
-import { getProvider } from '@/lib/llm/provider';
+import { getProviderForTask } from '@/lib/llm/provider';
 import { assembleSystemPrompt, FREE_PRACTICE_LESSON_CONTEXT } from '@/lib/gemini/prompts';
 import { synthesizeTutorSpeech } from '@/lib/tts';
 import { isUnderDailyLessonAttemptCap, logUsage } from '@/lib/usage';
@@ -64,14 +64,19 @@ async function getValidatedFeedback(args: {
   userTurnContext: string;
   audioBase64: string;
   mimeType: string;
+  mode: 'lesson' | 'live';
 }): Promise<FeedbackResult> {
-  const provider = getProvider();
+  // Which model runs this turn is admin-configurable per task (PLAN.md §14.4).
+  const { provider, model } = await getProviderForTask(
+    args.mode === 'live' ? 'live_conversation' : 'lesson_feedback',
+  );
   // PLAN.md §4.1: Zod-parse before trusting model output; retry once on mismatch.
   for (let attempt = 0; attempt < 2; attempt++) {
     const raw = await provider.getFeedback({
       systemPrompt: args.systemPrompt,
       userTurnContext: args.userTurnContext,
       input: { kind: 'audio', base64: args.audioBase64, mimeType: args.mimeType },
+      model,
     });
     const parsed = feedbackResultSchema.safeParse(raw);
     if (parsed.success) return parsed.data;
@@ -144,8 +149,12 @@ export async function POST(request: Request) {
       userTurnContext: lessonContext,
       audioBase64,
       mimeType,
+      mode,
     });
-  } catch {
+  } catch (err) {
+    // Logged, not returned: the message can name the provider and model, which the
+    // learner has no use for and shouldn't see.
+    console.error('[lesson/attempt] feedback failed', err);
     return NextResponse.json(
       { error: "Couldn't analyze that recording - please try again.", code: 'feedback_failed' },
       { status: 502 },
