@@ -3,7 +3,8 @@
 A language-learning PWA for two beta users: an English speaker learning Paraguayan Spanish
 (voseo, local vocabulary), and a Paraguayan Spanish speaker learning English. Spoken practice
 against a Gemini-powered tutor, evidence-based coaching, spaced repetition, and lightweight
-gamification. $0/month infrastructure (Vercel Hobby + Neon free tier + Google free quotas).
+gamification. $0/month infrastructure (Hostinger Node.js hosting + Neon free tier + Google free
+quotas).
 
 ## Read PLAN.md first
 
