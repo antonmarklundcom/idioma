@@ -1,6 +1,7 @@
 import { notFound, redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { getLessonForPair, toPlayerExercises } from '@/lib/lessons';
+import { getUserLocale } from '@/lib/getUserLocale';
 import { LessonPlayer } from '@/components/lesson/LessonPlayer';
 import type { LessonContent } from '@/lib/zodSchemas';
 
@@ -19,7 +20,10 @@ export default async function LessonDetailPage({
   if (!session.user.languagePairId) redirect('/onboarding');
 
   const { lessonId } = await params;
-  const lesson = await getLessonForPair(lessonId, session.user.languagePairId);
+  const [lesson, locale] = await Promise.all([
+    getLessonForPair(lessonId, session.user.languagePairId),
+    getUserLocale(session.user.id),
+  ]);
   if (!lesson) notFound();
 
   const content = lesson.content as LessonContent;
@@ -58,6 +62,7 @@ export default async function LessonDetailPage({
         initialPrompt={initialPrompt}
         lessonId={lesson.id}
         exercises={exercises}
+        locale={locale}
       />
     </div>
   );

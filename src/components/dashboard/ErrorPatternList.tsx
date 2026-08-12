@@ -1,4 +1,5 @@
 import type { ErrorPatternWithFlag } from '@/lib/progress';
+import { t, type Locale } from '@/lib/i18n';
 
 const CATEGORY_STYLES: Record<string, string> = {
   pronunciation:
@@ -15,11 +16,18 @@ function formatDate(d: Date): string {
 
 // PLAN.md §4: ranked recurring mistakes, per-category badges, first/last seen,
 // example quote. Patterns dormant 14+ days with 3+ occurrences render "conquered".
-export function ErrorPatternList({ patterns }: { patterns: ErrorPatternWithFlag[] }) {
+export function ErrorPatternList({
+  patterns,
+  locale,
+}: {
+  patterns: ErrorPatternWithFlag[];
+  locale: Locale;
+}) {
+  const strings = t(locale);
   if (patterns.length === 0) {
     return (
       <p className="text-sm text-slate-500 dark:text-slate-400">
-        No recurring mistakes yet — keep practicing and patterns will show up here.
+        {strings.dashboardComponents.noMistakesYet}
       </p>
     );
   }
@@ -48,7 +56,7 @@ export function ErrorPatternList({ patterns }: { patterns: ErrorPatternWithFlag[
             <p className="mt-1 italic opacity-70">&ldquo;{p.exampleQuote}&rdquo;</p>
           )}
           {p.conquered && (
-            <p className="mt-1 text-xs font-medium">✓ Conquered — no longer showing up</p>
+            <p className="mt-1 text-xs font-medium">{strings.dashboardComponents.conquered}</p>
           )}
         </li>
       ))}

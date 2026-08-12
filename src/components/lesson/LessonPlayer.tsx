@@ -13,6 +13,7 @@ import { Celebration } from '@/components/gamification/Celebration';
 import type { CoachingProfile } from '@/lib/db/schema';
 import type { PlayerExercise } from '@/lib/lessons';
 import type { LessonAttemptResponse, LessonCompleteResponse } from '@/types';
+import { t, type Locale } from '@/lib/i18n';
 
 /** §3.4 desirable difficulty: a listening clip can be replayed, but not indefinitely. */
 const MAX_LISTEN_PLAYS = 3;
@@ -34,12 +35,15 @@ export function LessonPlayer({
   initialPrompt,
   lessonId,
   exercises = [],
+  locale,
 }: {
   coachingProfile: CoachingProfile | null;
   initialPrompt: string;
   lessonId?: string;
   exercises?: PlayerExercise[];
+  locale: Locale;
 }) {
+  const strings = t(locale).lessonPlayer;
   const router = useRouter();
   const isGuided = lessonId !== undefined && exercises.length > 0;
 
@@ -112,7 +116,7 @@ export function LessonPlayer({
         });
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
-          setErrorMessage(data.error ?? "Couldn't analyze that recording. Try again.");
+          setErrorMessage(data.error ?? strings.couldntAnalyze);
           setStatus('error');
           return;
         }
@@ -127,15 +131,15 @@ export function LessonPlayer({
         // milestones (lesson completion has its own, below).
         setXpEvent({ id: Date.now(), xp: data.gamification.xpAwarded });
         if (data.gamification.celebration?.type === 'streak_milestone') {
-          setCelebrationMessage(`🔥 ${data.gamification.celebration.milestone}-day streak!`);
+          setCelebrationMessage(strings.streakMilestone(data.gamification.celebration.milestone));
         }
         router.refresh(); // updates the app-shell header's DailyGoalRing/StreakBadge
       } catch {
-        setErrorMessage('Network error - please try again.');
+        setErrorMessage(strings.networkError);
         setStatus('error');
       }
     },
-    [isGuided, exercise, lessonId, promptContext, player, router, markTurnRecorded],
+    [isGuided, exercise, lessonId, promptContext, player, router, markTurnRecorded, strings],
   );
 
   const goToNextExercise = useCallback(() => {
@@ -152,7 +156,7 @@ export function LessonPlayer({
       const res = await fetch(`/api/lessons/${lessonId}/complete`, { method: 'POST' });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setErrorMessage(data.error ?? "Couldn't save your progress. Try again.");
+        setErrorMessage(data.error ?? strings.couldntSaveProgress);
         setStatus('error');
         return;
       }
@@ -160,27 +164,29 @@ export function LessonPlayer({
       setSummary(data);
       setFeedback(null);
       setStatus('idle');
-      setCelebrationMessage('🎉 Lesson complete!');
+      setCelebrationMessage(strings.lessonCompleteCelebration);
       router.refresh();
     } catch {
-      setErrorMessage('Network error - please try again.');
+      setErrorMessage(strings.networkError);
       setStatus('error');
     }
-  }, [lessonId, router]);
+  }, [lessonId, router, strings]);
 
   if (summary) {
     return (
       <div className="flex flex-1 flex-col items-center gap-4 px-6 py-10">
-        <p className="text-lg font-semibold text-slate-900 dark:text-white">Lesson complete 🎉</p>
+        <p className="text-lg font-semibold text-slate-900 dark:text-white">
+          {strings.lessonComplete}
+        </p>
         {summary.gamification.xpAwarded > 0 && (
           <p className="text-sm text-emerald-600 dark:text-emerald-400">
-            +{summary.gamification.xpAwarded} XP
+            {t(locale).gamification.xpAwarded(summary.gamification.xpAwarded)}
           </p>
         )}
         <p className="max-w-sm text-center text-sm text-slate-600 dark:text-slate-300">
           {summary.enqueuedCount > 0
-            ? `${summary.enqueuedCount} new word${summary.enqueuedCount === 1 ? '' : 's'} added to your review queue.`
-            : 'Nothing new for your review queue this time.'}
+            ? strings.newWordsAdded(summary.enqueuedCount)
+            : strings.nothingNewForReview}
         </p>
         <div className="flex flex-col items-center gap-2">
           {summary.dueReviewCount > 0 && (
@@ -188,14 +194,14 @@ export function LessonPlayer({
               href="/review"
               className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white"
             >
-              Review {summary.dueReviewCount} item{summary.dueReviewCount === 1 ? '' : 's'} now
+              {strings.reviewNow(summary.dueReviewCount)}
             </Link>
           )}
           <Link
             href="/lesson"
             className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 dark:border-slate-700 dark:text-slate-200"
           >
-            Back to lessons
+            {strings.backToLessons}
           </Link>
         </div>
         {celebrationMessage && (
@@ -209,8 +215,8 @@ export function LessonPlayer({
     <div className="flex flex-1 flex-col items-center gap-6 px-6 py-10">
       {isGuided && (
         <p className="text-xs uppercase tracking-wide text-slate-400">
-          Exercise {step + 1} of {exercises.length}
-          {exercise?.kind === 'listen' ? ' · listening' : ''}
+          {strings.exerciseOf(step + 1, exercises.length)}
+          {exercise?.kind === 'listen' ? strings.listeningSuffix : ''}
         </p>
       )}
 
@@ -222,16 +228,20 @@ export function LessonPlayer({
             disabled={plays >= MAX_LISTEN_PLAYS || audioStatus === 'loading'}
             className="rounded-full bg-indigo-600 px-5 py-3 text-sm font-medium text-white transition disabled:opacity-50"
           >
-            {audioStatus === 'loading' ? 'Loading…' : plays === 0 ? '🔊 Play the clip' : '🔊 Play again'}
+            {audioStatus === 'loading'
+              ? strings.loading
+              : plays === 0
+                ? strings.playClip
+                : strings.playAgain}
           </button>
           <span className="text-xs text-slate-400">
             {plays >= MAX_LISTEN_PLAYS
-              ? 'No plays left — answer from what you heard.'
-              : `${MAX_LISTEN_PLAYS - plays} play${MAX_LISTEN_PLAYS - plays === 1 ? '' : 's'} left`}
+              ? strings.noPlaysLeft
+              : strings.playsLeft(MAX_LISTEN_PLAYS - plays)}
           </span>
           {audioStatus === 'error' && (
             <span className="text-sm text-red-600 dark:text-red-400">
-              Couldn&apos;t load the audio. Try again.
+              {strings.couldntLoadAudio}
             </span>
           )}
         </div>
@@ -245,9 +255,10 @@ export function LessonPlayer({
         onRecorded={handleRecorded}
         onBeforeStart={player.unlock}
         disabled={status === 'sending'}
+        locale={locale}
       />
 
-      {status === 'sending' && <p className="text-sm text-slate-400">Analyzing your recording…</p>}
+      {status === 'sending' && <p className="text-sm text-slate-400">{strings.analyzing}</p>}
       {errorMessage && <p className="text-sm text-red-600 dark:text-red-400">{errorMessage}</p>}
 
       {feedback && (
@@ -256,6 +267,7 @@ export function LessonPlayer({
           tutorAudioBase64={feedback.tutorAudioBase64}
           coachingProfile={coachingProfile}
           onReplay={() => feedback.tutorAudioBase64 && player.play(feedback.tutorAudioBase64)}
+          locale={locale}
         />
       )}
 
@@ -266,12 +278,17 @@ export function LessonPlayer({
           disabled={status === 'sending'}
           className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
         >
-          {isLastExercise ? 'Finish lesson' : 'Next exercise →'}
+          {isLastExercise ? strings.finishLesson : strings.nextExercise}
         </button>
       )}
 
       {xpEvent && (
-        <XpToast key={xpEvent.id} xpAwarded={xpEvent.xp} onDismiss={() => setXpEvent(null)} />
+        <XpToast
+          key={xpEvent.id}
+          xpAwarded={xpEvent.xp}
+          onDismiss={() => setXpEvent(null)}
+          locale={locale}
+        />
       )}
       {celebrationMessage && (
         <Celebration message={celebrationMessage} onDismiss={() => setCelebrationMessage(null)} />

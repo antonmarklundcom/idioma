@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import type { FeedbackResult } from '@/lib/zodSchemas';
 import type { CoachingProfile } from '@/lib/db/schema';
+import { t, type Locale } from '@/lib/i18n';
 
 const SEVERITY_STYLES: Record<string, string> = {
   minor:
@@ -21,19 +22,22 @@ export function FeedbackCard({
   tutorAudioBase64,
   coachingProfile,
   onReplay,
+  locale,
 }: {
   feedback: FeedbackResult;
   tutorAudioBase64: string | null;
   coachingProfile: CoachingProfile | null;
   onReplay: () => void;
+  locale: Locale;
 }) {
+  const strings = t(locale).feedbackCard;
   const isAccuracyFocus = coachingProfile === 'accuracy_focus';
   const [errorsExpanded, setErrorsExpanded] = useState(isAccuracyFocus);
 
   return (
     <div className="flex w-full max-w-lg flex-col gap-4 rounded-2xl border border-slate-200 p-5 dark:border-slate-700">
       <div>
-        <p className="text-xs uppercase tracking-wide text-slate-400">You said</p>
+        <p className="text-xs uppercase tracking-wide text-slate-400">{strings.youSaid}</p>
         <p className="text-slate-800 dark:text-slate-100">{feedback.transcription}</p>
       </div>
 
@@ -48,15 +52,13 @@ export function FeedbackCard({
             onClick={onReplay}
             className="mt-3 text-sm text-sky-600 dark:text-sky-400"
           >
-            🔊 Replay
+            {strings.replay}
           </button>
         )}
       </div>
 
       {feedback.errors.length === 0 ? (
-        <p className="text-sm text-emerald-600 dark:text-emerald-400">
-          No errors — nicely done!
-        </p>
+        <p className="text-sm text-emerald-600 dark:text-emerald-400">{strings.noErrors}</p>
       ) : (
         <div>
           <button
@@ -65,8 +67,8 @@ export function FeedbackCard({
             className="text-sm font-medium text-slate-600 dark:text-slate-300"
           >
             {errorsExpanded
-              ? 'Hide details'
-              : `${feedback.errors.length} thing${feedback.errors.length > 1 ? 's' : ''} to polish — tap to see`}
+              ? strings.hideDetails
+              : strings.thingsToPolish(feedback.errors.length)}
           </button>
           {errorsExpanded && (
             <div className="mt-2 flex flex-col gap-2">

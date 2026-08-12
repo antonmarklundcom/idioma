@@ -1,9 +1,18 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { t, type Locale } from '@/lib/i18n';
 
 // PLAN.md §12.2: "shown as a small toast after each turn."
-export function XpToast({ xpAwarded, onDismiss }: { xpAwarded: number; onDismiss: () => void }) {
+export function XpToast({
+  xpAwarded,
+  onDismiss,
+  locale,
+}: {
+  xpAwarded: number;
+  onDismiss: () => void;
+  locale: Locale;
+}) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -23,7 +32,7 @@ export function XpToast({ xpAwarded, onDismiss }: { xpAwarded: number; onDismiss
         visible ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'
       }`}
     >
-      +{xpAwarded} XP
+      {t(locale).gamification.xpAwarded(xpAwarded)}
     </div>
   );
 }

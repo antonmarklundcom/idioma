@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { focusSkillValues } from '@/lib/zodSchemas';
+import { t, type Locale } from '@/lib/i18n';
 
 type LanguagePairOption = {
   id: string;
@@ -12,15 +13,14 @@ type LanguagePairOption = {
 
 const CEFR_LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1'] as const;
 
-const FOCUS_SKILL_LABELS: Record<(typeof focusSkillValues)[number], string> = {
-  'speaking-confidence': 'Confidence to speak',
-  grammar: 'Grammar accuracy',
-  listening: 'Listening comprehension',
-  pronunciation: 'Pronunciation',
-  vocabulary: 'Vocabulary',
-};
-
-export function OnboardingForm({ languagePairs }: { languagePairs: LanguagePairOption[] }) {
+export function OnboardingForm({
+  languagePairs,
+  locale,
+}: {
+  languagePairs: LanguagePairOption[];
+  locale: Locale;
+}) {
+  const strings = t(locale).onboarding;
   const router = useRouter();
   const [languagePairId, setLanguagePairId] = useState(languagePairs[0]?.id ?? '');
   const [level, setLevel] = useState<(typeof CEFR_LEVELS)[number]>('A1');
@@ -44,7 +44,7 @@ export function OnboardingForm({ languagePairs }: { languagePairs: LanguagePairO
     e.preventDefault();
     setError(null);
     if (focusSkills.length === 0) {
-      setError('Pick at least one thing to focus on.');
+      setError(strings.pickFocusError);
       return;
     }
     setSubmitting(true);
@@ -56,7 +56,7 @@ export function OnboardingForm({ languagePairs }: { languagePairs: LanguagePairO
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setError(data.error ?? 'Something went wrong. Try again.');
+        setError(data.error ?? strings.genericError);
         return;
       }
       router.push('/dashboard');
@@ -70,7 +70,7 @@ export function OnboardingForm({ languagePairs }: { languagePairs: LanguagePairO
     <form onSubmit={handleSubmit} className="flex w-full max-w-lg flex-col gap-8">
       <fieldset className="flex flex-col gap-3">
         <legend className="text-lg font-semibold text-slate-900 dark:text-white">
-          What are you learning?
+          {strings.whatLearning}
         </legend>
         <div className="flex flex-col gap-2">
           {languagePairs.map((pair) => (
@@ -93,7 +93,7 @@ export function OnboardingForm({ languagePairs }: { languagePairs: LanguagePairO
 
       <fieldset className="flex flex-col gap-3">
         <legend className="text-lg font-semibold text-slate-900 dark:text-white">
-          Current level
+          {strings.currentLevel}
         </legend>
         <div className="flex flex-wrap gap-2">
           {CEFR_LEVELS.map((lvl) => (
@@ -111,14 +111,12 @@ export function OnboardingForm({ languagePairs }: { languagePairs: LanguagePairO
             </button>
           ))}
         </div>
-        <p className="text-sm text-slate-500 dark:text-slate-400">
-          Not sure? A1 is total beginner — that&rsquo;s a perfectly good place to start.
-        </p>
+        <p className="text-sm text-slate-500 dark:text-slate-400">{strings.levelHint}</p>
       </fieldset>
 
       <fieldset className="flex flex-col gap-3">
         <legend className="text-lg font-semibold text-slate-900 dark:text-white">
-          How should your tutor coach you?
+          {strings.coachHeading}
         </legend>
         <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 px-4 py-3 has-[:checked]:border-sky-500 has-[:checked]:bg-sky-50 dark:border-slate-700 dark:has-[:checked]:bg-sky-950">
           <input
@@ -130,11 +128,10 @@ export function OnboardingForm({ languagePairs }: { languagePairs: LanguagePairO
           />
           <span>
             <span className="block font-medium text-slate-800 dark:text-slate-100">
-              I want gentle encouragement — help me dare to speak
+              {strings.gentleTitle}
             </span>
             <span className="block text-sm text-slate-500 dark:text-slate-400">
-              Your tutor praises what you got right, keeps corrections light, and never
-              re-corrects the same small slip twice.
+              {strings.gentleDesc}
             </span>
           </span>
         </label>
@@ -148,11 +145,10 @@ export function OnboardingForm({ languagePairs }: { languagePairs: LanguagePairO
           />
           <span>
             <span className="block font-medium text-slate-800 dark:text-slate-100">
-              Correct everything and tell me why
+              {strings.accuracyTitle}
             </span>
             <span className="block text-sm text-slate-500 dark:text-slate-400">
-              Your tutor explains every real mistake and asks follow-up questions that make
-              you practice the fix.
+              {strings.accuracyDesc}
             </span>
           </span>
         </label>
@@ -160,7 +156,7 @@ export function OnboardingForm({ languagePairs }: { languagePairs: LanguagePairO
 
       <fieldset className="flex flex-col gap-3">
         <legend className="text-lg font-semibold text-slate-900 dark:text-white">
-          What do you want to focus on?
+          {strings.focusHeading}
         </legend>
         <div className="flex flex-wrap gap-2">
           {focusSkillValues.map((skill) => (
@@ -174,15 +170,13 @@ export function OnboardingForm({ languagePairs }: { languagePairs: LanguagePairO
                   : 'border-slate-200 text-slate-600 dark:border-slate-700 dark:text-slate-300'
               }`}
             >
-              {FOCUS_SKILL_LABELS[skill]}
+              {strings.focusSkills[skill]}
             </button>
           ))}
         </div>
       </fieldset>
 
-      <p className="text-xs text-slate-400 dark:text-slate-500">
-        Timezone detected as {timezone} — used to time your daily streak.
-      </p>
+      <p className="text-xs text-slate-400 dark:text-slate-500">{strings.timezoneNote(timezone)}</p>
 
       {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
 
@@ -191,7 +185,7 @@ export function OnboardingForm({ languagePairs }: { languagePairs: LanguagePairO
         disabled={submitting || !languagePairId}
         className="rounded-full bg-sky-600 px-6 py-3 font-medium text-white disabled:opacity-50"
       >
-        {submitting ? 'Saving…' : 'Start learning'}
+        {submitting ? strings.saving : strings.startLearning}
       </button>
     </form>
   );

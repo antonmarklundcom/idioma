@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { getLessonsForPair, getTopicsForPair } from '@/lib/lessons';
+import { getUserLocale } from '@/lib/getUserLocale';
+import { t } from '@/lib/i18n';
 import type { CefrLevel } from '@/lib/db/schema';
 
 const CEFR_LEVELS: readonly CefrLevel[] = ['A1', 'A2', 'B1', 'B2', 'C1'];
@@ -34,20 +36,22 @@ export default async function LessonPage({
   const level = isCefrLevel(levelParam) ? levelParam : undefined;
   const topic = topicParam && topicParam.trim().length > 0 ? topicParam : undefined;
 
-  const [lessons, topics] = await Promise.all([
+  const [lessons, topics, locale] = await Promise.all([
     getLessonsForPair(session.user.languagePairId, { level, topic }),
     getTopicsForPair(session.user.languagePairId),
+    getUserLocale(session.user.id),
   ]);
+  const strings = t(locale);
 
   return (
     <div className="flex flex-1 flex-col gap-6 px-6 py-10">
       <div className="flex items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Lessons</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{strings.lessons.title}</h1>
         <Link
           href="/lesson/practice"
           className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 dark:border-slate-700 dark:text-slate-200"
         >
-          Free practice
+          {strings.lessons.freePractice}
         </Link>
       </div>
 
@@ -61,7 +65,7 @@ export default async function LessonPage({
                 : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
             }`}
           >
-            All levels
+            {strings.lessons.allLevels}
           </Link>
           {CEFR_LEVELS.map((l) => (
             <Link
@@ -88,7 +92,7 @@ export default async function LessonPage({
                   : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
               }`}
             >
-              All topics
+              {strings.lessons.allTopics}
             </Link>
             {topics.map((t) => (
               <Link
@@ -109,11 +113,11 @@ export default async function LessonPage({
 
       {lessons.length === 0 ? (
         <p className="rounded-xl border border-dashed border-slate-300 px-4 py-8 text-center text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
-          No lessons here yet. Try{' '}
+          {strings.lessons.emptyBefore}{' '}
           <Link href="/lesson/practice" className="underline">
-            free practice
+            {strings.lessons.emptyLink}
           </Link>{' '}
-          in the meantime.
+          {strings.lessons.emptyAfter}
         </p>
       ) : (
         <ul className="flex flex-col gap-2">
