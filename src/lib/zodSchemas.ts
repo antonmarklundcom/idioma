@@ -31,6 +31,14 @@ export const lessonAttemptRequestSchema = z.object({
 
 export type LessonAttemptInput = z.infer<typeof lessonAttemptRequestSchema>;
 
+// --- /api/session/end (PLAN.md §16 defect 1) --------------------------------
+// Deliberately no session id: the server re-resolves the caller's own open session
+// from these two fields, so a beacon can never close someone else's row.
+export const sessionEndRequestSchema = z.object({
+  mode: z.enum(['lesson', 'live']).default('lesson'),
+  lessonId: z.uuid().optional(),
+});
+
 // Mirrors the Gemini responseSchema (§4.1) - the provider-neutral contract every
 // LlmProvider adapter must satisfy. Never trust model output without this passing.
 export const utteranceErrorSchema = z.object({

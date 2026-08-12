@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import { and, desc, eq, isNull } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
-import { errorPatterns, languagePairs, practiceSessions, utterances } from '@/lib/db/schema';
+import { errorPatterns, languagePairs, utterances } from '@/lib/db/schema';
 import {
   feedbackResultSchema,
   lessonAttemptRequestSchema,
@@ -11,7 +11,8 @@ import {
 import { getProviderForTask } from '@/lib/llm/provider';
 import { assembleSystemPrompt, FREE_PRACTICE_LESSON_CONTEXT } from '@/lib/gemini/prompts';
 import { synthesizeTutorSpeech } from '@/lib/tts';
-import { isUnderDailyLessonAttemptCap, logUsage } from '@/lib/usage';
+import { getOrCreateSession } from '@/lib/sessions';
+import { isUnderDailyLessonAttemptCap, isUnderMonthlyTtsCharCap, logUsage } from '@/lib/usage';
 import { recordErrorPatterns } from '@/lib/errorPatterns';
 import { recordTurnAndUpdateStats } from '@/lib/gamification';
 
@@ -19,46 +20,6 @@ import { recordTurnAndUpdateStats } from '@/lib/gamification';
 // function timeout (PLAN.md §6.1/§6.13); kept as documented intent and portability
 // insurance if hosting ever moves back to a serverless platform.
 export const maxDuration = 60;
-
-async function getOrCreateSession(args: {
-  userId: string;
-  languagePairId: string;
-  mode: 'lesson' | 'live';
-  lessonId?: string;
-}) {
-  const lessonIdCondition = args.lessonId
-    ? eq(practiceSessions.lessonId, args.lessonId)
-    : isNull(practiceSessions.lessonId);
-
-  const [existing] = await db
-    .select({ id: practiceSessions.id })
-    .from(practiceSessions)
-    .where(
-      and(
-        eq(practiceSessions.userId, args.userId),
-        eq(practiceSessions.languagePairId, args.languagePairId),
-        eq(practiceSessions.mode, args.mode),
-        isNull(practiceSessions.endedAt),
-        lessonIdCondition,
-      ),
-    )
-    .orderBy(desc(practiceSessions.startedAt))
-    .limit(1);
-
-  if (existing) return existing.id;
-
-  const [created] = await db
-    .insert(practiceSessions)
-    .values({
-      userId: args.userId,
-      languagePairId: args.languagePairId,
-      mode: args.mode,
-      lessonId: args.lessonId ?? null,
-    })
-    .returning({ id: practiceSessions.id });
-
-  return created.id;
-}
 
 async function getValidatedFeedback(args: {
   systemPrompt: string;
@@ -165,10 +126,18 @@ export async function POST(request: Request) {
   let tutorAudioBase64: string | null = null;
   if (pair.ttsVoice) {
     const spoken = `${feedback.tutorReply} ${feedback.followUpQuestion}`;
-    const tts = await synthesizeTutorSpeech(spoken, pair.ttsVoice, session.user.level);
-    if (tts) {
-      tutorAudioBase64 = tts.audioBase64;
-      await logUsage(session.user.id, 'tts_chars', tts.charCount);
+    // PLAN.md §16 defect 2 / §6.12: Cloud TTS is in the BILLED project, so past the free
+    // allotment it charges silently instead of erroring. Over the cap we skip synthesis
+    // and return text-only feedback - the same non-fatal degradation §4.5 already uses
+    // when TTS fails, so nothing downstream needs a new case.
+    if (await isUnderMonthlyTtsCharCap(spoken.length)) {
+      const tts = await synthesizeTutorSpeech(spoken, pair.ttsVoice, session.user.level);
+      if (tts) {
+        tutorAudioBase64 = tts.audioBase64;
+        await logUsage(session.user.id, 'tts_chars', tts.charCount);
+      }
+    } else {
+      console.warn('[lesson/attempt] monthly TTS char cap reached - text-only feedback');
     }
   }
 

@@ -3,6 +3,7 @@
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { UtteranceRecorder } from '@/components/recorder/UtteranceRecorder';
+import { useSessionEndBeacon } from '@/components/practice/useSessionEndBeacon';
 import { FeedbackCard } from './FeedbackCard';
 import { useTutorAudioPlayer } from './useTutorAudioPlayer';
 import { XpToast } from '@/components/gamification/XpToast';
@@ -42,6 +43,8 @@ export function LessonPlayer({
   const [xpEvent, setXpEvent] = useState<{ id: number; xp: number } | null>(null);
   const [celebrationMessage, setCelebrationMessage] = useState<string | null>(null);
   const player = useTutorAudioPlayer();
+  // PLAN.md §16 defect 1: closes the practice_sessions row when the learner leaves.
+  const { markTurnRecorded } = useSessionEndBeacon('lesson', lessonId);
 
   const handleRecorded = useCallback(
     async (blob: Blob, mimeType: string) => {
@@ -61,6 +64,7 @@ export function LessonPlayer({
           return;
         }
         const data: LessonAttemptResponse = await res.json();
+        markTurnRecorded();
         setFeedback(data);
         setPromptContext(data.followUpQuestion);
         setStatus('idle');
@@ -79,7 +83,7 @@ export function LessonPlayer({
         setStatus('error');
       }
     },
-    [lessonId, promptContext, player, router],
+    [lessonId, promptContext, player, router, markTurnRecorded],
   );
 
   return (

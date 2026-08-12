@@ -911,7 +911,7 @@ Rules:
 | 6.9 | ~~Vercel Hobby non-commercial clause~~ — **RETIRED in v5.** Hostinger's plan carries no non-commercial restriction | Removes the ~$20/month floor that v4's §15.3 put under any paid tier | — | Charging users is still gated on everything *else* in §15.3 (OAuth publishing, the free tier's data caveat, tax handling) — hosting simply stopped being one of the blockers |
 | 6.10 | **Google OAuth consent screen in Testing mode** | 100-user cap, test users must be listed | New sign-ups fail with `access_denied` | Both beta emails added as test users in Phase 0; publish the consent screen only when opening the beta |
 | 6.11 | **Model deprecations** (2.0 models were shut down June 2026; live model is a `-preview`) | `-preview` models can be replaced with short notice | Gemini API changelog; 404/400 "model not found" errors | Model IDs live in env vars (`GEMINI_LESSON_MODEL`, `GEMINI_LIVE_MODEL`), not code, so a swap is a redeploy-free config change |
-| 6.12 | **Cloud TTS free allotment (1M Neural2 chars/month) on a BILLED project** — overage bills silently at $16/1M chars | 2 users ≈ 100–300 chars/reply → tens of thousands of chars/month; ~3 % of the cap. Would only bite via a bug (e.g. a retry loop) | `tts_chars` monthly total on the admin page; Google budget alerts ($2, $10) email the owner | `usage_log` tracking + budget alerts (Phase 0 step 4); TTS failures are non-fatal so a quota stop degrades to text-only, never an outage. **Still unbuilt — §16 defect 2.** |
+| 6.12 | **Cloud TTS free allotment (1M Neural2 chars/month) on a BILLED project** — overage bills silently at $16/1M chars | 2 users ≈ 100–300 chars/reply → tens of thousands of chars/month; ~3 % of the cap. Would only bite via a bug (e.g. a retry loop) | `tts_chars` monthly total on the admin page; Google budget alerts ($2, $10) email the owner | `usage_log` tracking + budget alerts (Phase 0 step 4); TTS failures are non-fatal so a quota stop degrades to text-only, never an outage. **Now enforced in code as well: synthesis stops at 80% of the allotment (§16 defect 2, fixed).** |
 | 6.13 | **Hostinger-specific: broken IPv6 routing to Neon** (§3.1, §6.13) | Would be fatal, and is dodged only because the app uses the HTTP driver | `ETIMEDOUT`/hang on every query after a driver swap | Never replace `drizzle-orm/neon-http` with a TCP driver. Run migrations from the owner's machine, never Hostinger SSH |
 | 6.14 | **Env var changes on Hostinger need a redeploy**, not a restart — and a stale value fails as a generic "Application error" page with no cause in the logs | Guaranteed to bite once, during Phase 0 | Blank `Digest: …` error page after any env edit | Change env vars and redeploy in the same sitting; check hPanel → Environment Variables *before* rotating any credential |
 
@@ -1664,6 +1664,10 @@ from Phase 0 step 4 — with a credit applied, those alerts are how the owner fi
 Neither is hypothetical; both are in merged, code-complete phases. Fix both in the session after
 Phase 0 live verification, when there is real data to verify against.
 
+**Status: both fixed — CODE COMPLETE, untested pending Phase 0**, same standing as every other
+merged phase. The fixes did not wait for Phase 0 because neither needs live data to be written
+correctly; both still need it to be *believed*. What each one now does is recorded under it.
+
 1. **`practice_sessions` rows are never closed.** `endedAt` is declared in the schema
    (`src/lib/db/schema.ts`), read by `getOrCreateSession` (`isNull(practiceSessions.endedAt)`)
    and surfaced by `lib/progress.ts` — but **nothing anywhere sets it**. Phase 3 specifies
@@ -1675,6 +1679,14 @@ Phase 0 live verification, when there is real data to verify against.
    `beforeunload` is unreliable on mobile) *and* defensively in `getOrCreateSession` — treat an
    open session whose latest utterance is older than ~30 minutes as ended, and start a new one.
    The defensive half matters more than the beacon: phones background tabs without warning.
+   **Built as specified** (`src/lib/sessions.ts`, `/api/session/end`,
+   `useSessionEndBeacon`): both halves close via one set-based conditional `UPDATE` that stamps
+   `ended_at` with the session's *last utterance* time, so a beacon-closed session and a
+   swept one mean the same thing. The beacon fires on `pagehide` and on unmount, and
+   deliberately **not** on `visibilitychange` — backgrounding a tab for ten seconds is not
+   leaving, and fragmenting sessions has no backstop, while a tab the OS kills is exactly what
+   the 30-minute sweep is for. It carries no session id: the server re-resolves the caller's own
+   open session, so a beacon can never close someone else's row.
 2. **No monthly cap on TTS characters.** `lib/usage.ts` enforces only
    `DAILY_LESSON_ATTEMPT_CAP` on `lesson_attempt`. `tts_chars` is logged and never checked
    against the 1M/month free allotment. Cloud TTS lives in project B, **which has billing
@@ -1685,6 +1697,12 @@ Phase 0 live verification, when there is real data to verify against.
    constant set to ~80% of the free allotment; over the cap, skip synthesis and return text-only
    feedback — the degradation path already exists and is already non-fatal (§4.5). Surface the
    running total on the admin usage page (§6.5).
+   **Built as specified** (`lib/usage.ts`, wired in `/api/lesson/attempt`): the stop point is
+   *derived* from the 1M allotment (`MONTHLY_TTS_CHAR_CAP × 0.8`) rather than written down
+   twice, so the §6.5 dashboard's 80% amber warning and the point synthesis actually stops are
+   the same number by construction and cannot drift apart. The check adds the pending reply's
+   own character count before deciding, so a request never knowingly crosses the line; the
+   200,000-char gap below the billed threshold absorbs any concurrent overshoot.
 
 ---
 
