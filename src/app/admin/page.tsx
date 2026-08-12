@@ -1,8 +1,10 @@
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { ModelSettingsForm } from '@/components/admin/ModelSettingsForm';
+import { UsagePanel } from '@/components/admin/UsagePanel';
 import { PROVIDERS, PROVIDER_IDS, listModels } from '@/lib/llm/catalog';
 import { getLlmSettings, providerKeyStatus } from '@/lib/llm/settings';
+import { getAdminUsageSummary } from '@/lib/usage';
 
 export default async function AdminPage() {
   const session = await auth();
@@ -10,7 +12,11 @@ export default async function AdminPage() {
     redirect('/dashboard');
   }
 
-  const [settings, keys] = [await getLlmSettings(), providerKeyStatus()];
+  const [settings, keys, usage] = [
+    await getLlmSettings(),
+    providerKeyStatus(),
+    await getAdminUsageSummary(),
+  ];
   const providers = PROVIDER_IDS.map((id) => ({ ...PROVIDERS[id], hasKey: keys[id] }));
 
   return (
@@ -25,9 +31,7 @@ export default async function AdminPage() {
 
       <ModelSettingsForm initialSettings={settings} models={listModels()} providers={providers} />
 
-      <p className="text-sm text-slate-400 dark:text-slate-500">
-        Usage stats (§6.5) and content import (§2, Phase 5) land here too.
-      </p>
+      <UsagePanel usage={usage} />
     </div>
   );
 }
