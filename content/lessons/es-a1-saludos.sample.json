@@ -56,6 +56,12 @@
           "type": "speak_prompt",
           "prompt": "Invite someone to have a tereré with you, in a full sentence.",
           "targetHints": ["vamos a tomar un tereré", "¿querés..."]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Hola, me llamo Sofía y soy de Encarnación. ¿Vamos a tomar un tereré?",
+          "prompt": "You just heard someone introduce herself. What's her name, where is she from, and what did she suggest? Answer in Spanish.",
+          "targetHints": ["listening comprehension", "se llama", "es de"]
         }
       ]
     }

@@ -1,4 +1,11 @@
+import type { PracticeMode } from '@/lib/db/schema';
 import type { SessionSummary } from '@/lib/progress';
+
+const MODE_LABELS: Record<PracticeMode, string> = {
+  lesson: 'Lesson practice',
+  live: 'Live conversation',
+  review: 'Review round',
+};
 
 function formatDateTime(d: Date): string {
   return new Date(d).toLocaleString(undefined, {
@@ -24,7 +31,7 @@ export function SessionHistory({ sessions }: { sessions: SessionSummary[] }) {
         <li key={s.id} className="flex items-center justify-between py-2 text-sm">
           <div>
             <span className="font-medium text-slate-800 dark:text-slate-100">
-              {s.mode === 'live' ? 'Live conversation' : 'Lesson practice'}
+              {MODE_LABELS[s.mode]}
             </span>
             <span className="ml-2 text-slate-400">{formatDateTime(s.startedAt)}</span>
           </div>

@@ -14,6 +14,6 @@ export async function GET() {
     );
   }
 
-  const data = await getProgressData(session.user.id);
+  const data = await getProgressData(session.user.id, session.user.languagePairId);
   return NextResponse.json(data);
 }

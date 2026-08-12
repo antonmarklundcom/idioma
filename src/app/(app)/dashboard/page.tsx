@@ -1,12 +1,16 @@
+import Link from 'next/link';
 import { auth } from '@/lib/auth';
 import { getProgressData } from '@/lib/progress';
 import { getPartnerStreak, getUserStatsSummary } from '@/lib/gamification';
+import { estimateReviewMinutes } from '@/lib/srs';
 import { ErrorPatternList } from '@/components/dashboard/ErrorPatternList';
 import { SessionHistory } from '@/components/dashboard/SessionHistory';
 
 export default async function DashboardPage() {
   const session = await auth();
-  const data = session?.user ? await getProgressData(session.user.id) : null;
+  const data = session?.user
+    ? await getProgressData(session.user.id, session.user.languagePairId)
+    : null;
   const stats = session?.user
     ? await getUserStatsSummary(session.user.id, session.user.timezone)
     : null;
@@ -43,6 +47,27 @@ export default async function DashboardPage() {
             </p>
           </div>
         </section>
+      )}
+
+      {/* PLAN.md §13.1/§8: the guaranteed-short re-entry point on a busy day. Shown
+          only when something is actually due - never a standing nag (§12.1). */}
+      {data && data.dueReviewCount > 0 && (
+        <Link
+          href="/review"
+          className="flex items-center justify-between gap-3 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-3 dark:border-indigo-800 dark:bg-indigo-950"
+        >
+          <span className="flex flex-col">
+            <span className="font-medium text-indigo-900 dark:text-indigo-100">
+              {data.dueReviewCount} review{data.dueReviewCount === 1 ? '' : 's'} waiting —{' '}
+              {estimateReviewMinutes(data.dueReviewCount)} minute
+              {estimateReviewMinutes(data.dueReviewCount) === 1 ? '' : 's'}
+            </span>
+            <span className="text-xs text-indigo-700 dark:text-indigo-300">
+              Words and mistakes from your own practice.
+            </span>
+          </span>
+          <span className="text-indigo-500">→</span>
+        </Link>
       )}
 
       {partner && (

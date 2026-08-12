@@ -1,4 +1,4 @@
-import type { CoachingProfile } from '@/lib/db/schema';
+import type { CoachingProfile, PracticeMode } from '@/lib/db/schema';
 
 // Coaching profiles are app behavior shared by every language pair (PLAN.md §11.3),
 // not pair-specific data - they live here as named constants, not in language_pairs.
@@ -36,7 +36,9 @@ type RecurringErrorSummary = {
 
 export function assembleSystemPrompt(args: {
   pair: LanguagePairPromptFields;
-  mode: 'lesson' | 'live';
+  // 'review' (Phase 5B) runs the lesson template: a review drill is a one-shot
+  // exercise turn, not a conversation.
+  mode: PracticeMode;
   level: string;
   coachingProfile: CoachingProfile | null;
   recurringErrors: RecurringErrorSummary[];
@@ -62,6 +64,22 @@ export function assembleSystemPrompt(args: {
     .replaceAll('{{recurring_errors}}', recurringErrorsText)
     .replaceAll('{{lesson_context}}', args.lessonContext)
     .replaceAll('{{error_taxonomy}}', args.pair.errorTaxonomy.join(', '));
+}
+
+// PLAN.md §13.4: a review answer runs through the same /api/lesson/attempt pipeline
+// with the expected production in the prompt context, so the model judges a match
+// instead of holding a conversation. Assembled server-side from the review item -
+// prompt assembly is never the client's job.
+export function buildReviewPromptContext(item: { front: string; back: string }): string {
+  return (
+    'Spaced-repetition review drill, not a conversation. The learner was prompted ' +
+    `with: "${item.front}"\nThe expected answer is: "${item.back}"\n` +
+    'Judge only whether what they just said matches that expected answer in meaning ' +
+    'and form, allowing for natural variation and for a full sentence around it. If ' +
+    'it matches, return an empty errors array. If it does not, report the difference ' +
+    'as errors as usual. Keep tutorReply to one short line and make followUpQuestion ' +
+    'a brief encouragement to try the next card - do not start a new topic.'
+  );
 }
 
 export const FREE_PRACTICE_LESSON_CONTEXT =

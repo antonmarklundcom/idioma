@@ -21,15 +21,82 @@ export type OnboardingInput = z.infer<typeof onboardingSchema>;
 
 // --- /api/lesson/attempt (PLAN.md §2, §4.1) ---------------------------------
 
-export const lessonAttemptRequestSchema = z.object({
-  audioBase64: z.string().min(1),
-  mimeType: z.string().min(1),
-  lessonId: z.uuid().optional(),
-  promptContext: z.string().optional(),
-  mode: z.enum(['lesson', 'live']).default('lesson'),
-});
+/** Typed answers (the §13.4 "type instead" fallback) are bounded: one utterance, not an essay. */
+export const TEXT_ANSWER_MAX_CHARS = 1000;
+
+export const lessonAttemptRequestSchema = z
+  .object({
+    // Exactly one input: a recording, or - for the quiet-environment fallback - text.
+    audioBase64: z.string().min(1).optional(),
+    mimeType: z.string().min(1).optional(),
+    text: z.string().trim().min(1).max(TEXT_ANSWER_MAX_CHARS).optional(),
+    lessonId: z.uuid().optional(),
+    /**
+     * Index into the lesson's `content.exercises`. When present the SERVER builds
+     * `promptContext` from the lesson row - required for `listen_prompt`, whose
+     * `audioText` must never reach the browser (§3.4).
+     */
+    exerciseIndex: z.number().int().min(0).optional(),
+    /** Review drill (§13.4): the server builds promptContext from the item's front/back. */
+    reviewItemId: z.uuid().optional(),
+    promptContext: z.string().optional(),
+    mode: z.enum(['lesson', 'live', 'review']).default('lesson'),
+  })
+  .superRefine((body, ctx) => {
+    if ((body.audioBase64 !== undefined) === (body.text !== undefined)) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Send exactly one of "audioBase64" or "text"',
+      });
+    }
+    if (body.audioBase64 !== undefined && body.mimeType === undefined) {
+      ctx.addIssue({
+        code: 'custom',
+        message: '"mimeType" is required alongside "audioBase64"',
+        path: ['mimeType'],
+      });
+    }
+    if (body.exerciseIndex !== undefined && body.lessonId === undefined) {
+      ctx.addIssue({
+        code: 'custom',
+        message: '"exerciseIndex" requires "lessonId"',
+        path: ['exerciseIndex'],
+      });
+    }
+  })
+  // Normalizes to the provider-neutral input shape (§14.1) so the route never has
+  // to assert which of the two fields is present.
+  .transform((body, ctx) => {
+    const rest = {
+      lessonId: body.lessonId,
+      exerciseIndex: body.exerciseIndex,
+      reviewItemId: body.reviewItemId,
+      promptContext: body.promptContext,
+      mode: body.mode,
+    };
+    if (typeof body.text === 'string') {
+      return { ...rest, input: { kind: 'text' as const, text: body.text } };
+    }
+    if (typeof body.audioBase64 === 'string' && typeof body.mimeType === 'string') {
+      return {
+        ...rest,
+        input: { kind: 'audio' as const, base64: body.audioBase64, mimeType: body.mimeType },
+      };
+    }
+    ctx.addIssue({ code: 'custom', message: 'Send exactly one of "audioBase64" or "text"' });
+    return z.NEVER;
+  });
 
 export type LessonAttemptInput = z.infer<typeof lessonAttemptRequestSchema>;
+
+// --- /api/review (PLAN.md §2, §13.3/§13.4) ---------------------------------
+
+export const reviewGradeRequestSchema = z.object({
+  itemId: z.uuid(),
+  outcome: z.enum(['again', 'good', 'easy']),
+});
+
+export type ReviewGradeInput = z.infer<typeof reviewGradeRequestSchema>;
 
 // Mirrors the Gemini responseSchema (§4.1) - the provider-neutral contract every
 // LlmProvider adapter must satisfy. Never trust model output without this passing.
@@ -76,7 +143,7 @@ export const modelTestRequestSchema = modelSelectionSchema;
 
 // --- Curriculum content (PLAN.md §3.4, §2 /api/admin/content, Phase 5) -----
 
-const lessonVocabItemSchema = z.object({
+export const lessonVocabItemSchema = z.object({
   term: z.string().trim().min(1),
   gloss: z.string().trim().min(1),
   note: z.string().trim().min(1).optional(),

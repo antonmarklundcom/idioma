@@ -3,24 +3,13 @@
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { UtteranceRecorder } from '@/components/recorder/UtteranceRecorder';
+import { blobToBase64 } from '@/components/recorder/blobToBase64';
 import { FeedbackCard } from '@/components/lesson/FeedbackCard';
 import { useTutorAudioPlayer } from '@/components/lesson/useTutorAudioPlayer';
 import { XpToast } from '@/components/gamification/XpToast';
 import { Celebration } from '@/components/gamification/Celebration';
 import type { CoachingProfile } from '@/lib/db/schema';
 import type { LessonAttemptResponse } from '@/types';
-
-function blobToBase64(blob: Blob): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const result = reader.result as string;
-      resolve(result.split(',')[1] ?? '');
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
-}
 
 const OPENING_PROMPT = "Say hi and tell your tutor what's on your mind today - anything goes.";
 

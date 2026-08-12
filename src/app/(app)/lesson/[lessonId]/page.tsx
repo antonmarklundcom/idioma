@@ -1,13 +1,14 @@
 import { notFound, redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
-import { getLessonForPair } from '@/lib/lessons';
+import { getLessonForPair, toPlayerExercises } from '@/lib/lessons';
 import { LessonPlayer } from '@/components/lesson/LessonPlayer';
 import type { LessonContent } from '@/lib/zodSchemas';
 
-// PLAN.md §3.4/§8: the browser stops here - LessonPlayer still owns the
-// record-feedback loop. This page shows the lesson's intro/vocab and starts
-// LessonPlayer on the first exercise's prompt; it does not reimplement the
-// exercise-by-exercise player itself.
+// PLAN.md §3.4/§8: the browser stops here - LessonPlayer owns the record-feedback
+// loop. This page shows the lesson's intro/vocab and hands the player the lesson's
+// exercises to walk through (Phase 5B); exercise types the player doesn't know are
+// dropped by toPlayerExercises, and a `listen_prompt`'s audioText never leaves the
+// server - the player fetches it as audio.
 export default async function LessonDetailPage({
   params,
 }: {
@@ -22,9 +23,10 @@ export default async function LessonDetailPage({
   if (!lesson) notFound();
 
   const content = lesson.content as LessonContent;
-  const firstExercise = content.exercises.find((e) => e.type === 'speak_prompt');
-  const initialPrompt =
-    firstExercise && typeof firstExercise.prompt === 'string' ? firstExercise.prompt : content.intro;
+  const exercises = toPlayerExercises(lesson.content);
+  // Only used if the lesson has no exercise the player recognizes: it then falls
+  // back to the free-practice loop rather than showing the learner a dead end.
+  const initialPrompt = exercises[0]?.prompt ?? content.intro;
 
   return (
     <div className="flex flex-1 flex-col gap-6 px-6 py-10">
@@ -55,6 +57,7 @@ export default async function LessonDetailPage({
         coachingProfile={session.user.coachingProfile ?? null}
         initialPrompt={initialPrompt}
         lessonId={lesson.id}
+        exercises={exercises}
       />
     </div>
   );
