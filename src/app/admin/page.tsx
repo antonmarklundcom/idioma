@@ -2,9 +2,11 @@ import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { ModelSettingsForm } from '@/components/admin/ModelSettingsForm';
 import { UsagePanel } from '@/components/admin/UsagePanel';
+import { ContentImportPanel } from '@/components/admin/ContentImportPanel';
 import { PROVIDERS, PROVIDER_IDS, listModels } from '@/lib/llm/catalog';
 import { getLlmSettings, providerKeyStatus } from '@/lib/llm/settings';
 import { getAdminUsageSummary } from '@/lib/usage';
+import { getAllLessonsForAdmin } from '@/lib/lessons';
 
 export default async function AdminPage() {
   const session = await auth();
@@ -12,10 +14,11 @@ export default async function AdminPage() {
     redirect('/dashboard');
   }
 
-  const [settings, keys, usage] = [
+  const [settings, keys, usage, lessons] = [
     await getLlmSettings(),
     providerKeyStatus(),
     await getAdminUsageSummary(),
+    await getAllLessonsForAdmin(),
   ];
   const providers = PROVIDER_IDS.map((id) => ({ ...PROVIDERS[id], hasKey: keys[id] }));
 
@@ -32,6 +35,8 @@ export default async function AdminPage() {
       <ModelSettingsForm initialSettings={settings} models={listModels()} providers={providers} />
 
       <UsagePanel usage={usage} />
+
+      <ContentImportPanel initialLessons={lessons} />
     </div>
   );
 }

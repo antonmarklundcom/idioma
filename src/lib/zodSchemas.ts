@@ -74,3 +74,86 @@ export type LlmSettings = z.infer<typeof llmSettingsSchema>;
 
 export const modelTestRequestSchema = modelSelectionSchema;
 
+// --- Curriculum content (PLAN.md §3.4, §2 /api/admin/content, Phase 5) -----
+
+const lessonVocabItemSchema = z.object({
+  term: z.string().trim().min(1),
+  gloss: z.string().trim().min(1),
+  note: z.string().trim().min(1).optional(),
+});
+
+// The player MUST skip exercise `type` values it doesn't recognize (§3.4 forward
+// compatibility), so only the two known types are validated strictly; any other
+// non-empty `type` is accepted as-is and passed through untouched.
+export const lessonExerciseSchema = z
+  .object({ type: z.string().trim().min(1) })
+  .passthrough()
+  .superRefine((exercise, ctx) => {
+    if (exercise.type === 'speak_prompt') {
+      if (typeof exercise.prompt !== 'string' || exercise.prompt.trim().length === 0) {
+        ctx.addIssue({
+          code: 'custom',
+          message: 'speak_prompt exercises require a non-empty "prompt"',
+          path: ['prompt'],
+        });
+      }
+      if (
+        exercise.targetHints !== undefined &&
+        !(Array.isArray(exercise.targetHints) && exercise.targetHints.every((h) => typeof h === 'string'))
+      ) {
+        ctx.addIssue({
+          code: 'custom',
+          message: '"targetHints" must be an array of strings',
+          path: ['targetHints'],
+        });
+      }
+    } else if (exercise.type === 'listen_prompt') {
+      if (typeof exercise.audioText !== 'string' || exercise.audioText.trim().length === 0) {
+        ctx.addIssue({
+          code: 'custom',
+          message: 'listen_prompt exercises require a non-empty "audioText"',
+          path: ['audioText'],
+        });
+      }
+      if (typeof exercise.prompt !== 'string' || exercise.prompt.trim().length === 0) {
+        ctx.addIssue({
+          code: 'custom',
+          message: 'listen_prompt exercises require a non-empty "prompt"',
+          path: ['prompt'],
+        });
+      }
+    }
+  });
+
+export const lessonContentSchema = z.object({
+  intro: z.string().trim().min(1),
+  vocab: z.array(lessonVocabItemSchema).default([]),
+  exercises: z.array(lessonExerciseSchema).min(1),
+});
+
+export type LessonContent = z.infer<typeof lessonContentSchema>;
+
+export const lessonImportItemSchema = z.object({
+  languagePairCode: z.string().trim().min(1),
+  level: z.enum(['A1', 'A2', 'B1', 'B2', 'C1']),
+  topic: z.string().trim().min(1),
+  title: z.string().trim().min(1),
+  position: z.number().int().min(0).default(0),
+  content: lessonContentSchema,
+});
+
+export type LessonImportItem = z.infer<typeof lessonImportItemSchema>;
+
+export const lessonUpdateSchema = z.object({
+  id: z.uuid(),
+  level: z.enum(['A1', 'A2', 'B1', 'B2', 'C1']).optional(),
+  topic: z.string().trim().min(1).optional(),
+  title: z.string().trim().min(1).optional(),
+  position: z.number().int().min(0).optional(),
+  content: lessonContentSchema.optional(),
+});
+
+export type LessonUpdateInput = z.infer<typeof lessonUpdateSchema>;
+
+export const lessonDeleteSchema = z.object({ id: z.uuid() });
+
