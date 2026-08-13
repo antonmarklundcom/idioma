@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { UtteranceRecorder } from '@/components/recorder/UtteranceRecorder';
 import { blobToBase64 } from '@/components/recorder/blobToBase64';
 import { useSessionEndBeacon } from '@/components/practice/useSessionEndBeacon';
+import { fetchJson, type ApiErrorKind } from '@/lib/apiError';
 import { FeedbackCard } from './FeedbackCard';
 import { useTutorAudioPlayer } from './useTutorAudioPlayer';
 import { XpToast } from '@/components/gamification/XpToast';
@@ -68,6 +69,18 @@ export function LessonPlayer({
   const exercise: PlayerExercise | null = isGuided ? (exercises[step] ?? null) : null;
   const isLastExercise = isGuided && step === exercises.length - 1;
 
+  // PLAN.md §8: 429 (daily cap) and timeouts get their own copy - a stuck request
+  // reads very differently to a learner than "you're out of turns for today".
+  const messageForError = useCallback(
+    (kind: ApiErrorKind, fallback: string) => {
+      if (kind === 'rate_limited') return strings.rateLimited;
+      if (kind === 'timeout') return strings.timedOut;
+      if (kind === 'network') return strings.networkError;
+      return fallback;
+    },
+    [strings],
+  );
+
   const playListenAudio = useCallback(async () => {
     if (!lessonId || !exercise || exercise.kind !== 'listen') return;
     if (plays >= MAX_LISTEN_PLAYS || audioStatus === 'loading') return;
@@ -102,44 +115,39 @@ export function LessonPlayer({
     async (blob: Blob, mimeType: string) => {
       setStatus('sending');
       setErrorMessage(null);
-      try {
-        const audioBase64 = await blobToBase64(blob);
-        const body =
-          isGuided && exercise
-            ? { audioBase64, mimeType, lessonId, exerciseIndex: exercise.index }
-            : { audioBase64, mimeType, lessonId, promptContext };
+      const audioBase64 = await blobToBase64(blob);
+      const body =
+        isGuided && exercise
+          ? { audioBase64, mimeType, lessonId, exerciseIndex: exercise.index }
+          : { audioBase64, mimeType, lessonId, promptContext };
 
-        const res = await fetch('/api/lesson/attempt', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
-        });
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          setErrorMessage(data.error ?? strings.couldntAnalyze);
-          setStatus('error');
-          return;
-        }
-        const data: LessonAttemptResponse = await res.json();
-        markTurnRecorded();
-        setFeedback(data);
-        if (!isGuided) setPromptContext(data.followUpQuestion);
-        setStatus('idle');
-        if (data.tutorAudioBase64) player.play(data.tutorAudioBase64);
-
-        // PLAN.md §12.2: XP toast after every turn; a short celebration on streak
-        // milestones (lesson completion has its own, below).
-        setXpEvent({ id: Date.now(), xp: data.gamification.xpAwarded });
-        if (data.gamification.celebration?.type === 'streak_milestone') {
-          setCelebrationMessage(strings.streakMilestone(data.gamification.celebration.milestone));
-        }
-        router.refresh(); // updates the app-shell header's DailyGoalRing/StreakBadge
-      } catch {
-        setErrorMessage(strings.networkError);
+      const result = await fetchJson<LessonAttemptResponse>('/api/lesson/attempt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      if (!result.ok) {
+        setErrorMessage(messageForError(result.kind, result.message ?? strings.couldntAnalyze));
         setStatus('error');
+        return;
       }
+
+      const data = result.data;
+      markTurnRecorded();
+      setFeedback(data);
+      if (!isGuided) setPromptContext(data.followUpQuestion);
+      setStatus('idle');
+      if (data.tutorAudioBase64) player.play(data.tutorAudioBase64);
+
+      // PLAN.md §12.2: XP toast after every turn; a short celebration on streak
+      // milestones (lesson completion has its own, below).
+      setXpEvent({ id: Date.now(), xp: data.gamification.xpAwarded });
+      if (data.gamification.celebration?.type === 'streak_milestone') {
+        setCelebrationMessage(strings.streakMilestone(data.gamification.celebration.milestone));
+      }
+      router.refresh(); // updates the app-shell header's DailyGoalRing/StreakBadge
     },
-    [isGuided, exercise, lessonId, promptContext, player, router, markTurnRecorded, strings],
+    [isGuided, exercise, lessonId, promptContext, player, router, markTurnRecorded, strings, messageForError],
   );
 
   const goToNextExercise = useCallback(() => {
@@ -152,25 +160,20 @@ export function LessonPlayer({
   const finishLesson = useCallback(async () => {
     if (!lessonId) return;
     setStatus('sending');
-    try {
-      const res = await fetch(`/api/lessons/${lessonId}/complete`, { method: 'POST' });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        setErrorMessage(data.error ?? strings.couldntSaveProgress);
-        setStatus('error');
-        return;
-      }
-      const data: LessonCompleteResponse = await res.json();
-      setSummary(data);
-      setFeedback(null);
-      setStatus('idle');
-      setCelebrationMessage(strings.lessonCompleteCelebration);
-      router.refresh();
-    } catch {
-      setErrorMessage(strings.networkError);
+    const result = await fetchJson<LessonCompleteResponse>(`/api/lessons/${lessonId}/complete`, {
+      method: 'POST',
+    });
+    if (!result.ok) {
+      setErrorMessage(messageForError(result.kind, result.message ?? strings.couldntSaveProgress));
       setStatus('error');
+      return;
     }
-  }, [lessonId, router, strings]);
+    setSummary(result.data);
+    setFeedback(null);
+    setStatus('idle');
+    setCelebrationMessage(strings.lessonCompleteCelebration);
+    router.refresh();
+  }, [lessonId, router, strings, messageForError]);
 
   if (summary) {
     return (

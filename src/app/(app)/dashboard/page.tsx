@@ -1,12 +1,13 @@
 import Link from 'next/link';
 import { auth } from '@/lib/auth';
-import { getProgressData } from '@/lib/progress';
+import { getProgressData, getWeeklyRecap } from '@/lib/progress';
 import { getPartnerStreak, getUserStatsSummary } from '@/lib/gamification';
 import { getUserLocale } from '@/lib/getUserLocale';
 import { t } from '@/lib/i18n';
 import { estimateReviewMinutes } from '@/lib/srs';
 import { ErrorPatternList } from '@/components/dashboard/ErrorPatternList';
 import { SessionHistory } from '@/components/dashboard/SessionHistory';
+import { WeeklyRecapCard } from '@/components/dashboard/WeeklyRecapCard';
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -17,6 +18,7 @@ export default async function DashboardPage() {
     ? await getUserStatsSummary(session.user.id, session.user.timezone)
     : null;
   const partner = session?.user ? await getPartnerStreak(session.user.id) : null;
+  const recap = session?.user ? await getWeeklyRecap(session.user.id, session.user.timezone) : null;
   const locale = session?.user ? await getUserLocale(session.user.id) : 'en';
   const strings = t(locale);
 
@@ -83,6 +85,8 @@ export default async function DashboardPage() {
           )}
         </p>
       )}
+
+      {recap && <WeeklyRecapCard recap={recap} locale={locale} />}
 
       <section className="flex flex-col gap-3">
         <h2 className="text-lg font-semibold text-slate-900 dark:text-white">

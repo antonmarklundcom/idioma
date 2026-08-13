@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { UtteranceRecorder } from '@/components/recorder/UtteranceRecorder';
 import { blobToBase64 } from '@/components/recorder/blobToBase64';
 import { useSessionEndBeacon } from '@/components/practice/useSessionEndBeacon';
+import { fetchJson, type ApiErrorKind } from '@/lib/apiError';
 import { FeedbackCard } from '@/components/lesson/FeedbackCard';
 import { useTutorAudioPlayer } from '@/components/lesson/useTutorAudioPlayer';
 import { TEXT_ANSWER_MAX_CHARS } from '@/lib/zodSchemas';
@@ -53,37 +54,44 @@ export function ReviewSession({
   const card = cards[index];
   const answeredCorrectly = feedback !== null && feedback.errors.length === 0;
 
+  // PLAN.md §8: 429 (daily cap) and timeouts get their own copy - a stuck request
+  // reads very differently to a learner than "you're out of turns for today".
+  const messageForError = useCallback(
+    (kind: ApiErrorKind, fallback: string) => {
+      if (kind === 'rate_limited') return strings.rateLimited;
+      if (kind === 'timeout') return strings.timedOut;
+      if (kind === 'network') return strings.networkError;
+      return fallback;
+    },
+    [strings],
+  );
+
   const submitAnswer = useCallback(
     async (input: { audioBase64: string; mimeType: string } | { text: string }) => {
       if (!card) return;
       setStatus('sending');
       setErrorMessage(null);
-      try {
-        const res = await fetch('/api/lesson/attempt', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...input, mode: 'review', reviewItemId: card.id }),
-        });
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          setErrorMessage(data.error ?? strings.couldntCheckAnswer);
-          setStatus('error');
-          return;
-        }
-        const data: LessonAttemptResponse = await res.json();
-        markTurnRecorded();
-        setFeedback(data);
-        setRevealed(true);
-        setXpEarned((xp) => xp + data.gamification.xpAwarded);
-        setStatus('idle');
-        if (data.tutorAudioBase64) player.play(data.tutorAudioBase64);
-        router.refresh(); // app-shell DailyGoalRing: review turns count toward the goal
-      } catch {
-        setErrorMessage(strings.networkError);
+      const result = await fetchJson<LessonAttemptResponse>('/api/lesson/attempt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...input, mode: 'review', reviewItemId: card.id }),
+      });
+      if (!result.ok) {
+        setErrorMessage(messageForError(result.kind, result.message ?? strings.couldntCheckAnswer));
         setStatus('error');
+        return;
       }
+
+      const data = result.data;
+      markTurnRecorded();
+      setFeedback(data);
+      setRevealed(true);
+      setXpEarned((xp) => xp + data.gamification.xpAwarded);
+      setStatus('idle');
+      if (data.tutorAudioBase64) player.play(data.tutorAudioBase64);
+      router.refresh(); // app-shell DailyGoalRing: review turns count toward the goal
     },
-    [card, player, router, markTurnRecorded, strings],
+    [card, player, router, markTurnRecorded, strings, messageForError],
   );
 
   const handleRecorded = useCallback(
@@ -197,7 +205,7 @@ export function ReviewSession({
               <button
                 type="button"
                 onClick={() => setTyping(false)}
-                className="text-sm text-slate-500 dark:text-slate-400"
+                className="-mx-2 -my-1 px-2 py-2 text-sm text-slate-500 dark:text-slate-400"
               >
                 {strings.useMicInstead}
               </button>
@@ -224,7 +232,7 @@ export function ReviewSession({
               <button
                 type="button"
                 onClick={() => setTyping(true)}
-                className="text-sm text-slate-500 underline dark:text-slate-400"
+                className="-mx-2 -my-1 px-2 py-2 text-sm text-slate-500 underline dark:text-slate-400"
               >
                 {strings.typeInstead}
               </button>
@@ -235,7 +243,7 @@ export function ReviewSession({
                   setRevealed(true);
                   setFeedback(null);
                 }}
-                className="text-sm text-slate-500 underline disabled:opacity-50 dark:text-slate-400"
+                className="-mx-2 -my-1 px-2 py-2 text-sm text-slate-500 underline disabled:opacity-50 dark:text-slate-400"
               >
                 {strings.dontKnow}
               </button>
