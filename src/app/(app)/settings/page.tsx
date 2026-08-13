@@ -1,6 +1,7 @@
 import { auth } from '@/lib/auth';
 import { getUserLocale } from '@/lib/getUserLocale';
 import { t } from '@/lib/i18n';
+import { HandsFreeToggle } from '@/components/settings/HandsFreeToggle';
 
 export default async function SettingsPage() {
   const session = await auth();
@@ -23,6 +24,10 @@ export default async function SettingsPage() {
         <dt className="text-slate-500 dark:text-slate-400">{strings.settings.timezone}</dt>
         <dd className="text-slate-800 dark:text-slate-100">{user?.timezone ?? '—'}</dd>
       </dl>
+
+      {/* PLAN.md §8 Phase 7B item 2 */}
+      <HandsFreeToggle initial={user?.handsFreeTurnTaking ?? true} locale={locale} />
+
       <p className="text-sm text-slate-400 dark:text-slate-500">{strings.settings.editingNote}</p>
     </div>
   );

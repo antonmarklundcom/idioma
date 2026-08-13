@@ -19,12 +19,20 @@ export function useTutorAudioPlayer() {
     audioRef.current = audio;
   }, []);
 
-  const play = useCallback((base64: string) => {
+  /**
+   * `onEnded` powers the hands-free loop (PLAN.md §8 Phase 7B item 2): the next turn's
+   * mic opens when the tutor stops speaking, not while they are still talking. It also
+   * fires when playback fails outright - a turn that produced no sound must still hand
+   * the conversation back, or the loop stalls silently.
+   */
+  const play = useCallback((base64: string, onEnded?: () => void) => {
     if (!audioRef.current) {
       audioRef.current = new Audio();
     }
-    audioRef.current.src = `data:audio/mp3;base64,${base64}`;
-    audioRef.current.play().catch(() => {});
+    const audio = audioRef.current;
+    audio.onended = onEnded ? () => onEnded() : null;
+    audio.src = `data:audio/mp3;base64,${base64}`;
+    audio.play().catch(() => onEnded?.());
   }, []);
 
   return { unlock, play };

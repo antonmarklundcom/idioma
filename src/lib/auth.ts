@@ -25,6 +25,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       session.user.coachingProfile = user.coachingProfile;
       session.user.focusSkills = user.focusSkills;
       session.user.timezone = user.timezone;
+      session.user.handsFreeTurnTaking = user.handsFreeTurnTaking;
       return session;
     },
   },

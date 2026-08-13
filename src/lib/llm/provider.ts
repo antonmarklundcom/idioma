@@ -14,9 +14,23 @@ export type FeedbackArgs = {
   model: string;
 };
 
+export type QuickReplyArgs = FeedbackArgs;
+
 export interface LlmProvider {
   /** Returns the §4.1 feedback JSON shape (unvalidated) - caller Zod-validates. */
   getFeedback(args: FeedbackArgs): Promise<unknown>;
+  /**
+   * PLAN.md §8 Phase 7B item 1 ("speak before you analyze"): the tutor's spoken half
+   * of the turn - `{ tutorReply, followUpQuestion }` and nothing else - so synthesis
+   * can start while the full structured feedback is still being generated.
+   *
+   * OPTIONAL by design. A provider that has to transcribe the audio before it can say
+   * anything (OpenAI, §14.2) gains no latency from a second short call and would pay
+   * for a second transcription, so it simply doesn't implement this and the route
+   * falls back to the single-call path. Capability differences belong here, not in
+   * the route.
+   */
+  getQuickReply?(args: QuickReplyArgs): Promise<unknown>;
 }
 
 const PROVIDERS: Record<ProviderId, LlmProvider> = {

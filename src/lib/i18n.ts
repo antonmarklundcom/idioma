@@ -126,6 +126,7 @@ const en = {
     openingPrompt: "Say hi and tell your tutor what's on your mind today - anything goes.",
     turnOf: (n: number) => `Turn ${n} · free conversation`,
     listeningBack: 'Listening back…',
+    handsFreeHint: 'Hands-free — the mic opens again once your tutor finishes.',
     couldntAnalyze: "Couldn't analyze that recording. Try again.",
     networkError: 'Network error - please try again.',
     streakMilestone: (n: number) => `🔥 ${n}-day streak!`,
@@ -144,6 +145,8 @@ const en = {
     sending: 'Sending…',
     tapToRecord: 'Tap to record',
     micDenied: 'Microphone permission was denied or unavailable.',
+    waitingForSpeech: 'Listening — start talking',
+    autoStopIn: (seconds: string) => `Ending in ${seconds}s — keep talking to continue`,
   },
   settings: {
     title: 'Settings',
@@ -153,6 +156,12 @@ const en = {
     coachingStyle: 'Coaching style',
     timezone: 'Timezone',
     editingNote: 'Editing these values in-place arrives alongside the lesson flow (Phase 3+).',
+    handsFreeTitle: 'Hands-free conversation',
+    handsFreeDesc:
+      'In Live mode, stop recording automatically when you stop talking, and open the mic again after the tutor replies. Lessons always wait for you to tap — a thinking pause should never end a graded answer.',
+    handsFreeOn: 'On',
+    handsFreeOff: 'Off',
+    saveFailed: "Couldn't save that. Try again.",
   },
   gamification: {
     turnsToday: (turns: number, target: number) => `${turns}/${target} turns today`,
@@ -297,6 +306,7 @@ const es: Dictionary = {
     openingPrompt: 'Saludá y contale a tu tutor qué tenés en mente hoy - lo que sea.',
     turnOf: (n: number) => `Turno ${n} · conversación libre`,
     listeningBack: 'Escuchando…',
+    handsFreeHint: 'Manos libres — el micrófono se abre de nuevo cuando tu tutor termina.',
     couldntAnalyze: 'No pudimos analizar esa grabación. Intentá de nuevo.',
     networkError: 'Error de red - intentá de nuevo.',
     streakMilestone: (n: number) => `🔥 ¡Racha de ${n} día${n === 1 ? '' : 's'}!`,
@@ -315,6 +325,8 @@ const es: Dictionary = {
     sending: 'Enviando…',
     tapToRecord: 'Tocá para grabar',
     micDenied: 'El permiso del micrófono fue denegado o no está disponible.',
+    waitingForSpeech: 'Escuchando — empezá a hablar',
+    autoStopIn: (seconds: string) => `Termina en ${seconds}s — seguí hablando para continuar`,
   },
   settings: {
     title: 'Ajustes',
@@ -324,6 +336,12 @@ const es: Dictionary = {
     coachingStyle: 'Estilo de coaching',
     timezone: 'Zona horaria',
     editingNote: 'Poder editar estos valores llega junto con el flujo de lecciones (Fase 3+).',
+    handsFreeTitle: 'Conversación manos libres',
+    handsFreeDesc:
+      'En el modo En vivo, la grabación se detiene sola cuando dejás de hablar, y el micrófono se abre de nuevo después de la respuesta del tutor. Las lecciones siempre esperan que toques — una pausa para pensar nunca debería terminar una respuesta evaluada.',
+    handsFreeOn: 'Activado',
+    handsFreeOff: 'Desactivado',
+    saveFailed: 'No pudimos guardar eso. Intentá de nuevo.',
   },
   gamification: {
     turnsToday: (turns: number, target: number) => `${turns}/${target} turnos hoy`,
@@ -466,6 +484,7 @@ const sv: Dictionary = {
     openingPrompt: 'Säg hej och berätta för din handledare vad du tänker på idag - vad som helst.',
     turnOf: (n: number) => `Tur ${n} · fri konversation`,
     listeningBack: 'Lyssnar…',
+    handsFreeHint: 'Handsfree — mikrofonen öppnas igen när din handledare är klar.',
     couldntAnalyze: 'Kunde inte analysera inspelningen. Försök igen.',
     networkError: 'Nätverksfel – försök igen.',
     streakMilestone: (n: number) => `🔥 ${n} dagars streak!`,
@@ -484,6 +503,8 @@ const sv: Dictionary = {
     sending: 'Skickar…',
     tapToRecord: 'Tryck för att spela in',
     micDenied: 'Mikrofonbehörighet nekades eller är inte tillgänglig.',
+    waitingForSpeech: 'Lyssnar — börja prata',
+    autoStopIn: (seconds: string) => `Avslutas om ${seconds}s — fortsätt prata för att fortsätta`,
   },
   settings: {
     title: 'Inställningar',
@@ -493,6 +514,12 @@ const sv: Dictionary = {
     coachingStyle: 'Coachningsstil',
     timezone: 'Tidszon',
     editingNote: 'Möjlighet att redigera dessa värden kommer tillsammans med lektionsflödet (Fas 3+).',
+    handsFreeTitle: 'Handsfree-konversation',
+    handsFreeDesc:
+      'I Live-läget stoppas inspelningen automatiskt när du slutar prata, och mikrofonen öppnas igen efter handledarens svar. Lektioner väntar alltid på att du trycker — en tankepaus ska aldrig avsluta ett bedömt svar.',
+    handsFreeOn: 'På',
+    handsFreeOff: 'Av',
+    saveFailed: 'Kunde inte spara. Försök igen.',
   },
   gamification: {
     turnsToday: (turns: number, target: number) => `${turns}/${target} turer idag`,
