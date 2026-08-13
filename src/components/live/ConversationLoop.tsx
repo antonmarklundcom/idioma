@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { UtteranceRecorder } from '@/components/recorder/UtteranceRecorder';
 import { blobToBase64 } from '@/components/recorder/blobToBase64';
 import { useSessionEndBeacon } from '@/components/practice/useSessionEndBeacon';
+import { fetchJson, type ApiErrorKind } from '@/lib/apiError';
 import { FeedbackCard } from '@/components/lesson/FeedbackCard';
 import { useTutorAudioPlayer } from '@/components/lesson/useTutorAudioPlayer';
 import { XpToast } from '@/components/gamification/XpToast';
@@ -37,42 +38,49 @@ export function ConversationLoop({
   // PLAN.md §16 defect 1: closes the practice_sessions row when the learner leaves.
   const { markTurnRecorded } = useSessionEndBeacon('live');
 
+  // PLAN.md §8: 429 (daily cap) and timeouts get their own copy - a stuck request
+  // reads very differently to a learner than "you're out of turns for today".
+  const messageForError = useCallback(
+    (kind: ApiErrorKind, fallback: string) => {
+      if (kind === 'rate_limited') return strings.rateLimited;
+      if (kind === 'timeout') return strings.timedOut;
+      if (kind === 'network') return strings.networkError;
+      return fallback;
+    },
+    [strings],
+  );
+
   const handleRecorded = useCallback(
     async (blob: Blob, mimeType: string) => {
       setStatus('sending');
       setErrorMessage(null);
-      try {
-        const audioBase64 = await blobToBase64(blob);
-        const res = await fetch('/api/lesson/attempt', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ audioBase64, mimeType, mode: 'live', promptContext }),
-        });
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          setErrorMessage(data.error ?? strings.couldntAnalyze);
-          setStatus('error');
-          return;
-        }
-        const data: LessonAttemptResponse = await res.json();
-        markTurnRecorded();
-        setFeedback(data);
-        setPromptContext(data.followUpQuestion);
-        setTurnCount((n) => n + 1);
-        setStatus('idle');
-        if (data.tutorAudioBase64) player.play(data.tutorAudioBase64);
-
-        setXpEvent({ id: Date.now(), xp: data.gamification.xpAwarded });
-        if (data.gamification.celebration?.type === 'streak_milestone') {
-          setCelebrationMessage(strings.streakMilestone(data.gamification.celebration.milestone));
-        }
-        router.refresh();
-      } catch {
-        setErrorMessage(strings.networkError);
+      const audioBase64 = await blobToBase64(blob);
+      const result = await fetchJson<LessonAttemptResponse>('/api/lesson/attempt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ audioBase64, mimeType, mode: 'live', promptContext }),
+      });
+      if (!result.ok) {
+        setErrorMessage(messageForError(result.kind, result.message ?? strings.couldntAnalyze));
         setStatus('error');
+        return;
       }
+
+      const data = result.data;
+      markTurnRecorded();
+      setFeedback(data);
+      setPromptContext(data.followUpQuestion);
+      setTurnCount((n) => n + 1);
+      setStatus('idle');
+      if (data.tutorAudioBase64) player.play(data.tutorAudioBase64);
+
+      setXpEvent({ id: Date.now(), xp: data.gamification.xpAwarded });
+      if (data.gamification.celebration?.type === 'streak_milestone') {
+        setCelebrationMessage(strings.streakMilestone(data.gamification.celebration.milestone));
+      }
+      router.refresh();
     },
-    [promptContext, player, router, markTurnRecorded, strings],
+    [promptContext, player, router, markTurnRecorded, strings, messageForError],
   );
 
   return (
