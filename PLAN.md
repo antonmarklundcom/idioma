@@ -78,6 +78,7 @@ Verified against the actual code on `main` (not just docs) in July 2026:
 | 4B — Gamification core | `lib/gamification.ts` (XP constants, timezone-aware streak + weekly shield), `user_stats` migration, `DailyGoalRing`/`StreakBadge`/`Celebration`/`XpToast`, step ⑦ wired into `/api/lesson/attempt` |
 | 4C — Provider-abstraction audit | ESLint `no-restricted-imports` rule enforced and exercised against a deliberate violation — the one fully verified phase in the repo |
 | 7 — Live conversation (turn-based) | `ConversationLoop.tsx` + `/live`; backend already existed (`conversation_prompt_template` column, `mode: 'live'` branch, template selection in `prompts.ts`) |
+| 7B — Conversation latency + hands-free | Split reply/feedback calls (`lib/gemini/quickReply.ts`, optional `LlmProvider.getQuickReply`), persistence in `after()` (`lib/practiceTurn.ts`), endpointing + capture-time silence trimming in `useRecorder`, `users.hands_free_turn_taking` (migration `0005`) + `/settings` toggle |
 
 **Blockers (owner, no code):**
 
@@ -101,7 +102,7 @@ Verified against the actual code on `main` (not just docs) in July 2026:
 | 5 | Phase 5 — curriculum delivery + admin import — **Sonnet 5** | Q5 (one validated batch) |
 | 6 | Phase 5B — SRS review queue + listening exercises — **Opus 5** | Phases 4, 5 |
 | 7 | Phase 6 — PWA (manifest, Serwist SW, install) | Phase 2 (icon source image needed, §9 Q6) |
-| 8 | Phase 7B — conversation latency + hands-free turn-taking — **Opus 5** | Phase 7 live-verified |
+| 8 | ~~Phase 7B — conversation latency + hands-free turn-taking~~ — **code complete**; acceptance is a latency measurement and is still pending | Phase 0 (to measure it) |
 | 9 | Phase 8 — polish + beta hardening (now three UI locales, §9 Q12) | all |
 
 The two remaining stubs are `/lesson` (becomes a real browser in Phase 5) and the admin usage
@@ -1249,7 +1250,60 @@ mode; cost stays $0 (verify via the admin usage page, §6.5).
 — fully specced in §4.2 + §4.4, gated on billing, **~$0.90/hour of talk time** per the §15 cost
 model. Revisit only if Phase 7B's latency work proves insufficient.)*
 
-### Phase 7B — Conversation latency + hands-free turn-taking (blocked by: 7 live-verified) ← §15.2
+### Phase 7B — Conversation latency + hands-free turn-taking (blocked by: 7 live-verified) ← §15.2 — CODE COMPLETE, untested pending Phase 0
+Same caveat as Phases 2–7: passes `npm run build` (empty environment) + `tsc --noEmit` +
+`eslint`, never run against a real database, Gemini key or TTS key. **The acceptance checks
+below are latency and data-equivalence measurements — none of them has been measured, and none
+of them can be until Phase 0 lands.** Shipping this ahead of Phase 0 was a deliberate choice
+(§16 set the precedent): the code is writable correctly without live data, but nobody should
+believe the "<4 s" number until someone holds a phone and measures it. Written honestly: **not
+measured, pending Phase 0.**
+
+*What was built, per item:*
+
+1. **Speak before you analyze — split into two calls.** The reply-only call is a new optional
+   `LlmProvider.getQuickReply` (`lib/llm/provider.ts`, implemented by the Gemini adapter via
+   `lib/gemini/quickReply.ts`) returning `{ tutorReply, followUpQuestion }` against the *same*
+   assembled system prompt plus `QUICK_REPLY_INSTRUCTION`, so the spoken half and the graded half
+   can't come out sounding like two different tutors. It runs **concurrently** with the full
+   structured call and chains straight into `synthesizeTutorSpeech`, so the turn now costs
+   `max(structured, short + TTS)` instead of `structured + TTS`. Streaming was the other option
+   §8 offered and was rejected: `tutorReply` sits fourth in the response schema, so a stream
+   yields nothing early without reordering the schema, and every provider adapter would need a
+   streaming path (§14.2). The quick call is **never fatal** — if it fails, is malformed, or the
+   provider doesn't implement it (OpenAI, which must transcribe first and would pay for a second
+   transcription for no latency gain), the turn silently falls back to the old serial path.
+   The reply the learner *heard* is the reply written to the `utterances` row.
+   **The response contract is unchanged**: same `LessonAttemptResponse`, same fields, same
+   `utterances` row for lesson and live turns alike.
+   Persistence moved into `after()` via `lib/practiceTurn.ts` — `practice_sessions`,
+   `utterances`, `error_patterns` (and its SRS enqueue), `usage_log` ×2 and `user_stats`. XP and
+   streak *numbers* are still computed on the response path (`computeTurnStats`, pure) from a
+   snapshot read **concurrently with the model call**; only the `UPDATE` moved. All five reads
+   the turn needs now issue in one `Promise.all` instead of five serial Neon HTTPS round trips.
+   **The cost, stated:** two requests per turn roughly halves free-tier request headroom, exactly
+   as §15.2 predicted (~35 DAU → ~18). At two users that's ~80 of 1,500 requests/day.
+2. **Hands-free turn-taking.** `useRecorder` now runs an endpointing state machine on the
+   AnalyserNode it already had: 300 ms noise-floor calibration → wait for speech onset → capture.
+   Auto-stop at 1,500 ms of silence with a visible countdown (`autoStopIn`) and a ring on the
+   button; **manual stop always wins** (one `finished` flag, whoever gets there first). Gated on
+   the new per-user `users.hands_free_turn_taking` column (migration `0005`, default `true`),
+   toggled in `/settings`, consumed **only** by `/live`. `/lesson` and `/review` never auto-stop
+   at all — that is a design rule, not a preference, so no setting can turn it on there. The
+   second half of "no taps between turns" is in `ConversationLoop`: the mic reopens when the
+   tutor's audio ends (and also when a turn produces no audio, or the loop would dead-end).
+3. **Don't re-upload silence.** Trimming happens **at capture time**, not by re-encoding:
+   `MediaRecorder.start()` is deferred until speech onset (leading silence never written), and
+   `pause()`/`resume()` excise any gap over 700 ms including the trailing one. Decode-and-trim
+   was rejected because the only thing a browser can re-encode to is WAV, which would *grow* a
+   15 s turn from ~20 KB of Opus to ~480 KB — the opposite of the goal. Trimming is on in every
+   mode, independent of hands-free, and self-disables on any browser whose `pause()` throws.
+   Two safety valves: if nothing crosses the speech threshold within 2.5 s, recording starts
+   anyway (a mis-calibrated floor must never mean "recorded nothing"), and the 90 s cap stays on
+   wall-clock so a backgrounded tab can't outrun it.
+
+*Original phase text follows.*
+
 The turn-based loop works but is **fully serial**: record → base64 upload → one Gemini call that
 generates transcription + errors + correction + reply + follow-up → *then* a Cloud TTS round trip
 → *then* the response reaches the client. Nothing is heard until all of it finishes. That is the
@@ -1285,6 +1339,20 @@ a full turn completes hands-free with no taps between turns in `/live`; `utteran
 `error_patterns` and `user_stats` rows are identical to what the serial path produced (verify by
 comparing a lesson-mode turn and a live-mode turn on the same sentence); killing TTS still
 returns text feedback.
+
+**Acceptance status: PENDING PHASE 0 — nothing below has been measured.** Every one of these
+needs a real key, a real database and a real phone; none is satisfiable in an empty environment,
+and none should be marked off on the strength of the code reading correctly.
+
+| Check | Status |
+|---|---|
+| Median "stop talking" → first audio **< 4 s**, on a real phone on mobile data, timestamp-logged | ⏳ not measured — needs Phase 0 |
+| A full turn completes hands-free with no taps between turns in `/live` | ⏳ not verified on a real device (thresholds are calibrated per-recording but have never met a real microphone) |
+| `utterances` / `error_patterns` / `user_stats` rows identical to the serial path, lesson turn vs live turn on the same sentence | ⏳ not verified — the writes are unchanged in content and the `turnsToday` arithmetic is equivalent by construction, but "by construction" is not the check |
+| Killing TTS still returns text feedback | ⏳ not verified live — the degradation path is unchanged from §4.5 and now has one more branch (quick reply fails → serial fallback) that also needs exercising |
+
+The one thing that *is* verified: `npm run build`, `npx tsc --noEmit` and `npm run lint` all pass
+against an empty environment.
 
 ### Phase 8 — Polish + beta hardening (blocked by: all)
 Error boundaries + retry UX on every Gemini call; loading/empty states; Spanish UI strings for
@@ -1596,9 +1664,12 @@ twice in the first half of 2026.
 - **A — what ships today.** `generateContent` with inline audio → one structured JSON response →
   Cloud TTS synthesizes the reply → client plays it. Serial; nothing is heard until every step
   finishes.
-- **B — A, parallelized (Phase 7B).** Same models, same calls, same tokens. Audio starts playing
+- **B — A, parallelized (Phase 7B).** Same models, same tokens per call. Audio starts playing
   as soon as `tutorReply` exists; persistence moves off the response path. **Purely an
-  engineering change — it buys latency for zero additional spend.**
+  engineering change — it buys latency for zero additional spend at beta scale.** As built it
+  takes the two-call option §8 offers, so a spoken turn issues two requests rather than one:
+  still $0 against the free tier here, but it spends request headroom, not dollars — the ~18-DAU
+  figure in §15.2, not the ~35-DAU one.
 - **C — Gemini Live API (§4.2).** True simultaneous voice-to-voice over a WebSocket, native audio
   in and out, no separate TTS step.
 

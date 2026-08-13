@@ -19,6 +19,15 @@ export const onboardingSchema = z.object({
 
 export type OnboardingInput = z.infer<typeof onboardingSchema>;
 
+// PATCH /api/me/preferences - standalone per-user settings, editable one at a time
+// (PLAN.md §8 Phase 7B item 2 adds the first one). Every field optional; an empty body
+// is a valid no-op rather than an error.
+export const preferencesSchema = z.object({
+  handsFreeTurnTaking: z.boolean().optional(),
+});
+
+export type PreferencesInput = z.infer<typeof preferencesSchema>;
+
 // --- /api/lesson/attempt (PLAN.md §2, §4.1) ---------------------------------
 
 /** Typed answers (the §13.4 "type instead" fallback) are bounded: one utterance, not an essay. */
@@ -128,6 +137,17 @@ export const feedbackResultSchema = z.object({
 });
 
 export type FeedbackResult = z.infer<typeof feedbackResultSchema>;
+
+// PLAN.md §8 Phase 7B item 1: the spoken half of a turn, returned by the short
+// reply-only call so TTS can start before the structured feedback exists. Deliberately
+// a subset of feedbackResultSchema - the response contract to the client is unchanged,
+// these two fields just arrive from a different call.
+export const quickReplySchema = feedbackResultSchema.pick({
+  tutorReply: true,
+  followUpQuestion: true,
+});
+
+export type QuickReply = z.infer<typeof quickReplySchema>;
 
 // --- Admin model settings (PLAN.md §14.4) ----------------------------------
 // Model IDs are free text on purpose: providers rename and retire models faster

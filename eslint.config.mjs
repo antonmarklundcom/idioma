@@ -12,6 +12,11 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Serwist's bundled service worker (PLAN.md §7.1). Gitignored build output, but
+    // eslint doesn't read .gitignore - without this, `npm run lint` passes on a clean
+    // checkout and fails on any tree where `npm run build` has run.
+    "public/sw.js",
+    "public/sw.js.map",
   ]),
   // PLAN.md §14.2/§14.3: every LLM call goes through lib/llm/provider.ts, never
   // @google/genai directly, so swapping providers later is one adapter file + an

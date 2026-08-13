@@ -81,6 +81,11 @@ export const users = pgTable('users', {
   coachingProfile: coachingProfileEnum('coaching_profile'),
   focusSkills: jsonb('focus_skills').$type<string[]>(),
   timezone: text('timezone'), // IANA, e.g. 'America/Asuncion', 'Europe/Stockholm'
+  // PLAN.md §8 Phase 7B item 2: hands-free turn-taking (auto-stop on silence, mic
+  // reopens after the tutor speaks). Per-user, default ON - it only ever applies in
+  // /live. /lesson never auto-stops regardless of this flag, because a thinking pause
+  // must not end a graded answer.
+  handsFreeTurnTaking: boolean('hands_free_turn_taking').notNull().default(true),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
 

@@ -159,18 +159,48 @@ export type GamificationResult = {
   celebration: CelebrationEvent | null;
 };
 
-// PLAN.md §2 step ⑦: called once per recorded turn, after the utterance is already
-// persisted (so turnsToday's count includes this turn).
-export async function recordTurnAndUpdateStats(args: {
+export type StreakStateWithXp = StreakState & { xpTotal: number };
+
+/**
+ * PLAN.md §8 Phase 7B item 1 splits step ⑦ in three so the client never waits on a write:
+ * `loadTurnStatsSnapshot` (read, concurrent with the model call) → `computeTurnStats`
+ * (pure, its result goes straight into the response) → `persistTurnStats` (the UPDATE,
+ * in `after()`).
+ *
+ * Nothing about the numbers changes: `turnsToday` is the count already on disk plus one
+ * for this turn, which is exactly the total the old post-insert count produced when the
+ * insert was still on the response path.
+ */
+export type TurnStatsSnapshot = {
+  stats: Awaited<ReturnType<typeof getOrCreateUserStats>>;
+  /** Turns recorded today BEFORE this one. */
+  priorTurnsToday: number;
+  timezone: string;
+};
+
+export async function loadTurnStatsSnapshot(args: {
   userId: string;
   timezone: string | null;
-  hadZeroErrors: boolean;
   now?: Date;
-}): Promise<GamificationResult> {
+}): Promise<TurnStatsSnapshot> {
   const timezone = args.timezone || 'UTC';
   const now = args.now ?? new Date();
-  const stats = await getOrCreateUserStats(args.userId);
-  const turnsToday = await countTurnsToday(args.userId, timezone, now);
+  const [stats, priorTurnsToday] = await Promise.all([
+    getOrCreateUserStats(args.userId),
+    countTurnsToday(args.userId, timezone, now),
+  ]);
+  return { stats, priorTurnsToday, timezone };
+}
+
+/** Pure: the whole streak/XP decision, no I/O. Returns what to show AND what to write. */
+export function computeTurnStats(args: {
+  snapshot: TurnStatsSnapshot;
+  hadZeroErrors: boolean;
+  now?: Date;
+}): { result: GamificationResult; nextState: StreakStateWithXp } {
+  const { stats, priorTurnsToday, timezone } = args.snapshot;
+  const now = args.now ?? new Date();
+  const turnsToday = priorTurnsToday + 1;
   const today = localDateString(timezone, now);
 
   let xpAwarded = GAMIFICATION.XP_PER_TURN;
@@ -191,28 +221,37 @@ export async function recordTurnAndUpdateStats(args: {
 
   const xpTotal = stats.xpTotal + xpAwarded;
 
-  await db
-    .update(userStats)
-    .set({
+  return {
+    result: {
+      xpAwarded,
       xpTotal,
       currentStreak: streak.currentStreak,
       longestStreak: streak.longestStreak,
-      lastGoalMetDate: streak.lastGoalMetDate,
-      streakShieldUsedInWeek: streak.streakShieldUsedInWeek,
+      dailyGoalTarget: stats.dailyGoalTarget,
+      turnsToday,
+      dailyGoalMet,
+      celebration,
+    },
+    nextState: { ...streak, xpTotal },
+  };
+}
+
+/** The write half of step ⑦ - runs in `after()`, off the response path. */
+export async function persistTurnStats(
+  userId: string,
+  nextState: StreakStateWithXp,
+): Promise<void> {
+  await db
+    .update(userStats)
+    .set({
+      xpTotal: nextState.xpTotal,
+      currentStreak: nextState.currentStreak,
+      longestStreak: nextState.longestStreak,
+      lastGoalMetDate: nextState.lastGoalMetDate,
+      streakShieldUsedInWeek: nextState.streakShieldUsedInWeek,
       updatedAt: new Date(),
     })
-    .where(eq(userStats.userId, args.userId));
-
-  return {
-    xpAwarded,
-    xpTotal,
-    currentStreak: streak.currentStreak,
-    longestStreak: streak.longestStreak,
-    dailyGoalTarget: stats.dailyGoalTarget,
-    turnsToday,
-    dailyGoalMet,
-    celebration,
-  };
+    .where(eq(userStats.userId, userId));
 }
 
 export type XpAward = { xpAwarded: number; xpTotal: number };

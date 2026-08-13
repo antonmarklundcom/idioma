@@ -72,7 +72,17 @@ export async function getMonthlyTtsCharCount(): Promise<number> {
  */
 export async function isUnderMonthlyTtsCharCap(pendingChars = 0): Promise<boolean> {
   const used = await getMonthlyTtsCharCount();
-  return used + pendingChars <= MONTHLY_TTS_CHAR_STOP;
+  return isUnderMonthlyTtsCharCapFor(used, pendingChars);
+}
+
+/**
+ * The same decision against an already-fetched total. PLAN.md §8 Phase 7B pulls the
+ * count into the batch of reads that runs concurrently with the model call, so the one
+ * query the TTS cap needs is no longer sitting on the serial path between the model
+ * response and synthesis. Same rule, same numbers - only the timing of the read moved.
+ */
+export function isUnderMonthlyTtsCharCapFor(usedChars: number, pendingChars = 0): boolean {
+  return usedChars + pendingChars <= MONTHLY_TTS_CHAR_STOP;
 }
 
 export type AdminUsageDailyPoint = {

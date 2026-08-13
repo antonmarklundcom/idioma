@@ -1,0 +1,1 @@
+ALTER TABLE "users" ADD COLUMN "hands_free_turn_taking" boolean DEFAULT true NOT NULL;
