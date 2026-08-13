@@ -82,6 +82,20 @@ export function buildReviewPromptContext(item: { front: string; back: string }):
   );
 }
 
+/**
+ * PLAN.md §8 Phase 7B item 1. Appended to the SAME assembled system prompt for the
+ * reply-only call, so the spoken half of the turn is generated under exactly the
+ * coaching rules the graded half is - the two calls must not sound like two tutors.
+ * The learner still hears one reply and sees one feedback card; only the number of
+ * requests behind them changed.
+ */
+export const QUICK_REPLY_INSTRUCTION =
+  '\n\nFOR THIS REQUEST ONLY: return just your spoken half of the turn - tutorReply and ' +
+  'followUpQuestion. Do not transcribe, do not list errors, do not correct explicitly. ' +
+  'Keep it to what you would actually say out loud, and let the coaching style above ' +
+  'shape it exactly as it would a full response. Your reply is about to be read aloud, ' +
+  'so write it to be heard: no markdown, no lists, no parentheses.';
+
 export const FREE_PRACTICE_LESSON_CONTEXT =
   'Free conversation practice - no fixed exercise. Invite the learner to talk about ' +
   'anything comfortable for their level, then follow their lead.';

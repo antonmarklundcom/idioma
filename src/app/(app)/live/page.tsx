@@ -8,6 +8,11 @@ export default async function LivePage() {
   const locale = session?.user ? await getUserLocale(session.user.id) : 'en';
 
   return (
-    <ConversationLoop coachingProfile={session?.user?.coachingProfile ?? null} locale={locale} />
+    <ConversationLoop
+      coachingProfile={session?.user?.coachingProfile ?? null}
+      locale={locale}
+      // PLAN.md §8 Phase 7B item 2: default ON here, and only here.
+      handsFree={session?.user?.handsFreeTurnTaking ?? true}
+    />
   );
 }

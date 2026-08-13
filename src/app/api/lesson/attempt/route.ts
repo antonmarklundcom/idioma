@@ -1,55 +1,89 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, after } from 'next/server';
 import { and, desc, eq } from 'drizzle-orm';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
-import { errorPatterns, languagePairs, utterances, type PracticeMode } from '@/lib/db/schema';
+import { errorPatterns, languagePairs } from '@/lib/db/schema';
 import {
   feedbackResultSchema,
   lessonAttemptRequestSchema,
+  quickReplySchema,
   type FeedbackResult,
+  type QuickReply,
 } from '@/lib/zodSchemas';
-import { getProviderForTask, type FeedbackArgs } from '@/lib/llm/provider';
+import { getProviderForTask, type FeedbackArgs, type LlmProvider } from '@/lib/llm/provider';
 import {
   assembleSystemPrompt,
   buildReviewPromptContext,
   FREE_PRACTICE_LESSON_CONTEXT,
+  QUICK_REPLY_INSTRUCTION,
 } from '@/lib/gemini/prompts';
 import { buildExercisePromptContext, getLessonForPair } from '@/lib/lessons';
 import { getReviewItemForUser } from '@/lib/srs';
 import { synthesizeTutorSpeech } from '@/lib/tts';
-import { getOrCreateSession } from '@/lib/sessions';
-import { isUnderDailyLessonAttemptCap, isUnderMonthlyTtsCharCap, logUsage } from '@/lib/usage';
-import { recordErrorPatterns } from '@/lib/errorPatterns';
-import { recordTurnAndUpdateStats } from '@/lib/gamification';
+import {
+  getMonthlyTtsCharCount,
+  isUnderDailyLessonAttemptCap,
+  isUnderMonthlyTtsCharCapFor,
+} from '@/lib/usage';
+import { computeTurnStats, loadTurnStatsSnapshot } from '@/lib/gamification';
+import { persistTurn } from '@/lib/practiceTurn';
 
 // Gemini audio calls can take 5-20s. Hostinger's long-lived Node process imposes no
 // function timeout (PLAN.md §6.1/§6.13); kept as documented intent and portability
-// insurance if hosting ever moves back to a serverless platform.
+// insurance if hosting ever moves back to a serverless platform. It also bounds the
+// `after()` work below, which runs under the same budget.
 export const maxDuration = 60;
 
 async function getValidatedFeedback(args: {
+  provider: LlmProvider;
+  model: string;
   systemPrompt: string;
   userTurnContext: string;
   input: FeedbackArgs['input'];
-  mode: PracticeMode;
 }): Promise<FeedbackResult> {
-  // Which model runs this turn is admin-configurable per task (PLAN.md §14.4).
-  // A review drill is graded by the lesson-feedback model, same as a lesson turn.
-  const { provider, model } = await getProviderForTask(
-    args.mode === 'live' ? 'live_conversation' : 'lesson_feedback',
-  );
   // PLAN.md §4.1: Zod-parse before trusting model output; retry once on mismatch.
   for (let attempt = 0; attempt < 2; attempt++) {
-    const raw = await provider.getFeedback({
+    const raw = await args.provider.getFeedback({
       systemPrompt: args.systemPrompt,
       userTurnContext: args.userTurnContext,
       input: args.input,
-      model,
+      model: args.model,
     });
     const parsed = feedbackResultSchema.safeParse(raw);
     if (parsed.success) return parsed.data;
   }
   throw new Error('invalid_model_output');
+}
+
+/**
+ * PLAN.md §8 Phase 7B item 1, "speak before you analyze".
+ *
+ * The short call that produces only what the learner is about to HEAR, so Cloud TTS can
+ * start while the structured-feedback call is still running. Never retried and never
+ * fatal: if it fails or comes back malformed, the turn falls back to the reply from the
+ * structured call and the learner gets the old serial timing instead of an error.
+ */
+async function getQuickReply(args: {
+  provider: LlmProvider;
+  model: string;
+  systemPrompt: string;
+  userTurnContext: string;
+  input: FeedbackArgs['input'];
+}): Promise<QuickReply | null> {
+  if (!args.provider.getQuickReply) return null;
+  try {
+    const raw = await args.provider.getQuickReply({
+      systemPrompt: args.systemPrompt + QUICK_REPLY_INSTRUCTION,
+      userTurnContext: args.userTurnContext,
+      input: args.input,
+      model: args.model,
+    });
+    const parsed = quickReplySchema.safeParse(raw);
+    return parsed.success ? parsed.data : null;
+  } catch (err) {
+    console.warn('[lesson/attempt] quick reply failed - falling back to the serial path', err);
+    return null;
+  }
 }
 
 export async function POST(request: Request) {
@@ -63,6 +97,8 @@ export async function POST(request: Request) {
       { status: 400 },
     );
   }
+  const userId = session.user.id;
+  const languagePairId = session.user.languagePairId;
 
   const body = await request.json().catch(() => null);
   const parsedBody = lessonAttemptRequestSchema.safeParse(body);
@@ -74,7 +110,26 @@ export async function POST(request: Request) {
   }
   const { input, lessonId, exerciseIndex, reviewItemId, promptContext, mode } = parsedBody.data;
 
-  const underCap = await isUnderDailyLessonAttemptCap(session.user.id);
+  // PLAN.md §8 Phase 7B: every read this turn needs, issued at once instead of one at a
+  // time. On Neon these are HTTPS round trips (§3.1), so serializing five of them was
+  // costing most of a second before the model had even seen the audio.
+  const [underCap, pairRows, recurringErrorRows, statsSnapshot, ttsCharsUsed, taskConfig] =
+    await Promise.all([
+      isUnderDailyLessonAttemptCap(userId),
+      db.select().from(languagePairs).where(eq(languagePairs.id, languagePairId)),
+      db
+        .select({ category: errorPatterns.category, description: errorPatterns.description })
+        .from(errorPatterns)
+        .where(and(eq(errorPatterns.userId, userId), eq(errorPatterns.languagePairId, languagePairId)))
+        .orderBy(desc(errorPatterns.occurrenceCount), desc(errorPatterns.lastSeenAt))
+        .limit(5),
+      loadTurnStatsSnapshot({ userId, timezone: session.user.timezone }),
+      getMonthlyTtsCharCount(),
+      // Which model runs this turn is admin-configurable per task (PLAN.md §14.4).
+      // A review drill is graded by the lesson-feedback model, same as a lesson turn.
+      getProviderForTask(mode === 'live' ? 'live_conversation' : 'lesson_feedback'),
+    ]);
+
   if (!underCap) {
     return NextResponse.json(
       { error: 'Daily practice limit reached - come back tomorrow!', code: 'daily_limit_reached' },
@@ -82,23 +137,13 @@ export async function POST(request: Request) {
     );
   }
 
-  const [pair] = await db
-    .select()
-    .from(languagePairs)
-    .where(eq(languagePairs.id, session.user.languagePairId));
+  const [pair] = pairRows;
   if (!pair) {
     return NextResponse.json(
       { error: 'Unknown language pair', code: 'invalid_language_pair' },
       { status: 400 },
     );
   }
-
-  const recurringErrorRows = await db
-    .select({ category: errorPatterns.category, description: errorPatterns.description })
-    .from(errorPatterns)
-    .where(and(eq(errorPatterns.userId, session.user.id), eq(errorPatterns.languagePairId, pair.id)))
-    .orderBy(desc(errorPatterns.occurrenceCount), desc(errorPatterns.lastSeenAt))
-    .limit(5);
 
   // What the learner is being asked to do. A review drill and a numbered lesson
   // exercise are both assembled HERE, from the row in the database - the browser
@@ -107,7 +152,7 @@ export async function POST(request: Request) {
   let lessonContext = promptContext ?? FREE_PRACTICE_LESSON_CONTEXT;
 
   if (mode === 'review' && reviewItemId) {
-    const item = await getReviewItemForUser(reviewItemId, session.user.id);
+    const item = await getReviewItemForUser(reviewItemId, userId);
     if (!item) {
       return NextResponse.json(
         { error: 'Review item not found', code: 'not_found' },
@@ -139,14 +184,42 @@ export async function POST(request: Request) {
     lessonContext,
   });
 
+  const callArgs = {
+    provider: taskConfig.provider,
+    model: taskConfig.model,
+    systemPrompt,
+    userTurnContext: lessonContext,
+    input,
+  };
+
+  // ---- The two model calls, in parallel (PLAN.md §8 Phase 7B item 1) ---------------
+  //
+  // The turn used to be: full structured call, THEN synthesis, THEN respond. Now the
+  // reply-only call and the structured call run together, and synthesis is chained onto
+  // whichever reply lands first - so the response leaves as soon as the SLOWER of
+  // {structured feedback} and {short reply + TTS} is done, instead of their sum.
+  //
+  // The cost of the split, stated plainly: two requests per turn instead of one, which
+  // roughly halves the free tier's daily-request headroom (§15.2 anticipates exactly
+  // this - ~35 DAU on one call, ~18 on two). At two beta users that is 80 requests
+  // against a 1,500/day cap, so it is free here and would need revisiting long before
+  // it wasn't. Only spoken turns take the split: a typed answer (§13.4's quiet-room
+  // fallback) is already fast and gains nothing worth a second request.
+  const ttsVoice = pair.ttsVoice;
+  const level = session.user.level;
+
+  const earlyReplyPath: Promise<EarlyReply | null> =
+    input.kind === 'audio' && ttsVoice
+      ? getQuickReply(callArgs).then(async (quick) => {
+          if (!quick) return null;
+          return { quick, audio: await synthesizeSpoken(quick, ttsVoice, ttsCharsUsed, level) };
+        })
+      : Promise.resolve(null);
+
   let feedback: FeedbackResult;
+  let early: EarlyReply | null;
   try {
-    feedback = await getValidatedFeedback({
-      systemPrompt,
-      userTurnContext: lessonContext,
-      input,
-      mode,
-    });
+    [feedback, early] = await Promise.all([getValidatedFeedback(callArgs), earlyReplyPath]);
   } catch (err) {
     // Logged, not returned: the message can name the provider and model, which the
     // learner has no use for and shouldn't see.
@@ -157,57 +230,52 @@ export async function POST(request: Request) {
     );
   }
 
-  let tutorAudioBase64: string | null = null;
-  if (pair.ttsVoice) {
-    const spoken = `${feedback.tutorReply} ${feedback.followUpQuestion}`;
-    // PLAN.md §16 defect 2 / §6.12: Cloud TTS is in the BILLED project, so past the free
-    // allotment it charges silently instead of erroring. Over the cap we skip synthesis
-    // and return text-only feedback - the same non-fatal degradation §4.5 already uses
-    // when TTS fails, so nothing downstream needs a new case.
-    if (await isUnderMonthlyTtsCharCap(spoken.length)) {
-      const tts = await synthesizeTutorSpeech(spoken, pair.ttsVoice, session.user.level);
-      if (tts) {
-        tutorAudioBase64 = tts.audioBase64;
-        await logUsage(session.user.id, 'tts_chars', tts.charCount);
-      }
-    } else {
-      console.warn('[lesson/attempt] monthly TTS char cap reached - text-only feedback');
+  // The learner hears the quick reply, so that is the reply of record: it goes into the
+  // response AND into the utterances row, so the spoken turn and the stored turn can
+  // never disagree. The structured call still supplies transcription, errors and the
+  // correction - the response contract to the client is byte-for-byte the shape it was.
+  if (early?.quick) {
+    feedback = {
+      ...feedback,
+      tutorReply: early.quick.tutorReply,
+      followUpQuestion: early.quick.followUpQuestion,
+    };
+  }
+
+  let tutorAudioBase64: string | null = early?.audio?.audioBase64 ?? null;
+  let ttsCharCount = early?.audio?.charCount ?? 0;
+
+  // Serial fallback: no split path (typed answer / provider without a quick reply), or
+  // the quick call failed. Same behaviour the route had before Phase 7B.
+  if (!tutorAudioBase64 && ttsVoice) {
+    const synthesized = await synthesizeSpoken(feedback, ttsVoice, ttsCharsUsed, level);
+    if (synthesized) {
+      tutorAudioBase64 = synthesized.audioBase64;
+      ttsCharCount = synthesized.charCount;
     }
   }
 
-  const sessionId = await getOrCreateSession({
-    userId: session.user.id,
-    languagePairId: pair.id,
-    mode,
-    lessonId,
-  });
-
-  await db.insert(utterances).values({
-    sessionId,
-    userId: session.user.id,
-    speaker: 'user',
-    transcript: feedback.transcription,
-    corrected: feedback.correctedUtterance,
-    tutorReply: feedback.tutorReply,
-    followUpQuestion: feedback.followUpQuestion,
-    errors: feedback.errors,
-  });
-
-  if (feedback.errors.length > 0) {
-    await recordErrorPatterns({
-      userId: session.user.id,
-      languagePairId: pair.id,
-      errors: feedback.errors,
-    });
-  }
-
-  await logUsage(session.user.id, 'lesson_attempt');
-
-  // PLAN.md §2 step ⑦ / §12: XP + timezone-aware streak/daily-goal update.
-  const gamification = await recordTurnAndUpdateStats({
-    userId: session.user.id,
-    timezone: session.user.timezone,
+  const { result: gamification, nextState } = computeTurnStats({
+    snapshot: statsSnapshot,
     hadZeroErrors: feedback.errors.length === 0,
+  });
+
+  // ---- Everything below the response line (PLAN.md §8 Phase 7B item 1) -------------
+  // utterances, error_patterns, usage_log and user_stats all move into after(), so the
+  // learner's audio starts playing while the writes are still going. The numbers in the
+  // response were computed above from reads taken before the model call; the writes
+  // below only make them durable.
+  const persistedFeedback = feedback;
+  after(async () => {
+    await persistTurn({
+      userId,
+      languagePairId: pair.id,
+      mode,
+      lessonId,
+      feedback: persistedFeedback,
+      ttsCharCount,
+      gamificationState: nextState,
+    });
   });
 
   return NextResponse.json({
@@ -216,3 +284,32 @@ export async function POST(request: Request) {
     gamification,
   });
 }
+
+/**
+ * PLAN.md §4.5: synthesize `tutorReply + ' ' + followUpQuestion` as one call, one quota
+ * hit, one blob. PLAN.md §16 defect 2 / §6.12: Cloud TTS is in the BILLED project, so
+ * past the free allotment it charges silently instead of erroring. Over the cap we skip
+ * synthesis and return text-only feedback - the same non-fatal degradation §4.5 already
+ * uses when TTS fails, so nothing downstream needs a new case.
+ */
+async function synthesizeSpoken(
+  reply: { tutorReply: string; followUpQuestion: string },
+  voice: string,
+  ttsCharsUsedThisMonth: number,
+  level: FeedbackVoiceLevel,
+): Promise<{ audioBase64: string; charCount: number } | null> {
+  const spoken = `${reply.tutorReply} ${reply.followUpQuestion}`;
+  if (!isUnderMonthlyTtsCharCapFor(ttsCharsUsedThisMonth, spoken.length)) {
+    console.warn('[lesson/attempt] monthly TTS char cap reached - text-only feedback');
+    return null;
+  }
+  return synthesizeTutorSpeech(spoken, voice, level);
+}
+
+type FeedbackVoiceLevel = Parameters<typeof synthesizeTutorSpeech>[2];
+
+/** The spoken half of the turn, plus its audio, when the split path produced one. */
+type EarlyReply = {
+  quick: QuickReply;
+  audio: { audioBase64: string; charCount: number } | null;
+};

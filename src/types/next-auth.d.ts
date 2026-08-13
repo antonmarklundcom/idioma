@@ -10,6 +10,7 @@ declare module 'next-auth' {
       coachingProfile: CoachingProfile | null;
       focusSkills: string[] | null;
       timezone: string | null;
+      handsFreeTurnTaking: boolean;
       name?: string | null;
       email?: string | null;
       image?: string | null;
@@ -23,5 +24,6 @@ declare module 'next-auth' {
     coachingProfile: CoachingProfile | null;
     focusSkills: string[] | null;
     timezone: string | null;
+    handsFreeTurnTaking: boolean;
   }
 }

@@ -21,9 +21,16 @@ import { t, type Locale } from '@/lib/i18n';
 export function ConversationLoop({
   coachingProfile,
   locale,
+  handsFree = false,
 }: {
   coachingProfile: CoachingProfile | null;
   locale: Locale;
+  /**
+   * PLAN.md §8 Phase 7B item 2. Two halves of one setting: the recorder auto-stops when
+   * the learner stops talking, and the mic reopens when the tutor stops talking - so a
+   * turn completes with no taps at all after the first one.
+   */
+  handsFree?: boolean;
 }) {
   const strings = t(locale).live;
   const router = useRouter();
@@ -34,6 +41,9 @@ export function ConversationLoop({
   const [turnCount, setTurnCount] = useState(0);
   const [xpEvent, setXpEvent] = useState<{ id: number; xp: number } | null>(null);
   const [celebrationMessage, setCelebrationMessage] = useState<string | null>(null);
+  // Bumped when the tutor finishes speaking; UtteranceRecorder watches it to reopen the
+  // mic. A counter rather than a boolean so two consecutive turns are distinguishable.
+  const [autoStartToken, setAutoStartToken] = useState(0);
   const player = useTutorAudioPlayer();
   // PLAN.md §16 defect 1: closes the practice_sessions row when the learner leaves.
   const { markTurnRecorded } = useSessionEndBeacon('live');
@@ -72,7 +82,13 @@ export function ConversationLoop({
       setPromptContext(data.followUpQuestion);
       setTurnCount((n) => n + 1);
       setStatus('idle');
-      if (data.tutorAudioBase64) player.play(data.tutorAudioBase64);
+      if (data.tutorAudioBase64) {
+        player.play(data.tutorAudioBase64, handsFree ? () => setAutoStartToken((n) => n + 1) : undefined);
+      } else if (handsFree) {
+        // No audio this turn (TTS off, over its cap, or failed) - the loop still has
+        // to hand the mic back, or hands-free would dead-end on a text-only reply.
+        setAutoStartToken((n) => n + 1);
+      }
 
       setXpEvent({ id: Date.now(), xp: data.gamification.xpAwarded });
       if (data.gamification.celebration?.type === 'streak_milestone') {
@@ -80,7 +96,7 @@ export function ConversationLoop({
       }
       router.refresh();
     },
-    [promptContext, player, router, markTurnRecorded, strings, messageForError],
+    [promptContext, player, router, markTurnRecorded, strings, messageForError, handsFree],
   );
 
   return (
@@ -97,8 +113,13 @@ export function ConversationLoop({
         onBeforeStart={player.unlock}
         disabled={status === 'sending'}
         locale={locale}
+        handsFree={handsFree}
+        autoStartToken={autoStartToken}
       />
 
+      {handsFree && status === 'idle' && (
+        <p className="text-xs text-slate-400">{strings.handsFreeHint}</p>
+      )}
       {status === 'sending' && <p className="text-sm text-slate-400">{strings.listeningBack}</p>}
       {errorMessage && <p className="text-sm text-red-600 dark:text-red-400">{errorMessage}</p>}
 
