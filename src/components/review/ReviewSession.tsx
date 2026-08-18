@@ -225,6 +225,7 @@ export function ReviewSession({
               onRecorded={handleRecorded}
               onBeforeStart={player.unlock}
               disabled={busy}
+              sending={status === 'sending'}
               locale={locale}
             />
             <div className="flex items-center gap-4">

@@ -64,6 +64,7 @@ export function FeedbackCard({
           <button
             type="button"
             onClick={() => setErrorsExpanded((v) => !v)}
+            aria-expanded={errorsExpanded}
             className="-mx-2 -my-1 px-2 py-2 text-sm font-medium text-slate-600 dark:text-slate-300"
           >
             {errorsExpanded

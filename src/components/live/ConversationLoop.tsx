@@ -64,7 +64,14 @@ export function ConversationLoop({
     async (blob: Blob, mimeType: string) => {
       setStatus('sending');
       setErrorMessage(null);
-      const audioBase64 = await blobToBase64(blob);
+      let audioBase64: string;
+      try {
+        audioBase64 = await blobToBase64(blob);
+      } catch {
+        setErrorMessage(strings.couldntAnalyze);
+        setStatus('error');
+        return;
+      }
       const result = await fetchJson<LessonAttemptResponse>('/api/lesson/attempt', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -112,6 +119,7 @@ export function ConversationLoop({
         onRecorded={handleRecorded}
         onBeforeStart={player.unlock}
         disabled={status === 'sending'}
+        sending={status === 'sending'}
         locale={locale}
         handsFree={handsFree}
         autoStartToken={autoStartToken}
@@ -120,8 +128,16 @@ export function ConversationLoop({
       {handsFree && status === 'idle' && (
         <p className="text-xs text-slate-400">{strings.handsFreeHint}</p>
       )}
-      {status === 'sending' && <p className="text-sm text-slate-400">{strings.listeningBack}</p>}
-      {errorMessage && <p className="text-sm text-red-600 dark:text-red-400">{errorMessage}</p>}
+      {status === 'sending' && (
+        <p className="text-sm text-slate-400" aria-live="polite">
+          {strings.listeningBack}
+        </p>
+      )}
+      {errorMessage && (
+        <p className="text-sm text-red-600 dark:text-red-400" aria-live="polite">
+          {errorMessage}
+        </p>
+      )}
 
       {feedback && (
         <FeedbackCard
