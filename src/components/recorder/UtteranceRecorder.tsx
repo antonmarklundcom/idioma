@@ -8,6 +8,7 @@ export function UtteranceRecorder({
   onRecorded,
   onBeforeStart,
   disabled,
+  sending = false,
   locale,
   handsFree = false,
   autoStartToken,
@@ -18,6 +19,13 @@ export function UtteranceRecorder({
    * unlock to happen inside the same user-gesture call stack. */
   onBeforeStart?: () => void;
   disabled?: boolean;
+  /**
+   * Drives the idle-state label from the PARENT's request status, not the recorder's
+   * own 'stopped' status - the recorder never transitions back to 'idle' on its own
+   * after handing off a blob, so relying on it left the label stuck on "Sending…"
+   * forever once the parent had already shown feedback or an error.
+   */
+  sending?: boolean;
   locale: Locale;
   /**
    * PLAN.md §8 Phase 7B item 2: auto-stop the turn on silence. Per-user setting,
@@ -105,8 +113,8 @@ export function UtteranceRecorder({
       )}
 
       {!isOpen && status !== 'requesting' && (
-        <p className="text-sm text-slate-500 dark:text-slate-400">
-          {status === 'stopped' ? strings.sending : strings.tapToRecord}
+        <p className="text-sm text-slate-500 dark:text-slate-400" aria-live="polite">
+          {sending ? strings.sending : strings.tapToRecord}
         </p>
       )}
 

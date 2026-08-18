@@ -201,6 +201,15 @@ const en = {
     xpFlat: 'Same XP as last week',
     empty: 'Practice at least once to see your weekly recap here.',
   },
+  installPrompt: {
+    title: 'Install Idioma',
+    iosHint:
+      'Tap Share, then Add to Home Screen — you’ll get full-screen lessons and a faster mic.',
+    androidHint: 'Add it to your home screen for full-screen lessons and a faster mic.',
+    install: 'Install',
+    notNow: 'Not now',
+    dismiss: 'Dismiss install prompt',
+  },
 };
 
 export type Dictionary = typeof en;
@@ -404,6 +413,16 @@ const es: Dictionary = {
     xpFlat: 'Mismo XP que la semana pasada',
     empty: 'Practicá al menos una vez para ver tu resumen semanal acá.',
   },
+  installPrompt: {
+    title: 'Instalá Idioma',
+    iosHint:
+      'Tocá Compartir y luego Agregar a inicio — vas a tener lecciones a pantalla completa y un micrófono más rápido.',
+    androidHint:
+      'Agregala a tu pantalla de inicio para lecciones a pantalla completa y un micrófono más rápido.',
+    install: 'Instalar',
+    notNow: 'Ahora no',
+    dismiss: 'Cerrar aviso de instalación',
+  },
 };
 
 const sv: Dictionary = {
@@ -602,6 +621,16 @@ const sv: Dictionary = {
     xpDown: (delta: number) => `${delta} XP jämfört med förra veckan`,
     xpFlat: 'Samma XP som förra veckan',
     empty: 'Öva minst en gång för att se din veckosammanfattning här.',
+  },
+  installPrompt: {
+    title: 'Installera Idioma',
+    iosHint:
+      'Tryck på Dela och sedan Lägg till på hemskärmen — du får lektioner i helskärm och en snabbare mikrofon.',
+    androidHint:
+      'Lägg till den på hemskärmen för lektioner i helskärm och en snabbare mikrofon.',
+    install: 'Installera',
+    notNow: 'Inte nu',
+    dismiss: 'Stäng installationsmeddelandet',
   },
 };
 

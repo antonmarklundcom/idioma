@@ -32,8 +32,10 @@ export function useSessionEndBeacon(mode: PracticeMode, lessonId?: string) {
 
     const url = '/api/session/end';
     const body = JSON.stringify({ mode, lessonId });
-    if (navigator.sendBeacon) {
-      navigator.sendBeacon(url, new Blob([body], { type: 'application/json' }));
+    // sendBeacon can fail synchronously (queue full, payload too large) and returns
+    // `false` rather than throwing - fall back to a keepalive fetch so the session
+    // still gets closed instead of silently dropping the beacon.
+    if (navigator.sendBeacon?.(url, new Blob([body], { type: 'application/json' }))) {
       return;
     }
     // `keepalive` for the same reason sendBeacon exists: the request must outlive the page.

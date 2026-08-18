@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { normalizeLocale, t, type Locale } from '@/lib/i18n';
 
 /**
  * PLAN.md §7.1 — install UI.
@@ -64,6 +65,14 @@ function writeFlag(key: string): void {
 }
 
 export function InstallPrompt() {
+  // Rendered from the root layout, outside any per-user data fetch, so - same as
+  // ErrorRetryPanel - the locale is guessed from the browser rather than
+  // `users.nativeLang`. The iOS hint is the one that matters most here: es/sv
+  // learners need to actually understand the Share -> Add to Home Screen steps.
+  const [locale] = useState<Locale>(() =>
+    typeof navigator === 'undefined' ? 'en' : normalizeLocale(navigator.language),
+  );
+  const strings = t(locale).installPrompt;
   const [installEvent, setInstallEvent] = useState<BeforeInstallPromptEvent | null>(null);
   const [showIosHint, setShowIosHint] = useState(false);
   const [dismissed, setDismissed] = useState(false);
@@ -125,19 +134,11 @@ export function InstallPrompt() {
         </span>
         <div className="flex-1 text-left">
           <p className="text-sm font-semibold text-slate-900 dark:text-white">
-            Install Idioma
+            {strings.title}
           </p>
-          {showIosHint ? (
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-              Tap <span aria-label="the Share button">Share&nbsp;⎋</span> in Safari, then{' '}
-              <span className="font-medium">Add to Home Screen&nbsp;➕</span> — you&apos;ll
-              get full-screen lessons and a faster mic.
-            </p>
-          ) : (
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-              Add it to your home screen for full-screen lessons and a faster mic.
-            </p>
-          )}
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+            {showIosHint ? strings.iosHint : strings.androidHint}
+          </p>
           <div className="mt-3 flex items-center gap-2">
             {installEvent && (
               <button
@@ -145,7 +146,7 @@ export function InstallPrompt() {
                 onClick={install}
                 className="rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white dark:bg-white dark:text-slate-900"
               >
-                Install
+                {strings.install}
               </button>
             )}
             <button
@@ -153,14 +154,14 @@ export function InstallPrompt() {
               onClick={dismiss}
               className="rounded-full px-3 py-2 text-sm text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white"
             >
-              Not now
+              {strings.notNow}
             </button>
           </div>
         </div>
         <button
           type="button"
           onClick={dismiss}
-          aria-label="Dismiss install prompt"
+          aria-label={strings.dismiss}
           className="-mt-1 -mr-1 rounded-full p-1 text-lg leading-none text-slate-400 hover:text-slate-700 dark:hover:text-white"
         >
           ×

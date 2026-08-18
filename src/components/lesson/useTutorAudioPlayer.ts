@@ -45,7 +45,7 @@ export function useTutorAudioPlayer() {
     }
     const audio = audioRef.current;
     audio.onended = onEnded ? () => onEnded() : null;
-    audio.src = `data:audio/mp3;base64,${base64}`;
+    audio.src = `data:audio/mpeg;base64,${base64}`;
     audio.play().catch(() => onEnded?.());
   }, []);
 
