@@ -96,6 +96,21 @@ UPDATE users SET role = 'admin' WHERE email = '<owner email>';
 Admins get `/admin` — usage/quota dashboard, model/provider switcher, and curriculum import,
 all on the one page.
 
+### Enable an expensive practice mode for one user (tier gate, PLAN.md §15.3)
+
+`users.tier` (`'free' | 'premium'`, default `'free'`) gates expensive practice modes
+**server-side only** — there is no billing, no checkout, and no client-visible flag. Live
+conversation requires `'premium'`; lessons and reviews never do. Both beta users belong on
+`'premium'`: set `PREMIUM_USER_EMAILS` (comma-separated) and re-run `npm run db:seed` after they
+have each signed in once, or do it by hand:
+
+```sql
+UPDATE users SET tier = 'premium' WHERE email = '<beta user email>';
+```
+
+A tier change takes effect on the user's next request — Auth.js uses database sessions here, so
+the users row is re-read on every call; no sign-out, no redeploy.
+
 ### Import content
 
 All curriculum is authored by the owner (optionally with Gemini's help via

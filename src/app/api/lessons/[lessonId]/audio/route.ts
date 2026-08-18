@@ -4,7 +4,12 @@ import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { languagePairs } from '@/lib/db/schema';
 import { getLessonForPair, getListenAudioText } from '@/lib/lessons';
-import { synthesizeTutorSpeech } from '@/lib/tts';
+import { speakingRateFor, synthesizeTutorSpeech } from '@/lib/tts';
+import {
+  getCachedListenAudio,
+  listenAudioKey,
+  setCachedListenAudio,
+} from '@/lib/listenAudioCache';
 import { isUnderMonthlyTtsCharCap, logUsage } from '@/lib/usage';
 
 /**
@@ -63,6 +68,22 @@ export async function GET(request: Request, { params }: { params: Promise<{ less
     );
   }
 
+  // A listening prompt is static content and gets replayed on purpose, so the same
+  // bytes were being re-synthesized - and re-billed - every time (§6.12). A cache hit
+  // spends no characters, so it also logs none and is not subject to the monthly stop
+  // below: nothing was bought this time.
+  const cacheKey = listenAudioKey({
+    lessonId,
+    exerciseIndex,
+    voice: pair.ttsVoice,
+    speakingRate: speakingRateFor(session.user.level),
+    audioText,
+  });
+  const cached = getCachedListenAudio(cacheKey);
+  if (cached) {
+    return NextResponse.json({ audioBase64: cached.audioBase64 });
+  }
+
   // §16 defect 2 / §6.12: this is the second place in the app that spends TTS
   // characters, so it observes the same monthly stop point. Unlike tutor feedback
   // there is no text-only degradation here - a listening exercise with no audio is
@@ -83,6 +104,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ less
     );
   }
   await logUsage(session.user.id, 'tts_chars', tts.charCount);
+  setCachedListenAudio(cacheKey, tts);
 
   return NextResponse.json({ audioBase64: tts.audioBase64 });
 }

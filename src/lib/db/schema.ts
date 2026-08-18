@@ -32,10 +32,17 @@ export const coachingProfileEnum = pgEnum('coaching_profile', [
   'confidence_first',
   'accuracy_focus',
 ]);
+// Capability tier (PLAN.md §15.3). NOT commerce: there is no billing, no checkout and
+// no client-visible flag - the owner flips a row by hand with one SQL statement, and
+// the server is the only thing that reads it. It exists so an expensive mode (the §4.2
+// real-time upgrade, funded by the $10 credit) can be enabled for one user without
+// enabling it for everyone.
+export const userTierEnum = pgEnum('user_tier', ['free', 'premium']);
 
 export type CefrLevel = (typeof cefrEnum.enumValues)[number];
 export type CoachingProfile = (typeof coachingProfileEnum.enumValues)[number];
 export type PracticeMode = (typeof modeEnum.enumValues)[number];
+export type UserTier = (typeof userTierEnum.enumValues)[number];
 
 // ---------------------------------------------------------------------------
 // Language-pair config: THE extensibility point. Adding Guaraní later must be
@@ -86,6 +93,9 @@ export const users = pgTable('users', {
   // /live. /lesson never auto-stops regardless of this flag, because a thinking pause
   // must not end a graded answer.
   handsFreeTurnTaking: boolean('hands_free_turn_taking').notNull().default(true),
+  // PLAN.md §15.3. Defaults to 'free' so a new sign-in can never unlock a paid mode
+  // by existing; the owner promotes a row by hand.
+  tier: userTierEnum('tier').notNull().default('free'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
 

@@ -26,6 +26,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       session.user.focusSkills = user.focusSkills;
       session.user.timezone = user.timezone;
       session.user.handsFreeTurnTaking = user.handsFreeTurnTaking;
+      // PLAN.md §15.3: read here so the capability check is one field lookup on a
+      // session the route already has. It is never sent to the browser as a feature
+      // flag - the gate is the server check, not this value.
+      session.user.tier = user.tier;
       return session;
     },
   },

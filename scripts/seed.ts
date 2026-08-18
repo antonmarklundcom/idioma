@@ -7,9 +7,9 @@
 import 'dotenv/config';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { eq } from 'drizzle-orm';
+import { eq, inArray } from 'drizzle-orm';
 import { db } from '../src/lib/db';
-import { languagePairs, lessonContent } from '../src/lib/db/schema';
+import { languagePairs, lessonContent, users } from '../src/lib/db/schema';
 
 // ---------------------------------------------------------------------------
 // Prompt templates. Slots ({{...}}) are filled at request time by
@@ -249,6 +249,42 @@ const PAIRS = [
   },
 ];
 
+/**
+ * PLAN.md §15.3: "build the gate, keep both beta users on premium". The tier column
+ * defaults to 'free', so a beta user who has signed in needs one promotion - this is
+ * that promotion, run from the same seed the owner already runs rather than a SQL
+ * statement he has to remember. Emails come from the environment, not this file: they
+ * are the two beta users' personal addresses and don't belong in a public repo.
+ *
+ * Rows are UPDATEd, never INSERTed: a users row is created by Auth.js on first Google
+ * sign-in (§5), and a hand-made row here would have no linked account and no way to be
+ * signed into. Running the seed before either user has signed in is therefore a no-op
+ * that says so - re-run it after they have.
+ */
+async function promoteBetaUsers() {
+  const emails = (process.env.PREMIUM_USER_EMAILS ?? '')
+    .split(',')
+    .map((email) => email.trim().toLowerCase())
+    .filter(Boolean);
+  if (emails.length === 0) {
+    console.log('PREMIUM_USER_EMAILS not set, skipping tier promotion (PLAN.md §15.3)');
+    return;
+  }
+
+  const promoted = await db
+    .update(users)
+    .set({ tier: 'premium' })
+    .where(inArray(users.email, emails))
+    .returning({ email: users.email });
+
+  for (const row of promoted) console.log(`set tier=premium for ${row.email}`);
+  for (const email of emails) {
+    if (!promoted.some((row) => row.email.toLowerCase() === email)) {
+      console.warn(`no user row for ${email} yet - sign in once, then re-run the seed`);
+    }
+  }
+}
+
 async function main() {
   for (const pair of PAIRS) {
     const existing = await db
@@ -302,6 +338,8 @@ async function main() {
       console.log(`inserted lesson "${lesson.title}" (${lesson.level})`);
     }
   }
+
+  await promoteBetaUsers();
 
   console.log('seed complete');
 }

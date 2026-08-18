@@ -11,6 +11,8 @@ import {
   type QuickReply,
 } from '@/lib/zodSchemas';
 import { getProviderForTask, type FeedbackArgs, type LlmProvider } from '@/lib/llm/provider';
+import { ProviderRateLimitError } from '@/lib/llm/errors';
+import { tierAllowsMode } from '@/lib/tier';
 import {
   assembleSystemPrompt,
   buildReviewPromptContext,
@@ -110,6 +112,18 @@ export async function POST(request: Request) {
     );
   }
   const { input, lessonId, exerciseIndex, reviewItemId, promptContext, mode } = parsedBody.data;
+
+  // PLAN.md §15.3: the capability gate, checked before anything is read or spent. It is
+  // server-side only by design - the browser can post to this route directly, so a
+  // client-side check would be decoration. Both beta users sit on 'premium' (the seed
+  // sets them), so as shipped nobody meets this; it exists so that turning on an
+  // expensive mode is a per-user SQL statement instead of a redeploy.
+  if (!tierAllowsMode(session.user.tier, mode)) {
+    return NextResponse.json(
+      { error: 'This practice mode is not enabled for your account.', code: 'tier_required' },
+      { status: 403 },
+    );
+  }
 
   // PLAN.md §8 Phase 7B: every read this turn needs, issued at once instead of one at a
   // time. On Neon these are HTTPS round trips (§3.1), so serializing five of them was
@@ -228,6 +242,21 @@ export async function POST(request: Request) {
   try {
     [feedback, early] = await Promise.all([getValidatedFeedback(callArgs), earlyReplyPath]);
   } catch (err) {
+    // PLAN.md §6.4: the provider's own 429 is transient, and answering it with a 502
+    // ("something went wrong, try again") is an invitation to retry immediately -
+    // against the very quota that just ran out. It gets a 429 with a wait instead, so
+    // the client's existing rate-limit copy and any retry back off by a real number.
+    if (err instanceof ProviderRateLimitError) {
+      console.warn('[lesson/attempt] provider rate limited', err.retryAfterSeconds);
+      return NextResponse.json(
+        {
+          error: `The tutor is busy right now - try again in about ${err.retryAfterSeconds} seconds.`,
+          code: 'provider_rate_limited',
+          retryAfterSeconds: err.retryAfterSeconds,
+        },
+        { status: 429, headers: { 'Retry-After': String(err.retryAfterSeconds) } },
+      );
+    }
     // Logged, not returned: the message can name the provider and model, which the
     // learner has no use for and shouldn't see.
     console.error('[lesson/attempt] feedback failed', err);

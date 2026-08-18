@@ -18,8 +18,13 @@ export async function fetchJson<T>(url: string, init: RequestInit): Promise<ApiR
     const res = await fetch(url, { ...init, signal: controller.signal });
     if (!res.ok) {
       const data = await res.json().catch(() => ({}) as { error?: string; code?: string });
+      // 'rate_limited' is specifically OUR daily cap (§6.5), whose copy says "come back
+      // tomorrow". Not every 429 means that: since the server started mapping the
+      // PROVIDER's 429 to a 429 of its own (§6.4), those carry a retry hint measured in
+      // seconds and must not be dressed up as a day-long wall - they fall through to the
+      // server's own message instead.
       const kind: ApiErrorKind =
-        res.status === 429 || data.code === 'daily_limit_reached'
+        data.code === 'daily_limit_reached'
           ? 'rate_limited'
           : res.status === 504 || res.status === 524 || res.status === 408
             ? 'timeout'
