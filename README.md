@@ -93,14 +93,14 @@ After signing in once (so the `users` row exists), run:
 UPDATE users SET role = 'admin' WHERE email = '<owner email>';
 ```
 
-Admins get `/admin` (usage/quota dashboard, model/provider switcher) and `/admin/content`
-(curriculum import).
+Admins get `/admin` — usage/quota dashboard, model/provider switcher, and curriculum import,
+all on the one page.
 
 ### Import content
 
 All curriculum is authored by the owner (optionally with Gemini's help via
 `content/prompts/curriculum-generation.md`) and imported — the app never generates lesson content
-itself. As admin, go to `/admin/content` and paste/upload a JSON array of lessons matching the
+itself. As admin, go to `/admin` and paste/upload a JSON array of lessons matching the
 shape in PLAN.md §3.4 (Zod-validated on the way in). The two files in
 `content/lessons/*.sample.json` are placeholder demo lessons (A1 greetings, one per direction)
 showing that shape, including a `listen_prompt` exercise whose `audioText` is synthesized and

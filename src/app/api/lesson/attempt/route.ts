@@ -24,6 +24,7 @@ import {
   getMonthlyTtsCharCount,
   isUnderDailyLessonAttemptCap,
   isUnderMonthlyTtsCharCapFor,
+  logUsage,
 } from '@/lib/usage';
 import { computeTurnStats, loadTurnStatsSnapshot } from '@/lib/gamification';
 import { persistTurn } from '@/lib/practiceTurn';
@@ -208,11 +209,17 @@ export async function POST(request: Request) {
   const ttsVoice = pair.ttsVoice;
   const level = session.user.level;
 
+  // The attempt is counted from here on, success or failure - §6.5's daily cap is the
+  // guard against a runaway retry loop, and a loop of FAILING calls (each one up to
+  // three provider requests) burns free-tier quota exactly like a succeeding one.
+  // Failed turns write no utterance, so this can't inflate the gamification turn count.
+  after(() => logUsage(userId, 'lesson_attempt'));
+
   const earlyReplyPath: Promise<EarlyReply | null> =
     input.kind === 'audio' && ttsVoice
       ? getQuickReply(callArgs).then(async (quick) => {
           if (!quick) return null;
-          return { quick, audio: await synthesizeSpoken(quick, ttsVoice, ttsCharsUsed, level) };
+          return { quick, audio: await synthesizeSpoken(quick, ttsVoice, ttsCharsUsed, level, userId) };
         })
       : Promise.resolve(null);
 
@@ -243,15 +250,13 @@ export async function POST(request: Request) {
   }
 
   let tutorAudioBase64: string | null = early?.audio?.audioBase64 ?? null;
-  let ttsCharCount = early?.audio?.charCount ?? 0;
 
   // Serial fallback: no split path (typed answer / provider without a quick reply), or
   // the quick call failed. Same behaviour the route had before Phase 7B.
   if (!tutorAudioBase64 && ttsVoice) {
-    const synthesized = await synthesizeSpoken(feedback, ttsVoice, ttsCharsUsed, level);
+    const synthesized = await synthesizeSpoken(feedback, ttsVoice, ttsCharsUsed, level, userId);
     if (synthesized) {
       tutorAudioBase64 = synthesized.audioBase64;
-      ttsCharCount = synthesized.charCount;
     }
   }
 
@@ -273,7 +278,6 @@ export async function POST(request: Request) {
       mode,
       lessonId,
       feedback: persistedFeedback,
-      ttsCharCount,
       gamificationState: nextState,
     });
   });
@@ -297,13 +301,22 @@ async function synthesizeSpoken(
   voice: string,
   ttsCharsUsedThisMonth: number,
   level: FeedbackVoiceLevel,
+  userId: string,
 ): Promise<{ audioBase64: string; charCount: number } | null> {
   const spoken = `${reply.tutorReply} ${reply.followUpQuestion}`;
   if (!isUnderMonthlyTtsCharCapFor(ttsCharsUsedThisMonth, spoken.length)) {
     console.warn('[lesson/attempt] monthly TTS char cap reached - text-only feedback');
     return null;
   }
-  return synthesizeTutorSpeech(spoken, voice, level);
+  const synthesized = await synthesizeTutorSpeech(spoken, voice, level);
+  if (synthesized) {
+    // Logged the moment Google billed us, NOT when the turn persists: the quick-reply
+    // path synthesizes in parallel with the structured call, and a turn whose
+    // structured call then fails never reaches persistTurn - the characters were
+    // still spent, and the monthly stop reads this log.
+    after(() => logUsage(userId, 'tts_chars', synthesized.charCount));
+  }
+  return synthesized;
 }
 
 type FeedbackVoiceLevel = Parameters<typeof synthesizeTutorSpeech>[2];

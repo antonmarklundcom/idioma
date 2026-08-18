@@ -2,14 +2,27 @@
 
 **Authored by Fable 5 (planning/architecture model) for handoff to Opus 5.**
 
-**Status: v5 (August 2026). Phases 1–4, 4B, 4C and 7 are built and merged to `main`: scaffold +
-schema + seed (Phase 1), auth + onboarding (Phase 2), the lesson-mode core loop (Phase 3),
-error aggregation + dashboard (Phase 4), gamification (Phase 4B), the provider-abstraction
-audit (Phase 4C), and the turn-based live conversation loop (Phase 7). Everything except
-Phase 4C is code complete but UNTESTED live — Phase 0 (the owner's manual accounts/keys
-checklist, §8) is still not done and blocks all live verification.**
+**Status: v6 (August 2026). ALL build phases are merged to `main`: 1 through 8, including 4B,
+4C, 5, 5B, 6, 7 and 7B, plus the §16 defect fixes, the §6.5 admin usage page, the §14.4
+model/provider switcher, and the Swedish (`sv`) language pair. Everything except Phase 4C is
+code complete but UNTESTED live — Phase 0 (the owner's manual accounts/keys checklist, §8) is
+still not done and blocks all live verification. What genuinely remains is listed in the
+"what's needed to finish" section below; it is much shorter than it was in v5.**
 
-**What v5 changes — read this before anything else if you know the v4 document:** the hosting
+**What v6 changes:** a Fable 5 review gate over the merged code found and fixed six defects
+before live verification could trip over them — the two worst were an onboarding dead end
+(the Proxy's onboarding redirect intercepted the very `PATCH /api/me` that completes
+onboarding) and an iOS Safari recording killer (a suspended `AudioContext` made the silence
+trimmer pause every recording ~0.7 s in, permanently). The other four: usage logging moved
+onto the failure path too (a failed turn still spends money — `usage_log` now records it),
+the turn's XP write became an SQL increment (an absolute write raced `awardXp` and could
+swallow a review grade's XP), server-side bounds on `audioBase64`/`mimeType`/`promptContext`
+(the §6.3 backstop that Hostinger's missing body limit made load-bearing), and tutor-audio
+teardown on navigation. v6 also rewrites the stale status sections of this document to match
+the code. The remaining hardening/polish items found in the same review are scheduled in the
+"what's needed to finish" table rather than fixed silently.
+
+**What v5 changed — read this before anything else if you know the v4 document:** the hosting
 target moved from **Vercel Hobby to a Hostinger managed Node.js slot** (§6.13 explains why and
 what it changes). This is not cosmetic: it removes the 10-second function timeout, the ~4.5 MB
 body limit, the non-commercial clause, and one of the two cold starts, and it makes a persistent
@@ -63,11 +76,27 @@ This document is a self-contained build spec. It is written so that a Claude mod
 session, with no memory of the planning conversation, can execute any phase from this document
 alone. Read the whole document before starting any phase.
 
-## What's needed to finish — gap analysis (v4, July 2026)
+## What's needed to finish — gap analysis (v6, August 2026)
 
-Verified against the actual code on `main` (not just docs) in July 2026:
+Re-verified against the actual code on `main` (not just docs) in August 2026. Every build
+phase has merged; the list below is everything that genuinely remains.
 
-**Built and merged:**
+**Remaining (in order):**
+
+| # | Item | Who | Blocked by |
+|---|---|---|---|
+| 1 | **Phase 0 — accounts & keys + Hostinger deploy** (§8). Still untouched; nothing has ever run against a real Gemini key, TTS key, or database. The single highest-value item in the project. | Owner, manual | — |
+| 2 | **Live verification session**: run the Phase 2/3/4/4B/5/5B/6/7 acceptance checklists on both real phones, fix the fallout. Expect real breakage, not a formality — budget a full session. | **Opus 5** | 1 |
+| 3 | **§15.3 tier gate** — `users.tier` column + server-side check in `/api/lesson/attempt`. Specced "in scope now" in v4 and never built or scheduled; precondition for the $10-credit real-time experiment. One migration, ~30 lines. | **Opus 5** (touches auth/money) | — |
+| 4 | **Server hardening batch** (v6 review, deferred items): map provider 429s to a client 429 with a retry hint instead of a 502 (§6.4); move the TTS API key from the URL query string to the `X-Goog-Api-Key` header; cache listening-exercise audio per (lesson, exercise, voice) so replays stop re-billing TTS characters. | **Opus 5** | — |
+| 5 | **Client polish batch** (v6 review, deferred items): i18n the install prompt (incl. the iOS install instructions — currently hardcoded English shown to es/sv users); recorder label stuck on "Sending…" after feedback; `blobToBase64` failure strands the turn loop; `sendBeacon` false-return should fall back to `fetch(keepalive)`; `aria-live` on turn status/errors + `aria-expanded` on FeedbackCard; manifest `lang`; `audio/mp3` → `audio/mpeg`. | **Sonnet 5** | — |
+| 6 | **§9 Q5 — one validated A1 content batch** via `content/prompts/curriculum-generation.md`, imported through `/admin`. Also: Swedish-pair lesson content (the pair + templates are seeded, `content/lessons/` has nothing for it). | Owner (+ any model to import) | — |
+| 7 | **Real icons** — `public/icons/*` are placeholders (§9 Q6 needs a source image). | Owner | — |
+| 8 | **Phase 7B acceptance** — the latency measurement on real phones; and Phase 8 acceptance — both users practicing for a full week. | Owner + phones | 1, 2 |
+
+Items 3–5 need no live credentials and can run before or in parallel with Phase 0.
+
+**Built and merged (all verified in code, August 2026):**
 
 | Phase | Evidence in repo |
 |---|---|
@@ -79,34 +108,17 @@ Verified against the actual code on `main` (not just docs) in July 2026:
 | 4C — Provider-abstraction audit | ESLint `no-restricted-imports` rule enforced and exercised against a deliberate violation — the one fully verified phase in the repo |
 | 7 — Live conversation (turn-based) | `ConversationLoop.tsx` + `/live`; backend already existed (`conversation_prompt_template` column, `mode: 'live'` branch, template selection in `prompts.ts`) |
 | 7B — Conversation latency + hands-free | Split reply/feedback calls (`lib/gemini/quickReply.ts`, optional `LlmProvider.getQuickReply`), persistence in `after()` (`lib/practiceTurn.ts`), endpointing + capture-time silence trimming in `useRecorder`, `users.hands_free_turn_taking` (migration `0005`) + `/settings` toggle |
+| 5 — Curriculum delivery + admin import | `/lesson` is a real browser (no longer a stub), `/lesson/[lessonId]` + `LessonPlayer`, `/api/admin/content` GET/POST/PUT/DELETE, `ContentImportPanel` on `/admin` |
+| 5B — SRS review queue + listening | `lib/srs.ts` (SM-2-lite exactly per §13.3), `review_items` (migration `0004`), `/review` + `ReviewSession`, `/api/review` GET/POST, `/api/lessons/[lessonId]/complete` + `/audio` |
+| 6 — PWA | `manifest.webmanifest`, hand-written NetworkOnly SW (`src/sw.ts`, §7.2 respected), Serwist build chained into `npm run build`, offline page, `InstallPrompt`/`ServiceWorkerRegistrar`. Icons are still placeholders |
+| 8 — Polish + beta hardening | Error boundaries + loading/empty states across `(app)`, `WeeklyRecapCard`, three-locale i18n dictionary (`en`/`es`/`sv`), README runbook |
+| §16 defect fixes | Session close-out (`lib/sessions.ts`, `/api/session/end`, `useSessionEndBeacon`) and monthly TTS cap (`lib/usage.ts`), both exactly as §16 specifies |
+| §6.5 admin usage page | `UsagePanel` on `/admin`: per-user attempts today, monthly TTS chars vs cap/stop, 14-day series |
+| §14.4 model/provider switcher | `app_settings` (migration `0003`), `lib/llm/{catalog,settings,openai}.ts`, `/api/admin/models` + `/test` |
+| §9 Q12 Swedish pair | Third seeded pair `es-PY>sv-speaker` with Swedish tutor/conversation templates + full `sv` UI dictionary (lesson *content* for it still missing) |
+| v6 review-gate fixes | Proxy API-route exemption (onboarding dead-end), iOS suspended-`AudioContext` fallback + mp4 trim disable + recorder re-entrancy/unmount guards, failure-path usage logging, XP increment write, `audioBase64`/`mimeType`/`promptContext` bounds, tutor-audio unmount teardown |
 
-**Blockers (owner, no code):**
-
-1. **Phase 0 — accounts & keys.** Still untouched, and now blocking *six* code-complete phases
-   at once. Nothing has ever run against a real Gemini key, a real TTS key, or a real database.
-   The next build session after Phase 0 must live-verify the Phase 2/3/4/4B/7 acceptance
-   checklists on both phones before anything new is built — and should expect real fallout, not
-   a formality. Budget a full session for it.
-2. **§9 Q5 — real lesson material.** Still open, but no longer a hard block: the owner-run
-   prompt pack at `content/prompts/curriculum-generation.md` (added v4) produces import-ready
-   A1/A2 content in three passes. Phase 5 needs one validated batch, not the whole curriculum.
-
-**Remaining build work (estimate: ~7–8 sessions to launch):**
-
-| Session | Phase | Blocked by |
-|---|---|---|
-| 1 | Live-verify Phases 2–4B + 7 acceptance on real phones (+ fix fallout) — **Opus 5** | Phase 0 |
-| 2 | §16 defect fixes: session close-out + TTS monthly cap — **Opus 5** (guards real money and a data invariant) | Phase 0 (verify against real data) |
-| 3 | Admin usage page (§6.5) — **Sonnet 5** | 2 (shows the caps that session adds) |
-| 4 | `sv` → `es-PY` language pair + Swedish prompt templates (§9 Q12) — **Sonnet 5** | — (content only) |
-| 5 | Phase 5 — curriculum delivery + admin import — **Sonnet 5** | Q5 (one validated batch) |
-| 6 | Phase 5B — SRS review queue + listening exercises — **Opus 5** | Phases 4, 5 |
-| 7 | Phase 6 — PWA (manifest, Serwist SW, install) | Phase 2 (icon source image needed, §9 Q6) |
-| 8 | ~~Phase 7B — conversation latency + hands-free turn-taking~~ — **code complete**; acceptance is a latency measurement and is still pending | Phase 0 (to measure it) |
-| 9 | Phase 8 — polish + beta hardening (now three UI locales, §9 Q12) | all |
-
-The two remaining stubs are `/lesson` (becomes a real browser in Phase 5) and the admin usage
-page (§6.5, Phase 5). No reusable specs/skills from sibling portfolio repos apply here — this
+No reusable specs/skills from sibling portfolio repos apply here — this
 repo predates them and is self-contained by design; if a sibling later needs an LLM-provider
 abstraction or SRS spec, §13–§14 here are the reference, not the other way around.
 
@@ -257,7 +269,7 @@ idioma/
 │   │   ├── layout.tsx               # root layout: fonts, manifest link, theme-color
 │   │   ├── page.tsx                 # public landing page + sign-in entry
 │   │   ├── globals.css
-│   │   ├── sw.ts                    # Serwist service worker source
+│   │   │   # (the Serwist service worker source lives at src/sw.ts, not under app/)
 │   │   │
 │   │   ├── (app)/                   # authenticated learner area (route group)
 │   │   │   ├── layout.tsx           # app shell: nav, session provider
@@ -270,8 +282,8 @@ idioma/
 │   │   │   └── settings/page.tsx    # profile: langs, level, sign out
 │   │   │
 │   │   ├── admin/                   # role === 'admin' only (proxy-guarded)
-│   │   │   ├── page.tsx             # usage stats (quota early-warning, §6.5)
-│   │   │   └── content/page.tsx     # lesson-content import/manage UI
+│   │   │   └── page.tsx             # ONE page as built: usage stats (§6.5), model
+│   │   │                            #   switcher (§14.4) AND content import panel
 │   │   │
 │   │   └── api/
 │   │       ├── auth/[...nextauth]/route.ts
@@ -317,8 +329,8 @@ idioma/
 │   │   ├── gemini/
 │   │   │   ├── client.ts            # @google/genai instances (lesson key / live key)
 │   │   │   ├── lessonFeedback.ts    # generateContent call + responseSchema (§4.1)
-│   │   │   ├── liveToken.ts         # authTokens.create wrapper (§4.2)
-│   │   │   ├── transcriptAnalysis.ts# post-live text-only error extraction (§4.4)
+│   │   │   ├── liveToken.ts         # §4.2 FUTURE upgrade only — does not exist yet
+│   │   │   ├── transcriptAnalysis.ts# §4.4 FUTURE upgrade only — does not exist yet
 │   │   │   └── prompts.ts           # system-prompt ASSEMBLY from language_pairs rows.
 │   │   │                            #   Templating only — all pair-specific wording
 │   │   │                            #   comes from the DB, never hardcoded here.
@@ -362,6 +374,12 @@ per-user data in module scope "because we have a real server now."
 | `/api/review` | GET | learner | Today's due `review_items` for the user's pair, oldest-due first, capped at 10 (§13.4). |
 | `/api/review` | POST | learner | Grade one item: `{ itemId, outcome: 'again'\|'good'\|'easy' }` → SM-2-lite reschedule (§13.3), award review XP (§12.2). Spoken review answers themselves go through `/api/lesson/attempt` with `mode: 'review'`; this route only records the resulting grade. |
 | `/api/admin/content` | GET/POST/PUT/DELETE | admin | Import/manage `lesson_content`. POST accepts a JSON array of lessons (§3.4 shape) for bulk import — the owner pastes/uploads his own material here. Zod-validates every item. |
+| `/api/me/preferences` | PATCH | learner | Standalone per-user settings, one field at a time (first: `handsFreeTurnTaking`, Phase 7B). |
+| `/api/session/end` | POST | learner | Leave beacon (§16 defect 1). Body carries mode/lessonId only — the server re-resolves the caller's own open session, so a beacon can never close someone else's row. |
+| `/api/lessons/[lessonId]/complete` | POST | learner | Marks a lesson completed: awards §12.2 lesson XP, enqueues the lesson's vocab for SRS (§13.2), closes the practice session. |
+| `/api/lessons/[lessonId]/audio` | GET | learner | Synthesizes a `listen_prompt`'s `audioText` server-side (§3.4 — the text never reaches the client) under the same monthly TTS stop; logs `tts_chars`. |
+| `/api/admin/models` | GET/PUT | admin | §14.4 switcher: read/save the per-task provider+model selection (`app_settings`), Zod-validated both directions. |
+| `/api/admin/models/test` | POST | admin | Text-only probe of a provider+model: latency, contract pass/fail, sample reply. Logged as `admin_model_test`. |
 
 **Live mode (Phase 7, decided as the $0 turn-based loop, §4.3) needs NO new route** — it reuses
 `/api/lesson/attempt` with `mode: 'live'` and no `lessonId`. The routes below only exist if the
@@ -372,10 +390,10 @@ owner later upgrades to the true real-time Live API (§4.2, future/optional, not
 
 Notes:
 - Audio is sent as base64 JSON rather than multipart to keep the route dead simple. On Hostinger
-  there is no ~4.5 MB platform body limit (that was Vercel's, §6.13), so the **90-second
-  client-side recording cap is now the only thing bounding upload size** — it is load-bearing,
-  not a belt-and-braces nicety, and must not be removed. 90 s of Opus ≈ 1 MB, well inside
-  Node's own defaults.
+  there is no ~4.5 MB platform body limit (that was Vercel's, §6.13). The 90-second client-side
+  recording cap bounds honest clients, and — since v6 — `lessonAttemptRequestSchema` bounds the
+  rest server-side (`audioBase64` ≤ 4M chars, `mimeType` must be `audio/*`, `promptContext`
+  ≤ 2000 chars), which is the backstop §6.3 called for. Neither bound should be removed.
 - **No `/api/live` WebSocket route exists, and none should be added without an owner decision.**
   The reason changed in v5: it used to be impossible (serverless can't hold sockets), and is now
   merely *unbuilt* (a Hostinger Node process can). See §6.13 and §4.2 — the cost argument against
@@ -905,7 +923,7 @@ Rules:
 | 6.2 | **Neon autosuspend** (~5 min idle) → ~0.5–1 s cold start | Noticeable on first request after idle; harmless — and now the *only* cold start, since the Node process stays warm | First-load latency spikes in Hostinger runtime logs after quiet periods | Accept for beta; UI shows loading states. Don't add keep-alive pings (burns Neon compute hours) |
 | 6.3 | ~~Vercel ~4.5 MB request-body limit~~ — **RETIRED in v5**, but this makes the app *less* safe, not more | No platform ceiling now backstops a runaway upload | Unexpectedly large rows / slow requests in runtime logs | The 90 s client-side recording cap is now load-bearing (§2). Consider an explicit server-side length check on `audioBase64` in the §16 defect session |
 | 6.4 | **Gemini free tier: 15 RPM / 1,500 RPD** on `gemini-3.6-flash` | 1,500/day is plenty; 15 RPM could be hit by rapid-fire retries or a runaway client loop | 429 responses with quota error details | §6.5 caps + surface a friendly "daily practice limit reached" state; exponential backoff on 429, never tight-loop retries |
-| 6.5 | **No native quota dashboard alerting on free tier** | You find out when you hit the wall | — | `usage_log` table + admin page showing today's counts vs. limits (lesson attempts/user/day capped at e.g. 100; live minutes/user/day capped at 20). This is the early-warning system |
+| 6.5 | **No native quota dashboard alerting on free tier** | You find out when you hit the wall | — | `usage_log` table + admin page showing today's counts vs. limits (lesson attempts/user/day capped at e.g. 100; a live-minutes cap applies only to the §4.2 future real-time upgrade — the shipped turn-based live mode consumes the lesson-attempt cap, so as-built the page shows attempts + monthly TTS chars). This is the early-warning system |
 | 6.6 | **Billing trap** (linking billing kills project-A free tier permanently) | Catastrophic for $0 goal if done accidentally | — | Two-project split is mandatory (Phase 0); PLAN states project A must never get billing |
 | 6.7 | *(N/A for this build — only applies if the §4.2 future real-time upgrade is ever built)* Live free-tier: 3 concurrent sessions / ~10-min connections | 2 users → fine; duration cap is real | Sessions dying at ~10 min | 8-minute session design (§4.2) |
 | 6.8 | **Neon 0.5 GB storage** | Text-only rows: years of headroom | Neon dashboard storage graph | No audio blobs in beta (§9 Q3); revisit only if audio storage is approved |
@@ -1724,6 +1742,8 @@ live-token route. The owner flips it by hand with one SQL statement. This gives 
 of expensive modes with no billing infrastructure, and it is the thing that must exist *first*
 under any future model — including "the owner enables real-time for himself for a month to see
 if it's worth it." Enforce it **server-side only**; a client-side flag is decoration.
+*(v6 status: still NOT built — v4/v5 said "in scope now" but never scheduled it, so it fell
+through. It is now item 3 in the "what's needed to finish" table, assigned to Opus 5.)*
 
 **Explicitly out of scope, and each one is real work, not a checkbox:**
 

@@ -159,7 +159,8 @@ export type GamificationResult = {
   celebration: CelebrationEvent | null;
 };
 
-export type StreakStateWithXp = StreakState & { xpTotal: number };
+/** What a turn writes back: the streak state to set plus the XP delta to ADD. */
+export type TurnStatsWrite = StreakState & { xpAwarded: number };
 
 /**
  * PLAN.md §8 Phase 7B item 1 splits step ⑦ in three so the client never waits on a write:
@@ -197,7 +198,7 @@ export function computeTurnStats(args: {
   snapshot: TurnStatsSnapshot;
   hadZeroErrors: boolean;
   now?: Date;
-}): { result: GamificationResult; nextState: StreakStateWithXp } {
+}): { result: GamificationResult; nextState: TurnStatsWrite } {
   const { stats, priorTurnsToday, timezone } = args.snapshot;
   const now = args.now ?? new Date();
   const turnsToday = priorTurnsToday + 1;
@@ -232,19 +233,28 @@ export function computeTurnStats(args: {
       dailyGoalMet,
       celebration,
     },
-    nextState: { ...streak, xpTotal },
+    nextState: { ...streak, xpAwarded },
   };
 }
 
-/** The write half of step ⑦ - runs in `after()`, off the response path. */
+/**
+ * The write half of step ⑦ - runs in `after()`, off the response path.
+ *
+ * XP is an SQL increment for the same reason `awardXp` is one: the snapshot this
+ * turn's total was computed from is 5-20s old by the time `after()` runs, and an
+ * absolute write would silently swallow any XP that landed in between (a review
+ * grade's +5, a lesson-complete +25, a second tab's turn). The streak fields stay
+ * absolute writes: they change at most once per local day, and two racing turns that
+ * both cross the goal compute identical values, so nothing is lost either way.
+ */
 export async function persistTurnStats(
   userId: string,
-  nextState: StreakStateWithXp,
+  nextState: TurnStatsWrite,
 ): Promise<void> {
   await db
     .update(userStats)
     .set({
-      xpTotal: nextState.xpTotal,
+      xpTotal: sql`${userStats.xpTotal} + ${nextState.xpAwarded}`,
       currentStreak: nextState.currentStreak,
       longestStreak: nextState.longestStreak,
       lastGoalMetDate: nextState.lastGoalMetDate,

@@ -37,6 +37,15 @@ const SPEECH_ONSET_GRACE_MS = 2500;
 const SILENCE_PAUSE_MS = 700;
 /** Hands-free auto-stop: end the turn after this much silence (PLAN.md §8 Phase 7B item 2). */
 export const SILENCE_STOP_MS = 1500;
+/**
+ * How long to wait for a suspended AudioContext to come alive before giving up on the
+ * analyser. The context is created after the getUserMedia await - outside the tap
+ * gesture's call stack - so iOS Safari starts it 'suspended' and may refuse resume().
+ * A suspended analyser reads all zeros, which calibration mistakes for a dead-quiet
+ * room and the silence trimmer for an endless pause: without this fallback every iOS
+ * recording gets paused ~0.7s in and never resumed.
+ */
+const AUDIO_GRAPH_GRACE_MS = 250;
 
 export type RecorderStatus =
   | 'idle'
@@ -57,6 +66,12 @@ type EndpointState = {
   lastVoiceAt: number;
   sawSpeech: boolean;
   paused: boolean;
+  /**
+   * Per-recording override of the trimSilence setting: set when pause/resume can't be
+   * trusted for THIS recording (suspended AudioContext, or WebKit's flaky pause/resume
+   * on audio/mp4) without mutating the caller's preference.
+   */
+  trimDisabled: boolean;
   /** Set once the recording has been handed off, so a late frame can't stop it twice. */
   finished: boolean;
 };
@@ -93,6 +108,10 @@ export function useRecorder(
   const rafRef = useRef<number | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const endpointRef = useRef<EndpointState | null>(null);
+  /** True from start() until the mic is open (or failed) - blocks re-entrant starts. */
+  const startingRef = useRef(false);
+  /** Set on unmount so a getUserMedia that resolves late releases its stream. */
+  const disposedRef = useRef(false);
   // Read inside the animation frame, so toggling the setting mid-session can't leave a
   // stale value baked into the closure.
   const handsFreeRef = useRef(handsFree);
@@ -153,12 +172,23 @@ export function useRecorder(
   }, [clearTimer, cleanupAudioGraph, stopStream]);
 
   const start = useCallback(async () => {
+    // Re-entrancy guard: a double-tap or the hands-free auto-start racing a manual tap
+    // would otherwise overwrite streamRef/mediaRecorderRef and leak the first mic
+    // stream (indicator stuck on) and its rAF loop.
+    if (startingRef.current || streamRef.current) return;
+    startingRef.current = true;
     setError(null);
     setElapsedSeconds(0);
     setSilenceCountdownMs(null);
     setStatus('requesting');
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      if (disposedRef.current) {
+        // Unmounted while the permission prompt was up: the cleanup below already ran
+        // with nothing to tear down, so release the mic here or it stays hot.
+        stream.getTracks().forEach((track) => track.stop());
+        return;
+      }
       streamRef.current = stream;
 
       // No forced mimeType (PLAN.md §4.1) - report the browser's actual choice
@@ -182,6 +212,12 @@ export function useRecorder(
 
       const audioContext = new AudioContext();
       audioContextRef.current = audioContext;
+      // Created outside the tap gesture (see AUDIO_GRAPH_GRACE_MS): iOS Safari starts
+      // it suspended. resume() usually works because a gesture happened recently, but
+      // is not guaranteed - the tick loop below has the fallback for when it isn't.
+      if (audioContext.state !== 'running') {
+        void audioContext.resume().catch(() => {});
+      }
       const source = audioContext.createMediaStreamSource(stream);
       const analyser = audioContext.createAnalyser();
       analyser.fftSize = 256;
@@ -196,6 +232,7 @@ export function useRecorder(
         lastVoiceAt: 0,
         sawSpeech: false,
         paused: false,
+        trimDisabled: false,
         finished: false,
       };
       endpointRef.current = endpoint;
@@ -207,6 +244,10 @@ export function useRecorder(
         endpoint.lastVoiceAt = now;
         endpoint.sawSpeech = withSpeech;
         recorder.start();
+        // WebKit's pause()/resume() on audio/mp4 has a history of corrupt fragments
+        // across the pause boundary - and the target devices include a real iPhone.
+        // An uncut recording always survives; a trimmed one sometimes doesn't.
+        if (recorder.mimeType.includes('mp4')) endpoint.trimDisabled = true;
         setStatus('recording');
         // Wall-clock, deliberately: the 90s cap bounds how long the mic can be open,
         // and it has to hold even when a backgrounded tab starves requestAnimationFrame.
@@ -245,11 +286,24 @@ export function useRecorder(
         rafRef.current = requestAnimationFrame(tick);
         if (endpoint.finished) return;
 
+        const now = performance.now();
+
+        // Suspended context = the analyser reads zeros (see AUDIO_GRAPH_GRACE_MS).
+        // Once the grace runs out, fall back to plain record-on-tap: capture now, no
+        // trimming, and no auto-stop until real speech is actually measured. If the
+        // context comes alive later the loop below resumes with the conservative
+        // MIN_SPEECH_THRESHOLD (calibration never ran).
+        if (audioContext.state !== 'running') {
+          if (endpoint.phase !== 'capturing' && now - endpoint.openedAt >= AUDIO_GRAPH_GRACE_MS) {
+            endpoint.trimDisabled = true;
+            beginCapture(now, false);
+          }
+          return;
+        }
+
         analyser.getByteFrequencyData(data);
         const avg = data.reduce((sum, v) => sum + v, 0) / data.length / 255;
         setLevel(avg);
-
-        const now = performance.now();
 
         if (endpoint.phase === 'calibrating') {
           endpoint.floorSamples.push(avg);
@@ -288,7 +342,9 @@ export function useRecorder(
 
         const silentFor = now - endpoint.lastVoiceAt;
 
-        if (trimSilenceRef.current && silentFor >= SILENCE_PAUSE_MS) pauseCapture();
+        if (trimSilenceRef.current && !endpoint.trimDisabled && silentFor >= SILENCE_PAUSE_MS) {
+          pauseCapture();
+        }
 
         if (!handsFreeRef.current || !endpoint.sawSpeech) return;
 
@@ -308,6 +364,8 @@ export function useRecorder(
     } catch {
       setStatus('error');
       setError(micDeniedMessage);
+    } finally {
+      startingRef.current = false;
     }
   }, [cleanupAudioGraph, stop, stopStream, micDeniedMessage]);
 
@@ -320,7 +378,9 @@ export function useRecorder(
   }, []);
 
   useEffect(() => {
+    disposedRef.current = false;
     return () => {
+      disposedRef.current = true;
       stop();
       cleanupAudioGraph();
       stopStream();

@@ -1,5 +1,5 @@
 /**
- * Idempotent seed: inserts the two launch language pairs and any lessons found
+ * Idempotent seed: inserts the three launch language pairs and any lessons found
  * in content/lessons/*.json. Safe to re-run (skips rows that already exist).
  *
  * Run: npm run db:seed   (requires DATABASE_URL in .env / environment)
