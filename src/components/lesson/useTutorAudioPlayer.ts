@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 // iOS blocks audio.play() outside a user-gesture call chain (PLAN.md §4.5). unlock()
 // must be called synchronously inside a tap handler (see UtteranceRecorder's
@@ -11,6 +11,20 @@ const SILENT_WAV =
 
 export function useTutorAudioPlayer() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // The Audio element outlives the component - without this, navigating away
+  // mid-reply leaves the tutor talking over the next page, and a stale onended can
+  // still fire the hands-free auto-start on an unmounted tree.
+  useEffect(() => {
+    return () => {
+      const audio = audioRef.current;
+      if (audio) {
+        audio.onended = null;
+        audio.pause();
+        audio.removeAttribute('src');
+      }
+    };
+  }, []);
 
   const unlock = useCallback(() => {
     if (audioRef.current) return;

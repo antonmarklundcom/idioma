@@ -2,9 +2,8 @@ import { db } from '@/lib/db';
 import { utterances, type PracticeMode } from '@/lib/db/schema';
 import { getOrCreateSession } from '@/lib/sessions';
 import { recordErrorPatterns } from '@/lib/errorPatterns';
-import { logUsage } from '@/lib/usage';
 import { persistTurnStats } from '@/lib/gamification';
-import type { StreakStateWithXp } from '@/lib/gamification';
+import type { TurnStatsWrite } from '@/lib/gamification';
 import type { FeedbackResult } from '@/lib/zodSchemas';
 
 /**
@@ -39,9 +38,7 @@ export async function persistTurn(args: {
   mode: PracticeMode;
   lessonId?: string;
   feedback: FeedbackResult;
-  /** Characters actually synthesized, or 0 when TTS was skipped/failed. */
-  ttsCharCount: number;
-  gamificationState: StreakStateWithXp;
+  gamificationState: TurnStatsWrite;
 }): Promise<void> {
   const step = async (name: string, run: () => Promise<unknown>) => {
     try {
@@ -91,10 +88,10 @@ export async function persistTurn(args: {
     );
   }
 
-  await step('usage log', () => logUsage(args.userId, 'lesson_attempt'));
-  if (args.ttsCharCount > 0) {
-    await step('tts usage log', () => logUsage(args.userId, 'tts_chars', args.ttsCharCount));
-  }
+  // usage_log writes (lesson_attempt, tts_chars) live in the ROUTE, not here: they
+  // guard real money (§6.5, §16 defect 2) and must be counted even when the turn
+  // fails before this function ever runs - a failed structured call still spent the
+  // provider request and any already-synthesized TTS characters.
 
   // PLAN.md §2 step ⑦ / §12. The numbers were computed on the response path and are
   // already on the learner's screen; this is only the write.

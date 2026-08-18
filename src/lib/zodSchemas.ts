@@ -33,11 +33,22 @@ export type PreferencesInput = z.infer<typeof preferencesSchema>;
 /** Typed answers (the §13.4 "type instead" fallback) are bounded: one utterance, not an essay. */
 export const TEXT_ANSWER_MAX_CHARS = 1000;
 
+/**
+ * PLAN.md §6.3: on Hostinger no platform body limit backstops the client's 90s
+ * recording cap, so this is the server-side bound it asked for. 90s of Opus is ~1MB
+ * (~1.4M base64 chars); iOS AAC runs richer, so 4M chars (~3MB of audio) clears every
+ * legitimate recording while stopping a modified client feeding megabytes into TWO
+ * model calls per turn.
+ */
+export const AUDIO_BASE64_MAX_CHARS = 4_000_000;
+/** Client-controlled text substituted into the system prompt (§2) - one screen, not a payload. */
+export const PROMPT_CONTEXT_MAX_CHARS = 2000;
+
 export const lessonAttemptRequestSchema = z
   .object({
     // Exactly one input: a recording, or - for the quiet-environment fallback - text.
-    audioBase64: z.string().min(1).optional(),
-    mimeType: z.string().min(1).optional(),
+    audioBase64: z.string().min(1).max(AUDIO_BASE64_MAX_CHARS).optional(),
+    mimeType: z.string().min(1).max(100).startsWith('audio/').optional(),
     text: z.string().trim().min(1).max(TEXT_ANSWER_MAX_CHARS).optional(),
     lessonId: z.uuid().optional(),
     /**
@@ -48,7 +59,7 @@ export const lessonAttemptRequestSchema = z
     exerciseIndex: z.number().int().min(0).optional(),
     /** Review drill (§13.4): the server builds promptContext from the item's front/back. */
     reviewItemId: z.uuid().optional(),
-    promptContext: z.string().optional(),
+    promptContext: z.string().max(PROMPT_CONTEXT_MAX_CHARS).optional(),
     mode: z.enum(['lesson', 'live', 'review']).default('lesson'),
   })
   .superRefine((body, ctx) => {

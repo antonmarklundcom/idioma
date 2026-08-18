@@ -16,7 +16,20 @@ export default auth((req) => {
   const isPublicRoute = pathname === '/';
   const isOnboardingRoute = pathname.startsWith('/onboarding');
   const isAdminRoute = pathname.startsWith('/admin');
+  const isApiRoute = pathname.startsWith('/api');
   const isAppRoute = !isPublicRoute && !pathname.startsWith('/api/auth');
+
+  // API calls must never get a page redirect: fetch follows a 307 into a GET-only page
+  // route (405) and the caller sees a garbled failure instead of JSON. Worse, the
+  // onboarding redirect below would intercept the very PATCH /api/me that SETS the
+  // missing languagePairId, dead-ending onboarding. JSON 401 for anonymous callers;
+  // beyond that, every route handler does its own auth/role/onboarding checks.
+  if (isApiRoute) {
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Not signed in', code: 'unauthorized' }, { status: 401 });
+    }
+    return NextResponse.next();
+  }
 
   if (!session?.user) {
     if (isAppRoute) {
