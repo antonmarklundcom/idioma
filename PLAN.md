@@ -9,6 +9,12 @@ code complete but UNTESTED live — Phase 0 (the owner's manual accounts/keys ch
 still not done and blocks all live verification. What genuinely remains is listed in the
 "what's needed to finish" section below; it is much shorter than it was in v5.**
 
+**Since v6 was written (August 2026):** items 3 and 4 of the table below have landed — the
+§15.3 tier gate (`users.tier` + the server-side check) and the server-hardening batch (provider
+429 → a client 429 with a retry hint, the TTS key out of the query string, and content-keyed
+caching of listening audio). Both are code complete and, like everything else, unverified until
+Phase 0.
+
 **What v6 changes:** a Fable 5 review gate over the merged code found and fixed six defects
 before live verification could trip over them — the two worst were an onboarding dead end
 (the Proxy's onboarding redirect intercepted the very `PATCH /api/me` that completes
@@ -87,14 +93,15 @@ phase has merged; the list below is everything that genuinely remains.
 |---|---|---|---|
 | 1 | **Phase 0 — accounts & keys + Hostinger deploy** (§8). Still untouched; nothing has ever run against a real Gemini key, TTS key, or database. The single highest-value item in the project. | Owner, manual | — |
 | 2 | **Live verification session**: run the Phase 2/3/4/4B/5/5B/6/7 acceptance checklists on both real phones, fix the fallout. Expect real breakage, not a formality — budget a full session. | **Opus 5** | 1 |
-| 3 | **§15.3 tier gate** — `users.tier` column + server-side check in `/api/lesson/attempt`. Specced "in scope now" in v4 and never built or scheduled; precondition for the $10-credit real-time experiment. One migration, ~30 lines. | **Opus 5** (touches auth/money) | — |
-| 4 | **Server hardening batch** (v6 review, deferred items): map provider 429s to a client 429 with a retry hint instead of a 502 (§6.4); move the TTS API key from the URL query string to the `X-Goog-Api-Key` header; cache listening-exercise audio per (lesson, exercise, voice) so replays stop re-billing TTS characters. | **Opus 5** | — |
+| ~~3~~ | ~~**§15.3 tier gate**~~ — **DONE (August 2026).** `users.tier` (migration `0006`) + `src/lib/tier.ts` + the server-side check in `/api/lesson/attempt`; `live` requires `premium`, lessons and reviews never do. Seed promotes `PREMIUM_USER_EMAILS`. | **Opus 5** (touches auth/money) | — |
+| ~~4~~ | ~~**Server hardening batch**~~ — **DONE (August 2026).** Provider 429 → `ProviderRateLimitError` in the adapters → HTTP 429 + `Retry-After` + `retryAfterSeconds` (§6.4); TTS key moved to the `X-Goog-Api-Key` header; listening audio cached per (lesson, exercise, voice, rate, text hash) in process. | **Opus 5** | — |
 | ~~5~~ | ~~**Client polish batch** (v6 review, deferred items): i18n the install prompt (incl. the iOS install instructions — currently hardcoded English shown to es/sv users); recorder label stuck on "Sending…" after feedback; `blobToBase64` failure strands the turn loop; `sendBeacon` false-return should fall back to `fetch(keepalive)`; `aria-live` on turn status/errors + `aria-expanded` on FeedbackCard; manifest `lang`; `audio/mp3` → `audio/mpeg`.~~ **Done.** `InstallPrompt` now reads a new `installPrompt` i18n section (title, iOS Share→Add to Home Screen hint, Not now, dismiss aria-label) in en/es/sv, guessing locale from `navigator.language` the same way `ErrorRetryPanel` does (it renders from the root layout, outside any per-user data fetch). `UtteranceRecorder` takes an explicit `sending` prop driven by the parent's request status instead of the recorder hook's own `'stopped'` state, which never returned to `'idle'` on its own. `blobToBase64` calls in `LessonPlayer`/`ConversationLoop` are now wrapped in try/catch, routing a failure into the existing error state instead of stranding the turn at `'sending'`. `useSessionEndBeacon` falls back to `fetch(..., { keepalive: true })` when `sendBeacon` returns `false`. `aria-live="polite"` added to the turn status/error lines in `ConversationLoop`/`LessonPlayer`/`UtteranceRecorder`, `role="status"` on `XpToast`, `aria-expanded` on `FeedbackCard`'s expand button. `manifest.webmanifest`'s `lang` field is dropped rather than set to `"es"`: the manifest is one static file shared by both beta users (one learning Spanish, one learning English), and the UI's actual locale is chosen per-user server-side from `users.nativeLang` — a fixed `lang` would be right for exactly one of the two accounts and would also assert the wrong language to the OS-level install UI for the other. `useTutorAudioPlayer` now sets `data:audio/mpeg` (the correct MIME for the Cloud TTS MP3 payload) instead of the non-standard `data:audio/mp3`. | **Sonnet 5** | — |
 | 6 | **§9 Q5 — one validated A1 content batch** via `content/prompts/curriculum-generation.md`, imported through `/admin`. Also: Swedish-pair lesson content (the pair + templates are seeded, `content/lessons/` has nothing for it). | Owner (+ any model to import) | — |
 | 7 | **Real icons** — `public/icons/*` are placeholders (§9 Q6 needs a source image). | Owner | — |
 | 8 | **Phase 7B acceptance** — the latency measurement on real phones; and Phase 8 acceptance — both users practicing for a full week. | Owner + phones | 1, 2 |
 
-Items 3–5 need no live credentials and can run before or in parallel with Phase 0.
+Items 3, 4, and 5 are done (see the build table below) — none needed live credentials, so all
+three ran ahead of / in parallel with Phase 0.
 
 **Built and merged (all verified in code, August 2026):**
 
@@ -117,6 +124,8 @@ Items 3–5 need no live credentials and can run before or in parallel with Phas
 | §14.4 model/provider switcher | `app_settings` (migration `0003`), `lib/llm/{catalog,settings,openai}.ts`, `/api/admin/models` + `/test` |
 | §9 Q12 Swedish pair | Third seeded pair `es-PY>sv-speaker` with Swedish tutor/conversation templates + full `sv` UI dictionary (lesson *content* for it still missing) |
 | v6 review-gate fixes | Proxy API-route exemption (onboarding dead-end), iOS suspended-`AudioContext` fallback + mp4 trim disable + recorder re-entrancy/unmount guards, failure-path usage logging, XP increment write, `audioBase64`/`mimeType`/`promptContext` bounds, tutor-audio unmount teardown |
+| §15.3 tier gate | `user_tier` enum + `users.tier` (migration `0006`, default `'free'`), `src/lib/tier.ts` (`tierAllowsMode`), the check in `/api/lesson/attempt` before any read or spend (403 `tier_required`), `session.user.tier`, `PREMIUM_USER_EMAILS` promotion in `scripts/seed.ts` |
+| Server hardening batch | `src/lib/llm/errors.ts` (`ProviderRateLimitError` + clamped retry hint), 429 mapping in the Gemini and OpenAI adapters, 429 + `Retry-After` from `/api/lesson/attempt`, `X-Goog-Api-Key` header in `lib/tts.ts`, `src/lib/listenAudioCache.ts` behind `/api/lessons/[lessonId]/audio` |
 
 No reusable specs/skills from sibling portfolio repos apply here — this
 repo predates them and is self-contained by design; if a sibling later needs an LLM-provider
@@ -377,7 +386,7 @@ per-user data in module scope "because we have a real server now."
 | `/api/me/preferences` | PATCH | learner | Standalone per-user settings, one field at a time (first: `handsFreeTurnTaking`, Phase 7B). |
 | `/api/session/end` | POST | learner | Leave beacon (§16 defect 1). Body carries mode/lessonId only — the server re-resolves the caller's own open session, so a beacon can never close someone else's row. |
 | `/api/lessons/[lessonId]/complete` | POST | learner | Marks a lesson completed: awards §12.2 lesson XP, enqueues the lesson's vocab for SRS (§13.2), closes the practice session. |
-| `/api/lessons/[lessonId]/audio` | GET | learner | Synthesizes a `listen_prompt`'s `audioText` server-side (§3.4 — the text never reaches the client) under the same monthly TTS stop; logs `tts_chars`. |
+| `/api/lessons/[lessonId]/audio` | GET | learner | Synthesizes a `listen_prompt`'s `audioText` server-side (§3.4 — the text never reaches the client) under the same monthly TTS stop; logs `tts_chars`. Since August 2026 the result is cached **in process, keyed by content** (lesson, exercise, voice, speaking rate, hash of the text) — a replay of the same static prompt costs no characters and logs none. This is not the per-user module state the note above forbids: nothing user-scoped may enter that map, and the worst case of a cold or unshared cache is one re-synthesis. |
 | `/api/admin/models` | GET/PUT | admin | §14.4 switcher: read/save the per-task provider+model selection (`app_settings`), Zod-validated both directions. |
 | `/api/admin/models/test` | POST | admin | Text-only probe of a provider+model: latency, contract pass/fail, sample reply. Logged as `admin_model_test`. |
 
@@ -922,7 +931,7 @@ Rules:
 | 6.1 | ~~Vercel Hobby 10 s function timeout~~ — **RETIRED in v5.** Hostinger runs a long-lived Node process with no platform function timeout | Was the single most likely day-one failure; now cannot occur | — | `maxDuration = 60` is kept as documentation only (§2). The *real* remaining timeout risk is the reverse proxy in front of the Node app — verify at Phase 0 by timing one deliberately slow `/api/lesson/attempt` call against the live URL |
 | 6.2 | **Neon autosuspend** (~5 min idle) → ~0.5–1 s cold start | Noticeable on first request after idle; harmless — and now the *only* cold start, since the Node process stays warm | First-load latency spikes in Hostinger runtime logs after quiet periods | Accept for beta; UI shows loading states. Don't add keep-alive pings (burns Neon compute hours) |
 | 6.3 | ~~Vercel ~4.5 MB request-body limit~~ — **RETIRED in v5**, but this makes the app *less* safe, not more | No platform ceiling now backstops a runaway upload | Unexpectedly large rows / slow requests in runtime logs | The 90 s client-side recording cap is now load-bearing (§2). Consider an explicit server-side length check on `audioBase64` in the §16 defect session |
-| 6.4 | **Gemini free tier: 15 RPM / 1,500 RPD** on `gemini-3.6-flash` | 1,500/day is plenty; 15 RPM could be hit by rapid-fire retries or a runaway client loop | 429 responses with quota error details | §6.5 caps + surface a friendly "daily practice limit reached" state; exponential backoff on 429, never tight-loop retries |
+| 6.4 | **Gemini free tier: 15 RPM / 1,500 RPD** on `gemini-3.6-flash` | 1,500/day is plenty; 15 RPM could be hit by rapid-fire retries or a runaway client loop | 429 responses with quota error details | §6.5 caps + surface a friendly "daily practice limit reached" state; exponential backoff on 429, never tight-loop retries. **Built (August 2026):** the adapters translate a provider 429 into `ProviderRateLimitError` and `/api/lesson/attempt` answers 429 + `Retry-After` + `retryAfterSeconds` (clamped to 5–120 s), instead of the 502 that read as "just try again" |
 | 6.5 | **No native quota dashboard alerting on free tier** | You find out when you hit the wall | — | `usage_log` table + admin page showing today's counts vs. limits (lesson attempts/user/day capped at e.g. 100; a live-minutes cap applies only to the §4.2 future real-time upgrade — the shipped turn-based live mode consumes the lesson-attempt cap, so as-built the page shows attempts + monthly TTS chars). This is the early-warning system |
 | 6.6 | **Billing trap** (linking billing kills project-A free tier permanently) | Catastrophic for $0 goal if done accidentally | — | Two-project split is mandatory (Phase 0); PLAN states project A must never get billing |
 | 6.7 | *(N/A for this build — only applies if the §4.2 future real-time upgrade is ever built)* Live free-tier: 3 concurrent sessions / ~10-min connections | 2 users → fine; duration cap is real | Sessions dying at ~10 min | 8-minute session design (§4.2) |
@@ -930,7 +939,7 @@ Rules:
 | 6.9 | ~~Vercel Hobby non-commercial clause~~ — **RETIRED in v5.** Hostinger's plan carries no non-commercial restriction | Removes the ~$20/month floor that v4's §15.3 put under any paid tier | — | Charging users is still gated on everything *else* in §15.3 (OAuth publishing, the free tier's data caveat, tax handling) — hosting simply stopped being one of the blockers |
 | 6.10 | **Google OAuth consent screen in Testing mode** | 100-user cap, test users must be listed | New sign-ups fail with `access_denied` | Both beta emails added as test users in Phase 0; publish the consent screen only when opening the beta |
 | 6.11 | **Model deprecations** (2.0 models were shut down June 2026; live model is a `-preview`) | `-preview` models can be replaced with short notice | Gemini API changelog; 404/400 "model not found" errors | Model IDs live in env vars (`GEMINI_LESSON_MODEL`, `GEMINI_LIVE_MODEL`), not code, so a swap is a redeploy-free config change |
-| 6.12 | **Cloud TTS free allotment (1M Neural2 chars/month) on a BILLED project** — overage bills silently at $16/1M chars | 2 users ≈ 100–300 chars/reply → tens of thousands of chars/month; ~3 % of the cap. Would only bite via a bug (e.g. a retry loop) | `tts_chars` monthly total on the admin page; Google budget alerts ($2, $10) email the owner | `usage_log` tracking + budget alerts (Phase 0 step 4); TTS failures are non-fatal so a quota stop degrades to text-only, never an outage. **Now enforced in code as well: synthesis stops at 80% of the allotment (§16 defect 2, fixed).** |
+| 6.12 | **Cloud TTS free allotment (1M Neural2 chars/month) on a BILLED project** — overage bills silently at $16/1M chars | 2 users ≈ 100–300 chars/reply → tens of thousands of chars/month; ~3 % of the cap. Would only bite via a bug (e.g. a retry loop) | `tts_chars` monthly total on the admin page; Google budget alerts ($2, $10) email the owner | `usage_log` tracking + budget alerts (Phase 0 step 4); TTS failures are non-fatal so a quota stop degrades to text-only, never an outage. **Now enforced in code as well: synthesis stops at 80% of the allotment (§16 defect 2, fixed).** Listening-exercise audio is also cached per content key (§2), so replaying a static prompt — the one thing here that was billed repeatedly for identical bytes — no longer spends characters at all |
 | 6.13 | **Hostinger-specific: broken IPv6 routing to Neon** (§3.1, §6.13) | Would be fatal, and is dodged only because the app uses the HTTP driver | `ETIMEDOUT`/hang on every query after a driver swap | Never replace `drizzle-orm/neon-http` with a TCP driver. Run migrations from the owner's machine, never Hostinger SSH |
 | 6.14 | **Env var changes on Hostinger need a redeploy**, not a restart — and a stale value fails as a generic "Application error" page with no cause in the logs | Guaranteed to bite once, during Phase 0 | Blank `Digest: …` error page after any env edit | Change env vars and redeploy in the same sitting; check hPanel → Environment Variables *before* rotating any credential |
 
@@ -1742,8 +1751,12 @@ live-token route. The owner flips it by hand with one SQL statement. This gives 
 of expensive modes with no billing infrastructure, and it is the thing that must exist *first*
 under any future model — including "the owner enables real-time for himself for a month to see
 if it's worth it." Enforce it **server-side only**; a client-side flag is decoration.
-*(v6 status: still NOT built — v4/v5 said "in scope now" but never scheduled it, so it fell
-through. It is now item 3 in the "what's needed to finish" table, assigned to Opus 5.)*
+*(Status: **BUILT**, August 2026. Migration `0006` adds the column; `src/lib/tier.ts` holds the
+predicate; `/api/lesson/attempt` checks it before any database read or provider call, answering
+403 `tier_required`. `live` is the only gated mode — gating `lesson`/`review` would gate the app
+itself. Both beta users go on `premium` via `PREMIUM_USER_EMAILS` in `scripts/seed.ts`, or one
+`UPDATE`, exactly as this section intends. Code complete, untested pending Phase 0 like
+everything else.)*
 
 **Explicitly out of scope, and each one is real work, not a checkbox:**
 
