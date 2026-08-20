@@ -7,9 +7,10 @@
 import 'dotenv/config';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { eq, inArray } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 import { db } from '../src/lib/db';
 import { languagePairs, lessonContent, users } from '../src/lib/db/schema';
+import { lessonImportItemSchema } from '../src/lib/zodSchemas';
 
 // ---------------------------------------------------------------------------
 // Prompt templates. Slots ({{...}}) are filled at request time by
@@ -315,7 +316,22 @@ async function main() {
   }
 
   for (const file of files) {
-    const lessons = JSON.parse(readFileSync(join(lessonsDir, file), 'utf8'));
+    const raw = JSON.parse(readFileSync(join(lessonsDir, file), 'utf8'));
+    // The /admin import route Zod-validates every lesson; the seeder used to
+    // insert whatever the file contained, so a malformed batch failed at the
+    // database instead of at the file that caused it. Same schema, both paths.
+    const lessons = raw.map((item: unknown, i: number) => {
+      const result = lessonImportItemSchema.safeParse(item);
+      if (!result.success) {
+        throw new Error(
+          `${file}[${i}] is not a valid lesson: ` +
+            result.error.issues
+              .map((issue) => `${issue.path.join('.') || '(root)'}: ${issue.message}`)
+              .join('; '),
+        );
+      }
+      return result.data;
+    });
     for (const lesson of lessons) {
       const [pair] = await db
         .select({ id: languagePairs.id })
@@ -325,12 +341,16 @@ async function main() {
         console.warn(`${file}: unknown languagePairCode ${lesson.languagePairCode}, skipping`);
         continue;
       }
+      // Scoped to the pair on purpose: the Swedish-speaker and English-speaker
+      // decks teach the same Paraguayan situations under the same Spanish
+      // titles, so a title-only check would silently skip every lesson of
+      // whichever pair seeded second.
       const dup = await db
         .select({ id: lessonContent.id })
         .from(lessonContent)
-        .where(eq(lessonContent.title, lesson.title));
+        .where(and(eq(lessonContent.languagePairId, pair.id), eq(lessonContent.title, lesson.title)));
       if (dup.length > 0) {
-        console.log(`lesson "${lesson.title}" already exists, skipping`);
+        console.log(`lesson "${lesson.title}" (${lesson.languagePairCode}) already exists, skipping`);
         continue;
       }
       await db.insert(lessonContent).values({
@@ -338,10 +358,10 @@ async function main() {
         level: lesson.level,
         topic: lesson.topic,
         title: lesson.title,
-        position: lesson.position ?? 0,
+        position: lesson.position,
         content: lesson.content,
       });
-      console.log(`inserted lesson "${lesson.title}" (${lesson.level})`);
+      console.log(`inserted lesson "${lesson.title}" (${lesson.languagePairCode} ${lesson.level})`);
     }
   }
 
