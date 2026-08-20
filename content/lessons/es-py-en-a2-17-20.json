@@ -1,0 +1,223 @@
+[
+  {
+    "languagePairCode": "es-PY>en-speaker",
+    "level": "A2",
+    "topic": "childhood-and-nostalgia",
+    "title": "Cuando era chico...",
+    "position": 17,
+    "content": {
+      "intro": "You'll learn the imperfect tense to describe childhood routines and how things used to be — 'jugaba', 'había', 'íbamos', 'solía'. The trap: the imperfect is for repeated or ongoing past habits with no clear end point, while the preterite you learned in lesson 13 is for a single completed event. 'Ayer fui al parque' (I went, once) vs 'Cuando era chico, iba al parque todos los días' (I used to go, over and over).",
+      "vocab": [
+        { "term": "Cuando era chico/a", "gloss": "When I was a kid", "note": "'Era' is the imperfect of 'ser' — used for describing what someone/something was like, not a single event." },
+        { "term": "Solía jugar en la vereda", "gloss": "I used to play on the sidewalk", "note": "'soler' + infinitive is the clearest way to signal 'used to' — pairs naturally with the imperfect." },
+        { "term": "Íbamos de vacaciones a...", "gloss": "We used to go on vacation to...", "note": "Imperfect of 'ir' — irregular: iba, ibas, iba, íbamos, iban." },
+        { "term": "Antes no había tanto tráfico", "gloss": "There didn't used to be so much traffic", "note": "'había' (imperfect of 'hay') is invariable — never 'habían', even with a plural noun." },
+        { "term": "Vivíamos en...", "gloss": "We used to live in...", "note": "Regular -ir imperfect: vivía, vivías, vivía, vivíamos, vivían." },
+        { "term": "Siempre tomábamos tereré", "gloss": "We always used to drink tereré", "note": "Recycles the tereré ritual from lesson 5, now framed as a repeated childhood habit." },
+        { "term": "De chico/a", "gloss": "As a kid / in my childhood", "note": "Shorter, very common alternative to 'cuando era chico'." },
+        { "term": "Todos los veranos", "gloss": "Every summer" },
+        { "term": "Ya no es como antes", "gloss": "It's not like it used to be" }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "A friend asks what you used to do as a kid after school. Say you used to play outside every afternoon.",
+          "targetHints": ["de chico/a", "solía jugar"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Describe where your family used to live when you were young and what the neighborhood was like back then.",
+          "targetHints": ["vivíamos en", "había"]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "De chica, todos los veranos íbamos con mis abuelos a un pueblito cerca del río. No había mucho que hacer, pero la pasábamos bárbaro tomando tereré bajo un mango.",
+          "prompt": "This person is remembering their childhood summers. Who did they use to go with, and where?",
+          "targetHints": ["listening comprehension", "íbamos", "mis abuelos"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Compare your childhood town or city to how it is now. Mention at least one thing there didn't used to be, and one thing that's different today.",
+          "targetHints": ["antes no había", "ya no es como antes"]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Che, ¿te acordás cuando éramos chicos y solíamos ir a la plaza después del cole? Ahora ya casi no se ve a los pibes jugando afuera.",
+          "prompt": "The speaker is reminiscing with you. What did they used to do after school, and what has changed about it today?",
+          "targetHints": ["listening comprehension", "solíamos ir", "ya no"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Tell a new friend a full story about your childhood: where you lived, what you and your family used to do every summer, and one habit you had that you don't have anymore. Give a complete picture, not just one sentence.",
+          "targetHints": ["cuando era chico/a", "solía", "íbamos", "ya no"]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>en-speaker",
+    "level": "A2",
+    "topic": "calling-a-cab-or-delivery",
+    "title": "Pidiendo un Bolt o delivery",
+    "position": 18,
+    "content": {
+      "intro": "You'll learn to give a driver or courier your location by landmark, the way it's actually done here — street numbers are unreliable, so you say what's nearby instead. The trap: 'estoy en la calle...' alone isn't enough; without a cross-street or a visible landmark ('frente al', 'al lado de'), the driver often can't find you.",
+      "vocab": [
+        { "term": "Estoy sobre la calle...", "gloss": "I'm on ... street", "note": "'Sobre' here means 'along/on' — used to name the street you're standing on before adding a landmark." },
+        { "term": "Frente al portón negro", "gloss": "Across from the black gate", "note": "Landmark-based directions are the norm in Asunción; a portón, a kiosco, or a farmacia is more reliable than a house number." },
+        { "term": "¿Cuánto tardás en llegar?", "gloss": "How long will it take you to get here?", "note": "Voseo — tardás, not tardas." },
+        { "term": "Ubicación en tiempo real", "gloss": "Live location", "note": "What you share via the app when a landmark alone isn't clear enough." },
+        { "term": "Dejalo en recepción", "gloss": "Leave it at the front desk", "note": "Vos imperative — dejalo, not the tuteo 'déjalo'." },
+        { "term": "Pago por QR", "gloss": "I'll pay by QR code", "note": "Extremely common payment method for both cabs and delivery in Paraguay." },
+        { "term": "Al lado de la farmacia", "gloss": "Next to the pharmacy", "note": "Recycles the spatial vocabulary from lesson 6 (al lado de, cerca de)." },
+        { "term": "Te espero afuera", "gloss": "I'll wait for you outside" },
+        { "term": "¿Ya estás llegando?", "gloss": "Are you almost here?" },
+        { "term": "No hay timbre, llamame cuando llegués", "gloss": "There's no doorbell, call me when you arrive", "note": "'llegués' is the vos present subjunctive after 'cuando' referring to a future moment." }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "You've just requested a ride. The driver messages asking exactly where you are. Tell them what street you're on and a landmark near you.",
+          "targetHints": ["estoy sobre la calle", "frente al"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "A delivery courier is on the way but there's no doorbell at your building. Tell them to call you when they arrive and that you'll wait outside.",
+          "targetHints": ["llamame cuando llegués", "te espero afuera"]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Hola, ya estoy cerca, pero no veo bien la casa. ¿Es la que está al lado de un almacén con un portón celeste?",
+          "prompt": "A driver has just messaged you to confirm they're close. What two landmarks does he mention to try to identify your house?",
+          "targetHints": ["listening comprehension", "al lado de", "portón celeste"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "The driver asks how much longer it'll take him and how you plan to pay. Ask him how long he'll be, and tell him you'll pay by QR.",
+          "targetHints": ["¿cuánto tardás en llegar?", "pago por QR"]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Perdón la demora, había mucho tránsito. Estoy a dos cuadras, doblando en la esquina de la farmacia. Dame dos minutos nomás.",
+          "prompt": "The driver just explained why he's late and where he is now. Why was he delayed, and how far away does he say he is?",
+          "targetHints": ["listening comprehension", "había mucho tránsito", "dos cuadras"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "You're ordering delivery to an office building the courier has never been to. Give complete instructions from scratch: the street, a nearby landmark, and what to do once they arrive (where to leave it, or that you'll come down).",
+          "targetHints": ["estoy sobre la calle", "frente al / al lado de", "dejalo en recepción"]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>en-speaker",
+    "level": "A2",
+    "topic": "describing-moods-and-feelings",
+    "title": "Hoy estoy medio kaigue",
+    "position": 19,
+    "content": {
+      "intro": "You'll learn to talk about mood and energy using estar + adjective and gustar-type verbs like 'me da' and 'me dan ganas' — constructions English speakers routinely get backwards because the thing causing the feeling is the grammatical subject, not the person feeling it. 'Me da miedo' literally means 'it gives me fear', not 'I give fear'; the verb agrees with 'miedo', not with 'yo'.",
+      "vocab": [
+        { "term": "Estoy kaigue", "gloss": "I'm sluggish / worn out", "note": "Guaraní loanword, extremely common in everyday Paraguayan Spanish for low energy or no motivation." },
+        { "term": "Estoy re cansado/a", "gloss": "I'm really tired", "note": "'re-' as an intensifier prefix ('re cansado', 're lindo') is very common in casual speech." },
+        { "term": "¡Qué bajón!", "gloss": "What a bummer! / That's a downer!", "note": "Reaction to bad news or a low mood, not a description of your own state." },
+        { "term": "Estoy a mil con las cosas", "gloss": "I'm swamped / super busy with stuff", "note": "Literally 'at a thousand' — idiom for being overwhelmed with things to do." },
+        { "term": "No tengo ganas de nada", "gloss": "I don't feel like doing anything", "note": "'tener ganas de' + infinitive = 'to feel like doing'." },
+        { "term": "Me da piko", "gloss": "It creeps me out / it gives me the chills", "note": "'piko' is Paraguayan slang for a sudden fright or unease; grammar works like 'me da miedo'." },
+        { "term": "Me da miedo", "gloss": "It scares me", "note": "Gustar-type verb — the scary thing is the subject: 'me da miedo esa película' (that movie scares me), not 'yo doy miedo'." },
+        { "term": "Me dan ganas de llorar", "gloss": "It makes me want to cry", "note": "Plural because 'ganas' is plural — 'me dan ganas', not 'me da ganas'." },
+        { "term": "Estoy de buen / mal humor", "gloss": "I'm in a good / bad mood" }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "A coworker asks how you are today. Tell them you're feeling sluggish and don't feel like doing anything.",
+          "targetHints": ["estoy kaigue", "no tengo ganas de nada"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "A friend mentions they had a rough week. React with 'qué bajón' and ask what happened.",
+          "targetHints": ["¡qué bajón!", "estoy de mal humor"]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Uy, hoy estoy re cansada, no dormí nada anoche. Encima tengo que terminar un informe y estoy a mil con el laburo.",
+          "prompt": "A coworker is describing her day. Why didn't she sleep well, and what is she overwhelmed with right now?",
+          "targetHints": ["listening comprehension", "no dormí nada", "a mil"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Explain to a friend that a certain horror movie always gives you the creeps, using 'me da piko' or 'me da miedo' correctly — remember the feeling is the subject of the sentence, not you.",
+          "targetHints": ["me da piko", "me da miedo"]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "No sé qué me pasa hoy, ando de mal humor todo el día. Cualquier cosita me dan ganas de llorar, debe ser el cansancio nomás.",
+          "prompt": "This person is describing an off day. What mood are they in, and what does the smallest thing make them want to do?",
+          "targetHints": ["listening comprehension", "mal humor", "me dan ganas de llorar"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "A close friend checks in on you after a hard week. Give a full, honest answer: describe your mood, your energy level, and one thing that's been giving you a specific feeling (fear, sadness, or the urge to cry) — connect it all together rather than listing single phrases.",
+          "targetHints": ["estoy kaigue / a mil", "me da / me dan ganas", "estoy de mal humor"]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>en-speaker",
+    "level": "A2",
+    "topic": "banking-and-money-transfers",
+    "title": "Haciendo giros y transferencias",
+    "position": 20,
+    "content": {
+      "intro": "You'll learn to send money through a mobile app or an agent counter (giro), confirm your ID number, and ask about fees. The trap: 'cédula' (CI) is the everyday word for national ID here — don't default to 'documento' or 'identificación', which sound formal or foreign in this context.",
+      "vocab": [
+        { "term": "Hacer una transferencia", "gloss": "To make a transfer", "note": "Standard for app-to-app or bank-to-bank moves; recycles the amounts from lesson 3." },
+        { "term": "Número de cédula (CI)", "gloss": "National ID number", "note": "'CI' (cédula de identidad) is what everyone actually asks for — not 'documento'." },
+        { "term": "Giro de dinero", "gloss": "Money transfer / wire", "note": "Used especially for sending cash through an agent counter rather than an app." },
+        { "term": "Comprobante", "gloss": "Receipt / proof of payment", "note": "Always ask for one — 'pasame el comprobante' — after any transfer." },
+        { "term": "¿Ya te impactó?", "gloss": "Has it landed / gone through yet?", "note": "Very common way to ask if a transfer has reached the recipient's account." },
+        { "term": "Caja de ahorro", "gloss": "Savings account", "note": "Recycles the payment-method vocabulary from lesson 14 (paying rent, deposits)." },
+        { "term": "Comisión", "gloss": "Fee / commission", "note": "Ask 'lleva comisión?' before sending — some methods charge, others don't." },
+        { "term": "Monto", "gloss": "Amount", "note": "More formal-sounding than 'plata', used specifically for the transfer figure." },
+        { "term": "Cargar saldo", "gloss": "To top up (a balance)", "note": "Recycles the transit-card top-up phrase from lesson 7, same structure applies to a wallet app." }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "You're at an agent counter sending money to a family member. Tell the agent you want to make a transfer and give them your CI number.",
+          "targetHints": ["hacer una transferencia", "número de cédula"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Before sending a large amount through an app, ask whether it charges a fee.",
+          "targetHints": ["comisión", "¿lleva comisión?"]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Ya hice la transferencia a tu caja de ahorro, deberías tener el comprobante en un ratito. Fijate si te impactó dentro de una hora.",
+          "prompt": "Someone just told you they sent money. Where did they send it to, and how long do they say you should wait to check if it arrived?",
+          "targetHints": ["listening comprehension", "caja de ahorro", "dentro de una hora"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "A friend paid you back but you're not sure it arrived yet. Ask them if it's landed, and ask them to send you the receipt.",
+          "targetHints": ["¿ya te impactó?", "comprobante"]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Mirá, para el giro necesito tu cédula y el monto exacto que vas a mandar. Ojo que después de cien mil guaraníes te cobran una pequeña comisión.",
+          "prompt": "An agent is explaining what they need from you and a cost detail. What two things do they ask for, and above what amount does a fee apply?",
+          "targetHints": ["listening comprehension", "cédula", "cien mil guaraníes"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Walk a friend who's new to Paraguay through the whole process of sending money to a relative: mention whether you'd use an app or an agent counter, what information you'd need to give, how to check the fee, and how to confirm the money arrived.",
+          "targetHints": ["giro de dinero", "número de cédula", "comisión", "¿ya te impactó?"]
+        }
+      ]
+    }
+  }
+]

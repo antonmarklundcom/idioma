@@ -1,0 +1,210 @@
+[
+  {
+    "languagePairCode": "es-PY>en-speaker",
+    "level": "A2",
+    "topic": "phone-and-messaging",
+    "title": "Por teléfono y por audio",
+    "position": 21,
+    "content": {
+      "intro": "You'll learn to handle a phone call with no face to read — answering, dealing with a bad connection, leaving or sending a voice message, and getting someone to repeat what you missed. The trap: on a call you can't rely on context or lips, so the repair phrase from lesson 2 ('¿me repetís?') stops being optional and becomes the thing that saves you.",
+      "vocab": [
+        { "term": "¿Aló?", "gloss": "Hello? (answering the phone)", "note": "Standard way to answer a call in Paraguay — not 'hola' the way you'd greet someone in person." },
+        { "term": "¿Me escuchás?", "gloss": "Can you hear me?" },
+        { "term": "Se corta / se está cortando", "gloss": "It's cutting out / the call keeps dropping" },
+        { "term": "Te mando un audio", "gloss": "I'll send you a voice message", "note": "Voice notes are the default way people communicate on WhatsApp here, often preferred over typing." },
+        { "term": "Te llamo más tarde", "gloss": "I'll call you back later" },
+        { "term": "Dejame tu número", "gloss": "Give me your number", "note": "Vos imperative — dejame, not tuteo 'déjame'." },
+        { "term": "¿Me pasás tu contacto?", "gloss": "Can you send me your contact?" },
+        { "term": "No te escuché bien, ¿me repetís?", "gloss": "I didn't hear you well, can you repeat that?", "note": "Recycled from lesson 2 — on a call this is doing real work, not just politeness." },
+        { "term": "Hablá más fuerte", "gloss": "Speak louder", "note": "Vos imperative — hablá." },
+        { "term": "Se me corta la llamada, te escribo", "gloss": "The call is dropping, I'll text you" }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Your phone rings. Answer it the way people answer calls in Paraguay.",
+          "targetHints": ["¿aló?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Midway through a call, the line gets bad and you can barely hear the other person. Tell them it's cutting out and ask them to speak louder.",
+          "targetHints": ["se está cortando", "hablá más fuerte"]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Aló, ¿me escuchás? Che, te llamaba porque... [breaks up] ...la dirección es Avda. Mariscal López... [breaks up badly] ...casi Brasil, ¿me escuchaste el número de la casa?",
+          "prompt": "The call is breaking up badly. What street is being mentioned, and what does the caller ask you at the end?",
+          "targetHints": ["listening comprehension", "se corta", "¿me escuchaste?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "You caught the street name but the connection died right as the caller said the house number. Call back or respond, explain you missed the number, and ask them to repeat just that part slowly.",
+          "targetHints": ["no te escuché bien", "¿me repetís?", "más despacio"]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Hola, perdoná, estoy en la calle y hay mucho ruido. Nos encontramos mañana a las... son las... uy se corta feo. Bueno, te mando un audio mejor con la hora exacta.",
+          "prompt": "The person struggling to talk over noise never finishes the time. What do they decide to do instead so you get the information?",
+          "targetHints": ["listening comprehension", "te mando un audio", "se corta"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "You're trying to arrange a meetup with a friend entirely over a call with a terrible connection — you keep missing words, need things repeated twice, and eventually decide it's easier to switch to a voice message. Play out the whole exchange.",
+          "targetHints": ["¿aló?", "¿me repetís?", "se corta", "te mando un audio"]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>en-speaker",
+    "level": "A2",
+    "topic": "repair-and-handyman",
+    "title": "Se rompió el aire: llamando al técnico",
+    "position": 22,
+    "content": {
+      "intro": "You'll learn to call a technician about a broken appliance, describe the problem, and arrange a repair visit. The trap: 'presupuesto' means 'quote/estimate' here, not 'budget' in the sense of household finances — you ask a técnico for one before agreeing to any work.",
+      "vocab": [
+        { "term": "No enfría el split", "gloss": "The AC isn't cooling", "note": "'split' is the everyday word for a split-unit air conditioner." },
+        { "term": "Gotea agua", "gloss": "It's dripping water" },
+        { "term": "¿Cuándo podés pasar?", "gloss": "When can you come by?" },
+        { "term": "Presupuesto", "gloss": "quote / estimate", "note": "Ask for one before agreeing to a repair — 'pasame un presupuesto antes'." },
+        { "term": "Repuesto", "gloss": "spare part / replacement part" },
+        { "term": "Se cortó la luz", "gloss": "The power went out" },
+        { "term": "Enchufe", "gloss": "outlet / plug" },
+        { "term": "No prende", "gloss": "It won't turn on" },
+        { "term": "¿Cuánto me va a salir?", "gloss": "How much is it going to cost me?" }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Call a technician. Explain that your AC unit isn't cooling and ask when he can come by.",
+          "targetHints": ["no enfría el split", "¿cuándo podés pasar?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "The technician asks what's wrong before he comes. Describe two problems: it's dripping water and it won't turn on properly.",
+          "targetHints": ["gotea agua", "no prende"]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Mirá, por teléfono no te puedo decir bien, puede ser un repuesto que hay que cambiar. Yo paso mañana a la tarde y ahí te doy el presupuesto, antes de tocar nada.",
+          "prompt": "The technician just explained his plan. What might need replacing, and what does he promise to give you before doing any work?",
+          "targetHints": ["listening comprehension", "repuesto", "presupuesto"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "You just called about the phone line dropping on you earlier (recall lesson 21) — now on a clear call, explain that on top of the AC, the power in the kitchen keeps cutting out near one outlet.",
+          "targetHints": ["se cortó la luz", "enchufe"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "The technician finished the repair and tells you the price, but it's much higher than you expected. Push back, ask him to explain the cost, and negotiate.",
+          "targetHints": ["¿cuánto me va a salir?", "presupuesto", "repuesto"]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>en-speaker",
+    "level": "A2",
+    "topic": "shopping-for-clothes",
+    "title": "Buscando ropa y talles",
+    "position": 23,
+    "content": {
+      "intro": "You'll learn to ask for clothing sizes, try things on, and request an exchange. The trap: Paraguayan sizes for everyday clothes are often given as S/M/L rather than numbers, but shoe sizes still use numbers — mixing the two up gets confusing fast.",
+      "vocab": [
+        { "term": "¿Tenés en talle M?", "gloss": "Do you have this in size M?" },
+        { "term": "El probador", "gloss": "the fitting room" },
+        { "term": "Me queda apretado / suelto", "gloss": "It fits tight / loose on me" },
+        { "term": "¿Se puede cambiar?", "gloss": "Can it be exchanged?" },
+        { "term": "Camisa de ao po'i", "gloss": "an ao po'i shirt", "note": "Ao po'i is a traditional fine hand-embroidered Paraguayan cotton fabric, often used for dress shirts and blouses." },
+        { "term": "Descuento al contado", "gloss": "discount for paying cash", "note": "Very common at clothing stalls — always worth asking." },
+        { "term": "¿Cómo me queda?", "gloss": "How does it look/fit on me?" },
+        { "term": "¿Tenés otro color?", "gloss": "Do you have another color?" }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "You see a shirt you like at a clothing stall. Ask if they have it in size M.",
+          "targetHints": ["¿tenés en talle M?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Ask the shopkeeper where the fitting room is, and once inside, ask them how it looks on you when you step out.",
+          "targetHints": ["el probador", "¿cómo me queda?"]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Uy, ese talle no te queda bien, se ve medio apretado en los hombros. Tenemos el mismo modelo un talle más grande, y también en otro color si querés.",
+          "prompt": "The shopkeeper just commented on the fit. Where exactly does the shirt look too tight, and what two alternatives do they offer?",
+          "targetHints": ["listening comprehension", "apretado", "otro color"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "The shirt in your size fits loose, not tight. Explain the problem and ask if you can exchange it for a smaller size.",
+          "targetHints": ["me queda suelto", "¿se puede cambiar?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "You want to buy a traditional ao po'i shirt as a gift, but you're not sure of the recipient's size and want a good price. Handle the whole negotiation — ask about sizes, try to get a cash discount, and settle on something.",
+          "targetHints": ["camisa de ao po'i", "descuento al contado", "¿tenés en talle...?"]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>en-speaker",
+    "level": "A2",
+    "topic": "narrating-an-incident",
+    "title": "¡No sabés lo que me pasó!",
+    "position": 24,
+    "content": {
+      "intro": "You'll learn to tell a friend about something surprising or unlucky that happened to you, weaving together background description and the actual events. The trap: this needs BOTH past tenses working together — the imperfect paints the scene ('estaba lloviendo', 'iba caminando') while the preterite drops in the sudden event that interrupted it ('se me cayó el celular', 'me resbalé'). Using only one tense makes the story either flat (all events, no scene) or stuck (all scene, nothing happens).",
+      "vocab": [
+        { "term": "Iba caminando cuando de repente...", "gloss": "I was walking along when suddenly...", "note": "Imperfect background ('iba caminando') interrupted by a preterite event after 'cuando'." },
+        { "term": "Cháke", "gloss": "Watch out! / Careful!", "note": "Guaraní loanword, extremely common in everyday Paraguayan Spanish as a warning." },
+        { "term": "Se me cayó el celular", "gloss": "My phone fell (I dropped it)", "note": "Preterite — the sudden event itself." },
+        { "term": "Estaba lloviendo a cántaros", "gloss": "It was pouring rain", "note": "Imperfect — sets the scene the event happened inside." },
+        { "term": "Por suerte no pasó nada", "gloss": "Luckily nothing happened" },
+        { "term": "Menos mal que...", "gloss": "Thank goodness that... / it's a good thing that..." },
+        { "term": "Me resbalé", "gloss": "I slipped", "note": "Preterite event verb." },
+        { "term": "Había mucha gente", "gloss": "There were a lot of people", "note": "Imperfect background — sets the scene, doesn't move the story forward." },
+        { "term": "De la nada", "gloss": "Out of nowhere" }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Set the scene for a story: describe where you were and what the weather was like right before something happened (use imperfect only, no event yet).",
+          "targetHints": ["imperfect", "estaba lloviendo", "iba caminando"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Now add the sudden event to that scene: while you were walking in the rain, your phone fell out of your pocket. Tell the whole thing in one go — background then event.",
+          "targetHints": ["iba caminando cuando de repente", "se me cayó el celular"]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Che, no sabés. El sábado había mucha gente en la terminal, todos esperando el colectivo, cuando de repente empezó a llover a cántaros y todos corrimos a buscar techo. Menos mal que había un techito cerca.",
+          "prompt": "This person is narrating a past incident. What was the background situation at the terminal, and what sudden event interrupted it?",
+          "targetHints": ["listening comprehension", "había mucha gente", "empezó a llover"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "You slipped on a wet sidewalk. Tell a friend the story: what the sidewalk/weather was like beforehand (imperfect), then that you slipped (preterite), and close with 'por suerte no pasó nada'.",
+          "targetHints": ["preterite", "imperfect", "me resbalé", "por suerte no pasó nada"]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Estaba tomando tereré tranquilo en la vereda, no había nadie en la calle, cuando de la nada un perro salió corriendo y casi se lleva la guampa por delante. Cháke, casi me caigo del susto.",
+          "prompt": "Describe the calm scene this person sets up before the interruption, and name the sudden event that broke it.",
+          "targetHints": ["listening comprehension", "estaba tomando tereré", "de la nada"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "No sabés lo que te pasó ayer. Tell a friend the full story of something surprising or unlucky that happened to you — set the scene with the imperfect (where you were, what things were like, what was going on) and narrate the events with the preterite (what suddenly happened, what you did, how it ended). Make it a real story, not just a list of facts.",
+          "targetHints": ["preterite and imperfect together", "cuando de repente", "por suerte", "menos mal que"]
+        }
+      ]
+    }
+  }
+]

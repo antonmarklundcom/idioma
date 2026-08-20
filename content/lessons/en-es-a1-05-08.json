@@ -1,0 +1,203 @@
+[
+  {
+    "languagePairCode": "en>es-speaker",
+    "level": "A1",
+    "topic": "small-talk-basics",
+    "title": "How's it going?",
+    "position": 5,
+    "content": {
+      "intro": "Vas a aprender el ritual del saludo americano: 'how are you?' no es una pregunta real sobre tu salud, es como decir 'hola'. Contestar en serio y explicando cómo te sentís de verdad es la forma más común en que un hispanohablante suena raro en una charla informal. También vas a poder tirar dos o tres líneas sobre el clima y el fin de semana, que es de lo que habla la gente cuando no habla de nada.",
+      "vocab": [
+        { "term": "how's it going?", "gloss": "¿cómo andás?", "note": "Se usa igual que '¿cómo estás?' pero mucho más informal — es un saludo, no una pregunta de verdad." },
+        { "term": "good, you?", "gloss": "bien, ¿y vos?", "note": "La respuesta esperada casi siempre. Corta, sin detalles." },
+        { "term": "not bad", "gloss": "más o menos / no tan mal", "note": "Respuesta neutra, común, no significa que algo anda mal." },
+        { "term": "pretty good", "gloss": "bastante bien" },
+        { "term": "how's your day going?", "gloss": "¿cómo va tu día?", "note": "Otra variante del mismo saludo ritual." },
+        { "term": "nice weather today", "gloss": "qué lindo clima hoy", "note": "El tema de charla más seguro y más usado en inglés americano." },
+        { "term": "how was your weekend?", "gloss": "¿cómo estuvo tu finde?" },
+        { "term": "pretty chill / it was good", "gloss": "tranqui / estuvo bien" },
+        { "term": "have a good one", "gloss": "que la pases bien", "note": "Se dice al despedirse, no solo cuando alguien se va de viaje." },
+        { "term": "take care", "gloss": "cuidate", "note": "Despedida común entre conocidos, no implica que algo malo pasó." }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Te cruzás con un compañero de trabajo en el pasillo y te dice 'hey, how's it going?'. Contestale como un saludo, no como si te estuviera preguntando de verdad por tu salud.",
+          "targetHints": ["good, you?", "not bad"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Imaginate que tuviste una semana horrible — pero alguien recién te dice 'how are you?' pasando apurado. Contestá con el saludo ritual de todas formas, sin entrar en detalles de lo que te pasó.",
+          "targetHints": ["good, you?", "pretty good"]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Hey! How's it going? Nice weather today, huh?",
+          "prompt": "Alguien te saluda en la calle y comenta algo. ¿Sobre qué tema comenta, además de saludarte? Respondé en español.",
+          "targetHints": ["nice weather"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Es lunes por la mañana y una vecina te pregunta '¿cómo estuvo tu finde?'. Contestá con una frase corta, sin contar toda la historia.",
+          "targetHints": ["how was your weekend?", "pretty chill"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Estás terminando una charla corta con alguien en la fila del café. Despedite de forma natural, como lo haría alguien de EE.UU.",
+          "targetHints": ["have a good one", "take care"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Encadená un mini-diálogo completo vos solo/a: saludá a alguien con 'how's it going?', contestá tu propio saludo como si fueras la otra persona, comentá algo sobre el clima, y despedite.",
+          "targetHints": ["how's it going?", "nice weather today", "have a good one"]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "en>es-speaker",
+    "level": "A1",
+    "topic": "asking-directions",
+    "title": "Excuse me, where's...?",
+    "position": 6,
+    "content": {
+      "intro": "Vas a poder parar a un desconocido en la calle, preguntarle dónde queda algo, y seguir una respuesta hablada corta. La trampa principal acá es que en inglés real las direcciones se dicen rápido y las palabras chicas (on, at, right there) casi desaparecen — 'turn left at the light' suena más como 'turn left'tuh light'. Si no entendés todo, fijate en usá lo que aprendiste en la lección 2 para pedir que repitan.",
+      "vocab": [
+        { "term": "excuse me", "gloss": "disculpá / perdón", "note": "Para llamar la atención de un desconocido en la calle." },
+        { "term": "where's the...?", "gloss": "¿dónde queda...?", "note": "Contracción hablada de 'where is'; casi nunca se dice completo." },
+        { "term": "is it far?", "gloss": "¿queda lejos?" },
+        { "term": "go straight", "gloss": "seguí derecho" },
+        { "term": "turn left / right", "gloss": "doblá a la izquierda / derecha" },
+        { "term": "it's next to...", "gloss": "queda al lado de..." },
+        { "term": "it's across from...", "gloss": "queda enfrente de..." },
+        { "term": "two blocks (down)", "gloss": "dos cuadras (más)" },
+        { "term": "you can't miss it", "gloss": "no tiene pérdida", "note": "Frase hecha muy común al final de una explicación de camino." },
+        { "term": "could you say that again?", "gloss": "¿podés repetir eso?", "note": "Recycled de la lección 2 — clave cuando las direcciones vienen rápido." }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Parás a alguien en la calle. Llamale la atención de forma educada y preguntale dónde queda la parada de bus más cercana.",
+          "targetHints": ["excuse me", "where's the..."]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Alguien te dice que el lugar que buscás queda 'a few blocks that way'. Antes de irte, preguntale si queda lejos como para caminar.",
+          "targetHints": ["is it far?"]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Go straight for two blocks, then turn left right at the light. It's right across from a pharmacy — you can't miss it.",
+          "prompt": "Alguien te acaba de dar direcciones hasta un lugar. ¿Cuántas cuadras caminás antes de doblar, y qué hay justo enfrente del lugar que buscás? Respondé en español.",
+          "targetHints": ["two blocks", "across from"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "La persona habló demasiado rápido y te perdiste. Pedile que repita, más despacio.",
+          "targetHints": ["could you say that again?", "more slowly"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Un turista perdido te para en la calle y te pregunta dónde queda el supermercado. Dale la dirección completa desde donde estás parado, usando al menos una indicación de girar y una referencia (al lado de / enfrente de).",
+          "targetHints": ["go straight", "turn left / right", "next to", "across from"]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "en>es-speaker",
+    "level": "A1",
+    "topic": "public-transport-and-rideshare",
+    "title": "Getting around",
+    "position": 7,
+    "content": {
+      "intro": "Vas a poder usar un bus, un tren o una app de auto compartido: preguntar cuál te lleva a dónde, confirmar tu parada, y escribirle a un conductor. Igual que con las direcciones, escuchar el nombre real de una calle o parada dicho rápido y natural es el desafío más grande acá — un conductor no te va a hablar despacio como en la app de aprender inglés.",
+      "vocab": [
+        { "term": "which bus goes to...?", "gloss": "¿cuál colectivo va a...?" },
+        { "term": "does this train stop at...?", "gloss": "¿este tren para en...?" },
+        { "term": "I'm at the corner of... and...", "gloss": "estoy en la esquina de... y...", "note": "Así se da tu ubicación a un conductor de rideshare en EE.UU." },
+        { "term": "I'm running late", "gloss": "estoy llegando tarde" },
+        { "term": "pick-up spot", "gloss": "el lugar de encuentro (para que te levante el auto)" },
+        { "term": "one-way (ticket)", "gloss": "(pasaje) de ida", "note": "Recycled: recordá el vocabulario de precios de la lección 3." },
+        { "term": "transfer", "gloss": "el trasbordo / combinación", "note": "Cambiar de un bus o tren a otro con el mismo pasaje." },
+        { "term": "get off at...", "gloss": "bajarte en...", "note": "'I need to get off at the next stop' — decilo antes de tu parada, no cuando ya pasaste." }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Estás en la parada de bus y no sabés cuál línea te lleva al centro. Preguntale a alguien que espera al lado tuyo.",
+          "targetHints": ["which bus goes to..."]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Pediste un auto por app y llegaste tarde al punto de encuentro. Escribile un mensaje corto al conductor explicando que venís atrasado/a y dónde estás parado/a exactamente.",
+          "targetHints": ["I'm running late", "I'm at the corner of..."]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "This one doesn't stop at Main Street, you gotta transfer at the next stop and catch the 12 from there.",
+          "prompt": "Alguien te explica que este bus no te sirve directo. ¿Qué tenés que hacer para llegar a tu destino? Respondé en español.",
+          "targetHints": ["transfer", "the next stop"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Subiste a un tren y no estás seguro/a si para en tu estación. Preguntale a alguien cerca.",
+          "targetHints": ["does this train stop at...?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Explicale a un amigo, en tus propias palabras, cómo llegarías desde tu casa hasta el centro usando transporte público o una app — qué preguntarías y qué le dirías a un conductor si te perdés o llegás tarde.",
+          "targetHints": ["which bus goes to...?", "I'm running late", "transfer"]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "en>es-speaker",
+    "level": "A1",
+    "topic": "shopping-and-checkout",
+    "title": "At the store",
+    "position": 8,
+    "content": {
+      "intro": "Vas a poder buscar un producto, preguntar precio y forma de pago, y pasar por la caja sin trabarte. La trampa principal: cuando el cajero/a te pregunta algo rápido como 'paper or plastic?' o 'debit or credit?', vos ya tenés que tener la respuesta lista — dudar ahí es lo que más te pone nerviosa, y en realidad es solo elegir entre dos palabras.",
+      "vocab": [
+        { "term": "do you have...?", "gloss": "¿tenés / tienen...?", "note": "Para preguntarle a un empleado si el local tiene algo." },
+        { "term": "where can I find...?", "gloss": "¿dónde encuentro...?" },
+        { "term": "I'm just looking", "gloss": "solo estoy mirando", "note": "Respuesta estándar cuando un vendedor se acerca a ofrecer ayuda y todavía no la necesitás." },
+        { "term": "paper or plastic?", "gloss": "¿bolsa de papel o de plástico?", "note": "Pregunta clásica de caja en EE.UU.; contestá con una palabra: 'paper' o 'plastic'." },
+        { "term": "debit or credit?", "gloss": "¿débito o crédito?", "note": "Recycled: el sistema de precios y pago de la lección 3." },
+        { "term": "do you need a receipt?", "gloss": "¿necesitás el ticket?" },
+        { "term": "do you have this in...?", "gloss": "¿tenés esto en...?", "note": "Para pedir otro talle, color o tamaño." },
+        { "term": "that's everything", "gloss": "eso es todo", "note": "Recycled: recordá 'anything else? / that's it' de la lección 4 en el mostrador." }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Entrás a una tienda buscando pasta de dientes pero no la ves. Preguntale a un empleado dónde la encontrás.",
+          "targetHints": ["where can I find...?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Un vendedor se te acerca apenas entrás y te pregunta si necesitás ayuda, pero todavía querés mirar solo/a. Contestale de forma natural y educada.",
+          "targetHints": ["I'm just looking"]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "That'll be twelve fifty. Debit or credit? And do you need a receipt?",
+          "prompt": "El cajero te dice el total y te hace dos preguntas más. ¿Cuáles son las dos preguntas, además del total? Respondé en español.",
+          "targetHints": ["debit or credit?", "receipt"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Estás en la caja pagando. El cajero te pregunta '¿debit or credit?' y después '¿paper or plastic?'. Contestá las dos preguntas seguidas, con tu propia elección.",
+          "targetHints": ["debit", "credit", "paper", "plastic"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Encontraste una remera que te gusta pero no está tu talle. Preguntale a un empleado si la tienen en otro talle, y después, ya en la caja, cerrá la compra confirmando que eso es todo lo que llevás.",
+          "targetHints": ["do you have this in...?", "that's everything"]
+        }
+      ]
+    }
+  }
+]
