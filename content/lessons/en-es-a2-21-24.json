@@ -1,0 +1,411 @@
+[
+  {
+    "languagePairCode": "en>es-speaker",
+    "level": "A2",
+    "topic": "work-basics",
+    "title": "Talking About My Job",
+    "position": 21,
+    "content": {
+      "intro": "Vas a aprender a describir tu trabajo, tu horario y a tus compañeros de trabajo, y a manejar pedidos comunes del día a día laboral. Ojo: acá la '-s' de he/she que viste en la lección 11 vuelve con todo, porque contar de un compañero de trabajo es prácticamente imposible sin ella — 'she works the morning shift', no 'she work'.",
+      "vocab": [
+        {
+          "term": "I work as a...",
+          "gloss": "Trabajo como..."
+        },
+        {
+          "term": "I'm in charge of...",
+          "gloss": "Estoy a cargo de..."
+        },
+        {
+          "term": "My shift starts at...",
+          "gloss": "Mi turno empieza a las..."
+        },
+        {
+          "term": "I'm off on Fridays",
+          "gloss": "Tengo libre los viernes"
+        },
+        {
+          "term": "Can you cover for me?",
+          "gloss": "¿Me podés cubrir?"
+        },
+        {
+          "term": "My manager",
+          "gloss": "Mi jefe/a"
+        },
+        {
+          "term": "I'm swamped",
+          "gloss": "Estoy a full de trabajo",
+          "note": "Muy informal y muy común en el trabajo — más natural que 'I have a lot of work'."
+        },
+        {
+          "term": "She's in charge of...",
+          "gloss": "Ella está a cargo de...",
+          "note": "Misma '-s' de la lección 11: con he/she siempre hay que agregarla, aunque ya hayas dicho el sujeto."
+        },
+        {
+          "term": "He works the night shift",
+          "gloss": "Él trabaja el turno noche",
+          "note": "'Work' pasa a 'works' con he/she — el mismo patrón de 'he works at...' que ya conocés."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Un compañero nuevo te pregunta a qué te dedicás. Decile como qué trabajás y de qué estás a cargo.",
+          "targetHints": [
+            "I work as a",
+            "I'm in charge of"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Alguien nuevo en la oficina quiere entender bien tu puesto. Contale todo lo que puedas: qué hacés, a qué hora empieza tu turno, qué días tenés libres, y algo sobre un compañero o compañera con quien trabajás de cerca.",
+          "targetHints": [
+            "I work as a",
+            "my shift starts at",
+            "she works"
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "So Maria's actually in charge of the whole morning crew. She starts at six, and she's off on Mondays and Tuesdays instead of the weekend.",
+          "prompt": "Te están contando sobre una compañera de trabajo. ¿De qué está a cargo, y qué días tiene libres?",
+          "targetHints": [
+            "in charge of",
+            "she's off"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Describile a un amigo a un compañero de trabajo: a qué se dedica, qué turno hace, y cómo es como persona.",
+          "targetHints": [
+            "he works",
+            "her shift",
+            "he's really"
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Hey, I know it's short notice, but could you possibly cover for me on Thursday? My manager already said it's fine if you can.",
+          "prompt": "Un compañero te está pidiendo algo. ¿Qué te pide exactamente, y para qué día?",
+          "targetHints": [
+            "cover for me",
+            "Thursday"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Estás totalmente desbordado de trabajo esta semana. Pedile a un compañero que te cubra un turno, explicale por qué, y avisale a tu jefe/a también.",
+          "targetHints": [
+            "I'm swamped",
+            "can you cover for me",
+            "my manager"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "en>es-speaker",
+    "level": "A2",
+    "topic": "appointments-and-services",
+    "title": "Making an Appointment",
+    "position": 22,
+    "content": {
+      "intro": "Vas a aprender a sacar, cambiar o cancelar un turno por teléfono o en persona, y a explicar qué necesitás. Ojo con esto: la recepcionista te va a tirar dos o tres opciones de día y hora seguidas y rápido — 'Tuesday at 2:15 or Thursday at 10:30' — y esta lección es sobre todo entrenar el oído para agarrar esos horarios exactos, no solo el día.",
+      "vocab": [
+        {
+          "term": "I'd like to make an appointment",
+          "gloss": "Quisiera sacar un turno"
+        },
+        {
+          "term": "Do you have anything on Tuesday?",
+          "gloss": "¿Tenés algo el martes?"
+        },
+        {
+          "term": "What time works for you?",
+          "gloss": "¿Qué hora te queda bien?",
+          "note": "Recuperada de la lección 12 — ahí era para planes con amigos, acá es para turnos formales."
+        },
+        {
+          "term": "The earliest I can do is...",
+          "gloss": "Lo más temprano que puedo es..."
+        },
+        {
+          "term": "Can I reschedule?",
+          "gloss": "¿Puedo cambiar el turno?"
+        },
+        {
+          "term": "I need to cancel",
+          "gloss": "Necesito cancelar"
+        },
+        {
+          "term": "How long does it take?",
+          "gloss": "¿Cuánto tiempo lleva?"
+        },
+        {
+          "term": "two fifteen / a quarter after two",
+          "gloss": "las dos y cuarto / las dos y quince",
+          "note": "Las dos formas se usan todo el tiempo por teléfono — acostumbrate a las dos, porque no vas a saber cuál vas a escuchar."
+        },
+        {
+          "term": "Does that work for you?",
+          "gloss": "¿Te queda bien eso?"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Llamá a un consultorio. Decí que querés sacar un turno y preguntá si tienen algo disponible el martes.",
+          "targetHints": [
+            "I'd like to make an appointment",
+            "do you have anything on Tuesday?"
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Let me check... okay, we've got Tuesday at two fifteen, or if that doesn't work, Thursday at ten thirty. Which one's better for you?",
+          "prompt": "La recepcionista te acaba de dar dos opciones. ¿Qué día y hora es cada una?",
+          "targetHints": [
+            "Tuesday at two fifteen",
+            "Thursday at ten thirty"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Ya tenías un turno agendado, pero te surgió algo y no podés ir. Llamá, explicá que necesitás cambiar el turno, y arreglá un nuevo día y hora con la persona hasta quedar de acuerdo.",
+          "targetHints": [
+            "can I reschedule?",
+            "what time works for you?",
+            "does that work for you?"
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Alright, so I've got you down for Thursday the ninth at ten thirty. Just to confirm, that's ten thirty in the morning, not the evening.",
+          "prompt": "Te están confirmando el turno. ¿Qué fecha y hora exacta te dieron, y qué aclaran al final?",
+          "targetHints": [
+            "Thursday the ninth",
+            "ten thirty in the morning"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "No vas a poder ir a tu turno y ya sabés que no lo vas a poder reprogramar esta semana. Llamá y cancelalo.",
+          "targetHints": [
+            "I need to cancel"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Estás sacando un turno para algo que nunca hiciste antes. Preguntá cuánto tiempo lleva, además del día y la hora.",
+          "targetHints": [
+            "how long does it take?",
+            "I'd like to make an appointment"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "en>es-speaker",
+    "level": "A2",
+    "topic": "clothes-and-sizes",
+    "title": "Shopping for Clothes",
+    "position": 23,
+    "content": {
+      "intro": "Vas a aprender a pedir talles, probarte ropa, y devolver o cambiar algo que compraste. Ojo con esto: 'exchange' es cambiar una cosa por otra (otro talle, otro color), mientras que 'return' es devolverla y que te reembolsen la plata — son situaciones distintas y vas a necesitar las dos frases por separado.",
+      "vocab": [
+        {
+          "term": "Do you have this in a medium?",
+          "gloss": "¿Tenés esto en talla mediana?"
+        },
+        {
+          "term": "Fitting room",
+          "gloss": "el probador"
+        },
+        {
+          "term": "It's too tight",
+          "gloss": "Me queda muy ajustado"
+        },
+        {
+          "term": "It's too loose",
+          "gloss": "Me queda muy suelto"
+        },
+        {
+          "term": "I'd like to return this",
+          "gloss": "Quisiera devolver esto"
+        },
+        {
+          "term": "Do you have the receipt?",
+          "gloss": "¿Tenés el recibo?",
+          "note": "Sin recibo, muchas tiendas solo te ofrecen un cambio, no la devolución del dinero."
+        },
+        {
+          "term": "Can I exchange this?",
+          "gloss": "¿Puedo cambiar esto?"
+        },
+        {
+          "term": "It's on sale",
+          "gloss": "Está en oferta"
+        },
+        {
+          "term": "Do you have this in a different color?",
+          "gloss": "¿Lo tenés en otro color?"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Viste una remera que te gusta. Preguntale al vendedor si la tienen en talle mediano y dónde queda el probador.",
+          "targetHints": [
+            "do you have this in a medium?",
+            "fitting room"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Te probaste la remera y no te queda bien. Explicale al vendedor el problema con detalle y pedile una solución — otro talle, otro color, lo que necesites.",
+          "targetHints": [
+            "it's too tight",
+            "do you have this in a different color?"
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "That one's actually on sale right now, so it's a pretty good deal. Let me go check if we've got a medium in the back — we might be out.",
+          "prompt": "El vendedor te está por buscar algo. ¿Qué te dice sobre el precio, y qué va a ir a revisar?",
+          "targetHints": [
+            "on sale",
+            "check if we've got a medium"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Compraste unos pantalones la semana pasada pero te quedan sueltos. Volvé a la tienda y pedí devolverlos.",
+          "targetHints": [
+            "I'd like to return this",
+            "it's too loose"
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Sure, I can do that for you. Do you happen to have the receipt? Without it, I can only offer an exchange, not a refund.",
+          "prompt": "El vendedor te acaba de explicar la política de la tienda. ¿Qué te pregunta, y qué pasa si no lo tenés?",
+          "targetHints": [
+            "do you have the receipt?",
+            "only offer an exchange"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "No tenés el recibo de los pantalones que querés devolver. Manejá toda la conversación: explicá la situación, aceptá el cambio en vez de la devolución, y elegí otro color o talle.",
+          "targetHints": [
+            "can I exchange this?",
+            "do you have this in a different color?",
+            "it's too loose"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "en>es-speaker",
+    "level": "A2",
+    "topic": "telling-a-story",
+    "title": "You Won't Believe What Happened",
+    "position": 24,
+    "content": {
+      "intro": "Esta es la lección más grande hasta ahora: vas a sostener la palabra vos sola/o durante varias frases seguidas, contando una historia completa sin que nadie te ayude. Para eso necesitás dos tiempos trabajando juntos — el pasado continuo para el fondo de la escena ('I was walking'), y el pasado simple para lo que pasó de golpe ('I dropped my phone'). Usar solo uno de los dos hace que la historia quede plana o que nunca arranque.",
+      "vocab": [
+        {
+          "term": "I was walking when...",
+          "gloss": "Iba caminando cuando...",
+          "note": "'Was walking' es el fondo de la escena; lo que sigue después de 'when' es el evento que la interrumpe."
+        },
+        {
+          "term": "All of a sudden",
+          "gloss": "De repente"
+        },
+        {
+          "term": "I couldn't believe it",
+          "gloss": "No lo podía creer"
+        },
+        {
+          "term": "Luckily",
+          "gloss": "Por suerte"
+        },
+        {
+          "term": "It turned out that...",
+          "gloss": "Resultó que..."
+        },
+        {
+          "term": "I was about to...",
+          "gloss": "Estaba a punto de...",
+          "note": "Pasado continuo con 'about to' — algo que ibas a hacer justo quedó interrumpido."
+        },
+        {
+          "term": "And then",
+          "gloss": "Y ahí / y después"
+        },
+        {
+          "term": "I dropped my phone",
+          "gloss": "Se me cayó el celular",
+          "note": "Pasado simple — el evento puntual, no el fondo."
+        },
+        {
+          "term": "It was raining",
+          "gloss": "Estaba lloviendo",
+          "note": "Pasado continuo — otra forma clásica de armar el fondo de una escena."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Armá solo el fondo de una historia, sin contar todavía qué pasó: describí dónde estabas y qué estabas haciendo justo antes de que pasara algo.",
+          "targetHints": [
+            "I was walking",
+            "it was raining"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Ahora sumale el evento a esa escena: ibas caminando bajo la lluvia cuando, de repente, se te cayó el celular. Contalo todo junto — primero el fondo, después lo que pasó.",
+          "targetHints": [
+            "I was walking when",
+            "all of a sudden",
+            "I dropped my phone"
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "So I was just sitting at the bus stop, minding my own business, when this guy comes running up out of nowhere asking if it's the right stop for downtown.",
+          "prompt": "Alguien te está contando algo que le pasó. ¿Qué estaba haciendo antes, y qué pasó de golpe?",
+          "targetHints": [
+            "was sitting",
+            "comes running up out of nowhere"
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "I was about to leave the office when my manager called me in. Turned out she just wanted to say I did a great job on the project.",
+          "prompt": "Esta persona estaba a punto de hacer algo cuando pasó otra cosa. ¿Qué estaba a punto de hacer, y qué resultó ser al final?",
+          "targetHints": [
+            "was about to leave",
+            "turned out"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "No sabés lo que me pasó. Contale a un amigo una historia completa sobre algo sorprendente o con mala suerte que te pasó: armá bien el fondo (dónde estabas, qué estaba pasando, cómo estaba el clima) y después contá el evento que lo interrumpió, cómo reaccionaste, y cómo terminó todo. Sostené la palabra vos solo/a, como si se lo estuvieras contando en persona.",
+          "targetHints": [
+            "past continuous and past simple together",
+            "all of a sudden",
+            "I couldn't believe it",
+            "luckily"
+          ]
+        }
+      ]
+    }
+  }
+]

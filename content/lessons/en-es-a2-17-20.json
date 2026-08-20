@@ -1,0 +1,439 @@
+[
+  {
+    "languagePairCode": "en>es-speaker",
+    "level": "A2",
+    "topic": "childhood-and-used-to",
+    "title": "When I Was a Kid",
+    "position": 17,
+    "content": {
+      "intro": "Vas a aprender a hablar de cómo era tu vida antes y qué hacías de chico/a, usando 'used to' más el verbo base. Ojo con esto: en español el imperfecto ('vivía', 'jugábamos') sirve para todo hábito pasado, pero en inglés se separa en tres formas — 'used to' para estados y hábitos que ya no son así, 'would' solo para acciones repetidas (nunca para estados como 'ser' o 'vivir'), y el pasado simple para un hecho puntual de una sola vez.",
+      "vocab": [
+        {
+          "term": "I used to live in...",
+          "gloss": "Antes vivía en...",
+          "note": "'Used to' + verbo base marca algo que era así y ya no lo es. No cambia con he/she: 'she used to live there'."
+        },
+        {
+          "term": "When I was a kid",
+          "gloss": "Cuando era chico/a"
+        },
+        {
+          "term": "We would always...",
+          "gloss": "Siempre solíamos...",
+          "note": "'Would' para hábitos repetidos funciona solo con acciones, no con estados: podés decir 'we would play' pero NO 'we would be poor' — ahí hace falta 'used to be'."
+        },
+        {
+          "term": "I grew up in...",
+          "gloss": "Me crié en...",
+          "note": "Pasado simple de 'grow up' — se usa para el hecho en sí, no para el hábito repetido."
+        },
+        {
+          "term": "Back then",
+          "gloss": "En esa época / en ese entonces"
+        },
+        {
+          "term": "Things were different",
+          "gloss": "Las cosas eran distintas"
+        },
+        {
+          "term": "My parents used to say...",
+          "gloss": "Mis padres solían decir..."
+        },
+        {
+          "term": "I didn't use to...",
+          "gloss": "Antes no solía...",
+          "note": "En negativo se dice 'didn't use to', sin la 'd' final de 'used' — es un error muy común escribirlo con 'used to' completo."
+        },
+        {
+          "term": "Did you use to...?",
+          "gloss": "¿Solías...?",
+          "note": "Igual que en negativo: en pregunta es 'did you use to', sin la 'd' final."
+        },
+        {
+          "term": "One time, I...",
+          "gloss": "Una vez, yo...",
+          "note": "Para un hecho puntual, no un hábito, usás el pasado simple normal — 'used to' nunca va con un solo evento."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Contale a un amigo algo que solías hacer cuando eras chico/a que ya no hacés más.",
+          "targetHints": [
+            "I used to",
+            "when I was a kid"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Describí cómo era tu barrio o tu casa cuando eras chico/a, y compará con cómo es ahora. Contá todo lo que puedas.",
+          "targetHints": [
+            "back then",
+            "things were different",
+            "I grew up in"
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "When I was a kid, we would always spend summers at my grandmother's house. She used to make this incredible bread, and honestly, I still think about it.",
+          "prompt": "Esta persona está contando algo de su infancia. ¿Dónde pasaba los veranos, y qué hacía la abuela?",
+          "targetHints": [
+            "spend summers",
+            "used to make"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Contale a alguien algo que tus padres solían decirte de chico/a, y algo que hacían siempre juntos los domingos.",
+          "targetHints": [
+            "my parents used to say",
+            "we would always"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Contale a un amigo sobre una vez específica de tu infancia — algo que pasó una sola vez, no un hábito.",
+          "targetHints": [
+            "one time, I",
+            "when I was a kid"
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "I didn't use to like coffee at all, but now I drink it every morning. Funny how things change.",
+          "prompt": "¿Qué es lo que antes no le gustaba a esta persona, y qué hace ahora?",
+          "targetHints": [
+            "I didn't use to",
+            "but now"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "en>es-speaker",
+    "level": "A2",
+    "topic": "phone-and-messaging",
+    "title": "On the Phone",
+    "position": 18,
+    "content": {
+      "intro": "Vas a aprender a manejar una llamada corta, entender y dejar un mensaje de voz, y sobrevivir una llamada con mala señal — la situación de escucha más difícil que hay, porque no tenés labios para leer ni cara para interpretar. Ojo con esto: la frase que te va a salvar acá es la misma que aprendiste en la lección 2 para pedir que repitan — 'could you say that again?' — pero por teléfono la vas a necesitar el doble de seguido.",
+      "vocab": [
+        {
+          "term": "Can you hear me?",
+          "gloss": "¿Me escuchás?"
+        },
+        {
+          "term": "You're breaking up",
+          "gloss": "Se está cortando (la llamada)",
+          "note": "Literalmente 'te estás rompiendo', pero significa que la señal falla — no tiene nada que ver con romper algo."
+        },
+        {
+          "term": "Let me call you back",
+          "gloss": "Dejame que te llame de nuevo"
+        },
+        {
+          "term": "Is this a good time?",
+          "gloss": "¿Es un buen momento (para hablar)?"
+        },
+        {
+          "term": "Leave a message after the beep",
+          "gloss": "Dejá un mensaje después del tono",
+          "note": "Frase típica de un contestador automático (voicemail)."
+        },
+        {
+          "term": "I'll shoot you a text",
+          "gloss": "Te mando un mensaje de texto",
+          "note": "'Shoot someone a text' es informal y muy común — mandar un mensaje rápido, sin formalidad."
+        },
+        {
+          "term": "Hold on a second",
+          "gloss": "Esperá un segundo"
+        },
+        {
+          "term": "Could you say that again?",
+          "gloss": "¿Podés decirlo de nuevo?",
+          "note": "La recuperás de la lección 2 — por teléfono, sin poder leer labios, la vas a necesitar constantemente."
+        },
+        {
+          "term": "This is [name] calling for...",
+          "gloss": "Habla [nombre], estoy llamando por...",
+          "note": "Forma estándar de identificarte al empezar una llamada, sobre todo si dejás un mensaje."
+        },
+        {
+          "term": "The signal's really bad here",
+          "gloss": "La señal está pésima acá"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Llamá a un amigo y preguntale si es un buen momento para hablar.",
+          "targetHints": [
+            "Is this a good time?",
+            "Can you hear me?"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Estás en una llamada importante y la señal empieza a fallar. Explicale a la otra persona qué está pasando y qué vas a hacer.",
+          "targetHints": [
+            "You're breaking up",
+            "Let me call you back",
+            "hold on a second"
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Hey, it's me — listen, I'm gonna be a few minutes late, can you tell the driver I'm at four two one Maple... uh, Maple Street, right by the— [line cuts out]",
+          "prompt": "La llamada se cortó justo cuando decía algo importante. ¿Qué número y qué calle alcanzaste a escuchar?",
+          "targetHints": [
+            "four two one",
+            "Maple Street"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "No entendiste bien un número que te acaban de decir por teléfono. Pedí que lo repitan, más despacio.",
+          "targetHints": [
+            "Could you say that again?",
+            "more slowly"
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Hi, you've reached Sarah, I can't come to the phone right now. Leave a message after the beep and I'll get back to you as soon as I can.",
+          "prompt": "Es un contestador automático. ¿Qué te pide que hagas antes del tono, y qué promete hacer después?",
+          "targetHints": [
+            "leave a message",
+            "get back to you"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Dejale un mensaje de voz a un amigo: decí quién sos, por qué llamás, y pedile que te escriba o te llame cuando pueda.",
+          "targetHints": [
+            "This is ... calling for",
+            "I'll shoot you a text"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "en>es-speaker",
+    "level": "A2",
+    "topic": "feelings-and-small-problems",
+    "title": "How I'm Actually Doing",
+    "position": 19,
+    "content": {
+      "intro": "Vas a aprender a decir cómo te sentís de verdad — cansado/a, estresado/a, con nostalgia de tu familia — en vez de responder siempre 'good, you?' aunque no sea cierto. También vas a aprender a responder cuando otra persona te cuenta algo pesado. Ojo con esto: 'homesick' no tiene una traducción de una sola palabra en español — no es estar enfermo, es extrañar tu país o tu casa, y se usa con 'be', nunca con 'have'.",
+      "vocab": [
+        {
+          "term": "I'm exhausted",
+          "gloss": "Estoy agotado/a"
+        },
+        {
+          "term": "I'm stressed out",
+          "gloss": "Estoy estresado/a"
+        },
+        {
+          "term": "I miss my family",
+          "gloss": "Extraño a mi familia"
+        },
+        {
+          "term": "I'm homesick",
+          "gloss": "Tengo nostalgia / extraño mi país",
+          "note": "No existe una palabra exacta en español. No es estar enfermo — se usa con 'be' ('I'm homesick'), nunca con 'have'."
+        },
+        {
+          "term": "That sucks",
+          "gloss": "Qué bajón / qué mala onda",
+          "note": "Informal, entre amigos, cuando alguien te cuenta algo malo — no suena grosero en este contexto."
+        },
+        {
+          "term": "I'm sorry to hear that",
+          "gloss": "Lo siento mucho",
+          "note": "Más neutral que 'that sucks' y también sirve en contextos algo más formales."
+        },
+        {
+          "term": "I'm so happy for you",
+          "gloss": "Qué alegría por vos / me alegro mucho"
+        },
+        {
+          "term": "Are you okay?",
+          "gloss": "¿Estás bien?"
+        },
+        {
+          "term": "I've been better",
+          "gloss": "He estado mejor",
+          "note": "Forma indirecta y muy común de decir que no estás bien sin decirlo directamente."
+        },
+        {
+          "term": "Honestly, ...",
+          "gloss": "Sinceramente...",
+          "note": "Sirve para introducir algo que realmente sentís, en vez de la respuesta automática de siempre."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Un amigo te pregunta '¿cómo estás?'. En vez de responder 'good', decile honestamente cómo te sentís esta semana y por qué.",
+          "targetHints": [
+            "honestly",
+            "I'm exhausted",
+            "I'm stressed out"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Contale a alguien de confianza algo que realmente extrañás de Paraguay, y por qué te pega justo ahora.",
+          "targetHints": [
+            "I miss",
+            "I'm homesick"
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Honestly? I've been better. My mom's been sick and I haven't been sleeping much, so it's just been a lot lately.",
+          "prompt": "Tu amigo te acaba de contar cómo está de verdad. ¿Qué dos cosas le están pasando?",
+          "targetHints": [
+            "I've been better",
+            "haven't been sleeping"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Tu amigo te acaba de contar que su mamá está enferma y que casi no está durmiendo. Respondele mostrando que te importa.",
+          "targetHints": [
+            "I'm sorry to hear that",
+            "Are you okay?"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Un compañero de trabajo te cuenta que por fin consiguió el trabajo que quería. Reaccioná genuinamente contento/a por él.",
+          "targetHints": [
+            "I'm so happy for you"
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "I'm doing okay, I guess. Work's been super stressful, and I still get homesick every time I call my parents, but I'm getting used to it.",
+          "prompt": "¿Qué dos cosas menciona esta persona sobre cómo se siente?",
+          "targetHints": [
+            "stressed",
+            "homesick"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "en>es-speaker",
+    "level": "A2",
+    "topic": "banking-and-bills",
+    "title": "Money and Paperwork",
+    "position": 20,
+    "content": {
+      "intro": "Vas a aprender a manejar una cuenta bancaria, entender una factura, y resolver problemas de pago comunes — una tarjeta rechazada, un cargo que no reconocés, una transferencia. Ojo con esto: 'a fee' es un cargo o comisión, no tiene nada que ver con una multa — para eso se dice 'a fine'.",
+      "vocab": [
+        {
+          "term": "checking account / savings account",
+          "gloss": "cuenta corriente / caja de ahorro",
+          "note": "'Checking account' es para gastos del día a día; 'savings account' es para ahorrar — no son intercambiables como acá a veces se usan."
+        },
+        {
+          "term": "direct deposit",
+          "gloss": "depósito directo (del sueldo)"
+        },
+        {
+          "term": "My card was declined",
+          "gloss": "Mi tarjeta fue rechazada"
+        },
+        {
+          "term": "a fee",
+          "gloss": "un cargo / una comisión",
+          "note": "No es una multa — eso es 'a fine'. 'A fee' es lo que el banco te cobra por un servicio."
+        },
+        {
+          "term": "transfer money",
+          "gloss": "transferir dinero"
+        },
+        {
+          "term": "the due date",
+          "gloss": "la fecha de vencimiento"
+        },
+        {
+          "term": "set up autopay",
+          "gloss": "activar el pago automático"
+        },
+        {
+          "term": "check my balance",
+          "gloss": "revisar mi saldo"
+        },
+        {
+          "term": "Could you check that again?",
+          "gloss": "¿Podés revisar eso de nuevo?",
+          "note": "Útil cuando un monto no te cierra en el banco."
+        },
+        {
+          "term": "I was charged twice",
+          "gloss": "Me cobraron dos veces"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Andá al banco y abrí una cuenta corriente. Explicá qué tipo de cuenta querés y preguntá si tiene algún cargo mensual.",
+          "targetHints": [
+            "checking account",
+            "a fee"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Tu tarjeta fue rechazada en el supermercado y no entendés por qué. Explicale a la cajera qué pasó y preguntale qué podés hacer.",
+          "targetHints": [
+            "My card was declined",
+            "Could you check that again?"
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "So looking at your account, there's a ten dollar fee for going under the minimum balance, and your direct deposit hasn't come through yet this month.",
+          "prompt": "¿Por qué le están cobrando un cargo, y qué todavía no llegó a la cuenta?",
+          "targetHints": [
+            "a fee",
+            "direct deposit"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Notaste que te cobraron dos veces por lo mismo en tu cuenta. Llamá al banco y explicá el problema con claridad.",
+          "targetHints": [
+            "I was charged twice",
+            "Could you check that again?"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Un amigo te pregunta cómo pagás tus cuentas todos los meses. Explicale que activaste el pago automático y contale por qué te conviene.",
+          "targetHints": [
+            "set up autopay",
+            "the due date"
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "This is a reminder that your payment of eighty-five dollars is due on the fifteenth. To avoid a late fee, please make sure your account has sufficient funds by then.",
+          "prompt": "¿Cuánto tenés que pagar y para qué fecha, para evitar un cargo extra?",
+          "targetHints": [
+            "the due date",
+            "a fee"
+          ]
+        }
+      ]
+    }
+  }
+]
