@@ -118,15 +118,25 @@ All curriculum is authored by the owner (optionally with Gemini's help via
 itself. As admin, go to `/admin` and paste/upload a JSON array of lessons matching the
 shape in PLAN.md §3.4 (Zod-validated on the way in).
 
-`content/lessons/es-py-en-a1-*.json` is the real A1 batch for the English-speaker →
-Paraguayan-Spanish pair: positions 1–12, generated from the approved map in
-`content/curriculum/es-PY-en-speaker.md` and validated against the same importer schema.
-Lessons from position 6 on include `listen_prompt` exercises, whose `audioText` is synthesized
-and played but never displayed to the learner.
+`content/lessons/*.json` holds the real content — 48 lessons, no placeholders left:
 
-`content/lessons/en-a1-greetings.sample.json` is still a placeholder demo lesson for the other
-direction (Spanish speaker → English); delete it once that pair has real content, or it will
-keep showing up in the lesson browser.
+| File prefix | Pair | Levels |
+|---|---|---|
+| `es-py-en-a1-*`, `es-py-en-a2-*` | `es-PY>en-speaker` (English speaker → Paraguayan Spanish) | A1 + A2, positions 1–24 |
+| `en-es-a1-*` | `en>es-speaker` (Paraguayan Spanish speaker → English) | A1, positions 1–12 |
+| `es-py-sv-a1-*` | `es-PY>sv-speaker` (Swedish speaker → Paraguayan Spanish) | A1, positions 1–12 |
+
+Each was generated from the matching map in `content/curriculum/` and validated with
+`npm run lessons:validate`, which runs the same Zod schema the import route enforces plus
+cross-file checks (position collisions within a pair, duplicate topics, meta-commentary in
+`targetHints`). Run it after editing any lesson file — it needs no database and no API key.
+
+Note that the two Spanish-target decks deliberately share lesson titles: they teach the same
+Paraguayan situations to English and Swedish speakers, and the seeder scopes its
+already-exists check to the pair for exactly that reason.
+
+`listen_prompt` exercises appear from position 6 onward (position 3 in the English deck, which
+needs listening earlier); their `audioText` is synthesized and played but never displayed.
 
 ### Review queue
 

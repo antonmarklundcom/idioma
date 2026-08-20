@@ -1,0 +1,186 @@
+[
+  {
+    "languagePairCode": "es-PY>sv-speaker",
+    "level": "A1",
+    "topic": "first-encounters",
+    "title": "¿Cómo te llamás?",
+    "position": 1,
+    "content": {
+      "intro": "Du lär dig presentera dig själv, säga var du kommer ifrån och fråga samma sak till någon annan i en informell situation. I Paraguay säger man 'vos' istället för 'tú', så frågeformerna blir ¿cómo te llamás? och ¿de dónde sos? — inte ¿cómo te llamas? eller ¿de dónde eres? som du kanske stött på i andra sammanhang. Lägg också märke till 'ser': svenskans 'är' (vara) är ETT verb, men spanskan har två — 'ser' för sådant som är permanent (var du är från, vem du är) och 'estar' för tillstånd. Här använder vi bara 'ser', men håll koll på det — det dyker upp igen.",
+      "vocab": [
+        { "term": "vos sos", "gloss": "du är", "note": "Voseo: subjekt + verb, ersätter 'tú eres' helt i Paraguay. 'Sos' kommer från 'ser', samma verb som i 'soy' och 'de dónde sos'." },
+        { "term": "¿cómo te llamás?", "gloss": "vad heter du?", "note": "Voseo-form; inte ¿cómo te llamas?" },
+        { "term": "me llamo...", "gloss": "jag heter..." },
+        { "term": "¿de dónde sos?", "gloss": "var kommer du ifrån?", "note": "Voseo-form av 'ser'. Kom ihåg: svenskans 'är' blir här 'sos', inte 'estás' — ursprung är 'ser', inte 'estar'." },
+        { "term": "soy de...", "gloss": "jag är från...", "note": "Från 'ser', inte 'estar' — ursprung är något du ÄR, inte ett tillstånd du befinner dig i." },
+        { "term": "encantado / encantada", "gloss": "trevligt att träffas", "note": "Böj efter ditt eget kön." },
+        { "term": "¿a qué te dedicás?", "gloss": "vad jobbar du med?", "note": "Voseo; vanlig följdfråga efter namnet." },
+        { "term": "mucho gusto", "gloss": "trevligt att träffas", "note": "Utbytbart mot encantado/a, lite vanligare i vardagligt tal." }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Du har just satt dig bredvid någon vid busshållplatsen. Hälsa och presentera dig med ditt namn.",
+          "targetHints": ["me llamo"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Personen frågar var du kommer ifrån. Svara, och fråga sedan samma sak tillbaka med voseo.",
+          "targetHints": ["soy de...", "¿de dónde sos?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Fråga en ny bekant vad hen heter och vad hen jobbar med, båda med voseo-former.",
+          "targetHints": ["¿cómo te llamás?", "¿a qué te dedicás?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Du är på en asado hos en väns familj och någon ny kommer fram till gruppen. Presentera dig, fråga vad personen heter, varifrån hen kommer och vad hen jobbar med — låt det flyta som ett kort samtal.",
+          "targetHints": ["voseo", "¿de dónde sos?", "¿a qué te dedicás?"]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>sv-speaker",
+    "level": "A1",
+    "topic": "clarification",
+    "title": "No te entendí, ¿me repetís?",
+    "position": 2,
+    "content": {
+      "intro": "Det här är den mest användbara lektionen i A1: fraser som håller igång ett samtal när du inte hänger med eller inte kan ett ord, istället för att låsa sig eller byta till svenska. Fällan: 'repetir' och 'repetime' använder voseo-imperativ, så det heter ¿me repetís? och repetime. Ett extra tips för uttalet: svenskans sj- och tj-ljud (som i 'sjö' eller 'kök') smyger sig lätt in i stället för det spanska j-ljudet, ll och rr — spanskt 'j' (som i 'repetí' nej, som i ordet 'juego') låter mer som ett strävt h, och rr ska rullas med tungspetsen, inte uttalas som ett svenskt sje-ljud.",
+      "vocab": [
+        { "term": "no te entendí", "gloss": "jag förstod dig inte" },
+        { "term": "¿me repetís, por favor?", "gloss": "kan du upprepa det, snälla?", "note": "Voseo; avslappnat men artigt med 'por favor'." },
+        { "term": "más despacio, por favor", "gloss": "långsammare, snälla" },
+        { "term": "¿cómo se dice...?", "gloss": "hur säger man...?" },
+        { "term": "¿qué significa...?", "gloss": "vad betyder...?" },
+        { "term": "deletreame tu nombre", "gloss": "stava ditt namn för mig", "note": "Voseo-imperativ av 'deletrear'; används hela tiden i Paraguay för namn i telefon eller i disk. Uttala 'll' i vanliga ord (inte här) och 'rr' med rullande tunga — inte som svenskt sje-ljud." },
+        { "term": "¿cómo se escribe?", "gloss": "hur skrivs/stavas det?" },
+        { "term": "¿podés hablar más fuerte?", "gloss": "kan du prata högre?", "note": "Bra på bullriga gator eller dåliga telefonlinjer." }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Någon sa precis något för fort för att du skulle hänga med. Säg att du inte förstod och be personen upprepa.",
+          "targetHints": ["no te entendí", "¿me repetís?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "En affärsinnehavare pratar snabbt. Avbryt artigt och be personen sakta ner.",
+          "targetHints": ["más despacio, por favor"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Någon säger sitt namn men du är osäker på stavningen. Be personen stava det för dig.",
+          "targetHints": ["deletreame tu nombre", "¿cómo se escribe?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Du hör ett ord du aldrig hört förut mitt i det någon berättar för dig. Avbryt för att fråga vad det betyder, utan att tappa tråden i samtalet.",
+          "targetHints": ["¿qué significa...?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Du träffar någon ny och uppfattar namnet men inte tillräckligt tydligt för att säga det tillbaka säkert. Hälsa, be sedan personen upprepa namnet, och om du fortfarande inte fattar — be personen stava det.",
+          "targetHints": ["¿me repetís?", "deletreame tu nombre"]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>sv-speaker",
+    "level": "A1",
+    "topic": "numbers-and-prices",
+    "title": "Mil, luca y guaraníes",
+    "position": 3,
+    "content": {
+      "intro": "Du lär dig förstå och säga priser i guaraníes, framför allt tusentalen där de flesta vardagspriser ligger. Fällan: paraguayanska priser ligger nästan alltid i tusentals- eller miljontalet, och lokalbefolkningen slarvar ofta bort ordet 'mil' i slang (diez luca = 10 000 Gs.), så ett tal som sägs fort kan passera innan du hunnit räkna om det — därför bygger den här lektionen vidare på att be om en repris. Kom också ihåg artikelregeln som skiljer svenska från spanska: på svenska hänger artikeln på slutet av ordet (huset, priset), men på spanska står den som ett eget ord framför substantivet (el precio, la plata) — det finns ingen ändelse att haka på.",
+      "vocab": [
+        { "term": "mil", "gloss": "tusen", "note": "cinco mil = 5 000; grundenheten i nästan alla vardagspriser." },
+        { "term": "cien mil", "gloss": "hundra tusen" },
+        { "term": "un millón", "gloss": "en miljon" },
+        { "term": "luca", "gloss": "slang för 'mil' (tusen)", "note": "diez luca = 10 000 guaraníes; mycket vanligt i talad paraguayansk spanska." },
+        { "term": "¿cuánto es?", "gloss": "hur mycket blir det?" },
+        { "term": "¿cuánto sale?", "gloss": "hur mycket kostar det?", "note": "Utbytbart mot ¿cuánto es? i affärer och på marknader." },
+        { "term": "son diez mil", "gloss": "det är tio tusen", "note": "'son' (plural) böjs efter penningbeloppet, inte 'es'. Och lägg märke till att 'el precio' behöver sitt eget 'el' framför sig — spanskan har ingen slutartikel som svenskans '-en'." },
+        { "term": "¿me repetís el precio?", "gloss": "kan du upprepa priset för mig?", "note": "Återanvänt från lektion 2 — nödvändigt när ett tal går för fort." }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Du är i en kiosco. Fråga försäljaren hur mycket en flaska vatten kostar.",
+          "targetHints": ["¿cuánto sale?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Försäljaren svarar med ett pris. Säg beloppet tillbaka för att bekräfta att du förstod — säg till exempel femton tusen guaraníes om det var priset.",
+          "targetHints": ["son quince mil"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Försäljaren mumlar priset och du hänger bara med på en del av det. Be personen upprepa priset.",
+          "targetHints": ["¿me repetís el precio?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "En vän berättar att hens telefon kostade 'dos palos' — säg tillbaka hela beloppet i guaraníes, och fråga sedan om du förstod rätt.",
+          "targetHints": ["un millón", "¿cuánto es?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Du handlar flera saker i en liten affär och totalsumman blir komplicerad — över hundra tusen guaraníes. Fråga priset, bekräfta sedan totalsumman till affärsinnehavaren och be om en repris om du är osäker.",
+          "targetHints": ["¿cuánto es?", "son...", "¿me repetís?"]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>sv-speaker",
+    "level": "A1",
+    "topic": "ordering-street-food",
+    "title": "Comprando chipa y empanadas",
+    "position": 4,
+    "content": {
+      "intro": "Du lär dig beställa mat från en gatustånd eller ett bageri, ange en mängd och bekräfta totalpriset. Fällan: mängden kommer före varan och man hoppar ofta över artikeln — 'dame dos empanadas', inte 'dame las dos empanadas' — och priserna här är alltid i guaraníes (Gs.), så håll förra lektionens siffror redo. Samma artikelregel som i lektion 3 dyker upp igen med maten: svenskan häktar artikeln på ordet (chipan, brödet), men spanskan behöver ett fristående ord framför — 'la chipa', 'el pan' — särskilt lätt att glömma när flera matord radas upp efter varandra.",
+      "vocab": [
+        { "term": "chipa", "gloss": "traditionellt paraguayanskt ostbröd, ofta gjort med kassavastärkelse", "note": "Säljs överallt, från gatustånd till busstationer, särskilt på morgnarna. Kom ihåg artikeln framför: 'la chipa', aldrig bara 'chipa-n' på spanskt vis." },
+        { "term": "chipa almidón", "gloss": "chipa gjord med kassavastärkelse", "note": "Den vanligaste varianten, seg konsistens." },
+        { "term": "mandioca", "gloss": "kassava/maniok", "note": "En basrotfrukt, grunden i chipa och många andra rätter." },
+        { "term": "empanada", "gloss": "smakrik inbakad pastej", "note": "Vanligtvis fylld med kött, kyckling eller ost." },
+        { "term": "¿cuánto cuesta?", "gloss": "hur mycket kostar det?", "note": "Samma användning som ¿cuánto sale? från lektion 3." },
+        { "term": "dame dos, por favor", "gloss": "ge mig två, snälla", "note": "Mängd + vara, utan artikel — 'dame dos chipas', inte 'dame las dos chipas'. På svenska hade artikeln hakat fast i ordet; på spanska finns den helt enkelt inte här." },
+        { "term": "para llevar", "gloss": "att ta med / för avhämtning" },
+        { "term": "caliente", "gloss": "varm", "note": "Nybakad chipa marknadsförs ofta som 'caliente'." },
+        { "term": "guaraníes (Gs.)", "gloss": "guaraníer (valutan)", "note": "Priser skrivs nästan alltid som 'Gs. 5.000'." }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Du går fram till en chipa-vagn. Fråga försäljaren hur mycket chipan kostar.",
+          "targetHints": ["¿cuánto cuesta?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Beställ tre chipas från försäljaren, och fråga om de har några varma.",
+          "targetHints": ["dame tres, por favor", "caliente"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Du vill ha två empanadas för avhämtning, inte att äta på plats. Beställ på det viset.",
+          "targetHints": ["dame dos", "para llevar"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Efter beställningen, fråga om totalpriset, och om försäljarens svar går för fort — be om en repris.",
+          "targetHints": ["¿cuánto es?", "¿me repetís el precio?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Du står vid ett upptaget gatustånd med en kort kö bakom dig. Beställ en blandning av chipa och empanadas i den mängd du vill ha, fråga om några är varma, bekräfta totalsumman och säg att det är för avhämtning — hantera hela köpet i ett svep.",
+          "targetHints": ["dame...", "para llevar", "¿cuánto es?"]
+        }
+      ]
+    }
+  }
+]

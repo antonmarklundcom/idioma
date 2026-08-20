@@ -8,49 +8,109 @@
     "content": {
       "intro": "You'll learn to talk about things that already happened — what you did, where you went, how it was — using the preterite past tense, including the irregular fui/estuve/hice/tuve and the voseo forms you'll actually hear (¿adónde fuiste?, ¿qué hiciste?). The trap: regular -ar verbs stress the ending in the yo/vos forms differently from the present, so 'pasé' (I spent/passed) is not 'paso' with an accent slapped on — the whole conjugation shifts.",
       "vocab": [
-        { "term": "Fui a...", "gloss": "I went to...", "note": "Irregular preterite of ir — shares its form with ser, so 'fui a lo de un amigo' vs 'fui feliz' are told apart by context." },
-        { "term": "Estuve descansando", "gloss": "I was resting / I spent time resting", "note": "estuve = preterite of estar, irregular stem estuv-." },
-        { "term": "Hice un asado", "gloss": "I made/did a barbecue", "note": "Irregular preterite of hacer, stem hic-." },
-        { "term": "Tuve que trabajar", "gloss": "I had to work", "note": "Irregular preterite of tener, stem tuv-." },
-        { "term": "¿Adónde fuiste vos?", "gloss": "Where did you go?", "note": "Voseo preterite of ir — fuiste, not the tuteo 'fuiste' sounds identical here, but compare '¿qué hiciste?' below where voseo really stands out." },
-        { "term": "¿Qué hiciste el finde?", "gloss": "What did you do this weekend?", "note": "Voseo preterite of hacer — hiciste. 'el finde' is the everyday clipped form of 'el fin de semana'." },
-        { "term": "Comimos un asado", "gloss": "We ate a barbecue", "note": "Regular -er preterite, nosotros form." },
-        { "term": "Pasé por lo de un amigo", "gloss": "I stopped by a friend's place", "note": "Regular -ar preterite, yo form — pasé, stress on the last syllable." },
-        { "term": "La pasamos muy bien", "gloss": "We had a great time", "note": "Set phrase — 'pasarla bien/mal' is how you say a time was good or bad, not 'tener un buen tiempo'." },
-        { "term": "El domingo pasado", "gloss": "last Sunday", "note": "'pasado/a' after a day or week name means 'last', e.g. 'la semana pasada'." }
+        {
+          "term": "Fui a...",
+          "gloss": "I went to...",
+          "note": "Irregular preterite of ir — shares its form with ser, so 'fui a lo de un amigo' vs 'fui feliz' are told apart by context."
+        },
+        {
+          "term": "Estuve descansando",
+          "gloss": "I was resting / I spent time resting",
+          "note": "estuve = preterite of estar, irregular stem estuv-."
+        },
+        {
+          "term": "Hice un asado",
+          "gloss": "I made/did a barbecue",
+          "note": "Irregular preterite of hacer, stem hic-."
+        },
+        {
+          "term": "Tuve que trabajar",
+          "gloss": "I had to work",
+          "note": "Irregular preterite of tener, stem tuv-."
+        },
+        {
+          "term": "¿Adónde fuiste vos?",
+          "gloss": "Where did you go?",
+          "note": "Voseo preterite of ir — fuiste, not the tuteo 'fuiste' sounds identical here, but compare '¿qué hiciste?' below where voseo really stands out."
+        },
+        {
+          "term": "¿Qué hiciste el finde?",
+          "gloss": "What did you do this weekend?",
+          "note": "Voseo preterite of hacer — hiciste. 'el finde' is the everyday clipped form of 'el fin de semana'."
+        },
+        {
+          "term": "Comimos un asado",
+          "gloss": "We ate a barbecue",
+          "note": "Regular -er preterite, nosotros form."
+        },
+        {
+          "term": "Pasé por lo de un amigo",
+          "gloss": "I stopped by a friend's place",
+          "note": "Regular -ar preterite, yo form — pasé, stress on the last syllable."
+        },
+        {
+          "term": "La pasamos muy bien",
+          "gloss": "We had a great time",
+          "note": "Set phrase — 'pasarla bien/mal' is how you say a time was good or bad, not 'tener un buen tiempo'."
+        },
+        {
+          "term": "El domingo pasado",
+          "gloss": "last Sunday",
+          "note": "'pasado/a' after a day or week name means 'last', e.g. 'la semana pasada'."
+        }
       ],
       "exercises": [
         {
           "type": "speak_prompt",
           "prompt": "A coworker asks what you did yesterday. Say you stopped by a friend's place and rested.",
-          "targetHints": ["pasé por lo de un amigo", "estuve descansando"]
+          "targetHints": [
+            "pasé por lo de un amigo",
+            "estuve descansando"
+          ]
         },
         {
           "type": "speak_prompt",
           "prompt": "Someone asks ¿qué hiciste el finde? Tell them you made an asado and had a great time.",
-          "targetHints": ["hice un asado", "la pasamos muy bien"]
+          "targetHints": [
+            "hice un asado",
+            "la pasamos muy bien"
+          ]
         },
         {
           "type": "listen_prompt",
           "audioText": "El sábado fui a lo de mi hermana, comimos un asado enorme y después nos quedamos charlando hasta re tarde. El domingo tuve que trabajar así que no hice mucho más.",
           "prompt": "This person just described their weekend. What did they do on Saturday, and why didn't Sunday involve much?",
-          "targetHints": ["listening comprehension", "fui a lo de mi hermana", "tuve que trabajar"]
+          "targetHints": [
+            "fui a lo de mi hermana",
+            "tuve que trabajar"
+          ]
         },
         {
           "type": "speak_prompt",
           "prompt": "Ask a friend directly where they went last Sunday, using vos.",
-          "targetHints": ["¿adónde fuiste vos?", "el domingo pasado"]
+          "targetHints": [
+            "¿adónde fuiste vos?",
+            "el domingo pasado"
+          ]
         },
         {
           "type": "listen_prompt",
           "audioText": "Che, ¿y vos qué hiciste el finde? Yo casi no salí, estuve descansando todo el sábado porque el viernes llegué re cansado del laburo.",
           "prompt": "This person is asking you a question and also explaining their own weekend. What are they asking you, and why did they stay in on Saturday?",
-          "targetHints": ["listening comprehension", "¿qué hiciste?", "estuve descansando"]
+          "targetHints": [
+            "¿qué hiciste?",
+            "estuve descansando"
+          ]
         },
         {
           "type": "speak_prompt",
           "prompt": "Tell a friend the full story of your last weekend from Friday night through Sunday — where you went, what you did with people, and how it went overall. Use at least three different past-tense verbs.",
-          "targetHints": ["fui a...", "hice...", "la pasamos muy bien", "el domingo pasado"]
+          "targetHints": [
+            "fui a...",
+            "hice...",
+            "la pasamos muy bien",
+            "el domingo pasado"
+          ]
         }
       ]
     }
@@ -64,48 +124,102 @@
     "content": {
       "intro": "You'll learn to ask a landlord or agent about an apartment — rooms, utilities, and whether the neighborhood is quiet — and to understand their answers back. The trap: 'expensas' means condo/building fees (maintenance, security, common areas), completely separate from the rent itself — asking '¿cuánto es el alquiler?' does not tell you whether expensas are included.",
       "vocab": [
-        { "term": "Alquiler", "gloss": "rent", "note": "The monthly amount, distinct from 'expensas'." },
-        { "term": "¿Incluye expensas?", "gloss": "Does it include the building/maintenance fees?", "note": "Expensas cover shared building costs — often billed separately from alquiler." },
-        { "term": "Aire acondicionado (split)", "gloss": "air conditioning (split unit)", "note": "'split' is the everyday word for a wall-mounted AC unit — assume houses/departamentos may or may not come with one installed." },
-        { "term": "Dormitorio", "gloss": "bedroom", "note": "Also heard as 'cuarto' or 'pieza' informally." },
-        { "term": "Patio", "gloss": "yard / outdoor patio area", "note": "Common even in modest rentals — worth asking about if you want outdoor space." },
-        { "term": "¿Es tranquilo el barrio?", "gloss": "Is the neighborhood quiet/safe?", "note": "'tranquilo' covers both 'quiet' and 'safe' — Paraguayans use it as the general reassurance word for a neighborhood." },
-        { "term": "Garantía", "gloss": "guarantor / security deposit", "note": "Can mean either a person who co-signs or the deposit itself — clarify which one is being asked for: '¿garantía de persona o depósito?'" },
-        { "term": "¿Cuántos dormitorios tiene?", "gloss": "How many bedrooms does it have?" },
-        { "term": "¿Desde cuándo está disponible?", "gloss": "From when is it available?" }
+        {
+          "term": "Alquiler",
+          "gloss": "rent",
+          "note": "The monthly amount, distinct from 'expensas'."
+        },
+        {
+          "term": "¿Incluye expensas?",
+          "gloss": "Does it include the building/maintenance fees?",
+          "note": "Expensas cover shared building costs — often billed separately from alquiler."
+        },
+        {
+          "term": "Aire acondicionado (split)",
+          "gloss": "air conditioning (split unit)",
+          "note": "'split' is the everyday word for a wall-mounted AC unit — assume houses/departamentos may or may not come with one installed."
+        },
+        {
+          "term": "Dormitorio",
+          "gloss": "bedroom",
+          "note": "Also heard as 'cuarto' or 'pieza' informally."
+        },
+        {
+          "term": "Patio",
+          "gloss": "yard / outdoor patio area",
+          "note": "Common even in modest rentals — worth asking about if you want outdoor space."
+        },
+        {
+          "term": "¿Es tranquilo el barrio?",
+          "gloss": "Is the neighborhood quiet/safe?",
+          "note": "'tranquilo' covers both 'quiet' and 'safe' — Paraguayans use it as the general reassurance word for a neighborhood."
+        },
+        {
+          "term": "Garantía",
+          "gloss": "guarantor / security deposit",
+          "note": "Can mean either a person who co-signs or the deposit itself — clarify which one is being asked for: '¿garantía de persona o depósito?'"
+        },
+        {
+          "term": "¿Cuántos dormitorios tiene?",
+          "gloss": "How many bedrooms does it have?"
+        },
+        {
+          "term": "¿Desde cuándo está disponible?",
+          "gloss": "From when is it available?"
+        }
       ],
       "exercises": [
         {
           "type": "speak_prompt",
           "prompt": "You're calling about a rental listing. Ask how many bedrooms it has and whether there's a patio.",
-          "targetHints": ["¿cuántos dormitorios tiene?", "patio"]
+          "targetHints": [
+            "¿cuántos dormitorios tiene?",
+            "patio"
+          ]
         },
         {
           "type": "speak_prompt",
           "prompt": "Ask the landlord whether the monthly price includes the building fees, and whether the bedroom has air conditioning.",
-          "targetHints": ["¿incluye expensas?", "aire acondicionado"]
+          "targetHints": [
+            "¿incluye expensas?",
+            "aire acondicionado"
+          ]
         },
         {
           "type": "listen_prompt",
           "audioText": "Mirá, el alquiler son dos millones por mes, pero eso no incluye expensas — las expensas se pagan aparte, unos cien mil más o menos. Tiene dos dormitorios y un patio chiquito atrás.",
           "prompt": "The landlord just gave you pricing details. Are the building fees included in the rent, and roughly how much extra do they cost?",
-          "targetHints": ["listening comprehension", "no incluye expensas", "cien mil"]
+          "targetHints": [
+            "no incluye expensas",
+            "cien mil"
+          ]
         },
         {
           "type": "speak_prompt",
           "prompt": "You want to know if the area is safe before committing. Ask directly, and also ask what's required as a guarantor.",
-          "targetHints": ["¿es tranquilo el barrio?", "garantía"]
+          "targetHints": [
+            "¿es tranquilo el barrio?",
+            "garantía"
+          ]
         },
         {
           "type": "listen_prompt",
           "audioText": "El barrio es bastante tranquilo, hay una comisión vecinal que se encarga de la seguridad. Eso sí, para el contrato necesitamos una garantía de persona, no depósito.",
           "prompt": "The landlord just answered two of your questions. What did they say about the neighborhood, and what kind of garantía do they require?",
-          "targetHints": ["listening comprehension", "tranquilo", "garantía de persona"]
+          "targetHints": [
+            "tranquilo",
+            "garantía de persona"
+          ]
         },
         {
           "type": "speak_prompt",
           "prompt": "You're seriously considering this rental. Have a full conversation with the landlord: ask about bedrooms, whether expensas and AC are included, what the neighborhood is like, and what they need as a guarantor. React to at least one of their answers.",
-          "targetHints": ["¿incluye expensas?", "¿es tranquilo el barrio?", "garantía", "aire acondicionado"]
+          "targetHints": [
+            "¿incluye expensas?",
+            "¿es tranquilo el barrio?",
+            "garantía",
+            "aire acondicionado"
+          ]
         }
       ]
     }
@@ -119,48 +233,100 @@
     "content": {
       "intro": "You'll learn to order a full lunch at a comedor or restaurante — ask about the menú del día, request modifications, and ask for the bill. The trap: 'guarnición' is the generic word for a side dish and does not itself mean fries or rice — you still have to ask or wait to hear which one comes with your plate.",
       "vocab": [
-        { "term": "Mozo / moza", "gloss": "waiter / waitress", "note": "The standard way to address service staff, not 'camarero'." },
-        { "term": "¿Qué tienen de menú?", "gloss": "What's on the menu today?", "note": "Asks specifically about the menú del día (fixed daily lunch), not the full printed menu." },
-        { "term": "Milanesa con guarnición", "gloss": "breaded cutlet with a side", "note": "One of the most common comedor lunches — the side varies by day, so ask what it is." },
-        { "term": "La cuenta, por favor", "gloss": "The bill, please" },
-        { "term": "Sin cebolla", "gloss": "without onion", "note": "General pattern 'sin + ingredient' works for any modification request." },
-        { "term": "¿Trae mandioca?", "gloss": "Does it come with mandioca (cassava)?", "note": "'traer' is used here for 'to come with' on a dish, not literally 'to bring'." },
-        { "term": "Para compartir", "gloss": "to share", "note": "Say this when ordering one dish for two people or a starter meant for the table." },
-        { "term": "¿Me traés la carta?", "gloss": "Could you bring me the menu?", "note": "Voseo — traés, not tuteo 'traes'." },
-        { "term": "Para tomar, ¿qué tenés?", "gloss": "What do you have to drink?" }
+        {
+          "term": "Mozo / moza",
+          "gloss": "waiter / waitress",
+          "note": "The standard way to address service staff, not 'camarero'."
+        },
+        {
+          "term": "¿Qué tienen de menú?",
+          "gloss": "What's on the menu today?",
+          "note": "Asks specifically about the menú del día (fixed daily lunch), not the full printed menu."
+        },
+        {
+          "term": "Milanesa con guarnición",
+          "gloss": "breaded cutlet with a side",
+          "note": "One of the most common comedor lunches — the side varies by day, so ask what it is."
+        },
+        {
+          "term": "La cuenta, por favor",
+          "gloss": "The bill, please"
+        },
+        {
+          "term": "Sin cebolla",
+          "gloss": "without onion",
+          "note": "General pattern 'sin + ingredient' works for any modification request."
+        },
+        {
+          "term": "¿Trae mandioca?",
+          "gloss": "Does it come with mandioca (cassava)?",
+          "note": "'traer' is used here for 'to come with' on a dish, not literally 'to bring'."
+        },
+        {
+          "term": "Para compartir",
+          "gloss": "to share",
+          "note": "Say this when ordering one dish for two people or a starter meant for the table."
+        },
+        {
+          "term": "¿Me traés la carta?",
+          "gloss": "Could you bring me the menu?",
+          "note": "Voseo — traés, not tuteo 'traes'."
+        },
+        {
+          "term": "Para tomar, ¿qué tenés?",
+          "gloss": "What do you have to drink?"
+        }
       ],
       "exercises": [
         {
           "type": "speak_prompt",
           "prompt": "You've just sat down at a comedor. Ask the waiter what's on today's menú del día.",
-          "targetHints": ["¿qué tienen de menú?"]
+          "targetHints": [
+            "¿qué tienen de menú?"
+          ]
         },
         {
           "type": "speak_prompt",
           "prompt": "You decide on the milanesa. Ask if it comes with mandioca, and ask for it without onion.",
-          "targetHints": ["¿trae mandioca?", "sin cebolla"]
+          "targetHints": [
+            "¿trae mandioca?",
+            "sin cebolla"
+          ]
         },
         {
           "type": "listen_prompt",
           "audioText": "Hoy tenemos milanesa con guarnición, o si no un pollo al horno con ensalada. La milanesa viene con puré, y de tomar tenemos jugo de naranja, gaseosa o agua.",
           "prompt": "The waiter just listed today's options. What are the two main dishes, and what side comes with the milanesa specifically?",
-          "targetHints": ["listening comprehension", "milanesa con guarnición", "puré"]
+          "targetHints": [
+            "milanesa con guarnición",
+            "puré"
+          ]
         },
         {
           "type": "speak_prompt",
           "prompt": "You and a friend want to order an empanada plate to split between you before your main courses. Tell the waiter it's to share.",
-          "targetHints": ["para compartir"]
+          "targetHints": [
+            "para compartir"
+          ]
         },
         {
           "type": "listen_prompt",
           "audioText": "Perdón, se nos terminó el pollo al horno, pero todavía queda milanesa. Ya les traigo el pan mientras deciden, ¿algo para tomar mientras tanto?",
           "prompt": "The waiter just apologized for something. What ran out, and what does he offer to bring you while you decide?",
-          "targetHints": ["listening comprehension", "se nos terminó", "les traigo el pan"]
+          "targetHints": [
+            "se nos terminó",
+            "les traigo el pan"
+          ]
         },
         {
           "type": "speak_prompt",
           "prompt": "Order a full lunch from scratch: ask what's on the menu, choose a dish with one modification, ask a follow-up question about what it comes with, and finally ask for the bill once you've finished.",
-          "targetHints": ["¿qué tienen de menú?", "sin cebolla", "¿trae...?", "la cuenta, por favor"]
+          "targetHints": [
+            "¿qué tienen de menú?",
+            "sin cebolla",
+            "¿trae...?",
+            "la cuenta, por favor"
+          ]
         }
       ]
     }
@@ -174,49 +340,108 @@
     "content": {
       "intro": "You'll build on the survival basics from earlier and go further: describing a specific minor illness, understanding dosage instructions, and following what a pharmacist tells you about how and when to take something. The trap: Paraguayan pharmacies routinely sell medication that would be prescription-only elsewhere, and pharmacists give dosage instructions verbally and fast — the listening exercises here are the real skill being tested.",
       "vocab": [
-        { "term": "Tengo gripe", "gloss": "I have the flu", "note": "Distinct from 'estoy constipado/a' (a cold) — gripe implies fever and body aches, a cold is milder." },
-        { "term": "Pastillas para el dolor", "gloss": "pain pills / painkillers", "note": "General phrase — specify further with 'para la cabeza', 'para la garganta', etc." },
-        { "term": "¿Cada cuántas horas tomo?", "gloss": "How many hours apart do I take it?", "note": "The essential dosage-frequency question." },
-        { "term": "Después de comer", "gloss": "after eating", "note": "Common instruction — contrast with 'en ayunas' (on an empty stomach)." },
-        { "term": "Antialérgico", "gloss": "antihistamine / allergy medication" },
-        { "term": "Jarabe", "gloss": "syrup (medicinal)", "note": "Used for cough syrup and similar liquid medications — 'jarabe para la tos'." },
-        { "term": "¿Tenés algo para...?", "gloss": "Do you have something for...?", "note": "Voseo — the natural way to open a request at the counter, e.g. '¿tenés algo para la fiebre?'" },
-        { "term": "Dos comprimidos cada ocho horas", "gloss": "two tablets every eight hours", "note": "Standard way dosage is phrased — number of pills + frequency." },
-        { "term": "Tengo tos y me arde la garganta", "gloss": "I have a cough and my throat is burning", "note": "'arder' (to burn/sting) is the natural verb for throat pain, more common than 'doler' here." },
-        { "term": "¿Es con receta?", "gloss": "Does this need a prescription?", "note": "Worth asking, since many things sold over the counter elsewhere may or may not need one here." }
+        {
+          "term": "Tengo gripe",
+          "gloss": "I have the flu",
+          "note": "Distinct from 'estoy constipado/a' (a cold) — gripe implies fever and body aches, a cold is milder."
+        },
+        {
+          "term": "Pastillas para el dolor",
+          "gloss": "pain pills / painkillers",
+          "note": "General phrase — specify further with 'para la cabeza', 'para la garganta', etc."
+        },
+        {
+          "term": "¿Cada cuántas horas tomo?",
+          "gloss": "How many hours apart do I take it?",
+          "note": "The essential dosage-frequency question."
+        },
+        {
+          "term": "Después de comer",
+          "gloss": "after eating",
+          "note": "Common instruction — contrast with 'en ayunas' (on an empty stomach)."
+        },
+        {
+          "term": "Antialérgico",
+          "gloss": "antihistamine / allergy medication"
+        },
+        {
+          "term": "Jarabe",
+          "gloss": "syrup (medicinal)",
+          "note": "Used for cough syrup and similar liquid medications — 'jarabe para la tos'."
+        },
+        {
+          "term": "¿Tenés algo para...?",
+          "gloss": "Do you have something for...?",
+          "note": "Voseo — the natural way to open a request at the counter, e.g. '¿tenés algo para la fiebre?'"
+        },
+        {
+          "term": "Dos comprimidos cada ocho horas",
+          "gloss": "two tablets every eight hours",
+          "note": "Standard way dosage is phrased — number of pills + frequency."
+        },
+        {
+          "term": "Tengo tos y me arde la garganta",
+          "gloss": "I have a cough and my throat is burning",
+          "note": "'arder' (to burn/sting) is the natural verb for throat pain, more common than 'doler' here."
+        },
+        {
+          "term": "¿Es con receta?",
+          "gloss": "Does this need a prescription?",
+          "note": "Worth asking, since many things sold over the counter elsewhere may or may not need one here."
+        }
       ],
       "exercises": [
         {
           "type": "speak_prompt",
           "prompt": "You walk up to the pharmacy counter feeling awful. Say you have the flu and ask if they have something for the fever.",
-          "targetHints": ["tengo gripe", "¿tenés algo para...?"]
+          "targetHints": [
+            "tengo gripe",
+            "¿tenés algo para...?"
+          ]
         },
         {
           "type": "speak_prompt",
           "prompt": "You also have a bad cough and a burning throat. Describe both symptoms and ask if there's a syrup for it.",
-          "targetHints": ["tengo tos y me arde la garganta", "jarabe"]
+          "targetHints": [
+            "tengo tos y me arde la garganta",
+            "jarabe"
+          ]
         },
         {
           "type": "listen_prompt",
           "audioText": "Tomá dos comprimidos cada ocho horas, siempre después de comer para que no te haga mal al estómago. Si en tres días seguís con fiebre, andá a un médico.",
           "prompt": "The pharmacist just gave you dosage instructions. How often do you take the pills, and what should you do if the fever hasn't gone in three days?",
-          "targetHints": ["listening comprehension", "cada ocho horas", "después de comer"]
+          "targetHints": [
+            "cada ocho horas",
+            "después de comer"
+          ]
         },
         {
           "type": "speak_prompt",
           "prompt": "You didn't catch the frequency the pharmacist just gave you. Ask them to repeat how many hours apart you should take it.",
-          "targetHints": ["¿cada cuántas horas tomo?", "¿me repetís?"]
+          "targetHints": [
+            "¿cada cuántas horas tomo?",
+            "¿me repetís?"
+          ]
         },
         {
           "type": "listen_prompt",
           "audioText": "Este antialérgico es en ayunas, una sola pastilla por la mañana, y ojo que te puede dar sueño, así que mejor no manejes después de tomarlo.",
           "prompt": "The pharmacist just explained how to take an antihistamine. Should you take it before or after eating, and what side effect are they warning you about?",
-          "targetHints": ["listening comprehension", "en ayunas", "te puede dar sueño"]
+          "targetHints": [
+            "en ayunas",
+            "te puede dar sueño"
+          ]
         },
         {
           "type": "speak_prompt",
           "prompt": "Go through a full pharmacy visit: describe two symptoms you have, ask for something for each, ask whether either needs a prescription, and once you're told the dosage, confirm it back in your own words to make sure you understood.",
-          "targetHints": ["tengo gripe", "¿tenés algo para...?", "¿es con receta?", "cada cuántas horas"]
+          "targetHints": [
+            "tengo gripe",
+            "¿tenés algo para...?",
+            "¿es con receta?",
+            "cada cuántas horas"
+          ]
         }
       ]
     }

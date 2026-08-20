@@ -47,6 +47,25 @@ for (const file of files) {
       return;
     }
     const lesson = result.data;
+
+    // The prompt pack forbids meta-commentary in targetHints: they name the form
+    // or phrase to listen for ("voseo", "\u00bfde d\u00f3nde sos?"), never the skill being
+    // exercised. A hint like "listening comprehension" reaches the tutor prompt as
+    // if it were a target phrase, so it is a content bug, not a style nit.
+    const META_HINTS = ['listening comprehension', 'reading comprehension', 'vocabulary', 'grammar practice'];
+    for (const exercise of lesson.content.exercises) {
+      const hints = (exercise as { targetHints?: unknown }).targetHints;
+      if (!Array.isArray(hints)) continue;
+      for (const hint of hints) {
+        if (typeof hint === 'string' && META_HINTS.includes(hint.trim().toLowerCase())) {
+          errors.push(
+            `${file}[${i}] (${lesson.title}): targetHints contains meta-commentary "${hint}" - ` +
+              'hints must name the target form or phrase',
+          );
+        }
+      }
+    }
+
     rows.push({
       file,
       pair: lesson.languagePairCode,

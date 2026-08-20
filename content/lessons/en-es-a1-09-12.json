@@ -8,48 +8,98 @@
     "content": {
       "intro": "Vas a aprender a decir qué te duele, describir que te sentís mal, y pedir ayuda o una farmacia. Ojo con esto: en inglés decís 'I have a fever', no 'I'm with fever' — el verbo es 'have', no 'be', y esa trampa aparece todo el tiempo cuando hablás de síntomas.",
       "vocab": [
-        { "term": "I don't feel well", "gloss": "No me siento bien" },
-        { "term": "My head hurts", "gloss": "Me duele la cabeza", "note": "'Hurts' no cambia según la parte del cuerpo como en español ('duele'/'duelen'). Siempre es 'hurts' con una sola cosa: 'my head hurts', 'my stomach hurts'." },
-        { "term": "My stomach hurts", "gloss": "Me duele el estómago" },
-        { "term": "I have a fever", "gloss": "Tengo fiebre", "note": "Se usa 'have', nunca 'be' — 'I'm with fever' suena raro y no se entiende." },
-        { "term": "I feel dizzy", "gloss": "Estoy mareado/a" },
-        { "term": "I need a pharmacy", "gloss": "Necesito una farmacia", "note": "Se pronuncia /ˈfɑːrməsi/, con el acento en la primera sílaba — no como 'farmacia' en español." },
-        { "term": "Can you help me?", "gloss": "¿Me podés ayudar?" },
-        { "term": "Call a doctor", "gloss": "Llamá a un médico" },
-        { "term": "I'm allergic to...", "gloss": "Soy alérgico/a a..." }
+        {
+          "term": "I don't feel well",
+          "gloss": "No me siento bien"
+        },
+        {
+          "term": "My head hurts",
+          "gloss": "Me duele la cabeza",
+          "note": "'Hurts' no cambia según la parte del cuerpo como en español ('duele'/'duelen'). Siempre es 'hurts' con una sola cosa: 'my head hurts', 'my stomach hurts'."
+        },
+        {
+          "term": "My stomach hurts",
+          "gloss": "Me duele el estómago"
+        },
+        {
+          "term": "I have a fever",
+          "gloss": "Tengo fiebre",
+          "note": "Se usa 'have', nunca 'be' — 'I'm with fever' suena raro y no se entiende."
+        },
+        {
+          "term": "I feel dizzy",
+          "gloss": "Estoy mareado/a"
+        },
+        {
+          "term": "I need a pharmacy",
+          "gloss": "Necesito una farmacia",
+          "note": "Se pronuncia /ˈfɑːrməsi/, con el acento en la primera sílaba — no como 'farmacia' en español."
+        },
+        {
+          "term": "Can you help me?",
+          "gloss": "¿Me podés ayudar?"
+        },
+        {
+          "term": "Call a doctor",
+          "gloss": "Llamá a un médico"
+        },
+        {
+          "term": "I'm allergic to...",
+          "gloss": "Soy alérgico/a a..."
+        }
       ],
       "exercises": [
         {
           "type": "speak_prompt",
           "prompt": "Tuviste dolor de cabeza toda la mañana. Un amigo te pregunta cómo estás — decile que no te sentís bien y qué te duele.",
-          "targetHints": ["I don't feel well", "my head hurts"]
+          "targetHints": [
+            "I don't feel well",
+            "my head hurts"
+          ]
         },
         {
           "type": "speak_prompt",
           "prompt": "Un compañero de trabajo nota que estás raro y te pregunta qué te pasa. Contale con detalle: cómo te sentís, si tenés fiebre, si estás mareado.",
-          "targetHints": ["I have a fever", "I feel dizzy", "I don't feel well"]
+          "targetHints": [
+            "I have a fever",
+            "I feel dizzy",
+            "I don't feel well"
+          ]
         },
         {
           "type": "listen_prompt",
           "audioText": "Hey, you don't look so good. Do you want me to walk you to the pharmacy? It's just around the corner.",
           "prompt": "Alguien te acaba de decir algo al notar cómo estás. ¿Qué te ofreció hacer, y qué tan lejos queda el lugar?",
-          "targetHints": ["listening comprehension", "walk you to", "around the corner"]
+          "targetHints": [
+            "walk you to",
+            "around the corner"
+          ]
         },
         {
           "type": "speak_prompt",
           "prompt": "Estás haciendo fila en una farmacia y de golpe sentís que te vas a desmayar. Llamá la atención de la persona de al lado, pedile ayuda, y explicale brevemente qué te pasa.",
-          "targetHints": ["Can you help me?", "I feel dizzy"]
+          "targetHints": [
+            "Can you help me?",
+            "I feel dizzy"
+          ]
         },
         {
           "type": "listen_prompt",
           "audioText": "What's wrong? You seem a little off. Sit down here for a minute, I'll bring you some water.",
           "prompt": "Alguien notó algo en vos y te hizo una oferta. ¿Qué te va a traer, y qué te pide que hagas primero?",
-          "targetHints": ["listening comprehension", "sit down", "bring you some water"]
+          "targetHints": [
+            "sit down",
+            "bring you some water"
+          ]
         },
         {
           "type": "speak_prompt",
           "prompt": "Estás solo/a en tu casa y te sentís bastante mal. Llamá a un amigo, explicale tu situación con detalle, y pedile que llame a un médico.",
-          "targetHints": ["I don't feel well", "call a doctor", "my stomach hurts"]
+          "targetHints": [
+            "I don't feel well",
+            "call a doctor",
+            "my stomach hurts"
+          ]
         }
       ]
     }
@@ -63,42 +113,88 @@
     "content": {
       "intro": "Vas a aprender a describir tu día típico de semana — a qué hora te levantás, qué hacés primero, qué hacés a la noche. Fijate que en inglés todavía vas a hablar solo de vos mismo ('I wake up', 'I go'), sin la terminación especial que necesitás cuando hablás de otra persona — eso viene en la próxima lección.",
       "vocab": [
-        { "term": "I wake up at...", "gloss": "Me despierto a las..." },
-        { "term": "I get up", "gloss": "Me levanto (de la cama)" },
-        { "term": "I have breakfast", "gloss": "Desayuno", "note": "Literalmente 'tengo desayuno' — se usa 'have', no un verbo aparte como 'desayunar'." },
-        { "term": "I go to work", "gloss": "Voy al trabajo" },
-        { "term": "I get home around...", "gloss": "Llego a casa alrededor de las..." },
-        { "term": "in the morning / at night", "gloss": "a la mañana / a la noche", "note": "Se dice 'in the morning' pero 'at night' — con 'night' cambia la preposición, es una excepción que hay que memorizar." },
-        { "term": "on weekends", "gloss": "los fines de semana" },
-        { "term": "usually", "gloss": "generalmente" },
-        { "term": "before / after", "gloss": "antes / después" }
+        {
+          "term": "I wake up at...",
+          "gloss": "Me despierto a las..."
+        },
+        {
+          "term": "I get up",
+          "gloss": "Me levanto (de la cama)"
+        },
+        {
+          "term": "I have breakfast",
+          "gloss": "Desayuno",
+          "note": "Literalmente 'tengo desayuno' — se usa 'have', no un verbo aparte como 'desayunar'."
+        },
+        {
+          "term": "I go to work",
+          "gloss": "Voy al trabajo"
+        },
+        {
+          "term": "I get home around...",
+          "gloss": "Llego a casa alrededor de las..."
+        },
+        {
+          "term": "in the morning / at night",
+          "gloss": "a la mañana / a la noche",
+          "note": "Se dice 'in the morning' pero 'at night' — con 'night' cambia la preposición, es una excepción que hay que memorizar."
+        },
+        {
+          "term": "on weekends",
+          "gloss": "los fines de semana"
+        },
+        {
+          "term": "usually",
+          "gloss": "generalmente"
+        },
+        {
+          "term": "before / after",
+          "gloss": "antes / después"
+        }
       ],
       "exercises": [
         {
           "type": "speak_prompt",
           "prompt": "Un nuevo compañero de casa te pregunta por tus mañanas. Decile a qué hora te despertás y qué es lo primero que hacés.",
-          "targetHints": ["I wake up at", "I get up"]
+          "targetHints": [
+            "I wake up at",
+            "I get up"
+          ]
         },
         {
           "type": "speak_prompt",
           "prompt": "Contale a alguien tu rutina completa de la mañana, desde que te despertás hasta que salís de tu casa. Dale todos los detalles que puedas.",
-          "targetHints": ["I wake up", "I have breakfast", "I go to work"]
+          "targetHints": [
+            "I wake up",
+            "I have breakfast",
+            "I go to work"
+          ]
         },
         {
           "type": "listen_prompt",
           "audioText": "I usually wake up pretty early, around six. I have breakfast, then I go to work around seven, and I don't get home until six in the evening.",
           "prompt": "Esta persona acaba de describir parte de su día. ¿A qué hora sale al trabajo, y a qué hora llega a casa?",
-          "targetHints": ["listening comprehension", "go to work", "get home"]
+          "targetHints": [
+            "go to work",
+            "get home"
+          ]
         },
         {
           "type": "speak_prompt",
           "prompt": "Tu compañero de casa quiere saber sobre tus noches. Decile a qué hora llegás a casa y a qué hora te acostás generalmente.",
-          "targetHints": ["I get home around", "usually"]
+          "targetHints": [
+            "I get home around",
+            "usually"
+          ]
         },
         {
           "type": "speak_prompt",
           "prompt": "Un compañero de trabajo te pregunta si tus fines de semana son distintos a tus días de semana. Compará los dos — mencioná al menos dos diferencias.",
-          "targetHints": ["on weekends", "usually", "I wake up"]
+          "targetHints": [
+            "on weekends",
+            "usually",
+            "I wake up"
+          ]
         }
       ]
     }
@@ -112,48 +208,100 @@
     "content": {
       "intro": "Vas a aprender a describir a tu familia, amigos y compañeros de trabajo — quiénes son, a qué se dedican, cómo son. Acá aparece algo que evitamos hasta ahora a propósito: en español, la terminación del verbo ya te dice quién hace la acción ('habla' es obviamente él o ella), así que a veces ni hace falta decir el sujeto. En inglés no funciona así — tenés que decir 'he' o 'she' Y agregarle una '-s' al verbo ('he works', 'she lives'). Olvidarte de esa '-s' no te va a impedir que te entiendan, pero en esta lección la vas a necesitar todo el tiempo, así que aprovechá para automatizarla.",
       "vocab": [
-        { "term": "my sister / my brother", "gloss": "mi hermana / mi hermano" },
-        { "term": "my boyfriend / my girlfriend", "gloss": "mi novio / mi novia" },
-        { "term": "He works at...", "gloss": "Él trabaja en...", "note": "La '-s' de 'works' es obligatoria con he/she/it, aunque ya hayas dicho el sujeto. En español esa información ya está en la terminación del verbo, pero en inglés hace falta decirla dos veces: el pronombre Y la '-s'." },
-        { "term": "She lives in...", "gloss": "Ella vive en...", "note": "Mismo patrón: 'live' pasa a 'lives' con he/she/it." },
-        { "term": "They have two kids", "gloss": "Ellos tienen dos hijos", "note": "Ojo: 'have' se vuelve 'has' con he/she/it ('she has two kids'), no 'haves'." },
-        { "term": "He's really funny", "gloss": "Él es muy gracioso" },
-        { "term": "She likes...", "gloss": "A ella le gusta...", "note": "Otra vez la '-s': 'like' pasa a 'likes' con he/she/it." },
-        { "term": "older than me / younger than me", "gloss": "mayor que yo / menor que yo" },
-        { "term": "We've known each other since...", "gloss": "Nos conocemos desde..." }
+        {
+          "term": "my sister / my brother",
+          "gloss": "mi hermana / mi hermano"
+        },
+        {
+          "term": "my boyfriend / my girlfriend",
+          "gloss": "mi novio / mi novia"
+        },
+        {
+          "term": "He works at...",
+          "gloss": "Él trabaja en...",
+          "note": "La '-s' de 'works' es obligatoria con he/she/it, aunque ya hayas dicho el sujeto. En español esa información ya está en la terminación del verbo, pero en inglés hace falta decirla dos veces: el pronombre Y la '-s'."
+        },
+        {
+          "term": "She lives in...",
+          "gloss": "Ella vive en...",
+          "note": "Mismo patrón: 'live' pasa a 'lives' con he/she/it."
+        },
+        {
+          "term": "They have two kids",
+          "gloss": "Ellos tienen dos hijos",
+          "note": "Ojo: 'have' se vuelve 'has' con he/she/it ('she has two kids'), no 'haves'."
+        },
+        {
+          "term": "He's really funny",
+          "gloss": "Él es muy gracioso"
+        },
+        {
+          "term": "She likes...",
+          "gloss": "A ella le gusta...",
+          "note": "Otra vez la '-s': 'like' pasa a 'likes' con he/she/it."
+        },
+        {
+          "term": "older than me / younger than me",
+          "gloss": "mayor que yo / menor que yo"
+        },
+        {
+          "term": "We've known each other since...",
+          "gloss": "Nos conocemos desde..."
+        }
       ],
       "exercises": [
         {
           "type": "speak_prompt",
           "prompt": "Describí a un hermano o hermana (real o inventado): dónde vive y a qué se dedica.",
-          "targetHints": ["she lives in", "he works at"]
+          "targetHints": [
+            "she lives in",
+            "he works at"
+          ]
         },
         {
           "type": "speak_prompt",
           "prompt": "Contale a alguien sobre tu mejor amigo o amiga con detalle: cómo es, a qué se dedica, dónde vive, y hace cuánto se conocen.",
-          "targetHints": ["he works", "she lives", "we've known each other since"]
+          "targetHints": [
+            "he works",
+            "she lives",
+            "we've known each other since"
+          ]
         },
         {
           "type": "listen_prompt",
           "audioText": "My sister lives in Chicago. She works at a hospital, and she's actually really funny once you get to know her.",
           "prompt": "Esta persona acaba de describir a su hermana. ¿Dónde vive, y dónde trabaja?",
-          "targetHints": ["listening comprehension", "lives in", "works at"]
+          "targetHints": [
+            "lives in",
+            "works at"
+          ]
         },
         {
           "type": "speak_prompt",
           "prompt": "Describí a dos personas de tu familia y compará una con la otra: quién es mayor, a qué se dedica cada una, cómo es su personalidad.",
-          "targetHints": ["older than", "he works", "she likes"]
+          "targetHints": [
+            "older than",
+            "he works",
+            "she likes"
+          ]
         },
         {
           "type": "listen_prompt",
           "audioText": "This is my boyfriend, Mark. He has two kids from before, and he works really close to my place, so we see each other a lot.",
           "prompt": "La persona acaba de presentar a alguien. ¿Cuántos hijos tiene esa persona, y por qué se ven tan seguido?",
-          "targetHints": ["listening comprehension", "he has", "works close to"]
+          "targetHints": [
+            "he has",
+            "works close to"
+          ]
         },
         {
           "type": "speak_prompt",
           "prompt": "Presentale un compañero de trabajo nuevo a un amigo tuyo: describí quién es, qué hace, y algo de su personalidad, todo en una sola presentación larga.",
-          "targetHints": ["he works", "she's really", "they have"]
+          "targetHints": [
+            "he works",
+            "she's really",
+            "they have"
+          ]
         }
       ]
     }
@@ -167,47 +315,91 @@
     "content": {
       "intro": "Vas a aprender a invitar a alguien a salir, proponer un horario y un lugar, y aceptar o rechazar una invitación. Fijate que 'sounds good' es la forma más natural de decir que algo te parece bien — mucho más común que un simple 'yes' cuando alguien te propone un plan.",
       "vocab": [
-        { "term": "Do you want to...?", "gloss": "¿Querés...?" },
-        { "term": "Are you free on Saturday?", "gloss": "¿Estás libre el sábado?" },
-        { "term": "How about seven?", "gloss": "¿Qué tal a las siete?" },
-        { "term": "Sounds good", "gloss": "Suena bien", "note": "Es la respuesta más natural para aceptar un plan — mucho más usada en el habla real que un simple 'yes'." },
-        { "term": "I can't, I have...", "gloss": "No puedo, tengo..." },
-        { "term": "Let's meet at...", "gloss": "Encontrémonos en..." },
-        { "term": "I'll text you", "gloss": "Te escribo (un mensaje)" },
-        { "term": "What time works for you?", "gloss": "¿Qué hora te queda bien?" }
+        {
+          "term": "Do you want to...?",
+          "gloss": "¿Querés...?"
+        },
+        {
+          "term": "Are you free on Saturday?",
+          "gloss": "¿Estás libre el sábado?"
+        },
+        {
+          "term": "How about seven?",
+          "gloss": "¿Qué tal a las siete?"
+        },
+        {
+          "term": "Sounds good",
+          "gloss": "Suena bien",
+          "note": "Es la respuesta más natural para aceptar un plan — mucho más usada en el habla real que un simple 'yes'."
+        },
+        {
+          "term": "I can't, I have...",
+          "gloss": "No puedo, tengo..."
+        },
+        {
+          "term": "Let's meet at...",
+          "gloss": "Encontrémonos en..."
+        },
+        {
+          "term": "I'll text you",
+          "gloss": "Te escribo (un mensaje)"
+        },
+        {
+          "term": "What time works for you?",
+          "gloss": "¿Qué hora te queda bien?"
+        }
       ],
       "exercises": [
         {
           "type": "speak_prompt",
           "prompt": "Invitá a un amigo a hacer algo este sábado y proponé un horario específico.",
-          "targetHints": ["Do you want to", "Are you free on Saturday?"]
+          "targetHints": [
+            "Do you want to",
+            "Are you free on Saturday?"
+          ]
         },
         {
           "type": "speak_prompt",
           "prompt": "Un amigo te propone encontrarse a las seis, pero a esa hora estás ocupado/a. Decile que no podés, explicá por qué, y proponé otro horario.",
-          "targetHints": ["I can't, I have", "What time works for you?"]
+          "targetHints": [
+            "I can't, I have",
+            "What time works for you?"
+          ]
         },
         {
           "type": "listen_prompt",
           "audioText": "Hey, do you want to grab dinner on Friday? We could meet at that new place downtown, maybe around seven thirty?",
           "prompt": "Un amigo te acaba de proponer un plan. ¿Qué día es, y a qué hora quiere encontrarse?",
-          "targetHints": ["listening comprehension", "grab dinner", "around seven thirty"]
+          "targetHints": [
+            "grab dinner",
+            "around seven thirty"
+          ]
         },
         {
           "type": "speak_prompt",
           "prompt": "Aceptá el plan de un amigo y confirmá el lugar exacto donde se van a encontrar.",
-          "targetHints": ["Sounds good", "Let's meet at"]
+          "targetHints": [
+            "Sounds good",
+            "Let's meet at"
+          ]
         },
         {
           "type": "listen_prompt",
           "audioText": "I'm actually free most of the weekend. How about Sunday afternoon instead? I'll text you the address once I figure out where.",
           "prompt": "Esta persona cambió el plan original. ¿Qué día y momento propone ahora, y qué te va a mandar más tarde?",
-          "targetHints": ["listening comprehension", "instead", "I'll text you"]
+          "targetHints": [
+            "instead",
+            "I'll text you"
+          ]
         },
         {
           "type": "speak_prompt",
           "prompt": "Llamá a un amigo y armen un plan completo desde cero: negocien el día, el horario y el lugar de encuentro, yendo y viniendo hasta que los dos estén de acuerdo.",
-          "targetHints": ["Are you free", "How about", "Let's meet at"]
+          "targetHints": [
+            "Are you free",
+            "How about",
+            "Let's meet at"
+          ]
         }
       ]
     }

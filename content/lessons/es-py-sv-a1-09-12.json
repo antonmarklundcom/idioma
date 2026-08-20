@@ -1,0 +1,404 @@
+[
+  {
+    "languagePairCode": "es-PY>sv-speaker",
+    "level": "A1",
+    "topic": "basic-health",
+    "title": "Me siento mal: lo básico",
+    "position": 9,
+    "content": {
+      "intro": "Du lär dig säga vad som gör ont, beskriva att du mår dåligt och be om hjälp eller en farmacia. Grammatikfällan: svenskan har bara 'vara', men spanskan kräver att du väljer mellan 'ser' och 'estar'. Ett tillfälligt tillstånd som sjukdom är alltid 'estar' — 'estoy mal' (jag mår dåligt just nu), aldrig 'soy enfermo'. Säger du 'soy enfermo' låter det som att sjukdom är en del av din identitet, inte något som pågår just nu.",
+      "vocab": [
+        {
+          "term": "Me duele la cabeza / la panza",
+          "gloss": "Jag har ont i huvudet / magen",
+          "note": "'duele' böjs efter kroppsdelen, inte efter dig: 'me duelen los pies' i plural."
+        },
+        {
+          "term": "Me siento mal",
+          "gloss": "Jag mår dåligt",
+          "note": "'sentirse' + estar-logik — ett tillstånd, inte vem du är."
+        },
+        {
+          "term": "Estoy mal",
+          "gloss": "Jag mår dåligt / jag är dålig (just nu)",
+          "note": "ESTAR, inte ser. 'Soy mal' är fel — det skulle betyda att du är en dålig person."
+        },
+        {
+          "term": "Tengo fiebre",
+          "gloss": "Jag har feber"
+        },
+        {
+          "term": "Estoy mareado/a",
+          "gloss": "Jag är yr / illamående",
+          "note": "Adjektivet böjs efter ditt kön: mareado (m) / mareada (f). Alltid med estar."
+        },
+        {
+          "term": "Estoy constipado/a",
+          "gloss": "Jag är förkyld (täppt näsa)",
+          "note": "Falsk vän — betyder INTE förstoppad. Det heter 'estoy estreñido/a'."
+        },
+        {
+          "term": "Necesito una farmacia",
+          "gloss": "Jag behöver ett apotek"
+        },
+        {
+          "term": "¿Me podés ayudar?",
+          "gloss": "Kan du hjälpa mig?",
+          "note": "Voseo: podés, inte puedes."
+        },
+        {
+          "term": "Llamá a un médico",
+          "gloss": "Ring en läkare",
+          "note": "Vos-imperativ — llamá, inte tuteo-formen 'llama'."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Du har haft ont i huvudet hela morgonen. En vän frågar hur du mår — säg att du mår dåligt och vad som gör ont. Kom ihåg: estoy, inte soy.",
+          "targetHints": [
+            "me siento mal",
+            "me duele la cabeza"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "En kollega ser att du ser konstig ut och frågar vad som är fel. Förklara att du tror du har feber och känner dig yr.",
+          "targetHints": [
+            "tengo fiebre",
+            "estoy mareado/a"
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Uy, te veo pálido. ¿Te sentís bien? Si querés te acompaño a la farmacia, queda a dos cuadras nomás.",
+          "prompt": "En vän sa just något efter att ha märkt hur du ser ut. Vad erbjuder personen sig att göra, och hur långt bort är det?",
+          "targetHints": [
+            "te acompaño",
+            "dos cuadras"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Du står i kö på ett apotek och känner plötsligt att du kan svimma. Få personens uppmärksamhet bredvid dig, be om hjälp och förklara kort vad som är fel.",
+          "targetHints": [
+            "¿me podés ayudar?",
+            "estoy mareado/a"
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "¿Qué te pasa? Estás medio raro. Sentate acá un rato, yo te traigo un poco de agua.",
+          "prompt": "Någon märkte något hos dig och erbjöd sig att hjälpa. Vad ska personen hämta åt dig, och vad ber de dig göra först?",
+          "targetHints": [
+            "sentate",
+            "te traigo agua"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Du är hemma ensam och mår ganska dåligt. Ring en vän, förklara din situation utförligt och be dem ringa en läkare åt dig.",
+          "targetHints": [
+            "no me siento bien",
+            "llamá a un médico",
+            "me duele"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>sv-speaker",
+    "level": "A1",
+    "topic": "daily-routine",
+    "title": "Mi día a día",
+    "position": 10,
+    "content": {
+      "intro": "Du lär dig beskriva en vanlig vardag, från att vakna till att lägga dig, med reflexiva verb som 'me despierto' och 'me acuesto'. Två fällor för dig som svensktalare. Först: reflexivpronomenet byter form med subjektet — 'yo me despierto' men '¿vos a qué hora te despertás?', aldrig 'se despierta' om dig själv. Andra: svenskans V2-ordföljd ('Idag vaknar jag...') gör att man vill kasta om subjekt och verb efter en tidsangivelse på spanska också. Låt bli — spanskan behåller ordningen 'Hoy yo me despierto...', den vänder inte.",
+      "vocab": [
+        {
+          "term": "Me despierto",
+          "gloss": "Jag vaknar",
+          "note": "Reflexivt verb — despertarse."
+        },
+        {
+          "term": "Me levanto",
+          "gloss": "Jag går upp (ur sängen)"
+        },
+        {
+          "term": "Tomo tereré por la mañana",
+          "gloss": "Jag dricker tereré på morgonen"
+        },
+        {
+          "term": "Salgo al laburo",
+          "gloss": "Jag går/åker till jobbet",
+          "note": "'laburo' är vardagsordet för 'trabajo', jättevanligt i talad paraguayansk spanska."
+        },
+        {
+          "term": "Vuelvo a casa",
+          "gloss": "Jag kommer hem"
+        },
+        {
+          "term": "Me acuesto",
+          "gloss": "Jag lägger mig",
+          "note": "Reflexivt verb — acostarse."
+        },
+        {
+          "term": "¿A qué hora...?",
+          "gloss": "Hur dags...?"
+        },
+        {
+          "term": "Por la mañana / por la tarde / por la noche",
+          "gloss": "på morgonen / på eftermiddagen / på kvällen"
+        },
+        {
+          "term": "Los fines de semana",
+          "gloss": "på helgerna"
+        },
+        {
+          "term": "Todos los días",
+          "gloss": "varje dag"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "En ny rumskompis frågar om dina morgnar. Säg hur dags du vaknar och vad du gör först.",
+          "targetHints": [
+            "me despierto",
+            "tomo tereré"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Beskriv din resa till jobbet: hur dags du åker och hur du tar dig dit. Börja gärna meningen med 'Todos los días' — men glöm inte att subjektet inte hoppar plats som på svenska.",
+          "targetHints": [
+            "salgo al laburo",
+            "colectivo"
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Yo me despierto re temprano, como a las seis. Tomo un tereré, salgo al laburo a las siete, y vuelvo recién a las seis de la tarde.",
+          "prompt": "Personen beskrev just en del av sin dag. Hur dags går personen till jobbet, och hur dags kommer personen hem?",
+          "targetHints": [
+            "salgo",
+            "vuelvo"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Din nya rumskompis vill veta om dina kvällar. Säg hur dags du kommer hem och hur dags du brukar lägga dig.",
+          "targetHints": [
+            "vuelvo a casa",
+            "me acuesto"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "En kollega frågar om dina helger ser annorlunda ut än dina vardagar. Jämför de två — nämn minst två skillnader.",
+          "targetHints": [
+            "los fines de semana",
+            "me despierto",
+            "¿a qué hora?"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>sv-speaker",
+    "level": "A1",
+    "topic": "scheduling-social-meetups",
+    "title": "¿Nos vemos este finde?",
+    "position": 11,
+    "content": {
+      "intro": "Du lär dig bjuda en vän ut, föreslå tid och plats, och bekräfta eller tacka nej till planer. Grammatikfällan här: svenskans 'att' + infinitiv ('att gå', 'att träffas') smyger sig ofta in som ett extra litet ord framför den spanska infinitiven. Det ska INTE vara där — 'quiero ir' (jag vill gå), aldrig 'quiero a ir'. Verb som quiero, puedo och vamos a tar infinitivet rakt av, utan mellanled.",
+      "vocab": [
+        {
+          "term": "¿Qué hacés el sábado?",
+          "gloss": "Vad gör du på lördag?"
+        },
+        {
+          "term": "Vamos a...",
+          "gloss": "Vi ska/går till... / Ska vi...?",
+          "note": "'vamos a' + infinitiv utan extra ord emellan: 'vamos a comer', inte 'vamos a a comer'."
+        },
+        {
+          "term": "¿Te queda bien a las ocho?",
+          "gloss": "Passar klockan åtta för dig?",
+          "note": "'quedar bien' betyder här 'passa tidsmässigt', inte 'se bra ut'."
+        },
+        {
+          "term": "Dale",
+          "gloss": "Okej / visst / kör",
+          "note": "Det vanliga vardagliga sättet att säga ja till en plan — mycket vanligare i tal än 'sí, está bien'."
+        },
+        {
+          "term": "Quedamos así",
+          "gloss": "Då är det bestämt / vi kör på det"
+        },
+        {
+          "term": "No puedo porque...",
+          "gloss": "Jag kan inte för att...",
+          "note": "Efter 'porque' kommer en böjd sats, inte infinitiv: 'no puedo porque trabajo', inte 'no puedo porque trabajar'."
+        },
+        {
+          "term": "¿Dónde nos encontramos?",
+          "gloss": "Var ska vi träffas?"
+        },
+        {
+          "term": "Nos vemos a las...",
+          "gloss": "Vi ses klockan..."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Bjud en vän på något i lördags och föreslå en specifik tid.",
+          "targetHints": [
+            "¿qué hacés el sábado?",
+            "¿te queda bien a las...?"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "En vän föreslår att träffas klockan sex, men du är upptagen då. Säg att du inte kan och förklara varför, föreslå sedan en annan tid.",
+          "targetHints": [
+            "no puedo porque...",
+            "¿te queda bien a las...?"
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Che, ¿vamos a tomar algo el viernes? Podemos encontrarnos en la plaza, cerca de la parada, como a las siete y media.",
+          "prompt": "En vän föreslog just en plan. Vilken dag föreslår personen, och var vill de träffas?",
+          "targetHints": [
+            "encontrarnos",
+            "la plaza"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Tacka ja till en väns plan och bekräfta exakt mötesplats, använd 'quedamos así' för att avsluta.",
+          "targetHints": [
+            "dale",
+            "quedamos así",
+            "¿dónde nos encontramos?"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Ring en vän och planera en hel utflykt tillsammans från noll — förhandla om dag, tid och mötesplats, fram och tillbaka tills ni är överens.",
+          "targetHints": [
+            "¿qué hacés el...?",
+            "¿te queda bien...?",
+            "quedamos así"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>sv-speaker",
+    "level": "A1",
+    "topic": "weather-and-clothing",
+    "title": "¡Qué calor hace hoy!",
+    "position": 12,
+    "content": {
+      "intro": "Du lär dig prata om extrem hetta, plötsliga oväder och köldknäppar, och föreslå kläder eller ändrade planer. För er som kommer från ett kallt land är detta inte bara kallprat: paraguayansk hetta mitt på dagen kan vara farlig, särskilt för äldre besökare som inte är vana vid den. Drick vatten regelbundet, undvik direkt sol mitt på dagen, och ta värmen på allvar. Grammatikfällan: svenskans V2-ordföljd vill vända om subjekt och verb efter en tidsangivelse ('Idag är det varmt' → 'Idag är...'). På spanska behålls den vanliga ordningen: 'Hoy hace calor', inte en omkastning som spegling av svenskan.",
+      "vocab": [
+        {
+          "term": "Hace un calor de locos",
+          "gloss": "Det är sinnessjukt varmt",
+          "note": "Vardagligt förstärkningsuttryck — mycket starkare än vanligt 'hace calor'."
+        },
+        {
+          "term": "Tormenta de verano",
+          "gloss": "sommaroväder",
+          "note": "Plötsligt, kraftigt och oftast kortvarigt."
+        },
+        {
+          "term": "Ponete protector (solar)",
+          "gloss": "Ta på dig solskydd",
+          "note": "Vos-imperativ — ponete, inte tuteo-formen 'ponte'. Vid paraguayansk middagshetta är detta praktiskt säkerhetsråd, inte artighetsfras."
+        },
+        {
+          "term": "Tomá agua seguido",
+          "gloss": "Drick vatten ofta",
+          "note": "Vos-imperativ — tomá. Viktigt råd mot uttorkning i hettan, särskilt för den som inte är van vid klimatet."
+        },
+        {
+          "term": "Un refilón de frío",
+          "gloss": "en köldknäpp / kort kylperiod",
+          "note": "Lokalt uttryck för ett plötsligt, kort temperaturfall."
+        },
+        {
+          "term": "Remera",
+          "gloss": "T-shirt",
+          "note": "Vardagsordet i Paraguay och Río de la Plata-regionen — inte 'camiseta'."
+        },
+        {
+          "term": "Hace viento norte",
+          "gloss": "Det blåser nordanvind",
+          "note": "Kulturellt laddat: den tunga, klibbiga hettan strax före ett oväder skylls ofta på 'viento norte' — och på folks dåliga humör."
+        },
+        {
+          "term": "Llevá paraguas",
+          "gloss": "Ta med paraply",
+          "note": "Vos-imperativ — llevá."
+        },
+        {
+          "term": "Está nublado / va a llover",
+          "gloss": "Det är mulet / det kommer att regna"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Beskriv dagens väder för en vän som precis vaknat. Håll ordningen 'Hoy hace...', vänd inte om subjekt och verb som på svenska.",
+          "targetHints": [
+            "hace un calor de locos",
+            "está nublado"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Din förälder ska gå ut mitt på dagen i hettan och har inte koll på vädret. Beskriv hur det är och ge ett praktiskt råd om vatten och sol, inte bara vad de ska ha på sig.",
+          "targetHints": [
+            "ponete protector",
+            "tomá agua seguido"
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Che, dicen que hoy hace viento norte, va a estar pesado todo el día, y después de la tarde puede venir una tormenta de verano.",
+          "prompt": "Du hörde precis en kort vädernotis. Vilken typ av hetta väntas under dagen, och vad kan hända senare?",
+          "targetHints": [
+            "viento norte",
+            "tormenta"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Du och en vän hade planerat att träffas utomhus i lördags, men ett oväder är på väg. Föreslå att ändra planen på grund av vädret.",
+          "targetHints": [
+            "tormenta de verano",
+            "no puedo porque...",
+            "¿te queda bien...?"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Ett barnbarn frågar hur vädret brukar vara där du kommer ifrån jämfört med Paraguay, och vad du skulle råda dem att packa och tänka på för ett besök här. Ge ett fullständigt svar, inklusive varför hettan mitt på dagen är värd att ta på allvar.",
+          "targetHints": [
+            "hace un calor de locos",
+            "un refilón de frío",
+            "llevá",
+            "tomá agua"
+          ]
+        }
+      ]
+    }
+  }
+]
