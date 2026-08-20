@@ -118,12 +118,12 @@ All curriculum is authored by the owner (optionally with Gemini's help via
 itself. As admin, go to `/admin` and paste/upload a JSON array of lessons matching the
 shape in PLAN.md §3.4 (Zod-validated on the way in).
 
-`content/lessons/*.json` holds the real content — 48 lessons, no placeholders left:
+`content/lessons/*.json` holds the real content — 60 lessons, no placeholders left:
 
 | File prefix | Pair | Levels |
 |---|---|---|
 | `es-py-en-a1-*`, `es-py-en-a2-*` | `es-PY>en-speaker` (English speaker → Paraguayan Spanish) | A1 + A2, positions 1–24 |
-| `en-es-a1-*` | `en>es-speaker` (Paraguayan Spanish speaker → English) | A1, positions 1–12 |
+| `en-es-a1-*`, `en-es-a2-*` | `en>es-speaker` (Paraguayan Spanish speaker → English) | A1 + A2, positions 1–24 |
 | `es-py-sv-a1-*` | `es-PY>sv-speaker` (Swedish speaker → Paraguayan Spanish) | A1, positions 1–12 |
 
 Each was generated from the matching map in `content/curriculum/` and validated with

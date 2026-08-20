@@ -1,0 +1,428 @@
+[
+  {
+    "languagePairCode": "en>es-speaker",
+    "level": "A2",
+    "topic": "past-events-weekend",
+    "title": "What Did You Do Last Weekend?",
+    "position": 13,
+    "content": {
+      "intro": "Vas a aprender a contar qué hiciste hace poco usando el pasado simple, y a preguntarle lo mismo a otra persona. Ojo con dos cosas: los verbos regulares terminan en '-ed' pero no siempre suena igual (a veces es como una 't', a veces como una 'd', y a veces suma una sílaba extra, como en 'wanted'), y en preguntas y negaciones el verbo principal se queda en su forma base — 'did you go' está bien, 'did you went' no.",
+      "vocab": [
+        {
+          "term": "I went to...",
+          "gloss": "Fui a...",
+          "note": "'Went' es el pasado irregular de 'go'. No existe 'goed'."
+        },
+        {
+          "term": "We had dinner at...",
+          "gloss": "Cenamos en...",
+          "note": "'Had' es el pasado irregular de 'have', y sirve tanto para comidas como para posesión."
+        },
+        {
+          "term": "Did you go...?",
+          "gloss": "¿Fuiste...?",
+          "note": "En preguntas con 'did', el verbo principal queda en forma base: 'did you go', nunca 'did you went'. Lo mismo con negaciones: 'I didn't go', no 'I didn't went'."
+        },
+        {
+          "term": "I didn't do much",
+          "gloss": "No hice mucho"
+        },
+        {
+          "term": "last night / last weekend",
+          "gloss": "anoche / el fin de semana pasado"
+        },
+        {
+          "term": "It was great",
+          "gloss": "Estuvo genial"
+        },
+        {
+          "term": "I stayed home",
+          "gloss": "Me quedé en casa",
+          "note": "'Stayed' se pronuncia con el '-ed' como una 'd' (/steɪd/), no como sílaba aparte."
+        },
+        {
+          "term": "I visited...",
+          "gloss": "Visité a...",
+          "note": "'Visited' suma una sílaba extra porque el verbo ya termina en 't': /ˈvɪzɪtɪd/. Compará con 'stayed', que no la suma."
+        },
+        {
+          "term": "I saw...",
+          "gloss": "Vi a... / Vi...",
+          "note": "'Saw' es el pasado irregular de 'see'."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Un amigo te pregunta qué hiciste anoche. Contale con una oración simple usando el pasado.",
+          "targetHints": [
+            "last night",
+            "I went to",
+            "I stayed home"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Contale a alguien todo lo que hiciste el fin de semana pasado, con varios detalles: adónde fuiste, qué comiste, a quién viste.",
+          "targetHints": [
+            "I went to",
+            "we had dinner at",
+            "I saw"
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "So last weekend was actually pretty low-key. On Saturday I stayed home most of the day, but Sunday I visited my parents and we had dinner together.",
+          "prompt": "Esta persona acaba de contar su fin de semana. ¿Qué hizo el sábado, y qué hizo el domingo?",
+          "targetHints": [
+            "stayed home",
+            "visited",
+            "had dinner"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Preguntale a un compañero de trabajo si fue a la fiesta del sábado, usando 'did you go'. Después contale que vos no hiciste mucho.",
+          "targetHints": [
+            "Did you go",
+            "I didn't do much"
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Did you end up going to that concert on Friday? I heard it was great, but I didn't get tickets in time.",
+          "prompt": "Te están preguntando algo sobre el viernes. ¿Qué te preguntan, y qué le pasó a esa persona con las entradas?",
+          "targetHints": [
+            "did you",
+            "didn't get tickets"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Un amigo te pregunta qué hiciste el fin de semana. Contale una historia completa: primero mencioná un plan que habías hecho antes (recordá la lección de invitaciones), después contá si lo cumpliste o no, y cerrá diciendo si estuvo bueno.",
+          "targetHints": [
+            "I went to",
+            "it was great",
+            "didn't do much"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "en>es-speaker",
+    "level": "A2",
+    "topic": "housing-and-roommates",
+    "title": "Finding a Place to Live",
+    "position": 14,
+    "content": {
+      "intro": "Vas a aprender a preguntar sobre un departamento, entender qué está incluido en el alquiler, y manejar pedidos del día a día con un dueño o un compañero de casa. Fijate que 'rent' es lo que pagás cada mes, y 'deposit' es la plata aparte que dejás al principio y que (con suerte) te devuelven al irte — son dos cosas distintas y en inglés nunca se confunden.",
+      "vocab": [
+        {
+          "term": "How much is rent?",
+          "gloss": "¿Cuánto es el alquiler?"
+        },
+        {
+          "term": "Are utilities included?",
+          "gloss": "¿Están incluidos los servicios?",
+          "note": "'Utilities' son luz, agua, gas e internet en conjunto. A veces están incluidos en el alquiler, a veces no — siempre conviene preguntar."
+        },
+        {
+          "term": "lease",
+          "gloss": "contrato de alquiler",
+          "note": "Se pronuncia /liːs/. Es el documento que firmás, normalmente por un año."
+        },
+        {
+          "term": "deposit",
+          "gloss": "depósito de garantía",
+          "note": "Es plata aparte del alquiler mensual, distinta de 'rent'. Se paga una sola vez y se supone que te la devuelven si dejás todo bien."
+        },
+        {
+          "term": "Is the neighborhood safe?",
+          "gloss": "¿Es seguro el barrio?"
+        },
+        {
+          "term": "The sink is leaking",
+          "gloss": "La pileta está goteando",
+          "note": "'Leak' es cuando algo pierde agua (o gas). Se puede usar con cualquier caño o aparato: 'the toilet is leaking', 'the roof is leaking'."
+        },
+        {
+          "term": "Can you take out the trash?",
+          "gloss": "¿Podés sacar la basura?"
+        },
+        {
+          "term": "roommate",
+          "gloss": "compañero/a de casa"
+        },
+        {
+          "term": "It's my turn to...",
+          "gloss": "Me toca a mí..."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Estás llamando por un departamento que viste anunciado. Preguntá cuánto es el alquiler y si los servicios están incluidos.",
+          "targetHints": [
+            "How much is rent?",
+            "Are utilities included?"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Estás visitando un departamento con el dueño. Hacele todas las preguntas que se te ocurran sobre el contrato, el depósito, y el barrio, una tras otra.",
+          "targetHints": [
+            "lease",
+            "deposit",
+            "Is the neighborhood safe?"
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "So rent is $1,200 a month, and that includes water and trash, but you'd be responsible for electricity and internet on your own.",
+          "prompt": "El dueño te acaba de explicar qué está incluido en el alquiler. ¿Qué dos cosas están incluidas, y qué dos cosas tenés que pagar aparte?",
+          "targetHints": [
+            "includes",
+            "responsible for"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Le estás escribiendo un mensaje a tu compañero de casa. Contale que la pileta de la cocina está goteando y pedile que le avise al dueño.",
+          "targetHints": [
+            "The sink is leaking"
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Hey, quick thing — it's your turn to take out the trash this week. And can you let the landlord know the sink's still leaking?",
+          "prompt": "Tu compañero de casa te pidió dos cosas. ¿Cuál es la primera, y qué le tenés que avisar al dueño?",
+          "targetHints": [
+            "your turn",
+            "still leaking"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Estás por mudarte con un nuevo compañero de casa. Negociá con él/ella: preguntale cuánto sería tu parte del alquiler, si el barrio es seguro, y proponé cómo se van a repartir las tareas de la casa.",
+          "targetHints": [
+            "How much is rent?",
+            "Is the neighborhood safe?",
+            "It's my turn to"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "en>es-speaker",
+    "level": "A2",
+    "topic": "restaurant-full-service",
+    "title": "Dinner Out",
+    "position": 15,
+    "content": {
+      "intro": "Vas a aprender a manejar una cena completa en un restaurante con mesero: pedir mesa, ordenar, pedir modificaciones, avisar alergias, dividir la cuenta y calcular la propina. Esto último es clave y no es opcional en Estados Unidos: se espera un 15-20% de propina sobre el total antes de impuestos, y si van varias personas, lo normal es pedir 'separate checks' antes de ordenar, no después de comer.",
+      "vocab": [
+        {
+          "term": "Can we get a table for two?",
+          "gloss": "¿Nos dan una mesa para dos?"
+        },
+        {
+          "term": "I'll have the...",
+          "gloss": "Voy a pedir el/la...",
+          "note": "Es la forma más común de ordenar, más natural que 'I want'."
+        },
+        {
+          "term": "Can I get that without...?",
+          "gloss": "¿Me lo puede traer sin...?"
+        },
+        {
+          "term": "I'm allergic to...",
+          "gloss": "Soy alérgico/a a...",
+          "note": "Decilo apenas te sientan, antes de ordenar — no cuando ya llegó el plato."
+        },
+        {
+          "term": "Separate checks, please",
+          "gloss": "Cuentas separadas, por favor",
+          "note": "Se pide al principio, cuando el mesero toma el pedido, no al final."
+        },
+        {
+          "term": "How much should we tip?",
+          "gloss": "¿Cuánto deberíamos dejar de propina?"
+        },
+        {
+          "term": "Could we get the check?",
+          "gloss": "¿Nos trae la cuenta?"
+        },
+        {
+          "term": "20 percent",
+          "gloss": "20 por ciento",
+          "note": "Es la propina estándar en un restaurante con mesero en Estados Unidos, calculada sobre el total antes de impuestos ('before tax'). Menos del 15% se considera una mala propina, no un ahorro."
+        },
+        {
+          "term": "Let's split it evenly",
+          "gloss": "Dividámoslo en partes iguales"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Llegás a un restaurante con un amigo. Pedile una mesa para dos a la persona de la entrada.",
+          "targetHints": [
+            "Can we get a table for two?"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "El mesero te toma el pedido. Ordená un plato, pedí que te lo traigan sin un ingrediente que no te gusta, y avisá que sos alérgico/a a algo.",
+          "targetHints": [
+            "I'll have the",
+            "without",
+            "I'm allergic to"
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Alright, so that's one burger, no onions, and the salad with dressing on the side. Anything to drink with that?",
+          "prompt": "El mesero está confirmando el pedido. ¿Qué le pidieron sin cebolla, y cómo quieren el aderezo de la ensalada?",
+          "targetHints": [
+            "no onions",
+            "on the side"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Van cuatro personas a cenar y cada uno va a pagar lo suyo. Antes de ordenar, pedile al mesero cuentas separadas.",
+          "targetHints": [
+            "Separate checks, please"
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "So your total comes to $84 before tax. Most people around here leave around eighteen to twenty percent, so that'd be somewhere around fifteen or sixteen dollars.",
+          "prompt": "El mesero te está explicando la cuenta y la propina. ¿Cuánto es el total antes de impuestos, y qué rango de propina te recomienda?",
+          "targetHints": [
+            "before tax",
+            "eighteen to twenty percent"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Terminaron de cenar con dos amigos. Pedile la cuenta al mesero, proponeles a tus amigos dividirla en partes iguales, y calculá en voz alta cuánto le tocaría a cada uno con la propina incluida.",
+          "targetHints": [
+            "Could we get the check?",
+            "Let's split it evenly",
+            "20 percent"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "en>es-speaker",
+    "level": "A2",
+    "topic": "pharmacy-and-symptoms",
+    "title": "At the Pharmacy",
+    "position": 16,
+    "content": {
+      "intro": "En la lección de síntomas básicos ya aprendiste a decir que no te sentís bien. Ahora vas a ir un paso más allá: describirle síntomas con más detalle a un farmacéutico, entender qué te recomienda, y entender las instrucciones de dosis. Algo para tener clarísimo: 'over-the-counter' es lo que comprás sin receta, directamente del estante, y 'prescription' es lo que necesita una orden del médico — mezclarlos puede hacer que pidas algo que no te van a poder vender ahí mismo.",
+      "vocab": [
+        {
+          "term": "I've had a cough for three days",
+          "gloss": "Tengo tos hace tres días",
+          "note": "Se usa el presente perfecto ('I've had') para algo que empezó en el pasado y sigue ahora — no 'I have a cough since three days'."
+        },
+        {
+          "term": "What do you recommend?",
+          "gloss": "¿Qué me recomienda?"
+        },
+        {
+          "term": "over-the-counter",
+          "gloss": "de venta libre",
+          "note": "Se abrevia 'OTC'. Es lo que se compra sin receta, directo del estante."
+        },
+        {
+          "term": "prescription",
+          "gloss": "receta médica",
+          "note": "Se pronuncia /prɪˈskrɪpʃən/. Sin esto, el farmacéutico no te puede vender ciertos medicamentos."
+        },
+        {
+          "term": "Take this every four hours",
+          "gloss": "Tomá esto cada cuatro horas"
+        },
+        {
+          "term": "with food",
+          "gloss": "con comida",
+          "note": "Muy común en las instrucciones: 'take this with food', para no tomarlo con el estómago vacío."
+        },
+        {
+          "term": "painkiller",
+          "gloss": "analgésico"
+        },
+        {
+          "term": "Does this make you drowsy?",
+          "gloss": "¿Esto da sueño?",
+          "note": "'Drowsy' significa con sueño/somnoliento — muy usado en advertencias de medicamentos."
+        },
+        {
+          "term": "Do I need a prescription for this?",
+          "gloss": "¿Necesito receta para esto?"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Estás en el mostrador de la farmacia. Contale al farmacéutico que tenés tos hace tres días y preguntale qué te recomienda.",
+          "targetHints": [
+            "I've had a cough for three days",
+            "What do you recommend?"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Describile al farmacéutico varios síntomas juntos (por ejemplo tos, fiebre y dolor de cabeza — repasá la lección de síntomas), y preguntale si lo que te sugiere es de venta libre o si necesita receta.",
+          "targetHints": [
+            "over-the-counter",
+            "Do I need a prescription",
+            "I have a fever"
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "This one's over-the-counter, so you're fine. Take one every four hours, and make sure you take it with food — it can upset your stomach otherwise.",
+          "prompt": "El farmacéutico te está dando instrucciones sobre un medicamento. ¿Cada cuánto lo tenés que tomar, y con qué?",
+          "targetHints": [
+            "every four hours",
+            "with food"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "El farmacéutico te ofrece un analgésico. Preguntale si da sueño, porque tenés que manejar más tarde.",
+          "targetHints": [
+            "painkiller",
+            "Does this make you drowsy?"
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Yeah, this one can definitely make you drowsy, so I wouldn't take it before driving. If you need something that won't knock you out, I can show you another option.",
+          "prompt": "El farmacéutico te está avisando algo importante sobre el medicamento. ¿Qué te recomienda no hacer después de tomarlo, y qué te ofrece como alternativa?",
+          "targetHints": [
+            "drowsy",
+            "another option"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Andá al mostrador de la farmacia con una situación completa: contale al farmacéutico un síntoma que tenés hace varios días, preguntale qué te recomienda, si es de venta libre o necesita receta, y cómo tenés que tomarlo.",
+          "targetHints": [
+            "I've had a",
+            "over-the-counter",
+            "every four hours"
+          ]
+        }
+      ]
+    }
+  }
+]
