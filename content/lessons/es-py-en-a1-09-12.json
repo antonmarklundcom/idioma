@@ -1,0 +1,203 @@
+[
+  {
+    "languagePairCode": "es-PY>en-speaker",
+    "level": "A1",
+    "topic": "basic-health",
+    "title": "Me siento mal: lo básico",
+    "position": 9,
+    "content": {
+      "intro": "You'll learn to say what hurts, describe feeling unwell, and ask for help or a pharmacy. The trap: 'estoy constipado/a' does not mean what it looks like — it means you have a cold, not that you're constipated.",
+      "vocab": [
+        { "term": "Me duele la cabeza / la panza", "gloss": "My head/stomach hurts", "note": "'duele' agrees with a singular body part; switch to 'me duelen' for plural parts, e.g. 'me duelen los pies'." },
+        { "term": "Me siento mal", "gloss": "I feel bad / unwell" },
+        { "term": "Tengo fiebre", "gloss": "I have a fever" },
+        { "term": "Estoy mareado/a", "gloss": "I feel dizzy / nauseous", "note": "Adjective agrees with the speaker's gender: mareado (m) / mareada (f)." },
+        { "term": "Estoy constipado/a", "gloss": "I have a cold (stuffy nose)", "note": "False friend — this means 'I have a cold', not 'I'm constipated'. For that you'd say 'estoy estreñido/a'." },
+        { "term": "Necesito una farmacia", "gloss": "I need a pharmacy" },
+        { "term": "¿Me podés ayudar?", "gloss": "Can you help me?", "note": "Voseo: podés, not puedes." },
+        { "term": "Llamá a un médico", "gloss": "Call a doctor", "note": "Vos imperative — llamá, not the tuteo 'llama'." },
+        { "term": "No me siento bien", "gloss": "I don't feel well" }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "You've had a headache all morning. A friend asks how you're doing — tell them you feel unwell and say what hurts.",
+          "targetHints": ["me siento mal", "me duele la cabeza"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "A coworker notices you look off and asks what's wrong. Explain you think you have a fever and feel dizzy.",
+          "targetHints": ["tengo fiebre", "estoy mareado/a"]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Uy, te veo pálido. ¿Te sentís bien? Si querés te acompaño a la farmacia, queda a dos cuadras nomás.",
+          "prompt": "A friend just said something to you after noticing how you look. What did they offer to do, and how far away is it?",
+          "targetHints": ["listening comprehension", "te acompaño", "dos cuadras"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "You're standing in line at a pharmacy and suddenly feel like you might faint. Get the attention of the person next to you, ask for help, and briefly explain what's wrong.",
+          "targetHints": ["¿me podés ayudar?", "estoy mareado/a"]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "¿Qué te pasa? Estás medio raro. Sentate acá un rato, yo te traigo un poco de agua.",
+          "prompt": "Someone noticed something about you and made an offer. What are they going to bring you, and what do they tell you to do first?",
+          "targetHints": ["listening comprehension", "sentate", "te traigo agua"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "You're home alone and feel quite unwell. Call a friend, explain your situation in detail, and ask them to call a doctor for you.",
+          "targetHints": ["no me siento bien", "llamá a un médico", "me duele"]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>en-speaker",
+    "level": "A1",
+    "topic": "daily-routine",
+    "title": "Mi día a día",
+    "position": 10,
+    "content": {
+      "intro": "You'll learn to describe your typical weekday, from waking up to going to bed, using reflexive verbs like 'me despierto' and 'me acuesto'. The trap: these verbs change their pronoun with the subject, so 'yo me despierto' but '¿vos a qué hora te despertás?', not 'se despierta'.",
+      "vocab": [
+        { "term": "Me despierto", "gloss": "I wake up", "note": "Reflexive verb — despertarse." },
+        { "term": "Me levanto", "gloss": "I get up (out of bed)" },
+        { "term": "Tomo tereré por la mañana", "gloss": "I drink tereré in the morning" },
+        { "term": "Salgo al laburo", "gloss": "I head off to work", "note": "'laburo' is the everyday informal word for 'trabajo', extremely common in spoken Paraguayan Spanish." },
+        { "term": "Vuelvo a casa", "gloss": "I come back home" },
+        { "term": "Me acuesto", "gloss": "I go to bed", "note": "Reflexive verb — acostarse." },
+        { "term": "¿A qué hora...?", "gloss": "At what time...?" },
+        { "term": "Por la mañana / por la tarde / por la noche", "gloss": "in the morning / in the afternoon / at night" },
+        { "term": "Los fines de semana", "gloss": "on weekends" },
+        { "term": "Todos los días", "gloss": "every day" }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "A new roommate asks about your mornings. Say what time you wake up and what's the first thing you do.",
+          "targetHints": ["me despierto", "tomo tereré"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Describe your commute: what time you leave for work and how you get there.",
+          "targetHints": ["salgo al laburo", "colectivo"]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Yo me despierto re temprano, como a las seis. Tomo un tereré, salgo al laburo a las siete, y vuelvo recién a las seis de la tarde.",
+          "prompt": "This person just described part of their day. What time do they leave for work, and what time do they get home?",
+          "targetHints": ["listening comprehension", "salgo", "vuelvo"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Your new roommate wants to know about your evenings. Say what time you get home and what time you usually go to bed.",
+          "targetHints": ["vuelvo a casa", "me acuesto"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "A coworker asks whether your weekends look different from your weekdays. Compare the two — mention at least two differences.",
+          "targetHints": ["los fines de semana", "me despierto", "¿a qué hora?"]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>en-speaker",
+    "level": "A1",
+    "topic": "scheduling-social-meetups",
+    "title": "¿Nos vemos este finde?",
+    "position": 11,
+    "content": {
+      "intro": "You'll learn to invite a friend out, propose a time and place, and confirm or decline plans. The trap: 'dale' does most of the work of 'okay/sounds good' in casual Paraguayan speech — overusing 'sí, está bien' instead sounds stiff.",
+      "vocab": [
+        { "term": "¿Qué hacés el sábado?", "gloss": "What are you doing on Saturday?" },
+        { "term": "Vamos a...", "gloss": "Let's go to... / We're going to...", "note": "Used both as an invitation and as a plan statement." },
+        { "term": "¿Te queda bien a las ocho?", "gloss": "Does eight work for you?", "note": "'quedar bien' here means 'to be convenient', not 'to look good'." },
+        { "term": "Dale", "gloss": "Okay / sure / deal", "note": "The default casual way to agree to a plan — much more common in speech than 'sí, está bien'." },
+        { "term": "Quedamos así", "gloss": "It's settled then / that's the plan" },
+        { "term": "No puedo porque...", "gloss": "I can't because..." },
+        { "term": "¿Dónde nos encontramos?", "gloss": "Where shall we meet?" },
+        { "term": "Nos vemos a las...", "gloss": "We'll see each other at..." }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Invite a friend to do something this Saturday and suggest a specific time.",
+          "targetHints": ["¿qué hacés el sábado?", "¿te queda bien a las...?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "A friend suggests meeting at 6pm, but you're busy then. Say you can't and explain why, then propose a different time.",
+          "targetHints": ["no puedo porque...", "¿te queda bien a las...?"]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Che, ¿vamos a tomar algo el viernes? Podemos encontrarnos en la plaza, cerca de la parada, como a las siete y media.",
+          "prompt": "A friend just proposed a plan. What day are they suggesting, and where do they want to meet?",
+          "targetHints": ["listening comprehension", "encontrarnos", "la plaza"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Agree to a friend's plan and confirm the exact meeting place, using 'quedamos así' to close it off.",
+          "targetHints": ["dale", "quedamos así", "¿dónde nos encontramos?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Call a friend and plan an entire outing together from scratch — negotiate the day, the time, and where you'll meet, going back and forth until you both agree.",
+          "targetHints": ["¿qué hacés el...?", "¿te queda bien...?", "quedamos así"]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>en-speaker",
+    "level": "A1",
+    "topic": "weather-and-clothing",
+    "title": "¡Qué calor hace hoy!",
+    "position": 12,
+    "content": {
+      "intro": "You'll learn to talk about extreme heat, sudden storms, and cold snaps, and to suggest what to wear or how to adjust plans. The trap: 'viento norte' isn't just wind direction — locally it names the oppressive, heavy heat that builds up before a storm, and people use it to explain why everyone's irritable.",
+      "vocab": [
+        { "term": "Hace un calor de locos", "gloss": "It's crazy hot", "note": "Colloquial intensifier — much stronger than plain 'hace calor'." },
+        { "term": "Tormenta de verano", "gloss": "summer storm", "note": "Sudden, heavy, and usually short-lived." },
+        { "term": "Ponete protector (solar)", "gloss": "Put on sunscreen", "note": "Vos imperative — ponete, not the tuteo 'ponte'." },
+        { "term": "Un refilón de frío", "gloss": "a cold snap / a brief cold spell", "note": "Local expression for a sudden short drop in temperature." },
+        { "term": "Remera", "gloss": "T-shirt", "note": "The everyday word in Paraguay and the Río de la Plata region — not 'camiseta'." },
+        { "term": "Hace viento norte", "gloss": "The north wind is blowing", "note": "Culturally loaded: it's blamed for the heavy, sticky heat right before a storm and for people's bad mood." },
+        { "term": "Llevá paraguas", "gloss": "Bring an umbrella", "note": "Vos imperative — llevá." },
+        { "term": "Está nublado / va a llover", "gloss": "It's cloudy / it's going to rain" }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Describe today's weather to a friend who just woke up.",
+          "targetHints": ["hace un calor de locos", "está nublado"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Your friend is about to head out and hasn't checked the weather. Tell them what it's like and recommend what to wear or bring.",
+          "targetHints": ["ponete protector", "llevá paraguas", "remera"]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Che, dicen que hoy hace viento norte, va a estar pesado todo el día, y después de la tarde puede venir una tormenta de verano.",
+          "prompt": "You just heard a short weather comment. What kind of heat is expected during the day, and what might happen later?",
+          "targetHints": ["listening comprehension", "viento norte", "tormenta"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "You and a friend had planned to meet outdoors this Saturday, but a storm is coming. Suggest changing the plan because of the weather.",
+          "targetHints": ["tormenta de verano", "no puedo porque...", "¿te queda bien...?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "A visitor asks what the weather is usually like where you're from compared to Paraguay, and what you'd tell them to pack for a trip here. Give a full answer.",
+          "targetHints": ["hace un calor de locos", "un refilón de frío", "llevá"]
+        }
+      ]
+    }
+  }
+]
