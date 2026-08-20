@@ -11,7 +11,8 @@
     "lint": "eslint",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:seed": "tsx scripts/seed.ts"
+    "db:seed": "tsx scripts/seed.ts",
+    "lessons:validate": "tsx scripts/validate-lessons.ts"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.11.2",

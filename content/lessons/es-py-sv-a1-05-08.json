@@ -1,0 +1,215 @@
+[
+  {
+    "languagePairCode": "es-PY>sv-speaker",
+    "level": "A1",
+    "topic": "drinking-terere",
+    "title": "La ronda de tereré",
+    "position": 5,
+    "content": {
+      "intro": "Du ska lära dig att delta i en tereré-runda: tacka ja eller nej till en omgång, fråga om örterna, och hålla igång det informella 'vos'-tilltalet i grupp. Fallgropen med artighet: man säger inte ett rakt 'nej' för att tacka nej, man använder korta fasta uttryck eller en gest, och säger man 'gracias' i fel ögonblick avslutar man av misstag sin tur i rundan. En annan fälla sitter i uttalet: svenskans sj- och tj-ljud smyger sig lätt in i stället för det spanska j-ljudet och den dubbla l:en (ll), så ord som 'yuyo' och 'guampa' är värda att öva högt, inte bara läsa tyst.",
+      "vocab": [
+        { "term": "el tereré", "gloss": "kall örtdryck som delas i en runda", "note": "Den centrala dagliga sociala ritualen i Paraguay; dricks ur en delad guampa." },
+        { "term": "la guampa", "gloss": "muggen (traditionellt ett kohorn) som tereré serveras i", "note": "'Gu' uttalas som svenskt 'gv/gw', inte som 'j'." },
+        { "term": "la bombilla", "gloss": "metallsugröret med filter i änden" },
+        { "term": "los yuyos", "gloss": "färska örter som blandas i för smak eller hälsa", "note": "Uttalsfälla: spanskt 'y' i 'yuyo' låter mer som svenskt 'j' i 'jacka', INTE som sj-ljudet i 'sjuk' — undvik att smyga in ett svenskt sj-ljud här." },
+        { "term": "cebar", "gloss": "att göra i ordning och hälla upp en omgång (tereré eller mate)", "note": "Personen som 'ceba' bestämmer i vilken ordning guampan går runt." },
+        { "term": "¿querés una ronda?", "gloss": "vill du ha en omgång?", "note": "Voseo: 'querés', inte 'quieres'." },
+        { "term": "gracias", "gloss": "nej tack (när det sägs samtidigt som man lämnar tillbaka guampan)", "note": "Paraguayansk etikett: att säga 'gracias' när du räcker tillbaka guampan betyder 'jag är klar', inte bara 'tack' — säg det bara när du faktiskt vill sluta." },
+        { "term": "¿tenés agua fría?", "gloss": "har du kallt vatten?", "note": "Voseo 'tenés', inte 'tienes'." },
+        { "term": "¿qué yuyo le pusiste?", "gloss": "vilken ört la du i?", "note": "Voseo-preteritum 'pusiste'. Öva 'll' i 'pusiste' inte här, men notera att dubbel-l i andra ord (t.ex. 'calle') INTE ska bli svenskt sj- eller tj-ljud — i paraguayansk spanska låter 'll' oftast som 'j' i 'jacka'." },
+        { "term": "dale, sí", "gloss": "visst, ja gärna", "note": "Vanligt avslappnat sätt att tacka ja, mjukare än ett rakt 'sí'." }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "En vän räcker dig guampan och frågar '¿querés una ronda?'. Tacka ja och tacka avslappnat på spanska.",
+          "targetHints": ["dale, sí", "gracias (bara om du menar ja, inte nej)"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Du märker att tererén smakar mintigt. Fråga personen som 'ceba' vilken ört de la i — tänk på att 'yuyo' börjar med ett mjukt j-ljud, inte ett svenskt sj-ljud.",
+          "targetHints": ["¿qué yuyo le pusiste?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Du har fått nog för stunden. Lämna tillbaka guampan och tacka nej till nästa omgång artigt, utan ett rakt 'nej'.",
+          "targetHints": ["gracias (som avböjande signal)"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Du ska starta en runda för dina vänner. Fråga om det finns kallt vatten, och bjud sedan in gruppen att dricka genom att tilltala en vän direkt med 'vos'.",
+          "targetHints": ["¿tenés agua fría?", "¿querés...?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Förklara med egna ord för någon som är ny i Paraguay hur en tereré-runda går till och vad de ska säga för att tacka ja eller nej — som om du coachade dem inför deras första runda.",
+          "targetHints": ["cebar", "guampa", "gracias (avböjande signal)", "dale, sí"]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>sv-speaker",
+    "level": "A1",
+    "topic": "asking-directions",
+    "title": "¿Dónde queda la parada?",
+    "position": 6,
+    "content": {
+      "intro": "Du ska lära dig att fråga främlingar om vägen och förstå korta rumsliga instruktioner tillbaka. Fallgropen med uttal: paraguayanska vägbeskrivningar ges som voseo-kommandon (seguí, doblá) med betoning på sista stavelsen — och det svenska sj-/tj-ljudet ligger farligt nära det spanska j:et i ord som 'izquierda', så var uppmärksam på var det ljudet faktiskt hör hemma. En annan fälla, som märks först när meningarna blir längre: svenskans V2-ordföljd (verbet på andra plats, som i 'Idag går jag...') kan smyga sig in i spanskan och flytta subjektet till fel plats — spanska behöver ingen sådan omkastning efter en inledande tidsangivelse eller riktning.",
+      "vocab": [
+        { "term": "¿dónde queda...?", "gloss": "var ligger...?", "note": "Mer naturligt än '¿dónde está?' när man frågar om en fast plats." },
+        { "term": "la parada (de colectivo)", "gloss": "busshållplatsen" },
+        { "term": "seguí derecho", "gloss": "fortsätt rakt fram", "note": "Voseo-kommando; betoning på sista stavelsen, till skillnad från 'sigue derecho'." },
+        { "term": "doblá a la derecha / izquierda", "gloss": "sväng höger / vänster", "note": "Voseo-kommandoform av 'doblar'. 'Izquierda' börjar med ett spanskt 's/th'-liknande 'z' framför vokal — inte ett svenskt sj-ljud." },
+        { "term": "las cuadras", "gloss": "kvarteren", "note": "'Dos cuadras más' = två kvarter till." },
+        { "term": "al lado de", "gloss": "bredvid" },
+        { "term": "a la vuelta de", "gloss": "runt hörnet från" },
+        { "term": "perdón, ¿cómo llego a...?", "gloss": "ursäkta, hur kommer jag till...?", "note": "Ordföljdsfälla: håll subjekt + verb i vanlig ordning även efter en fråga eller tidsangivelse — säg inte om spanskan efter svensk V2-känsla, t.ex. 'hoy voy yo' i stället för 'hoy voy'." },
+        { "term": "¿me repetís, por favor?", "gloss": "kan du säga det igen, tack?", "note": "Återanvänds från lektion 2 — nödvändigt när vägbeskrivningarna kommer snabbt." }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Stoppa en förbipasserande artigt och fråga var närmaste busshållplats ligger.",
+          "targetHints": ["perdón", "¿dónde queda la parada?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Fråga en främling hur du kommer till marknaden (mercado) från där du står.",
+          "targetHints": ["¿cómo llego a...?"]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Mirá, seguí derecho tres cuadras y después doblá a la izquierda. La farmacia queda al lado de una panadería.",
+          "prompt": "Någon gav dig precis vägbeskrivning till ett apotek. Hur många kvarter går du innan du svänger, och vad ligger precis bredvid apoteket? Svara på spanska.",
+          "targetHints": ["cuadras", "al lado de"]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Perdón, ¿la plaza queda cerca de acá? Es que ando medio perdido, recién llegué a la ciudad.",
+          "prompt": "Någon frågar dig om torget (la plaza). Vad säger personen om sig själv — varför frågar hen? Svara på spanska.",
+          "targetHints": ["ando perdido", "recién llegué"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Vägbeskrivningen du precis fick gick för fort. Be personen upprepa, långsammare.",
+          "targetHints": ["¿me repetís, por favor?", "más despacio"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "En turist nära dig ser vilsen ut och frågar var torget (la plaza) ligger. Ge fullständiga vägbeskrivningar från där du är nu, med minst ett voseo-kommando — och tänk på att hålla vanlig spansk ordföljd genom hela meningen.",
+          "targetHints": ["seguí derecho", "doblá a la...", "cuadras"]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>sv-speaker",
+    "level": "A1",
+    "topic": "taking-the-bus",
+    "title": "Viajando en colectivo",
+    "position": 7,
+    "content": {
+      "intro": "Du ska lära dig att kliva på en lokal buss, bekräfta att den går dit du ska, och be chauffören släppa av dig. Fallgropen: colectivos har sällan markerade hållplatser vid varje hörn — du begär din hållplats högt precis innan du behöver den, inte genom att trycka på en knapp. Här dyker ordföljdsfällan upp igen: när du förklarar en längre situation för chauffören ('jag klev på fel buss, och nu vet jag inte...') är det lätt att svenskans V2-mönster flyttar subjektet efter en inledande fras — håll spanskans vanliga subjekt-verb-ordning även när meningen växer.",
+      "vocab": [
+        { "term": "el colectivo", "gloss": "(stads)bussen" },
+        { "term": "la tarjeta (Más / Jaha)", "gloss": "det förbetalda resekortet", "note": "Namnet varierar mellan operatör/stad; båda är vanliga kontaktlösa resekort." },
+        { "term": "cargar saldo", "gloss": "att ladda på saldo (på kortet)" },
+        { "term": "el saldo", "gloss": "saldot", "note": "Återanvänder siffer- och pengaordförrådet från lektion 3." },
+        { "term": "el chofer", "gloss": "chauffören" },
+        { "term": "bajo en la próxima, por favor", "gloss": "jag går av vid nästa hållplats, tack" },
+        { "term": "¿vas hacia el centro?", "gloss": "går du mot centrum?", "note": "Voseo — används med chauffören eller en medpassagerare, inte överdrivet formellt." },
+        { "term": "el asiento", "gloss": "sätet" },
+        { "term": "la parada", "gloss": "hållplatsen", "note": "Återanvänds från lektion 6." }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Du är osäker på om bussen går mot centrum. Fråga chauffören direkt, med 'vos'.",
+          "targetHints": ["¿vas hacia el centro?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Din hållplats närmar sig. Säg till chauffören att du går av vid nästa hållplats.",
+          "targetHints": ["bajo en la próxima, por favor"]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Disculpá, tu tarjeta no tiene saldo suficiente. Tenés que cargarla en el kiosco de la esquina antes de subir.",
+          "prompt": "Någon vid busshållplatsen sa precis något om ditt resekort. Vad är problemet, och vad behöver du göra innan du kliver på? Svara på spanska.",
+          "targetHints": ["saldo", "cargar"]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Hoy el colectivo pasa cada veinte minutos nomás, porque es domingo. Mejor esperá acá cerca de la parada.",
+          "prompt": "Chauffören eller en medpassagerare berättar något om hur ofta bussen går idag och varför. Vad säger personen, och vad rekommenderar hen dig att göra? Svara på spanska.",
+          "targetHints": ["cada veinte minutos", "esperá"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Bussen är full och det finns ett ledigt säte bredvid en medpassagerare. Fråga avslappnat om det är ledigt.",
+          "targetHints": ["¿está libre?", "vos"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Du inser att du klev på fel colectivo. Förklara situationen för chauffören och fråga vad du bör göra — gå av nu, eller går bussen förbi någonstans användbart? Håll spansk ordföljd rakt genom hela förklaringen.",
+          "targetHints": ["me subí al colectivo equivocado", "¿vas hacia...?", "bajo en la próxima"]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>sv-speaker",
+    "level": "A1",
+    "topic": "shopping-supermarket",
+    "title": "En el súper y el despensero",
+    "position": 8,
+    "content": {
+      "intro": "Du ska lära dig att be en despensero (kvarterets affärsbiträde) om matvaror efter vikt, kolla priser, och komma överens om betalsätt. Fallgropen med betalning: många små despensas förväntar sig jämna pengar eller ett specifikt betalsätt, så att bekräfta 'efectivo o QR' innan du bestämmer dig sparar en pinsam stund vid kassan. Den viktigaste fällan här är annars grammatisk, inte fonetisk: svenskan limmar fast bestämd artikel i slutet av ordet ('kilot', 'osten'), medan spanskan alltid sätter ett eget litet ord framför substantivet ('el kilo', 'el queso') — det glömmer man lätt just när man räknar upp varor efter vikt och enhet, som i den här lektionen.",
+      "vocab": [
+        { "term": "un kilo de...", "gloss": "ett kilo...", "note": "'medio kilo' = ett halvt kilo, 'un cuarto' = ett kvarts kilo. Artikeln 'un' står FÖRE 'kilo' som ett eget ord — jämför med svenskans 'kilot' där artikeln sitter fast i slutet." },
+        { "term": "¿a cuánto está...?", "gloss": "hur mycket kostar... (per enhet)?", "note": "Används för varor som prissätts per vikt, till skillnad från '¿cuánto cuesta?' för en fast vara." },
+        { "term": "¿tenés cambio?", "gloss": "har du växel?", "note": "Voseo; återanvänder siffer- och pengasystemet från lektion 3." },
+        { "term": "efectivo o QR", "gloss": "kontant eller QR (kodbetalning)", "note": "QR-kodsbetalning via mobilen är nu vanligt även i små despensas." },
+        { "term": "la bolsa", "gloss": "påsen", "note": "'la bolsa', inte 'påsen' på spanskt vis — artikeln 'la' är ett eget ord framför substantivet, precis som med 'el kilo'." },
+        { "term": "el despensero / la despensera", "gloss": "kvartersaffärens biträde/ägare" },
+        { "term": "¿vos tenés...?", "gloss": "har du...? / säljer ni...?", "note": "Voseo — naturligt sätt att fråga om en liten affär har något i lager." },
+        { "term": "así nomás", "gloss": "det räcker så / så är det bra", "note": "Vanligt paraguayanskt utfyllnadsuttryck för att avrunda en begäran, t.ex. när man inte behöver en påse." }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Be despenseron om ett kilo tomater och fråga hur mycket det kostar. Kom ihåg att artikeln är ett eget ord framför substantivet, inte en ändelse.",
+          "targetHints": ["un kilo de...", "¿a cuánto está...?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Du ska betala med en stor sedel. Fråga om de har växel.",
+          "targetHints": ["¿tenés cambio?"]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "El kilo de queso Paraguay está a doce mil, y hoy no estamos aceptando QR, solamente efectivo, disculpá.",
+          "prompt": "Affärsbiträdet berättade precis två saker om att köpa ost idag. Vad är priset per kilo, och hur kan du betala? Svara på spanska.",
+          "targetHints": ["¿a cuánto está?", "efectivo"]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "La bolsa te la cobro aparte, son quinientos guaraníes, o si traés la tuya no hay problema.",
+          "prompt": "Affärsbiträdet förklarar något om påsen. Kostar den extra, och vad kan du göra för att slippa den kostnaden? Svara på spanska.",
+          "targetHints": ["la bolsa", "aparte"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Innan du väljer vad du ska köpa, fråga affärsbiträdet om du kan betala med QR eller bara kontant.",
+          "targetHints": ["efectivo o QR"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Gör ett helt litet inköp: be om två olika varor efter vikt, bekräfta totalsumman, säg att du inte behöver någon påse, och kom överens om betalsätt. Tänk på artikeln framför varje substantiv genom hela dialogen.",
+          "targetHints": ["un kilo de...", "¿a cuánto está...?", "así nomás", "efectivo o QR"]
+        }
+      ]
+    }
+  }
+]

@@ -1,0 +1,200 @@
+[
+  {
+    "languagePairCode": "en>es-speaker",
+    "level": "A1",
+    "topic": "first-encounters",
+    "title": "Hi, I'm...",
+    "position": 1,
+    "content": {
+      "intro": "Vas a poder presentarte en inglés, decir de dónde sos y a qué te dedicás, y preguntarle lo mismo a alguien en una situación informal. Fijate en la trampa clásica: en español decís 'tengo 30 años', pero en inglés la edad va con el verbo 'be', nunca con 'have' — es 'I'm 30', jamás 'I have 30 years'.",
+      "vocab": [
+        { "term": "Hi, I'm Marta.", "gloss": "Hola, soy Marta.", "note": "'I'm' + nombre reemplaza a 'my name is' en el habla cotidiana; es lo que más vas a escuchar." },
+        { "term": "What's your name?", "gloss": "¿Cómo te llamás?" },
+        { "term": "Where are you from?", "gloss": "¿De dónde sos?", "note": "La 'th' de 'the' no existe en español: la lengua toca los dientes de arriba, no se dice como una 'd'." },
+        { "term": "I'm from Paraguay.", "gloss": "Soy de Paraguay.", "note": "'I'm' se pronuncia /aim/, sin sonido de 'h'. No hay una 'h' que se pronuncie en inglés como en 'hola'." },
+        { "term": "What do you do?", "gloss": "¿A qué te dedicás?", "note": "Pregunta por el trabajo, no por lo que estás haciendo ahora — esa sería 'what are you doing?'." },
+        { "term": "I'm a nurse. / I work at a hospital.", "gloss": "Soy enfermera. / Trabajo en un hospital." },
+        { "term": "Nice to meet you.", "gloss": "Mucho gusto." },
+        { "term": "I'm 30.", "gloss": "Tengo 30 años.", "note": "Trampa número uno para hispanohablantes: NUNCA 'I have 30 years'. La edad usa 'be', igual que en 'I'm tired'." },
+        { "term": "This is my...", "gloss": "Te presento a mi... / Este/a es mi...", "note": "Sirve para presentar a otra persona: 'this is my friend Ana'." }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Estás en una fiesta y alguien se sienta a tu lado. Saludalo y decile tu nombre.",
+          "targetHints": ["Hi, I'm..."]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "La persona te pregunta de dónde sos y a qué te dedicás. Contestale con dos o tres oraciones sobre vos — de dónde sos, qué hacés, y algo más que se te ocurra.",
+          "targetHints": ["I'm from...", "I work as...", "I'm..."]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Ahora te toca a vos: preguntale su nombre y de dónde es.",
+          "targetHints": ["What's your name?", "Where are you from?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Alguien te pregunta tu edad. Contestale sin caer en la trampa de 'tengo'.",
+          "targetHints": ["I'm... (edad)"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Estás en una reunión de trabajo y te toca presentarte a un grupo nuevo: decí tu nombre, de dónde sos, a qué te dedicás, y presentá a la persona que está sentada a tu lado.",
+          "targetHints": ["Hi, I'm...", "I'm from...", "I work as...", "This is..."]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "en>es-speaker",
+    "level": "A1",
+    "topic": "clarification",
+    "title": "Sorry, could you repeat that?",
+    "position": 2,
+    "content": {
+      "intro": "Vas a aprender a mantener viva una conversación en inglés cuando no entendés algo — pedir que te repitan, que hablen más despacio, o que te lo deletreen. Ojo con el orden de las palabras: en las preguntas en inglés el verbo auxiliar va antes del sujeto ('could you repeat that?'), y no podés armarlas solo con la entonación como a veces alcanza en español.",
+      "vocab": [
+        { "term": "Sorry?", "gloss": "¿Cómo? / ¿Perdón?", "note": "Se dice con la entonación subiendo al final, como pidiendo que repitan." },
+        { "term": "Could you repeat that?", "gloss": "¿Podés repetir eso?", "note": "Orden fijo: could + you + verbo. Nunca 'you could repeat that' como pregunta." },
+        { "term": "Could you say that again, more slowly?", "gloss": "¿Podés decirlo de nuevo, más despacio?" },
+        { "term": "How do you spell that?", "gloss": "¿Cómo se escribe eso?", "note": "Se usa mucho para nombres. 'Spell' es deletrear, no confundir con 'write'." },
+        { "term": "What does ... mean?", "gloss": "¿Qué significa...?", "note": "Orden fijo: what + does + sujeto + mean. Nunca 'what means...?'." },
+        { "term": "How do you say ... in English?", "gloss": "¿Cómo se dice ... en inglés?" },
+        { "term": "I didn't catch that.", "gloss": "No entendí bien / se me pasó.", "note": "'Catch' acá significa entender, no atrapar." }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Alguien te habló muy rápido y no entendiste nada. Decile que no entendiste y pedile que repita.",
+          "targetHints": ["Sorry?", "Could you repeat that?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Estás en una cafetería y el barista te habla rápido, con acento fuerte. Manejá la situación como puedas: pedile que repita o que hable más despacio, lo que necesites para entender.",
+          "targetHints": ["Could you repeat that?", "more slowly"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Alguien te dice su nombre pero no estás segura de cómo se escribe. Pedile que lo deletree.",
+          "targetHints": ["How do you spell that?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Escuchás una palabra que nunca oíste en medio de lo que te están contando. Interrumpí para preguntar qué significa, sin perder el hilo de la conversación.",
+          "targetHints": ["What does ... mean?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Estás conociendo a alguien nuevo y no entendés bien su nombre la primera vez. Resolvé toda la situación: pedile que repita, después que lo deletree si hace falta, y confirmá que entendiste.",
+          "targetHints": ["Could you repeat that?", "How do you spell that?"]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "en>es-speaker",
+    "level": "A1",
+    "topic": "numbers-prices-money",
+    "title": "How much is it?",
+    "position": 3,
+    "content": {
+      "intro": "Vas a poder entender y decir precios en dólares y centavos, y confirmar un monto que escuchaste a medias. La trampa más común para un hispanohablante: 'fifteen' (15) y 'fifty' (50) suenan muy parecidos, igual que 'thirteen' (13) y 'thirty' (30) — la diferencia está en dónde cae el golpe de voz, y confundirlos puede salirte caro literalmente. Por eso esta lección es la primera con audio: si no entendés, fijate en cuál sílaba suena más fuerte.",
+      "vocab": [
+        { "term": "How much is it?", "gloss": "¿Cuánto es?" },
+        { "term": "dollars / cents", "gloss": "dólares / centavos", "note": "'Cent' se pronuncia como 'sent', no como la 'c' del español." },
+        { "term": "fifteen", "gloss": "quince", "note": "Acento en la SEGUNDA sílaba: fif-TEEN. Ahí está la diferencia con fifty." },
+        { "term": "fifty", "gloss": "cincuenta", "note": "Acento en la PRIMERA sílaba: FIF-ty. Si no marcás bien el acento, tu interlocutor va a entender fifteen." },
+        { "term": "thirteen", "gloss": "trece", "note": "Acento en la segunda sílaba: thir-TEEN." },
+        { "term": "thirty", "gloss": "treinta", "note": "Acento en la primera sílaba: THIR-ty." },
+        { "term": "That's $4.99.", "gloss": "Son 4 con 99.", "note": "Se dice 'four ninety-nine', sin decir 'dollars' ni 'point' en el medio." },
+        { "term": "Do you take card?", "gloss": "¿Aceptan tarjeta?" },
+        { "term": "Can you say that again?", "gloss": "¿Podés decirlo de nuevo?", "note": "Recuperado de la lección 2 — clave cuando un número pasa demasiado rápido." }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Estás en un café y querés saber cuánto cuesta algo. Preguntá el precio.",
+          "targetHints": ["How much is it?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "El cajero te dice el precio de tu compra. Confirmá el monto en voz alta y preguntá si aceptan tarjeta — manejá el intercambio completo como puedas.",
+          "targetHints": ["That's...", "Do you take card?"]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Okay, so your total today is fifty dollars.",
+          "prompt": "Escuchá al cajero. ¿Cuánto es el total: quince dólares o cincuenta dólares?",
+          "targetHints": ["fifty"]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Good news — it's on sale, so you'll only pay thirteen dollars for that one.",
+          "prompt": "Escuchá el precio con descuento. ¿Cuánto vas a pagar: trece dólares o treinta dólares?",
+          "targetHints": ["thirteen"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Estás comprando varias cosas y el total te suena raro — quizás escuchaste mal un número. Preguntá el precio, confirmá el total en voz alta, y si no estás segura, pedí que te lo repitan.",
+          "targetHints": ["How much is it?", "Can you say that again?", "That's..."]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "en>es-speaker",
+    "level": "A1",
+    "topic": "ordering-food-and-coffee",
+    "title": "At the counter",
+    "position": 4,
+    "content": {
+      "intro": "Vas a poder pedir comida o café en un mostrador, responder las preguntas típicas del cajero, y retirar tu pedido. La trampa: en inglés casi nunca se dice 'I want' al pedir algo — suena brusco — se usa 'Can I get...' o 'I'll have...', que es justo lo que vas a escuchar y necesitar en el mostrador.",
+      "vocab": [
+        { "term": "Can I get a coffee?", "gloss": "¿Me das un café? / ¿Puedo pedir un café?", "note": "Forma estándar para pedir; mucho más natural que 'I want'." },
+        { "term": "For here or to go?", "gloss": "¿Para acá o para llevar?" },
+        { "term": "Small, medium, or large?", "gloss": "¿Chico, mediano o grande?" },
+        { "term": "Anything else?", "gloss": "¿Algo más?" },
+        { "term": "That's it, thanks.", "gloss": "Eso es todo, gracias." },
+        { "term": "Can I get that under the name...?", "gloss": "¿Lo podés poner a nombre de...?", "note": "Sirve para que te llamen cuando el pedido esté listo." },
+        { "term": "Cream and sugar?", "gloss": "¿Con crema y azúcar?" },
+        { "term": "I'll have a...", "gloss": "Voy a pedir un... / Quiero un...", "note": "Otra forma natural de pedir, tan común como 'Can I get...'." }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Estás en el mostrador de una cafetería. Pedí un café.",
+          "targetHints": ["Can I get a...", "I'll have a..."]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "El cajero te pregunta si es para acá o para llevar, y qué tamaño querés. Contestale y agregá algo más a tu pedido si querés — manejá todo el intercambio.",
+          "targetHints": ["For here / to go", "small, medium, or large"]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "So that's a medium iced coffee — can I get a name for the order?",
+          "prompt": "Escuchá al cajero repitiendo tu pedido. ¿Qué tamaño pidió: chico, mediano o grande?",
+          "targetHints": ["medium"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "El cajero te pregunta si querés crema y azúcar en tu café. Contestale con lo que realmente tomás.",
+          "targetHints": ["cream and sugar"]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Alright, is that everything for you, or would you like to add anything else?",
+          "prompt": "Escuchá al cajero. ¿Te está preguntando si querés algo más, o te está diciendo el total?",
+          "targetHints": ["anything else"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Estás pidiendo en una cafetería llena de gente. Pedí tu café o comida, contestá las preguntas del cajero sobre el tamaño y si es para llevar, dejá tu nombre para el pedido, y agradecé — manejá toda la conversación de principio a fin.",
+          "targetHints": ["Can I get...", "for here or to go?", "name for the order"]
+        }
+      ]
+    }
+  }
+]

@@ -1,0 +1,186 @@
+[
+  {
+    "languagePairCode": "es-PY>en-speaker",
+    "level": "A1",
+    "topic": "first-encounters",
+    "title": "¿Cómo te llamás?",
+    "position": 1,
+    "content": {
+      "intro": "You'll learn to introduce yourself, say where you're from, and ask someone else the same in an informal setting. The main trap: Paraguay uses 'vos' instead of 'tú', so the question forms you may have learned elsewhere (¿cómo te llamas?, ¿de dónde eres?) sound foreign here — you need ¿cómo te llamás? and ¿de dónde sos?.",
+      "vocab": [
+        { "term": "vos sos", "gloss": "you are", "note": "Voseo subject + verb, replaces 'tú eres' entirely in Paraguay." },
+        { "term": "¿cómo te llamás?", "gloss": "what's your name?", "note": "Voseo form; not ¿cómo te llamas?" },
+        { "term": "me llamo...", "gloss": "my name is..." },
+        { "term": "¿de dónde sos?", "gloss": "where are you from?", "note": "Voseo form of ser." },
+        { "term": "soy de...", "gloss": "I'm from..." },
+        { "term": "encantado / encantada", "gloss": "pleased to meet you", "note": "Adjust for your own gender." },
+        { "term": "¿a qué te dedicás?", "gloss": "what do you do (for work)?", "note": "Voseo; a common follow-up after names." },
+        { "term": "mucho gusto", "gloss": "nice to meet you", "note": "Interchangeable with encantado/a, slightly more common casually." }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "You've just sat down next to someone at a bus stop. Greet them and introduce yourself with your name.",
+          "targetHints": ["me llamo"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "The person asks where you're from. Answer them, then ask them the same question using voseo.",
+          "targetHints": ["soy de...", "¿de dónde sos?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Ask a new acquaintance for their name and what they do for work, both using voseo forms.",
+          "targetHints": ["¿cómo te llamás?", "¿a qué te dedicás?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "You're at a friend's family asado and someone new walks up to the group. Introduce yourself to them, ask their name, where they're from, and what they do — keep it flowing as one short conversation.",
+          "targetHints": ["voseo", "¿de dónde sos?", "¿a qué te dedicás?"]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>en-speaker",
+    "level": "A1",
+    "topic": "clarification",
+    "title": "No te entendí, ¿me repetís?",
+    "position": 2,
+    "content": {
+      "intro": "This is the single most useful lesson in A1: phrases to keep a conversation going when you mishear or don't know a word, instead of freezing or switching to English. The trap: 'repetir' and 'repetime' need the voseo command form, so it's ¿me repetís? and repetime, not the tú forms you may expect.",
+      "vocab": [
+        { "term": "no te entendí", "gloss": "I didn't understand you" },
+        { "term": "¿me repetís, por favor?", "gloss": "can you repeat that for me, please?", "note": "Voseo; casual but polite with 'por favor'." },
+        { "term": "más despacio, por favor", "gloss": "more slowly, please" },
+        { "term": "¿cómo se dice...?", "gloss": "how do you say...?" },
+        { "term": "¿qué significa...?", "gloss": "what does... mean?" },
+        { "term": "deletreame tu nombre", "gloss": "spell your name for me", "note": "Voseo command of deletrear; used constantly in Paraguay for names over the phone or counter." },
+        { "term": "¿cómo se escribe?", "gloss": "how is it written/spelled?" },
+        { "term": "¿podés hablar más fuerte?", "gloss": "can you speak louder?", "note": "Useful over noisy streets or bad phone lines." }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Someone just said something too fast for you to catch. Tell them you didn't understand and ask them to repeat it.",
+          "targetHints": ["no te entendí", "¿me repetís?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "A shopkeeper is talking quickly. Interrupt politely and ask them to slow down.",
+          "targetHints": ["más despacio, por favor"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Someone tells you their name but you're not sure how it's spelled. Ask them to spell it out for you.",
+          "targetHints": ["deletreame tu nombre", "¿cómo se escribe?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "You hear a word you've never heard before in the middle of what someone's telling you. Interrupt them to ask what it means, without losing the thread of the conversation.",
+          "targetHints": ["¿qué significa...?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "You're meeting someone new and you catch their name but not clearly enough to say it back confidently. Greet them, then handle it: ask them to repeat their name, and if you still can't catch it, ask them to spell it.",
+          "targetHints": ["¿me repetís?", "deletreame tu nombre"]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>en-speaker",
+    "level": "A1",
+    "topic": "numbers-and-prices",
+    "title": "Mil, luca y guaraníes",
+    "position": 3,
+    "content": {
+      "intro": "You'll learn to understand and say prices in guaraníes, including the thousands where most everyday prices sit. The trap: Paraguayan prices are almost always in the thousands or millions, and locals routinely drop the word 'mil' in slang (diez luca = 10,000 Gs.), so a number said fast can go by before you convert it in your head — that's why this lesson leans on asking for a repeat.",
+      "vocab": [
+        { "term": "mil", "gloss": "thousand", "note": "cinco mil = 5,000; the base unit of nearly all everyday prices." },
+        { "term": "cien mil", "gloss": "one hundred thousand" },
+        { "term": "un millón", "gloss": "one million" },
+        { "term": "luca", "gloss": "slang for 'mil' (thousand)", "note": "diez luca = 10,000 guaraníes; very common in spoken Paraguayan Spanish." },
+        { "term": "¿cuánto es?", "gloss": "how much is it?" },
+        { "term": "¿cuánto sale?", "gloss": "how much does it cost?", "note": "Interchangeable with ¿cuánto es? in shops and markets." },
+        { "term": "son diez mil", "gloss": "it's ten thousand", "note": "'son' (plural) agrees with amounts of money, not 'es'." },
+        { "term": "¿me repetís el precio?", "gloss": "can you repeat the price for me?", "note": "Recycled from Lesson 2 — essential when a number goes by too fast." }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "You're at a kiosco. Ask the vendor how much a bottle of water costs.",
+          "targetHints": ["¿cuánto sale?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "The vendor answers with a price. Say the amount back to confirm you understood — for example, if they said fifteen thousand guaraníes.",
+          "targetHints": ["son quince mil"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "The vendor mumbles the price and you only catch part of it. Ask them to repeat the price.",
+          "targetHints": ["¿me repetís el precio?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "A friend tells you their phone cost 'dos palos' — say back in full guaraníes what that number is, then ask if you understood correctly.",
+          "targetHints": ["un millón", "¿cuánto es?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "You're buying several items at a small shop and the total comes out complicated — over a hundred thousand guaraníes. Ask the price, then confirm the total back to the shopkeeper, asking them to repeat it if you're not sure.",
+          "targetHints": ["¿cuánto es?", "son...", "¿me repetís?"]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>en-speaker",
+    "level": "A1",
+    "topic": "ordering-street-food",
+    "title": "Comprando chipa y empanadas",
+    "position": 4,
+    "content": {
+      "intro": "You'll learn to order food from a street cart or bakery, ask for a quantity, and confirm the total price. The trap: quantities go before the item and often skip the article — 'dame dos empanadas' not 'dame las dos empanadas' — and prices here are always in guaraníes (Gs.), so keep last lesson's numbers ready.",
+      "vocab": [
+        { "term": "chipa", "gloss": "traditional Paraguayan cheese bread, often made with cassava starch", "note": "Sold everywhere from street carts, especially mornings and bus terminals." },
+        { "term": "chipa almidón", "gloss": "chipa made with cassava starch", "note": "The most common variety, chewy texture." },
+        { "term": "mandioca", "gloss": "cassava/yuca", "note": "A staple root vegetable, base of chipa and many dishes." },
+        { "term": "empanada", "gloss": "savory pastry turnover", "note": "Usually filled with meat, chicken, or cheese." },
+        { "term": "¿cuánto cuesta?", "gloss": "how much does it cost?", "note": "Same use as ¿cuánto sale? from Lesson 3." },
+        { "term": "dame dos, por favor", "gloss": "give me two, please", "note": "Quantity + item, no article — 'dame dos chipas' not 'dame las dos chipas'." },
+        { "term": "para llevar", "gloss": "to go / to take away" },
+        { "term": "caliente", "gloss": "hot", "note": "Chipa fresh out of the oven is often advertised as 'caliente'." },
+        { "term": "guaraníes (Gs.)", "gloss": "guaraníes (the currency)", "note": "Prices are almost always written as 'Gs. 5.000'." }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "You walk up to a chipa cart. Ask the vendor how much the chipa costs.",
+          "targetHints": ["¿cuánto cuesta?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Order three chipas from the vendor, and ask if they have any hot ones.",
+          "targetHints": ["dame tres, por favor", "caliente"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "You want two empanadas to take away, not to eat there. Order them accordingly.",
+          "targetHints": ["dame dos", "para llevar"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "After ordering, ask for the total price, and if the vendor's answer goes by too fast, ask them to repeat it.",
+          "targetHints": ["¿cuánto es?", "¿me repetís el precio?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "You're at a busy street stall with a short line behind you. Order a mix of chipa and empanadas in the quantities you want, ask if any are hot, confirm the total, and say it's to go — handle the whole exchange in one go.",
+          "targetHints": ["dame...", "para llevar", "¿cuánto es?"]
+        }
+      ]
+    }
+  }
+]

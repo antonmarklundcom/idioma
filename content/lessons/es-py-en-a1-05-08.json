@@ -1,0 +1,197 @@
+[
+  {
+    "languagePairCode": "es-PY>en-speaker",
+    "level": "A1",
+    "topic": "drinking-terere",
+    "title": "La ronda de tereré",
+    "position": 5,
+    "content": {
+      "intro": "You'll learn to join a tereré circle: accept or decline a round, ask about the herbs, and keep the informal 'vos' address going in a group. The main trap is politeness signals — you don't say a flat 'no' to decline, you use small set phrases or a gesture, and saying 'gracias' at the wrong moment can accidentally end your turn in the round.",
+      "vocab": [
+        { "term": "el tereré", "gloss": "cold herbal drink shared in a round", "note": "The central daytime social ritual in Paraguay; drunk from a shared guampa." },
+        { "term": "la guampa", "gloss": "the cup (traditionally a cow horn) tereré is served in" },
+        { "term": "la bombilla", "gloss": "the metal straw with a filter tip" },
+        { "term": "los yuyos", "gloss": "fresh herbs mixed in for flavor or a health effect", "note": "Also called 'remedios' colloquially — not medicine in the pharmacy sense, just herbal additions." },
+        { "term": "cebar", "gloss": "to prepare and pour a round (of tereré or mate)", "note": "The person cebando controls the order the guampa goes around." },
+        { "term": "¿querés una ronda?", "gloss": "want a round?", "note": "Voseo: 'querés' not 'quieres'." },
+        { "term": "gracias", "gloss": "no thanks (when said while handing the guampa back)", "note": "Paraguayan etiquette: saying 'gracias' as you return the guampa signals 'I'm done', not just 'thank you' — say it only when you actually want to stop." },
+        { "term": "¿tenés agua fría?", "gloss": "do you have cold water?", "note": "Voseo 'tenés', not 'tienes'." },
+        { "term": "¿qué yuyo le pusiste?", "gloss": "what herb did you put in it?", "note": "Voseo preterite 'pusiste'." },
+        { "term": "dale, sí", "gloss": "sure, yeah", "note": "Common casual acceptance, softer than a plain 'sí'." }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "A friend hands you the guampa and asks '¿querés una ronda?'. Accept and thank them casually.",
+          "targetHints": ["dale, sí", "gracias (only if you mean to accept, not decline)"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "You notice the tereré tastes minty. Ask the person cebando what herb they put in it.",
+          "targetHints": ["¿qué yuyo le pusiste?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "You've had enough for now. Hand the guampa back and decline the next round politely, without a flat 'no'.",
+          "targetHints": ["gracias (as a decline signal)"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "You're starting a round for your friends. Ask if there's cold water, then invite the group to drink using 'vos' address to one friend directly.",
+          "targetHints": ["¿tenés agua fría?", "¿querés...?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Explain to someone new to Paraguay, in your own words, how a tereré round works and what they should say to accept or decline — as if you were coaching them before their first round.",
+          "targetHints": ["cebar", "guampa", "gracias (decline signal)", "dale, sí"]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>en-speaker",
+    "level": "A1",
+    "topic": "asking-directions",
+    "title": "¿Dónde queda la parada?",
+    "position": 6,
+    "content": {
+      "intro": "You'll learn to ask strangers for directions and understand short spatial instructions in return. The main trap is that Paraguayan directions are given as voseo commands (seguí, doblá) rather than the 'tú' forms (sigue, dobla) you may have studied elsewhere — the stress moves to the last syllable.",
+      "vocab": [
+        { "term": "¿dónde queda...?", "gloss": "where is... located?", "note": "More natural here than '¿dónde está?' when asking about a fixed place." },
+        { "term": "la parada (de colectivo)", "gloss": "the bus stop" },
+        { "term": "seguí derecho", "gloss": "go straight", "note": "Voseo command; stress on the last syllable, unlike 'sigue derecho'." },
+        { "term": "doblá a la derecha / izquierda", "gloss": "turn right / left", "note": "Voseo command form of 'doblar'." },
+        { "term": "las cuadras", "gloss": "blocks", "note": "'Dos cuadras más' = two more blocks." },
+        { "term": "al lado de", "gloss": "next to" },
+        { "term": "a la vuelta de", "gloss": "just around the corner from" },
+        { "term": "perdón, ¿cómo llego a...?", "gloss": "excuse me, how do I get to...?" },
+        { "term": "¿me repetís, por favor?", "gloss": "can you say that again, please?", "note": "Recycled from Lesson 2 — essential once directions start coming fast." }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Stop a passerby politely and ask where the nearest bus stop is.",
+          "targetHints": ["perdón", "¿dónde queda la parada?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Ask a stranger how to get to the mercado from where you're standing.",
+          "targetHints": ["¿cómo llego a...?"]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Mirá, seguí derecho tres cuadras y después doblá a la izquierda. La farmacia queda al lado de una panadería.",
+          "prompt": "Someone just gave you directions to a pharmacy. How many blocks do you walk before turning, and what's right next to the pharmacy? Answer in Spanish.",
+          "targetHints": ["cuadras", "al lado de"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "The directions you were just given went by too fast. Ask the person to repeat, more slowly.",
+          "targetHints": ["¿me repetís, por favor?", "más despacio"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "A tourist near you looks lost and asks where the plaza is. Give them full directions from where you are now, using at least one voseo command.",
+          "targetHints": ["seguí derecho", "doblá a la...", "cuadras"]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>en-speaker",
+    "level": "A1",
+    "topic": "taking-the-bus",
+    "title": "Viajando en colectivo",
+    "position": 7,
+    "content": {
+      "intro": "You'll learn to board a local bus, confirm it's headed where you need, and tell the driver where to let you off. The main trap is that colectivos rarely have marked stops for every corner — you request your stop out loud right before you need it, not by pressing a button.",
+      "vocab": [
+        { "term": "el colectivo", "gloss": "the (city) bus" },
+        { "term": "la tarjeta (Más / Jaha)", "gloss": "the prepaid transit card", "note": "Name varies by operator/city; both are common contactless fare cards." },
+        { "term": "cargar saldo", "gloss": "to top up (the card's) balance" },
+        { "term": "el saldo", "gloss": "the balance", "note": "Recycles the numbers/money vocabulary from Lesson 3." },
+        { "term": "el chofer", "gloss": "the driver" },
+        { "term": "bajo en la próxima, por favor", "gloss": "I'm getting off at the next stop, please" },
+        { "term": "¿vas hacia el centro?", "gloss": "are you headed downtown?", "note": "Voseo — used with the driver or a fellow passenger, not overly formal." },
+        { "term": "el asiento", "gloss": "the seat" },
+        { "term": "la parada", "gloss": "the stop", "note": "Recycled from Lesson 6." }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "You're not sure this bus goes downtown. Ask the driver directly, using vos.",
+          "targetHints": ["¿vas hacia el centro?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Your stop is coming up. Tell the driver you're getting off at the next stop.",
+          "targetHints": ["bajo en la próxima, por favor"]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Disculpá, tu tarjeta no tiene saldo suficiente. Tenés que cargarla en el kiosco de la esquina antes de subir.",
+          "prompt": "Someone at the bus stop just told you something about your transit card. What's the problem, and what do you need to do before boarding? Answer in Spanish.",
+          "targetHints": ["saldo", "cargar"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "The bus is crowded and there's one seat left next to a fellow passenger. Ask them, casually, if it's free.",
+          "targetHints": ["¿está libre?", "vos"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "You realize you boarded the wrong colectivo. Explain the situation to the driver and ask what you should do — get off now, or does this bus pass anywhere useful.",
+          "targetHints": ["me subí al colectivo equivocado", "¿vas hacia...?", "bajo en la próxima"]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>en-speaker",
+    "level": "A1",
+    "topic": "shopping-supermarket",
+    "title": "En el súper y el despensero",
+    "position": 8,
+    "content": {
+      "intro": "You'll learn to ask a neighborhood shopkeeper for groceries by weight, check prices, and settle how you'll pay. The main trap is that many small despensas still expect exact change or a specific payment method, so confirming 'efectivo o QR' before you commit to buying saves an awkward moment at the register.",
+      "vocab": [
+        { "term": "un kilo de...", "gloss": "a kilo of...", "note": "'medio kilo' = half a kilo, 'un cuarto' = a quarter kilo." },
+        { "term": "¿a cuánto está...?", "gloss": "how much is... (per unit)?", "note": "Used for price-per-weight items, distinct from '¿cuánto cuesta?' for a fixed item." },
+        { "term": "¿tenés cambio?", "gloss": "do you have change?", "note": "Voseo; recycles the numbers/money system from Lesson 3." },
+        { "term": "efectivo o QR", "gloss": "cash or QR (code payment)", "note": "QR-code mobile payment is now common even at small despensas." },
+        { "term": "la bolsa", "gloss": "the bag" },
+        { "term": "el despensero / la despensera", "gloss": "the neighborhood shopkeeper" },
+        { "term": "¿vos tenés...?", "gloss": "do you have...? / do you carry...?", "note": "Voseo — natural way to ask if a small shop stocks something." },
+        { "term": "así nomás", "gloss": "that's fine as is / that'll do", "note": "Common Paraguayan filler for closing off a request, e.g. when you don't need a bag." }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Ask the despensero for a kilo of tomatoes and how much it costs.",
+          "targetHints": ["un kilo de...", "¿a cuánto está...?"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "You're about to pay with a large bill. Ask if they have change.",
+          "targetHints": ["¿tenés cambio?"]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "El kilo de queso Paraguay está a doce mil, y hoy no estamos aceptando QR, solamente efectivo, disculpá.",
+          "prompt": "The shopkeeper just told you two things about buying cheese today. What's the price per kilo, and how can you pay? Answer in Spanish.",
+          "targetHints": ["¿a cuánto está?", "efectivo"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Before choosing what to buy, ask the shopkeeper whether you can pay by QR or only cash.",
+          "targetHints": ["efectivo o QR"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Do a full small shop: ask for two different items by weight, confirm the total, say you don't need a bag, and settle how you'll pay.",
+          "targetHints": ["un kilo de...", "¿a cuánto está...?", "así nomás", "efectivo o QR"]
+        }
+      ]
+    }
+  }
+]
