@@ -1,0 +1,42 @@
+# PLAN.md's acceptance checks are run by hand on two real phones, and that will not
+# change - this workflow covers the half a machine can check on every push, so a
+# regression in the scheduling/streak/cap logic is caught before it reaches a phone.
+# Nothing here needs a database, a Gemini key or a TTS key: every check is offline.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# A branch with an open PR fires both events; without this the same four checks
+# run twice per commit. Also cancels a superseded run when a branch is pushed
+# again before CI finishes.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Lint (includes the §14.3 provider-abstraction rule)
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Validate lesson content against the import schema
+        run: npm run lessons:validate
+
+      - name: Unit tests
+        run: npm test
