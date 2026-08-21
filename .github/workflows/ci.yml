@@ -6,8 +6,15 @@ name: CI
 
 on:
   push:
-    branches: ['**']
+    branches: [main]
   pull_request:
+
+# A branch with an open PR fires both events; without this the same four checks
+# run twice per commit. Also cancels a superseded run when a branch is pushed
+# again before CI finishes.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   check:
