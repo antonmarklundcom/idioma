@@ -173,6 +173,9 @@ templates don't declare — for all three pairs in both modes. That is also why 
 split out of `seed.ts`: that file runs `main()` on import, so its data half had to move somewhere
 a test can read without opening a database connection.
 
+`tests/catalog.test.ts` pins the §14.4 commitment that no unverified price is ever rendered as a
+number: an unpriced model estimates to `null` ("unknown" in `/admin`), never to `$0`.
+
 Nothing in `tests/` touches the database — the DB-backed halves of `srs.ts`/`gamification.ts`
 are deliberately not mocked, because a mock of Drizzle would test the mock. Those paths are
 verified live, against Neon, in the Phase 0 verification session.
