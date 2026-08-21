@@ -163,6 +163,16 @@ monthly TTS char cap that is the only thing between the billed Google project an
 the three-locale dictionary's key/arity parity, and the request schemas at the trust boundary
 (§6.3 bounds, exactly-one-input, the CEFR enum, §3.4 forward compatibility).
 
+`tests/seedPairs.test.ts` covers the seam §10.3 calls the most important detail in the app: the
+`patternKey` taxonomy lives in seed **data** (`scripts/seedPairs.ts`) and is substituted into the
+system prompt by **code** (`assembleSystemPrompt`), and nothing but a test connects the two. A
+template that spells `{{error_taxonomy}}` any other way ships the literal placeholder to the
+model, and the only symptom is a dashboard that slowly fills with junk. The test asserts both
+directions — no slot reaches the model unsubstituted, and the assembler substitutes no slot the
+templates don't declare — for all three pairs in both modes. That is also why the pair rows were
+split out of `seed.ts`: that file runs `main()` on import, so its data half had to move somewhere
+a test can read without opening a database connection.
+
 Nothing in `tests/` touches the database — the DB-backed halves of `srs.ts`/`gamification.ts`
 are deliberately not mocked, because a mock of Drizzle would test the mock. Those paths are
 verified live, against Neon, in the Phase 0 verification session.
