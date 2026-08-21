@@ -44,6 +44,10 @@ against the documented API/DB behavior, but has never executed against a real Ge
 key, or Neon database. Expect real fallout on first live use — budget time for it, per PLAN.md's
 own gap analysis.
 
+The offline half of that verification now runs on every push (see "Checks" below): the
+scheduling, streak, cap, tier and request-validation logic is covered by unit tests, so live
+verification can spend its time on the things that genuinely need a phone and a key.
+
 ## Runbook
 
 ### Local dev
@@ -137,6 +141,31 @@ already-exists check to the pair for exactly that reason.
 
 `listen_prompt` exercises appear from position 6 onward (position 3 in the English deck, which
 needs listening earlier); their `audioText` is synthesized and played but never displayed.
+
+### Checks
+
+```bash
+npm run lint              # incl. the §14.3 provider-abstraction rule
+npm run typecheck
+npm run lessons:validate  # content vs. the import schema
+npm test                  # unit tests (node:test via tsx)
+```
+
+All four are offline — no database, no Gemini key, no TTS key — and all four run in CI
+(`.github/workflows/ci.yml`) on every push and pull request.
+
+`tests/` covers the pure logic that runs unattended for weeks and fails silently rather than
+loudly: the SM-2-lite scheduler (§13.3 intervals, the ease floor, the interval cap), the
+XP/streak decision (§12.2 daily goal, the one-shield-per-ISO-week rule, milestones, and the
+timezone rule that keeps Asunción and Stockholm from corrupting each other's streaks), the
+monthly TTS char cap that is the only thing between the billed Google project and a silent bill
+(§16 defect 2), the §15.3 tier gate, the §6.4 retry-hint clamp, the listening-audio cache key,
+the three-locale dictionary's key/arity parity, and the request schemas at the trust boundary
+(§6.3 bounds, exactly-one-input, the CEFR enum, §3.4 forward compatibility).
+
+Nothing in `tests/` touches the database — the DB-backed halves of `srs.ts`/`gamification.ts`
+are deliberately not mocked, because a mock of Drizzle would test the mock. Those paths are
+verified live, against Neon, in the Phase 0 verification session.
 
 ### Review queue
 
