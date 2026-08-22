@@ -12,7 +12,7 @@ import { useTutorAudioPlayer } from './useTutorAudioPlayer';
 import { XpToast } from '@/components/gamification/XpToast';
 import { Celebration } from '@/components/gamification/Celebration';
 import type { CoachingProfile } from '@/lib/db/schema';
-import type { PlayerExercise } from '@/lib/lessons';
+import type { PlayerDialogue, PlayerExercise } from '@/lib/lessons';
 import type { LessonVocabItem } from '@/lib/srs';
 import type { LessonAttemptResponse, LessonCompleteResponse } from '@/types';
 import { t, type Locale } from '@/lib/i18n';
@@ -43,6 +43,8 @@ const MAX_ATTEMPTS_PER_EXERCISE = 2;
  * - **Free practice** (no exercises): the Phase 3 behaviour, where each turn's
  *   followUpQuestion becomes the next turn's promptContext.
  */
+const stepKey = (exercise: PlayerExercise) => `${exercise.kind === 'dialogue' ? 'd' : 'e'}${exercise.index}`;
+
 /** What one exercise ended up looking like, for the end-of-lesson scorecard. */
 type ExerciseResult = {
   errorCount: number;
@@ -57,6 +59,7 @@ export function LessonPlayer({
   lessonId,
   exercises = [],
   vocab = [],
+  dialogue = null,
   nextLesson,
   locale,
   onFinished,
@@ -69,6 +72,12 @@ export function LessonPlayer({
   exercises?: PlayerExercise[];
   /** Shown as the tap-to-hear vocab step before the first exercise (P1.5). */
   vocab?: LessonVocabItem[];
+  /**
+   * The lesson's exchange (ROADMAP.md lesson-loop item 4). Played and read whole as a
+   * step of its own; the learner's own lines arrive inside `exercises` as steps of
+   * kind 'dialogue', so they walk the same graded loop as everything else.
+   */
+  dialogue?: PlayerDialogue | null;
   /** Offered from the completion screen so a good run can continue immediately. */
   nextLesson?: { id: string; title: string } | null;
   locale: Locale;
@@ -91,7 +100,14 @@ export function LessonPlayer({
   const [showVocab, setShowVocab] = useState(
     () => lessonId !== undefined && exercises.length > 0 && vocab.length > 0,
   );
-  const [vocabAudioStatus, setVocabAudioStatus] = useState<'idle' | 'unavailable'>('idle');
+  // One flag for every lesson-audio slot: a pair with no configured voice has none of
+  // it, and finding that out once is enough for the vocab chips and the dialogue both.
+  const [slotAudioStatus, setSlotAudioStatus] = useState<'idle' | 'unavailable'>('idle');
+  const [showDialogue, setShowDialogue] = useState(
+    () => lessonId !== undefined && exercises.length > 0 && dialogue !== null,
+  );
+  const [dialoguePlaying, setDialoguePlaying] = useState<number | null>(null);
+  const [peeking, setPeeking] = useState(false);
   const [playingVocab, setPlayingVocab] = useState<number | null>(null);
   const [step, setStep] = useState(0);
   const [promptContext, setPromptContext] = useState(initialPrompt);
@@ -107,7 +123,8 @@ export function LessonPlayer({
   const [turnsTaken, setTurnsTaken] = useState(0);
   // Per-exercise attempt count (the retry budget) and the outcome the scorecard reads.
   const [attempts, setAttempts] = useState(0);
-  const [results, setResults] = useState<Record<number, ExerciseResult>>({});
+  // Keyed by kind+index: a dialogue line 0 and an exercise 0 are different steps.
+  const [results, setResults] = useState<Record<string, ExerciseResult>>({});
   // An object URL for the learner's own last recording, so they can hear it back
   // against the tutor's version. Revoked as soon as it is replaced (below).
   const [ownRecordingUrl, setOwnRecordingUrl] = useState<string | null>(null);
@@ -176,38 +193,85 @@ export function LessonPlayer({
     }
   }, [lessonId, exercise, plays, audioStatus, player]);
 
-  const playVocabAudio = useCallback(
-    async (index: number) => {
-      if (!lessonId || vocabAudioStatus === 'unavailable') return;
-      // Must happen inside the tap's own call stack for iOS (PLAN.md §4.5).
-      player.unlock();
-
-      const cached = audioCache.current.get(`vocab:${index}`);
-      if (cached) {
-        player.play(cached);
+  /**
+   * Plays one item of a lesson's audio - a vocab chip or a dialogue line - by index.
+   * Shared so both cost exactly one synthesis each, cached per slot, and so a pair
+   * with no voice degrades the same way in both places.
+   */
+  const playSlotAudio = useCallback(
+    async (slot: 'vocab' | 'dialogue', index: number, onEnded?: () => void) => {
+      if (!lessonId || slotAudioStatus === 'unavailable') {
+        onEnded?.();
         return;
       }
-
-      setPlayingVocab(index);
+      player.unlock();
+      const cacheKey = `${slot}:${index}`;
+      const cached = audioCache.current.get(cacheKey);
+      if (cached) {
+        player.play(cached, onEnded);
+        return;
+      }
       try {
-        const res = await fetch(`/api/lessons/${lessonId}/audio?vocab=${index}`);
+        const res = await fetch(`/api/lessons/${lessonId}/audio?${slot}=${index}`);
         if (!res.ok) {
-          // A pair with no configured voice (409) will never have audio, so the step
-          // stops offering it rather than failing once per word. Anything else is
-          // transient and the chip stays tappable.
-          if (res.status === 409) setVocabAudioStatus('unavailable');
+          if (res.status === 409) setSlotAudioStatus('unavailable');
+          onEnded?.();
           return;
         }
         const data: { audioBase64: string } = await res.json();
-        audioCache.current.set(`vocab:${index}`, data.audioBase64);
-        player.play(data.audioBase64);
+        audioCache.current.set(cacheKey, data.audioBase64);
+        player.play(data.audioBase64, onEnded);
       } catch {
-        // Silent: the words are on screen, and a failed tap costs the learner nothing.
-      } finally {
-        setPlayingVocab(null);
+        onEnded?.();
       }
     },
-    [lessonId, player, vocabAudioStatus],
+    [lessonId, player, slotAudioStatus],
+  );
+
+  const playVocabAudio = useCallback(
+    (index: number) => {
+      setPlayingVocab(index);
+      void playSlotAudio('vocab', index, () => setPlayingVocab(null));
+    },
+    [playSlotAudio],
+  );
+
+  /**
+   * Plays the exchange from `index` to the end, one line after another - the "listen
+   * to the whole thing" half of the dialogue step. Chained through a ref because each
+   * line's onEnded has to reach the CURRENT function, not the one captured when
+   * playback started.
+   */
+  const playDialogueFromRef = useRef<(index: number) => void>(() => {});
+  const playDialogueFrom = useCallback(
+    (index: number) => {
+      const line = dialogue?.lines[index];
+      if (!line) {
+        setDialoguePlaying(null);
+        return;
+      }
+      setDialoguePlaying(index);
+      void playSlotAudio('dialogue', index, () => playDialogueFromRef.current(index + 1));
+    },
+    [dialogue, playSlotAudio],
+  );
+  // Assigned in an effect, not during render: React owns the render pass, and a ref
+  // written there is a tear waiting to happen under concurrent rendering.
+  useEffect(() => {
+    playDialogueFromRef.current = playDialogueFrom;
+  }, [playDialogueFrom]);
+
+  /**
+   * One line on its own. No chaining: the tutor audio element is shared, so starting a
+   * line mid-run reassigns its `onended` and the run simply stops where it was - which
+   * is what tapping a line means.
+   */
+  const playDialogueLine = useCallback(
+    (index: number) => {
+      setDialoguePlaying(index);
+      void playSlotAudio('dialogue', index, () => setDialoguePlaying(null));
+    },
+    [playSlotAudio],
   );
 
   const handleRecorded = useCallback(
@@ -232,7 +296,9 @@ export function LessonPlayer({
       }
       const body =
         isGuided && exercise
-          ? { audioBase64, mimeType, lessonId, exerciseIndex: exercise.index }
+          ? exercise.kind === 'dialogue'
+            ? { audioBase64, mimeType, lessonId, dialogueLineIndex: exercise.index }
+            : { audioBase64, mimeType, lessonId, exerciseIndex: exercise.index }
           : { audioBase64, mimeType, lessonId, promptContext };
 
       const result = await fetchJson<LessonAttemptResponse>('/api/lesson/attempt', {
@@ -253,14 +319,17 @@ export function LessonPlayer({
         // A retry REPLACES the exercise's result: the question the scorecard answers
         // is "did they end up saying it right", not "did they say it right first time".
         setAttempts((n) => n + 1);
-        setResults((current) => ({
-          ...current,
-          [exercise.index]: {
-            errorCount: data.errors.length,
-            corrected: data.correctedUtterance,
-            attempts: (current[exercise.index]?.attempts ?? 0) + 1,
-          },
-        }));
+        setResults((current) => {
+          const key = stepKey(exercise);
+          return {
+            ...current,
+            [key]: {
+              errorCount: data.errors.length,
+              corrected: data.correctedUtterance,
+              attempts: (current[key]?.attempts ?? 0) + 1,
+            },
+          };
+        });
       }
       if (!isGuided) setPromptContext(data.followUpQuestion);
       setStatus('idle');
@@ -283,6 +352,7 @@ export function LessonPlayer({
     setFeedback(null);
     setPlays(0);
     setAttempts(0);
+    setPeeking(false);
     setAudioStatus('idle');
     setStep((s) => s + 1);
   }, []);
@@ -354,7 +424,7 @@ export function LessonPlayer({
             </p>
             <div className="flex gap-1.5" aria-hidden="true">
               {exercises.map((ex) => {
-                const result = results[ex.index];
+                const result = results[stepKey(ex)];
                 return (
                   <span
                     key={ex.index}
@@ -427,7 +497,7 @@ export function LessonPlayer({
         <div className="flex flex-col gap-1">
           <h2 className="heading-section">{strings.vocabTitle}</h2>
           <p className="text-sm text-ink-muted">
-            {vocabAudioStatus === 'unavailable' ? strings.vocabAudioUnavailable : strings.vocabHint}
+            {slotAudioStatus === 'unavailable' ? strings.vocabAudioUnavailable : strings.vocabHint}
           </p>
         </div>
 
@@ -437,7 +507,7 @@ export function LessonPlayer({
               <button
                 type="button"
                 onClick={() => playVocabAudio(i)}
-                disabled={vocabAudioStatus === 'unavailable'}
+                disabled={slotAudioStatus === 'unavailable'}
                 className="card flex w-full items-center justify-between gap-3 text-left transition-transform active:scale-[0.99] disabled:active:scale-100"
               >
                 <span className="flex min-w-0 flex-col">
@@ -445,7 +515,7 @@ export function LessonPlayer({
                   <span className="text-sm text-ink-muted">{item.gloss}</span>
                   {item.note && <span className="mt-1 text-xs text-ink-muted italic">{item.note}</span>}
                 </span>
-                {vocabAudioStatus === 'idle' && (
+                {slotAudioStatus === 'idle' && (
                   <span aria-hidden="true" className="shrink-0 text-xl">
                     {playingVocab === i ? '…' : '🔊'}
                   </span>
@@ -456,7 +526,72 @@ export function LessonPlayer({
         </ul>
 
         <button type="button" onClick={() => setShowVocab(false)} className="btn-primary self-start">
-          {strings.startExercises}
+          {/* Naming the step that actually follows: with a dialogue in the lesson, the
+              next thing is listening to it, not being graded. */}
+          {showDialogue ? strings.onToTheConversation : strings.startExercises}
+        </button>
+      </div>
+    );
+  }
+
+  // The exchange, whole, before any of it is performed (ROADMAP.md lesson-loop item 4).
+  // Everything is visible here on purpose: this is the model, not the test.
+  if (showDialogue && dialogue) {
+    return (
+      <div className="flex w-full flex-1 flex-col gap-4 py-6">
+        <div className="flex flex-col gap-1">
+          <h2 className="heading-section">{strings.dialogueTitle}</h2>
+          <p className="text-sm text-ink-muted">
+            {slotAudioStatus === 'unavailable' ? strings.vocabAudioUnavailable : strings.dialogueHint}
+          </p>
+          {dialogue.setup && <p className="text-sm font-semibold text-ink">{dialogue.setup}</p>}
+        </div>
+
+        {slotAudioStatus === 'idle' && (
+          <button
+            type="button"
+            onClick={() => playDialogueFrom(0)}
+            className="btn-secondary self-start"
+          >
+            {strings.playWholeDialogue}
+          </button>
+        )}
+
+        <ul className="flex flex-col gap-2">
+          {dialogue.lines.map((line) => (
+            <li key={line.index}>
+              <button
+                type="button"
+                onClick={() => playDialogueLine(line.index)}
+                disabled={slotAudioStatus === 'unavailable'}
+                className={`card flex w-full items-start justify-between gap-3 text-left transition-transform active:scale-[0.99] disabled:active:scale-100 ${
+                  dialoguePlaying === line.index ? 'ring-2 ring-brand-400' : ''
+                } ${line.isLearner ? 'border-l-4 border-l-brand-400' : ''}`}
+              >
+                <span className="flex min-w-0 flex-col">
+                  <span className="text-xs font-bold tracking-wide text-ink-muted uppercase">
+                    {line.speaker}
+                    {line.isLearner ? ` · ${strings.yourLine}` : ''}
+                  </span>
+                  <span className="font-semibold text-ink">{line.text}</span>
+                  {line.gloss && <span className="text-sm text-ink-muted">{line.gloss}</span>}
+                </span>
+                {slotAudioStatus === 'idle' && (
+                  <span aria-hidden="true" className="shrink-0 text-xl">
+                    {dialoguePlaying === line.index ? '🔈' : '🔊'}
+                  </span>
+                )}
+              </button>
+            </li>
+          ))}
+        </ul>
+
+        <button
+          type="button"
+          onClick={() => setShowDialogue(false)}
+          className="btn-primary self-start"
+        >
+          {strings.yourTurnNow}
         </button>
       </div>
     );
@@ -469,6 +604,7 @@ export function LessonPlayer({
           {strings.exerciseOf(step + 1, exercises.length)}
           {exercise?.kind === 'listen' ? strings.listeningSuffix : ''}
           {exercise?.kind === 'fill_gap' ? strings.fillGapSuffix : ''}
+          {exercise?.kind === 'dialogue' ? strings.dialogueSuffix : ''}
           {attempts > 0 && !feedback ? ` · ${strings.secondAttempt}` : ''}
         </p>
       )}
@@ -500,9 +636,49 @@ export function LessonPlayer({
         </div>
       )}
 
+      {/* What was just said to them, above their cue and replayable: the exchange is
+          the point, and a line answered without hearing the setup is a flashcard. */}
+      {exercise?.kind === 'dialogue' && exercise.contextLine && (
+        <button
+          type="button"
+          onClick={() => playDialogueLine(exercise.index - 1)}
+          disabled={slotAudioStatus === 'unavailable'}
+          className="card flex w-full max-w-lg items-center justify-between gap-3 text-left transition-transform active:scale-[0.99] disabled:active:scale-100"
+        >
+          <span className="flex min-w-0 flex-col">
+            <span className="text-xs font-bold tracking-wide text-ink-muted uppercase">
+              {strings.theySaid}
+            </span>
+            <span className="mt-1 font-semibold text-ink">{exercise.contextLine}</span>
+          </span>
+          {slotAudioStatus === 'idle' && (
+            <span aria-hidden="true" className="shrink-0 text-xl">
+              🔊
+            </span>
+          )}
+        </button>
+      )}
+
       <p className="max-w-lg text-center text-xl font-semibold text-balance text-ink">
         {exercise ? exercise.prompt : promptContext}
       </p>
+
+      {/* Their own line is one tap away rather than on screen: reading it aloud is a
+          much easier exercise than producing it from the meaning. */}
+      {exercise?.kind === 'dialogue' &&
+        (peeking ? (
+          <p className="max-w-lg text-center text-lg font-extrabold text-balance text-ink">
+            {exercise.answer}
+          </p>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setPeeking(true)}
+            className="-my-1 cursor-pointer px-2 py-1 text-sm font-bold text-ink-muted"
+          >
+            {strings.peekAtTheLine}
+          </button>
+        ))}
 
       {/* The gapped sentence is the thing being read, so it outweighs the instruction
           above it. The completed answer stays on the server (lib/lessons.ts). */}

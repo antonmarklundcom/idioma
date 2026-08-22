@@ -218,7 +218,7 @@ export async function getLessonForPair(lessonId: string, languagePairId: string)
 // array: they round-trip from the browser back to this file as `exerciseIndex`.
 // ---------------------------------------------------------------------------
 
-export type PlayerExerciseKind = 'speak' | 'listen' | 'fill_gap';
+export type PlayerExerciseKind = 'speak' | 'listen' | 'fill_gap' | 'dialogue';
 
 /**
  * What the browser is allowed to know about an exercise. Deliberately does NOT
@@ -233,6 +233,15 @@ export type PlayerExercise = {
   prompt: string;
   /** fill_gap only: the sentence with the blank in it, displayed to the learner. */
   sentence?: string;
+  /** dialogue only: what the other person says immediately before this line. */
+  contextLine?: string;
+  /**
+   * dialogue only: the line the learner is performing. Unlike a fill_gap's `answer`
+   * this IS sent to the browser - the whole exchange was just played and read in the
+   * listening half of the step, so hiding it afterwards would be theatre. The player
+   * keeps it behind a peek toggle so it is a choice, not the default.
+   */
+  answer?: string;
 };
 
 const EXERCISE_KINDS: Record<string, PlayerExerciseKind> = {
@@ -280,6 +289,26 @@ export function toPlayerExercises(content: unknown): PlayerExercise[] {
     }
     return [{ index, kind, prompt }];
   });
+}
+
+/**
+ * The learner's own lines of the dialogue, as ordinary player steps. Modelling them
+ * as exercises is what keeps the dialogue off a second grading path: the player walks
+ * them with the same loop, and the attempt route assembles their context from the
+ * lesson row the same way - just from `dialogueLineIndex` instead of `exerciseIndex`.
+ */
+export function toDialogueTurns(content: unknown): PlayerExercise[] {
+  const dialogue = toPlayerDialogue(content);
+  if (!dialogue) return [];
+  return dialogue.lines
+    .filter((line) => line.isLearner)
+    .map((line) => ({
+      index: line.index,
+      kind: 'dialogue' as const,
+      prompt: line.gloss ?? line.text,
+      contextLine: dialogue.lines[line.index - 1]?.text,
+      answer: line.text,
+    }));
 }
 
 /**
@@ -342,6 +371,124 @@ export function getListenAudioText(content: unknown, index: number): string | nu
 export function getVocabAudioText(content: unknown, index: number): string | null {
   const item = getLessonVocab(content)[index];
   return item ? item.term : null;
+}
+
+// ---------------------------------------------------------------------------
+// The dialogue block (ROADMAP.md lesson-loop item 4)
+//
+// A lesson used to be a word list plus isolated prompts; the dialogue is the thing
+// that connects them. It is read defensively here like everything else in the jsonb
+// column, and a malformed one simply doesn't render - it must never take a lesson
+// with it.
+// ---------------------------------------------------------------------------
+
+export type PlayerDialogueLine = {
+  index: number;
+  speaker: string;
+  text: string;
+  gloss?: string;
+  /** True for the lines the learner performs in the second half of the step. */
+  isLearner: boolean;
+};
+
+export type PlayerDialogue = {
+  setup?: string;
+  lines: PlayerDialogueLine[];
+};
+
+function rawDialogue(content: unknown): Record<string, unknown> | null {
+  const dialogue = (content as { dialogue?: unknown } | null)?.dialogue;
+  return typeof dialogue === 'object' && dialogue !== null
+    ? (dialogue as Record<string, unknown>)
+    : null;
+}
+
+/**
+ * The dialogue as the browser sees it - INCLUDING the learner's own lines. Unlike a
+ * listen_prompt there is nothing to withhold: the whole exchange is played and read
+ * in the listening half of the step, so pretending to hide it in the performing half
+ * would be theatre. The learner's cue is the gloss; the line itself sits behind a
+ * peek toggle in the UI.
+ */
+export function toPlayerDialogue(content: unknown): PlayerDialogue | null {
+  const dialogue = rawDialogue(content);
+  if (!dialogue) return null;
+  const learnerSpeaker = nonEmptyString(dialogue.learnerSpeaker);
+  const rawLines = Array.isArray(dialogue.lines) ? dialogue.lines : [];
+  if (!learnerSpeaker || rawLines.length < 2) return null;
+
+  const lines: PlayerDialogueLine[] = [];
+  for (const [index, raw] of rawLines.entries()) {
+    if (typeof raw !== 'object' || raw === null) return null;
+    const line = raw as Record<string, unknown>;
+    const speaker = nonEmptyString(line.speaker);
+    const text = nonEmptyString(line.text);
+    if (!speaker || !text) return null;
+    lines.push({
+      index,
+      speaker,
+      text,
+      gloss: nonEmptyString(line.gloss) ?? undefined,
+      isLearner: speaker === learnerSpeaker,
+    });
+  }
+  // A dialogue nobody performs is just a paragraph; the step needs at least one
+  // line for the learner and one for the other voice.
+  if (!lines.some((line) => line.isLearner) || lines.every((line) => line.isLearner)) return null;
+
+  return { setup: nonEmptyString(dialogue.setup) ?? undefined, lines };
+}
+
+/** The text one dialogue line synthesizes. Server-side, like every other TTS input. */
+export function getDialogueAudioText(content: unknown, index: number): string | null {
+  return toPlayerDialogue(content)?.lines[index]?.text ?? null;
+}
+
+/**
+ * The `promptContext` for a learner's dialogue line. Assembled on the server from the
+ * lesson row - the browser sends an index - and it carries what the other person just
+ * said, so the tutor grades the line IN ITS EXCHANGE rather than as a stray sentence.
+ */
+export function buildDialoguePromptContext(content: unknown, index: number): string | null {
+  const dialogue = toPlayerDialogue(content);
+  const line = dialogue?.lines[index];
+  if (!dialogue || !line || !line.isLearner) return null;
+
+  const previous = dialogue.lines[index - 1];
+  return (
+    'Dialogue practice. The learner is performing one side of a short exchange' +
+    `${dialogue.setup ? ` (${dialogue.setup})` : ''}.\n` +
+    (previous ? `The other person just said: "${previous.text}"\n` : '') +
+    `The line the learner is meant to produce is: "${line.text}"` +
+    `${line.gloss ? ` (meaning: ${line.gloss})` : ''}\n` +
+    'Judge how close what they said is to that line in meaning and in form, and how ' +
+    'they said it. A natural equivalent is fine; a different meaning is not.'
+  );
+}
+
+/**
+ * Splitting a lesson intro into the promise and the fine print (ROADMAP.md lesson-loop
+ * item 5). The intros are good writing in the wrong place: a learner opening a lesson
+ * wants to know what they will be able to DO, and the grammar trap matters later, when
+ * they are about to fall into it. A lesson may carry an explicit `canDo`; where it
+ * doesn't, the first sentence is that promise in practice.
+ */
+export function splitIntro(
+  intro: string,
+  canDo?: string,
+): { lead: string; rest: string | null } {
+  const text = (intro ?? '').trim();
+  if (canDo?.trim()) return { lead: canDo.trim(), rest: text || null };
+  if (!text) return { lead: '', rest: null };
+
+  // Sentence end followed by whitespace. Abbreviations would split badly, but lesson
+  // intros are plain prose - and the cost of a wrong split is a short lead line, not
+  // a broken page.
+  const match = text.match(/^.*?[.!?](?=\s)/u);
+  if (!match) return { lead: text, rest: null };
+  const lead = match[0].trim();
+  const rest = text.slice(match[0].length).trim();
+  return { lead, rest: rest.length > 0 ? rest : null };
 }
 
 /** The lesson's vocab list, for the review-queue enqueue on completion (§13.2). */

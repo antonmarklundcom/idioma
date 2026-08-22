@@ -59,6 +59,12 @@ export const lessonAttemptRequestSchema = z
      * `audioText` must never reach the browser (§3.4).
      */
     exerciseIndex: z.number().int().min(0).optional(),
+    /**
+     * Index into the lesson's `content.dialogue.lines` - the learner performing one
+     * side of the exchange. Server-assembled like `exerciseIndex`, and mutually
+     * exclusive with it: a turn is one or the other, never both.
+     */
+    dialogueLineIndex: z.number().int().min(0).optional(),
     /** Review drill (§13.4): the server builds promptContext from the item's front/back. */
     reviewItemId: z.uuid().optional(),
     promptContext: z.string().max(PROMPT_CONTEXT_MAX_CHARS).optional(),
@@ -85,6 +91,20 @@ export const lessonAttemptRequestSchema = z
         path: ['exerciseIndex'],
       });
     }
+    if (body.dialogueLineIndex !== undefined && body.lessonId === undefined) {
+      ctx.addIssue({
+        code: 'custom',
+        message: '"dialogueLineIndex" requires "lessonId"',
+        path: ['dialogueLineIndex'],
+      });
+    }
+    if (body.dialogueLineIndex !== undefined && body.exerciseIndex !== undefined) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Send either "exerciseIndex" or "dialogueLineIndex", not both',
+        path: ['dialogueLineIndex'],
+      });
+    }
   })
   // Normalizes to the provider-neutral input shape (§14.1) so the route never has
   // to assert which of the two fields is present.
@@ -92,6 +112,7 @@ export const lessonAttemptRequestSchema = z
     const rest = {
       lessonId: body.lessonId,
       exerciseIndex: body.exerciseIndex,
+      dialogueLineIndex: body.dialogueLineIndex,
       reviewItemId: body.reviewItemId,
       promptContext: body.promptContext,
       mode: body.mode,
@@ -260,9 +281,48 @@ export const lessonExerciseSchema = z
     }
   });
 
+/**
+ * The dialogue block (ROADMAP.md lesson-loop item 4). A lesson's words and exercises
+ * are isolated by design; one short exchange is what ties them into something that
+ * reads like a course. Optional, so every existing lesson stays valid unchanged.
+ */
+export const lessonDialogueLineSchema = z.object({
+  /** A short label, not a name to be spoken: "A"/"B", "Vendedora"/"Cliente". */
+  speaker: z.string().trim().min(1).max(40),
+  /** The line itself, in the TARGET language - this is what gets synthesized. */
+  text: z.string().trim().min(1),
+  /** The learner's-language meaning, shown under the line and used as their cue. */
+  gloss: z.string().trim().min(1).optional(),
+});
+
+export const lessonDialogueSchema = z
+  .object({
+    /** One line of scene-setting in the learner's language, e.g. "En la parada". */
+    setup: z.string().trim().min(1).optional(),
+    /** Which speaker the LEARNER performs. Must be one of the speakers below. */
+    learnerSpeaker: z.string().trim().min(1).max(40),
+    lines: z.array(lessonDialogueLineSchema).min(2).max(12),
+  })
+  .superRefine((dialogue, ctx) => {
+    if (!dialogue.lines.some((line) => line.speaker === dialogue.learnerSpeaker)) {
+      ctx.addIssue({
+        code: 'custom',
+        message: '"learnerSpeaker" must match the speaker of at least one line',
+        path: ['learnerSpeaker'],
+      });
+    }
+  });
+
 export const lessonContentSchema = z.object({
   intro: z.string().trim().min(1),
+  /**
+   * The one-line "after this you can…" promise. Optional: where a lesson doesn't
+   * carry one, the reader derives a lead from the first sentence of `intro`, so no
+   * existing lesson has to be rewritten to benefit (ROADMAP.md lesson-loop item 5).
+   */
+  canDo: z.string().trim().min(1).optional(),
   vocab: z.array(lessonVocabItemSchema).default([]),
+  dialogue: lessonDialogueSchema.optional(),
   exercises: z.array(lessonExerciseSchema).min(1),
 });
 

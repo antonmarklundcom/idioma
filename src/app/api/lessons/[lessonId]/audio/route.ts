@@ -3,7 +3,12 @@ import { eq } from 'drizzle-orm';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { languagePairs } from '@/lib/db/schema';
-import { getLessonForPair, getListenAudioText, getVocabAudioText } from '@/lib/lessons';
+import {
+  getDialogueAudioText,
+  getLessonForPair,
+  getListenAudioText,
+  getVocabAudioText,
+} from '@/lib/lessons';
 import { speakingRateFor, synthesizeTutorSpeech } from '@/lib/tts';
 import {
   getCachedListenAudio,
@@ -36,9 +41,12 @@ export async function GET(request: Request, { params }: { params: Promise<{ less
 
   const searchParams = new URL(request.url).searchParams;
   const vocabParam = searchParams.get('vocab');
+  const dialogueParam = searchParams.get('dialogue');
   const exerciseParam = searchParams.get('exercise');
-  const slot: 'exercise' | 'vocab' = vocabParam !== null ? 'vocab' : 'exercise';
-  const indexParam = slot === 'vocab' ? vocabParam : exerciseParam;
+  const slot: 'exercise' | 'vocab' | 'dialogue' =
+    vocabParam !== null ? 'vocab' : dialogueParam !== null ? 'dialogue' : 'exercise';
+  const indexParam =
+    slot === 'vocab' ? vocabParam : slot === 'dialogue' ? dialogueParam : exerciseParam;
   const index = Number(indexParam);
   if (!indexParam || !Number.isInteger(index) || index < 0) {
     return NextResponse.json(
@@ -56,7 +64,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ less
   const audioText =
     slot === 'vocab'
       ? getVocabAudioText(lesson.content, index)
-      : getListenAudioText(lesson.content, index);
+      : slot === 'dialogue'
+        ? getDialogueAudioText(lesson.content, index)
+        : getListenAudioText(lesson.content, index);
   if (!audioText) {
     return NextResponse.json(
       { error: 'No audio for that item', code: 'not_found' },

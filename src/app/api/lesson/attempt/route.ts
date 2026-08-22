@@ -19,7 +19,11 @@ import {
   FREE_PRACTICE_LESSON_CONTEXT,
   QUICK_REPLY_INSTRUCTION,
 } from '@/lib/gemini/prompts';
-import { buildExercisePromptContext, getLessonForPair } from '@/lib/lessons';
+import {
+  buildDialoguePromptContext,
+  buildExercisePromptContext,
+  getLessonForPair,
+} from '@/lib/lessons';
 import { getReviewItemForUser } from '@/lib/srs';
 import { synthesizeTutorSpeech } from '@/lib/tts';
 import {
@@ -111,7 +115,8 @@ export async function POST(request: Request) {
       { status: 400 },
     );
   }
-  const { input, lessonId, exerciseIndex, reviewItemId, promptContext, mode } = parsedBody.data;
+  const { input, lessonId, exerciseIndex, dialogueLineIndex, reviewItemId, promptContext, mode } =
+    parsedBody.data;
 
   // PLAN.md §15.3: the capability gate, checked before anything is read or spent. It is
   // server-side only by design - the browser can post to this route directly, so a
@@ -175,19 +180,24 @@ export async function POST(request: Request) {
       );
     }
     lessonContext = buildReviewPromptContext(item);
-  } else if (lessonId && exerciseIndex !== undefined) {
+  } else if (lessonId && (exerciseIndex !== undefined || dialogueLineIndex !== undefined)) {
     const lesson = await getLessonForPair(lessonId, pair.id);
     if (!lesson) {
       return NextResponse.json({ error: 'Lesson not found', code: 'not_found' }, { status: 404 });
     }
-    const exerciseContext = buildExercisePromptContext(lesson.content, exerciseIndex);
-    if (!exerciseContext) {
+    // A dialogue line is assembled here for the same reason an exercise is: the
+    // browser sends an index, and the row in the database decides what the turn means.
+    const builtContext =
+      dialogueLineIndex !== undefined
+        ? buildDialoguePromptContext(lesson.content, dialogueLineIndex)
+        : buildExercisePromptContext(lesson.content, exerciseIndex as number);
+    if (!builtContext) {
       return NextResponse.json(
         { error: 'Unknown exercise', code: 'invalid_exercise' },
         { status: 400 },
       );
     }
-    lessonContext = exerciseContext;
+    lessonContext = builtContext;
   }
 
   const systemPrompt = assembleSystemPrompt({

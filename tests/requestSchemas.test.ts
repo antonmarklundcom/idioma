@@ -142,6 +142,38 @@ describe('sessionEndRequestSchema (§16 defect 1)', () => {
   });
 });
 
+describe('lessonAttemptRequestSchema — dialogue lines', () => {
+  const base = { audioBase64: 'AAA', mimeType: 'audio/webm' };
+
+  it('accepts a dialogue line with its lesson', () => {
+    const parsed = lessonAttemptRequestSchema.safeParse({
+      ...base,
+      lessonId: '11111111-1111-4111-8111-111111111111',
+      dialogueLineIndex: 1,
+    });
+    assert.equal(parsed.success, true);
+  });
+
+  it('refuses a dialogue line with no lesson to look it up in', () => {
+    assert.equal(
+      lessonAttemptRequestSchema.safeParse({ ...base, dialogueLineIndex: 1 }).success,
+      false,
+    );
+  });
+
+  it('refuses a turn that claims to be both an exercise and a dialogue line', () => {
+    assert.equal(
+      lessonAttemptRequestSchema.safeParse({
+        ...base,
+        lessonId: '11111111-1111-4111-8111-111111111111',
+        exerciseIndex: 0,
+        dialogueLineIndex: 1,
+      }).success,
+      false,
+    );
+  });
+});
+
 describe('lessonImportItemSchema (§3.4 — the /admin import contract)', () => {
   const valid = {
     languagePairCode: 'es-PY>en',
@@ -221,6 +253,29 @@ describe('lessonImportItemSchema (§3.4 — the /admin import contract)', () => 
       }),
       false,
     );
+  });
+
+  it('accepts a dialogue block, and rejects one nobody performs', () => {
+    const withDialogue = (dialogue: unknown) =>
+      lessonImportItemSchema.safeParse({ ...valid, content: { ...valid.content, dialogue } }).success;
+
+    const lines = [
+      { speaker: 'A', text: '¿Qué te doy?', gloss: 'What can I get you?' },
+      { speaker: 'B', text: 'Dame dos empanadas.' },
+    ];
+    assert.equal(withDialogue({ learnerSpeaker: 'B', lines }), true);
+    assert.equal(withDialogue({ learnerSpeaker: 'C', lines }), false);
+    assert.equal(withDialogue({ learnerSpeaker: 'B', lines: [lines[0]] }), false);
+    assert.equal(withDialogue({ lines }), false);
+  });
+
+  it('keeps canDo optional, so no existing lesson has to be rewritten', () => {
+    assert.equal(lessonImportItemSchema.safeParse(valid).success, true);
+    const parsed = lessonImportItemSchema.parse({
+      ...valid,
+      content: { ...valid.content, canDo: 'You can greet someone.' },
+    });
+    assert.equal(parsed.content.canDo, 'You can greet someone.');
   });
 
   it('passes an unknown exercise type through untouched (§3.4 forward compatibility)', () => {
