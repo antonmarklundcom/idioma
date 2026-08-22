@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { ModelSettingsForm } from '@/components/admin/ModelSettingsForm';
@@ -24,6 +25,16 @@ export default async function AdminPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 px-5 py-8 sm:px-6 sm:py-10">
+      {/* /admin sits outside the (app) route group, so it has no tab bar - and with no
+          link out of it the only way back to the app was to close the PWA and reopen
+          it. One link is the whole fix. */}
+      <Link
+        href="/dashboard"
+        className="-mx-2 -mb-2 self-start px-2 py-2 text-sm font-bold text-brand-600 dark:text-brand-300"
+      >
+        ← Back to the app
+      </Link>
+
       <div>
         <h1 className="heading-page">Admin</h1>
         <p className="mt-1 text-ink-muted">
