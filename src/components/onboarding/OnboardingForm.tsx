@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { focusSkillValues } from '@/lib/zodSchemas';
 import { t, type Locale } from '@/lib/i18n';
@@ -28,9 +28,16 @@ export function OnboardingForm({
     'confidence_first',
   );
   const [focusSkills, setFocusSkills] = useState<string[]>(['speaking-confidence']);
-  const [timezone] = useState(
-    () => Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
-  );
+  // Starts as 'UTC' (matches the server's render) and is corrected client-side after
+  // mount, so the server-rendered HTML and the first client render agree - computing
+  // the browser's real timezone directly in useState's initializer diverges from the
+  // server (React error #418), which aborts hydration and breaks every click handler
+  // on the page, not just this form's.
+  const [timezone, setTimezone] = useState('UTC');
+
+  useEffect(() => {
+    setTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC');
+  }, []);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
