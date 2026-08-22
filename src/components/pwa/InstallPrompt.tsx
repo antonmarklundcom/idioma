@@ -127,16 +127,14 @@ export function InstallPrompt() {
   if (dismissed || (!installEvent && !showIosHint)) return null;
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center p-3 sm:p-4">
-      <div className="pointer-events-auto flex w-full max-w-md items-start gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-lg dark:border-slate-700 dark:bg-slate-900">
+    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+4rem)] z-50 flex justify-center p-3 sm:bottom-0 sm:p-4">
+      <div className="card animate-rise pointer-events-auto flex w-full max-w-md items-start gap-3 shadow-raised">
         <span className="text-2xl leading-none" role="img" aria-hidden="true">
           🗣️
         </span>
         <div className="flex-1 text-left">
-          <p className="text-sm font-semibold text-slate-900 dark:text-white">
-            {strings.title}
-          </p>
-          <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+          <p className="text-sm font-bold text-ink">{strings.title}</p>
+          <p className="mt-1 text-sm text-ink-muted">
             {showIosHint ? strings.iosHint : strings.androidHint}
           </p>
           <div className="mt-3 flex items-center gap-2">
@@ -144,7 +142,7 @@ export function InstallPrompt() {
               <button
                 type="button"
                 onClick={install}
-                className="rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white dark:bg-white dark:text-slate-900"
+                className="btn-primary btn-sm"
               >
                 {strings.install}
               </button>
@@ -152,7 +150,7 @@ export function InstallPrompt() {
             <button
               type="button"
               onClick={dismiss}
-              className="rounded-full px-3 py-2 text-sm text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white"
+              className="cursor-pointer rounded-full px-3 py-2 text-sm font-semibold text-ink-muted hover:text-ink"
             >
               {strings.notNow}
             </button>
@@ -162,7 +160,7 @@ export function InstallPrompt() {
           type="button"
           onClick={dismiss}
           aria-label={strings.dismiss}
-          className="-mt-1 -mr-1 rounded-full p-1 text-lg leading-none text-slate-400 hover:text-slate-700 dark:hover:text-white"
+          className="-mt-1 -mr-1 cursor-pointer rounded-full p-1 text-lg leading-none text-ink-muted hover:text-ink"
         >
           ×
         </button>

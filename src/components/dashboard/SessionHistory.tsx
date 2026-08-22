@@ -1,3 +1,4 @@
+import { EmptyState } from '@/components/ui/EmptyState';
 import type { SessionSummary } from '@/lib/progress';
 import { t, type Locale } from '@/lib/i18n';
 
@@ -19,24 +20,20 @@ export function SessionHistory({
 }) {
   const strings = t(locale);
   if (sessions.length === 0) {
-    return (
-      <p className="text-sm text-slate-500 dark:text-slate-400">
-        {strings.dashboardComponents.noSessionsYet}
-      </p>
-    );
+    return <EmptyState emoji="🎤">{strings.dashboardComponents.noSessionsYet}</EmptyState>;
   }
 
   return (
-    <ul className="flex flex-col divide-y divide-slate-200 dark:divide-slate-800">
+    <ul className="card flex flex-col divide-y divide-line py-1">
       {sessions.map((s) => (
-        <li key={s.id} className="flex items-center justify-between py-2 text-sm">
+        <li key={s.id} className="flex items-center justify-between py-3 text-sm">
           <div>
-            <span className="font-medium text-slate-800 dark:text-slate-100">
+            <span className="font-bold text-ink">
               {strings.dashboardComponents.modeLabels[s.mode]}
             </span>
-            <span className="ml-2 text-slate-400">{formatDateTime(s.startedAt)}</span>
+            <span className="ml-2 text-ink-muted">{formatDateTime(s.startedAt)}</span>
           </div>
-          <span className="text-slate-500 dark:text-slate-400">
+          <span className="text-ink-muted">
             {strings.dashboardComponents.utteranceCount(s.utteranceCount)}
           </span>
         </li>

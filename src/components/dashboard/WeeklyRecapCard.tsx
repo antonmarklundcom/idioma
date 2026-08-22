@@ -8,9 +8,9 @@ export function WeeklyRecapCard({ recap, locale }: { recap: WeeklyRecap; locale:
 
   if (recap.utterances === 0 && recap.xpThisWeek === 0 && recap.xpLastWeek === 0) {
     return (
-      <section className="rounded-xl border border-slate-200 px-4 py-3 dark:border-slate-700">
-        <h2 className="text-sm font-semibold text-slate-900 dark:text-white">{strings.title}</h2>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{strings.empty}</p>
+      <section className="card">
+        <h2 className="text-sm font-bold text-ink">{strings.title}</h2>
+        <p className="mt-1 text-sm text-ink-muted">{strings.empty}</p>
       </section>
     );
   }
@@ -18,18 +18,18 @@ export function WeeklyRecapCard({ recap, locale }: { recap: WeeklyRecap; locale:
   const xpDelta = recap.xpThisWeek - recap.xpLastWeek;
 
   return (
-    <section className="flex flex-col gap-3 rounded-xl border border-slate-200 px-4 py-3 dark:border-slate-700">
-      <h2 className="text-sm font-semibold text-slate-900 dark:text-white">{strings.title}</h2>
+    <section className="card flex flex-col gap-3">
+      <h2 className="text-sm font-bold text-ink">{strings.title}</h2>
 
-      <div className="grid grid-cols-2 gap-2 text-sm text-slate-700 dark:text-slate-200 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2 text-sm text-ink sm:grid-cols-4">
         <p>{strings.utterances(recap.utterances)}</p>
         <p>{strings.practiceDays(recap.practiceDays)}</p>
         <p
           className={
             xpDelta > 0
-              ? 'text-emerald-600 dark:text-emerald-400'
+              ? 'font-semibold text-success-600'
               : xpDelta < 0
-                ? 'text-slate-500 dark:text-slate-400'
+                ? 'text-ink-muted'
                 : ''
           }
         >

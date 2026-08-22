@@ -80,14 +80,12 @@ export function OnboardingForm({
   return (
     <form onSubmit={handleSubmit} className="flex w-full max-w-lg flex-col gap-8">
       <fieldset className="flex flex-col gap-3">
-        <legend className="text-lg font-semibold text-slate-900 dark:text-white">
-          {strings.whatLearning}
-        </legend>
+        <legend className="heading-section">{strings.whatLearning}</legend>
         <div className="flex flex-col gap-2">
           {languagePairs.map((pair) => (
             <label
               key={pair.id}
-              className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 px-4 py-3 has-[:checked]:border-sky-500 has-[:checked]:bg-sky-50 dark:border-slate-700 dark:has-[:checked]:bg-sky-950"
+              className="flex cursor-pointer items-center gap-3 rounded-2xl border-2 border-line bg-surface px-4 py-3.5 shadow-card has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50 dark:has-[:checked]:bg-brand-900/25"
             >
               <input
                 type="radio"
@@ -96,40 +94,32 @@ export function OnboardingForm({
                 checked={languagePairId === pair.id}
                 onChange={() => setLanguagePairId(pair.id)}
               />
-              <span className="text-slate-800 dark:text-slate-100">{pair.displayName}</span>
+              <span className="font-semibold text-ink">{pair.displayName}</span>
             </label>
           ))}
         </div>
       </fieldset>
 
       <fieldset className="flex flex-col gap-3">
-        <legend className="text-lg font-semibold text-slate-900 dark:text-white">
-          {strings.currentLevel}
-        </legend>
+        <legend className="heading-section">{strings.currentLevel}</legend>
         <div className="flex flex-wrap gap-2">
           {CEFR_LEVELS.map((lvl) => (
             <button
               type="button"
               key={lvl}
               onClick={() => setLevel(lvl)}
-              className={`rounded-full border px-4 py-1.5 text-sm ${
-                level === lvl
-                  ? 'border-sky-500 bg-sky-500 text-white'
-                  : 'border-slate-200 text-slate-600 dark:border-slate-700 dark:text-slate-300'
-              }`}
+              className={`chip ${level === lvl ? 'chip-active' : ''}`}
             >
               {lvl}
             </button>
           ))}
         </div>
-        <p className="text-sm text-slate-500 dark:text-slate-400">{strings.levelHint}</p>
+        <p className="text-sm text-ink-muted">{strings.levelHint}</p>
       </fieldset>
 
       <fieldset className="flex flex-col gap-3">
-        <legend className="text-lg font-semibold text-slate-900 dark:text-white">
-          {strings.coachHeading}
-        </legend>
-        <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 px-4 py-3 has-[:checked]:border-sky-500 has-[:checked]:bg-sky-50 dark:border-slate-700 dark:has-[:checked]:bg-sky-950">
+        <legend className="heading-section">{strings.coachHeading}</legend>
+        <label className="flex cursor-pointer items-start gap-3 rounded-2xl border-2 border-line bg-surface px-4 py-3.5 shadow-card has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50 dark:has-[:checked]:bg-brand-900/25">
           <input
             type="radio"
             name="coachingProfile"
@@ -138,15 +128,11 @@ export function OnboardingForm({
             onChange={() => setCoachingProfile('confidence_first')}
           />
           <span>
-            <span className="block font-medium text-slate-800 dark:text-slate-100">
-              {strings.gentleTitle}
-            </span>
-            <span className="block text-sm text-slate-500 dark:text-slate-400">
-              {strings.gentleDesc}
-            </span>
+            <span className="block font-bold text-ink">{strings.gentleTitle}</span>
+            <span className="block text-sm text-ink-muted">{strings.gentleDesc}</span>
           </span>
         </label>
-        <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 px-4 py-3 has-[:checked]:border-sky-500 has-[:checked]:bg-sky-50 dark:border-slate-700 dark:has-[:checked]:bg-sky-950">
+        <label className="flex cursor-pointer items-start gap-3 rounded-2xl border-2 border-line bg-surface px-4 py-3.5 shadow-card has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50 dark:has-[:checked]:bg-brand-900/25">
           <input
             type="radio"
             name="coachingProfile"
@@ -155,31 +141,21 @@ export function OnboardingForm({
             onChange={() => setCoachingProfile('accuracy_focus')}
           />
           <span>
-            <span className="block font-medium text-slate-800 dark:text-slate-100">
-              {strings.accuracyTitle}
-            </span>
-            <span className="block text-sm text-slate-500 dark:text-slate-400">
-              {strings.accuracyDesc}
-            </span>
+            <span className="block font-bold text-ink">{strings.accuracyTitle}</span>
+            <span className="block text-sm text-ink-muted">{strings.accuracyDesc}</span>
           </span>
         </label>
       </fieldset>
 
       <fieldset className="flex flex-col gap-3">
-        <legend className="text-lg font-semibold text-slate-900 dark:text-white">
-          {strings.focusHeading}
-        </legend>
+        <legend className="heading-section">{strings.focusHeading}</legend>
         <div className="flex flex-wrap gap-2">
           {focusSkillValues.map((skill) => (
             <button
               type="button"
               key={skill}
               onClick={() => toggleFocusSkill(skill)}
-              className={`rounded-full border px-4 py-1.5 text-sm ${
-                focusSkills.includes(skill)
-                  ? 'border-sky-500 bg-sky-500 text-white'
-                  : 'border-slate-200 text-slate-600 dark:border-slate-700 dark:text-slate-300'
-              }`}
+              className={`chip ${focusSkills.includes(skill) ? 'chip-active' : ''}`}
             >
               {strings.focusSkills[skill]}
             </button>
@@ -187,15 +163,11 @@ export function OnboardingForm({
         </div>
       </fieldset>
 
-      <p className="text-xs text-slate-400 dark:text-slate-500">{strings.timezoneNote(timezone)}</p>
+      <p className="text-xs text-ink-muted">{strings.timezoneNote(timezone)}</p>
 
-      {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+      {error && <p className="text-sm font-semibold text-brand-700 dark:text-brand-300">{error}</p>}
 
-      <button
-        type="submit"
-        disabled={submitting || !languagePairId}
-        className="rounded-full bg-sky-600 px-6 py-3 font-medium text-white disabled:opacity-50"
-      >
+      <button type="submit" disabled={submitting || !languagePairId} className="btn-primary">
         {submitting ? strings.saving : strings.startLearning}
       </button>
     </form>

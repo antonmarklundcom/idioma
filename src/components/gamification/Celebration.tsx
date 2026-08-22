@@ -22,8 +22,8 @@ export function Celebration({ message, onDismiss }: { message: string; onDismiss
     <div
       role="status"
       onClick={onDismiss}
-      className={`fixed inset-x-0 top-4 z-50 mx-auto w-fit cursor-pointer rounded-full bg-slate-900 px-5 py-2.5 text-sm font-medium text-white shadow-lg transition-all duration-300 dark:bg-white dark:text-slate-900 ${
-        visible ? 'translate-y-0 opacity-100' : '-translate-y-2 opacity-0'
+      className={`fixed inset-x-0 top-[calc(env(safe-area-inset-top)+1rem)] z-50 mx-auto w-fit cursor-pointer rounded-full bg-brand-600 px-6 py-3 text-sm font-extrabold text-white shadow-raised transition-all duration-300 ${
+        visible ? 'animate-pop translate-y-0 opacity-100' : '-translate-y-2 opacity-0'
       }`}
     >
       {message}

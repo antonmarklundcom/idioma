@@ -17,20 +17,20 @@ export const metadata: Metadata = {
 
 export default function OfflinePage() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-gradient-to-b from-sky-50 to-white px-6 text-center font-sans dark:from-slate-950 dark:to-slate-900">
+    <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-gradient-to-b from-brand-50 to-surface-sunken px-6 text-center font-sans dark:from-brand-900/30 dark:to-surface-sunken">
       <span className="text-6xl" role="img" aria-label="Microphone">
         🎙️
       </span>
-      <h1 className="max-w-sm text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl dark:text-white">
+      <h1 className="max-w-sm text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">
         Idioma needs a connection to hear you 🎙️
       </h1>
-      <p className="max-w-sm text-base text-slate-600 dark:text-slate-300">
+      <p className="max-w-sm text-base text-ink-muted">
         Sin conexión. Reconnect and your lesson picks up exactly where you left it —
         nothing was lost.
       </p>
       <a
         href="/dashboard"
-        className="rounded-full bg-slate-900 px-6 py-3 font-medium text-white dark:bg-white dark:text-slate-900"
+        className="btn-primary"
       >
         Try again
       </a>

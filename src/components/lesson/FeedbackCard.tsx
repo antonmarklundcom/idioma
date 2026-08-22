@@ -35,22 +35,20 @@ export function FeedbackCard({
   const [errorsExpanded, setErrorsExpanded] = useState(isAccuracyFocus);
 
   return (
-    <div className="flex w-full max-w-lg flex-col gap-4 rounded-2xl border border-slate-200 p-5 dark:border-slate-700">
+    <div className="card animate-rise flex w-full max-w-lg flex-col gap-4 p-5">
       <div>
-        <p className="text-xs uppercase tracking-wide text-slate-400">{strings.youSaid}</p>
-        <p className="text-slate-800 dark:text-slate-100">{feedback.transcription}</p>
+        <p className="text-xs font-bold tracking-wide text-ink-muted uppercase">{strings.youSaid}</p>
+        <p className="text-ink">{feedback.transcription}</p>
       </div>
 
-      <div className="rounded-xl bg-sky-50 p-4 dark:bg-sky-950">
-        <p className="text-slate-800 dark:text-slate-100">{feedback.tutorReply}</p>
-        <p className="mt-2 font-medium text-slate-900 dark:text-white">
-          {feedback.followUpQuestion}
-        </p>
+      <div className="rounded-2xl bg-surface-muted p-4">
+        <p className="text-ink">{feedback.tutorReply}</p>
+        <p className="mt-2 font-bold text-ink">{feedback.followUpQuestion}</p>
         {tutorAudioBase64 && (
           <button
             type="button"
             onClick={onReplay}
-            className="-mx-2 -my-1 mt-3 px-2 py-2 text-sm text-sky-600 dark:text-sky-400"
+            className="-mx-2 -my-1 mt-3 cursor-pointer px-2 py-2 text-sm font-bold text-brand-600 dark:text-brand-300"
           >
             {strings.replay}
           </button>
@@ -58,14 +56,14 @@ export function FeedbackCard({
       </div>
 
       {feedback.errors.length === 0 ? (
-        <p className="text-sm text-emerald-600 dark:text-emerald-400">{strings.noErrors}</p>
+        <p className="text-sm font-bold text-success-600">✨ {strings.noErrors}</p>
       ) : (
         <div>
           <button
             type="button"
             onClick={() => setErrorsExpanded((v) => !v)}
             aria-expanded={errorsExpanded}
-            className="-mx-2 -my-1 px-2 py-2 text-sm font-medium text-slate-600 dark:text-slate-300"
+            className="-mx-2 -my-1 cursor-pointer px-2 py-2 text-sm font-bold text-ink-muted"
           >
             {errorsExpanded
               ? strings.hideDetails
@@ -76,7 +74,7 @@ export function FeedbackCard({
               {feedback.errors.map((err, i) => (
                 <div
                   key={i}
-                  className={`rounded-lg border px-3 py-2 text-sm ${SEVERITY_STYLES[err.severity] ?? ''}`}
+                  className={`rounded-xl border-2 px-3 py-2 text-sm ${SEVERITY_STYLES[err.severity] ?? ''}`}
                 >
                   <p>
                     <span className="line-through opacity-70">{err.quote}</span>{' '}
