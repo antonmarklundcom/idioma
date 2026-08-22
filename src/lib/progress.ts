@@ -112,11 +112,13 @@ async function estimateXpInRange(
     .where(
       and(eq(utterances.userId, userId), gte(utterances.createdAt, start), lt(utterances.createdAt, end)),
     )
-    // Group by the "day" output alias rather than repeating the to_char(...) expression:
-    // each sql`` template embeds `timezone` as its own bound parameter, so a repeated
-    // expression is only value-equal, not textually identical - Postgres's GROUP BY
-    // column-matching requires the latter and rejects the query otherwise (42803).
-    .groupBy(sql`day`);
+    // Group by the SELECT list's first column ordinally rather than repeating the
+    // to_char(...) expression: each sql`` template embeds `timezone` as its own bound
+    // parameter, so a repeated expression is only value-equal, not textually identical -
+    // Postgres's GROUP BY column-matching requires the latter and rejects the query
+    // otherwise (42803). Drizzle doesn't emit `AS "day"` in the raw SQL, so grouping by
+    // that alias name fails too (42703) - the ordinal position is what actually works.
+    .groupBy(sql`1`);
 
   const turns = Number(turnRow?.turns ?? 0);
   const zeroErrorTurns = Number(turnRow?.zeroErrorTurns ?? 0);
