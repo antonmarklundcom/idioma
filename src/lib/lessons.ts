@@ -70,6 +70,58 @@ export function nextLessonInPath(
   return lessons.find((lesson) => !completed.has(lesson.id)) ?? null;
 }
 
+/**
+ * The path's three visual states. A lesson is `next` when it is the pointer
+ * `nextLessonInPath` returned, `later` when it comes after that pointer, and
+ * `done` when it has been completed. "Later" is a dimming hint only - adults may
+ * jump ahead, so nothing here locks a lesson (ROADMAP.md P0.1).
+ */
+export type LessonPathState = 'done' | 'next' | 'later';
+
+export type LessonPathEntry = LessonSummary & { state: LessonPathState };
+
+export type LessonPathLevel = {
+  level: CefrLevel;
+  lessons: LessonPathEntry[];
+  doneCount: number;
+  total: number;
+};
+
+/**
+ * Groups the lessons the browser is about to render into level sections and
+ * labels each one with its path state. `lessons` is whatever the current filter
+ * left visible, so the per-level counts describe the visible set; `nextUpId`
+ * comes from `nextLessonInPath` over the UNFILTERED list, so filtering never
+ * moves the "Next up" pointer. Input order (level → position → title) is kept.
+ */
+export function buildLessonPath(
+  lessons: LessonSummary[],
+  completed: Set<string>,
+  nextUpId: string | null,
+): LessonPathLevel[] {
+  const levels: LessonPathLevel[] = [];
+
+  // Anything uncompleted that is not the pointer necessarily sits after it -
+  // the pointer is the FIRST uncompleted lesson - so it dims as "later".
+  for (const lesson of lessons) {
+    const state: LessonPathState = completed.has(lesson.id)
+      ? 'done'
+      : lesson.id === nextUpId
+        ? 'next'
+        : 'later';
+    let group = levels.at(-1);
+    if (!group || group.level !== lesson.level) {
+      group = { level: lesson.level, lessons: [], doneCount: 0, total: 0 };
+      levels.push(group);
+    }
+    group.lessons.push({ ...lesson, state });
+    group.total += 1;
+    if (state === 'done') group.doneCount += 1;
+  }
+
+  return levels;
+}
+
 // Distinct topics for a pair, used to populate the browser's topic filter.
 export async function getTopicsForPair(languagePairId: string): Promise<string[]> {
   const rows = await db
