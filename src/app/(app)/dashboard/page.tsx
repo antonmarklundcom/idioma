@@ -2,8 +2,15 @@ import Link from 'next/link';
 import { auth } from '@/lib/auth';
 import { getProgressData, getWeeklyRecap } from '@/lib/progress';
 import { getPartnerStreak, getUserStatsSummary } from '@/lib/gamification';
-import { getCompletedLessonIds, getLessonsForPair, nextLessonInPath } from '@/lib/lessons';
+import {
+  getCompletedLessonIds,
+  getLessonForPair,
+  getLessonsForPair,
+  nextLessonInPath,
+  toPlayerExercises,
+} from '@/lib/lessons';
 import { getUserLocale } from '@/lib/getUserLocale';
+import { TODAY_REVIEW_CAP, estimateTodayMinutes } from '@/lib/today';
 import { t } from '@/lib/i18n';
 import { estimateReviewMinutes } from '@/lib/srs';
 import { ErrorPatternList } from '@/components/dashboard/ErrorPatternList';
@@ -45,6 +52,19 @@ export default async function DashboardPage() {
         )
       : null;
 
+  // ROADMAP.md P0.4: the button advertises the length of the session /today
+  // actually builds, from the same inputs - the review count capped the same way,
+  // and the real exercise count of the lesson it will serve. A button that
+  // promises "~7 min" and delivers fifteen is the fastest way to lose the habit.
+  const nextLessonRow =
+    nextLesson && session?.user?.languagePairId
+      ? await getLessonForPair(nextLesson.id, session.user.languagePairId)
+      : null;
+  const todayMinutes = estimateTodayMinutes({
+    dueCount: Math.min(data?.dueReviewCount ?? 0, TODAY_REVIEW_CAP),
+    exerciseCount: nextLessonRow ? toPlayerExercises(nextLessonRow.content).length : 0,
+  });
+
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-5 py-8 sm:px-6 sm:py-10">
       <h1 className="heading-page">{strings.dashboard.welcomeBack(session?.user?.name ?? undefined)}</h1>
@@ -60,6 +80,10 @@ export default async function DashboardPage() {
           />
         </section>
       )}
+
+      <Link href="/today" className="btn-primary w-full py-4 text-lg">
+        {strings.dashboard.startTodaySession(todayMinutes)}
+      </Link>
 
       {nextLesson && (
         <Link

@@ -70,7 +70,7 @@ export function OnboardingForm({
         setError(data.error ?? strings.genericError);
         return;
       }
-      router.push('/dashboard');
+      router.push('/today');
       router.refresh();
     } finally {
       setSubmitting(false);

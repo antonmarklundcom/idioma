@@ -29,10 +29,17 @@ export function ReviewSession({
   cards,
   coachingProfile,
   locale,
+  onFinished,
 }: {
   cards: ReviewCard[];
   coachingProfile: CoachingProfile | null;
   locale: Locale;
+  /**
+   * Set by an orchestrator that owns the ending - /today's session (ROADMAP.md
+   * P0.4). When present, the round hands back the XP it awarded instead of
+   * rendering its own "round complete" screen; grading is unchanged either way.
+   */
+  onFinished?: (xpEarned: number) => void;
 }) {
   const strings = t(locale).reviewSession;
   const router = useRouter();
@@ -120,7 +127,8 @@ export function ReviewSession({
           return;
         }
         const data: ReviewGradeResponse = await res.json();
-        setXpEarned((xp) => xp + data.gamification.xpAwarded);
+        const totalXp = xpEarned + data.gamification.xpAwarded;
+        setXpEarned(totalXp);
         setGradedCount((n) => n + 1);
 
         // Next card
@@ -129,15 +137,19 @@ export function ReviewSession({
         setTyping(false);
         setTypedAnswer('');
         setStatus('idle');
-        if (index + 1 >= cards.length) setDone(true);
-        else setIndex((i) => i + 1);
+        if (index + 1 >= cards.length) {
+          if (onFinished) onFinished(totalXp);
+          else setDone(true);
+        } else {
+          setIndex((i) => i + 1);
+        }
         router.refresh();
       } catch {
         setErrorMessage(strings.networkError);
         setStatus('error');
       }
     },
-    [card, cards.length, index, router, strings],
+    [card, cards.length, index, router, strings, xpEarned, onFinished],
   );
 
   if (done || !card) {
