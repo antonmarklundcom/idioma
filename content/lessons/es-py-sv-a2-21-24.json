@@ -1,0 +1,345 @@
+[
+  {
+    "languagePairCode": "es-PY>sv-speaker",
+    "level": "A2",
+    "topic": "buying-a-sim-card-and-data",
+    "title": "Jag behöver fylla på surf till mobilen",
+    "position": 21,
+    "content": {
+      "intro": "Efter den här lektionen kan du köpa ett lokalt SIM-kort (chip), registrera dina uppgifter och ladda på mobilsurfpaket. En svensk fälla är att använda spanska uttryck som 'recargar saldo con tarjeta' istället för det vardagliga paraguayanska 'hacer una carga de saldo'. Tänk på att du enligt lag måste visa upp pass när du köper ett nytt SIM-kort.",
+      "vocab": [
+        {
+          "term": "el chip",
+          "gloss": "SIM-kortet"
+        },
+        {
+          "term": "cargar saldo",
+          "gloss": "fylla på saldo / ladda kontantkort",
+          "note": "Voseo: vos cargás"
+        },
+        {
+          "term": "el paquete de datos",
+          "gloss": "surfpaketet / datapaketet"
+        },
+        {
+          "term": "el plan prepago",
+          "gloss": "kontantkortsabonnemanget"
+        },
+        {
+          "term": "la cédula",
+          "gloss": "identitetskortet (eller passet)"
+        },
+        {
+          "term": "la cobertura",
+          "gloss": "mobiltäckningen"
+        },
+        {
+          "term": "activar",
+          "gloss": "aktivera",
+          "note": "Imperativ voseo: activá"
+        },
+        {
+          "term": "el número de línea",
+          "gloss": "telefonnumret"
+        },
+        {
+          "term": "la señal",
+          "gloss": "mobilsignalen"
+        },
+        {
+          "term": "el mensaje de confirmación",
+          "gloss": "bekräftelse-sms:et"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Gå in i en telebutik och säg att du vill köpa ett kontantkorts-SIM-kort till din telefon.",
+          "targetHints": [
+            "Hola, quiero comprar un chip prepago para mi celular."
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Para registrar la nueva línea necesito tu pasaporte y un número de contacto.",
+          "prompt": "Säljaren ska registrera numret. Vilka två uppgifter ber hon dig om?"
+        },
+        {
+          "type": "fill_gap_speak",
+          "sentence": "¿Vos me ___ cincuenta mil guaraníes de saldo a este número de línea?",
+          "prompt": "Be expediten ladda 50 000 Gs. med voseo-formen av cargar (cargás).",
+          "answer": "¿Vos me cargás cincuenta mil guaraníes de saldo a este número de línea?",
+          "targetHints": [
+            "cargás"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Säg att du vill köpa ett datapaket med tio gigabyte surf. Lämna fram ditt pass för registrering och fråga expediten hur många dagar paketet är giltigt.",
+          "targetHints": [
+            "Quiero activar un paquete de diez gigas de internet.",
+            "Acá tenés mi pasaporte para registrar el chip.",
+            "¿Por cuántos días es válido este paquete de datos?"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>sv-speaker",
+    "level": "A2",
+    "topic": "inviting-friends-and-socializing",
+    "title": "Vill du komma över på grillkväll?",
+    "position": 22,
+    "content": {
+      "intro": "Du lär dig att bjuda hem vänner, planera en grillkväll (asado) och umgås i en paraguayansk social miljö. Svenskar använder ofta stela och formella fraser istället för lediga voseo-inbjudningar som '¿querés venir?' eller 'traé lo que quieras'. I Paraguay samlas vänner ofta runt grillen och delar på tereré medan köttet tillagas.",
+      "vocab": [
+        {
+          "term": "el asado",
+          "gloss": "grillfesten / grillningen"
+        },
+        {
+          "term": "la guampa",
+          "gloss": "kärlet / bägaren man dricker tereré ur"
+        },
+        {
+          "term": "la yerba mate",
+          "gloss": "mate-örten"
+        },
+        {
+          "term": "la bolsa de hielo",
+          "gloss": "ispåsen"
+        },
+        {
+          "term": "la parrilla",
+          "gloss": "grillgallret / grillen"
+        },
+        {
+          "term": "el carbón",
+          "gloss": "grillkolet"
+        },
+        {
+          "term": "la picada",
+          "gloss": "plockmaten / tilltugget före maten"
+        },
+        {
+          "term": "juntarse",
+          "gloss": "träffas / samlas",
+          "note": "Voseo presens: nos juntamos / vos te juntás"
+        },
+        {
+          "term": "el termo",
+          "gloss": "termosen (för iskallt tereré-vatten)"
+        },
+        {
+          "term": "compartir",
+          "gloss": "dela / bjuda på",
+          "note": "Voseo presens: vos compartís"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Fråga en kompis om han vill komma över till ditt hus och dricka tereré i eftermiddag.",
+          "targetHints": [
+            "¿Querés venir a mi casa a tomar tereré esta tarde?"
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Yo llevo una bolsa de hielo y la yerba para preparar el termo.",
+          "prompt": "Din vän erbjuder sig att ta med tillbehör. Vad tar han med sig?"
+        },
+        {
+          "type": "fill_gap_speak",
+          "sentence": "Vení a las ocho y ___ una bolsa de carbón para la parrilla.",
+          "prompt": "Be kompisen ta med grillkol med voseo-imperativ av traer (traé).",
+          "answer": "Vení a las ocho y traé una bolsa de carbón para la parrilla.",
+          "targetHints": [
+            "traé"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Bjud in grannen till grillkväll på lördag kväll. Förklara att du ordnar köttet och eldar på grillen, och fråga om hon kan ta med lite sallad eller dryck.",
+          "targetHints": [
+            "El sábado a la noche hacemos un asado en casa, ¿querés venir?",
+            "Yo me encargo de la carne y del fuego en la parrilla.",
+            "¿Vos podés traer una ensalada o algo para tomar?"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>sv-speaker",
+    "level": "A2",
+    "topic": "navigating-the-city-and-taxis",
+    "title": "Sväng till höger vid trafikljuset",
+    "position": 23,
+    "content": {
+      "intro": "Efter den här lektionen kan du ge exakta köranvisningar till taxichaufförer och orientera dig med hjälp av lokala landmärken. En vanlig svensk fallgrop är att försöka ange exakta husnummer, vilka sällan används i Paraguay; man navigerar i stället med kvarter (cuadras) och kända referenspunkter ('frente a la estación de servicio'). Träna på voseo-kommandon.",
+      "vocab": [
+        {
+          "term": "doblar",
+          "gloss": "svänga",
+          "note": "Imperativ voseo: doblá"
+        },
+        {
+          "term": "a la derecha",
+          "gloss": "till höger"
+        },
+        {
+          "term": "a la izquierda",
+          "gloss": "till vänster"
+        },
+        {
+          "term": "derecho",
+          "gloss": "rakt fram"
+        },
+        {
+          "term": "la cuadra",
+          "gloss": "kvarteret (avståndsmått i stan)"
+        },
+        {
+          "term": "el semáforo",
+          "gloss": "trafikljuset"
+        },
+        {
+          "term": "la referencia",
+          "gloss": "landmärket / referenspunkten"
+        },
+        {
+          "term": "la estación de servicio",
+          "gloss": "bensinstationen"
+        },
+        {
+          "term": "parar",
+          "gloss": "stanna bilen",
+          "note": "Imperativ voseo: pará"
+        },
+        {
+          "term": "el destino",
+          "gloss": "destinationen / resmålet"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Säg till taxichauffören att svänga till vänster i nästa gathörn.",
+          "targetHints": [
+            "Doblá a la izquierda en la próxima esquina, por favor."
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Seguimos derecho dos cuadras más y paramos frente a la farmacia.",
+          "prompt": "Föraren förklarar vart ni ska köra. Hur många kvarter är kvar och var ska han stanna?"
+        },
+        {
+          "type": "fill_gap_speak",
+          "sentence": "Por favor, ___ acá mismo al lado del portón negro.",
+          "prompt": "Be chauffören stanna här med voseo-imperativ av parar (pará).",
+          "answer": "Por favor, pará acá mismo al lado del portón negro.",
+          "targetHints": [
+            "pará"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Förklara för taxiföraren att ditt hus ligger tre kvarter bort. Be honom köra rakt fram förbi bensinstationen och sedan stanna på hörnet mittemot bageriet.",
+          "targetHints": [
+            "Mi casa queda a tres cuadras de acá.",
+            "Seguí derecho pasando la estación de servicio.",
+            "Pará en la esquina frente a la panadería, por favor."
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>sv-speaker",
+    "level": "A2",
+    "topic": "resolving-a-service-issue",
+    "title": "Varan är sönder och jag vill byta den",
+    "position": 24,
+    "content": {
+      "intro": "Lär dig att reklamera en defekt vara, förklara vad som gått fel och begära ett byte eller återbetalning i en butik. Svenskar är ofta för försiktiga och glömmer att visa upp originalfakturan direkt eller använder tuteo ('me cambias'). I Paraguay löser du reklamationsärenden snabbast med ett artigt men bestämt voseo och ditt inköpskvitto.",
+      "vocab": [
+        {
+          "term": "el reclamo",
+          "gloss": "reklamationen / klagomålet"
+        },
+        {
+          "term": "el cambio",
+          "gloss": "bytet (av en produkt)"
+        },
+        {
+          "term": "la devolución",
+          "gloss": "återlämningen / returen"
+        },
+        {
+          "term": "roto",
+          "gloss": "trasig / sönder"
+        },
+        {
+          "term": "la falla de fábrica",
+          "gloss": "fabriksfelet / fabrikationsdefekten"
+        },
+        {
+          "term": "el encargado",
+          "gloss": "butikschefen / den ansvarige"
+        },
+        {
+          "term": "la garantía",
+          "gloss": "garantin"
+        },
+        {
+          "term": "solucionar",
+          "gloss": "lösa / åtgärda",
+          "note": "Voseo imperativ: solucioná"
+        },
+        {
+          "term": "el tique de compra",
+          "gloss": "kassakvittot"
+        },
+        {
+          "term": "el reembolso",
+          "gloss": "återbetalningen av pengarna"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Gå till kundtjänst och förklara att produkten du köpte i går har ett fel och inte startar.",
+          "targetHints": [
+            "Compré este aparato ayer y no funciona, tiene una falla."
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Si vos traés la factura original podemos cambiar el producto por uno nuevo sin problema.",
+          "prompt": "Butiksbiträdet ger dig lösningen. Vilket villkor ställer hon för att byta ut varan?"
+        },
+        {
+          "type": "fill_gap_speak",
+          "sentence": "¿Vos me ___ llamar al encargado de la sucursal para ver mi reclamo?",
+          "prompt": "Be expediten kalla på butikschefen med voseo-formen av poder (podés).",
+          "answer": "¿Vos me podés llamar al encargado de la sucursal para ver mi reclamo?",
+          "targetHints": [
+            "podés"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Förklara för butikspersonalen att apparaten kom trasig från fabriken. Visa upp ditt originalkvitto och fråga om de kan byta ut den direkt eller göra en återbetalning.",
+          "targetHints": [
+            "Hola, este producto vino roto con una falla de fábrica.",
+            "Acá tengo la factura original de compra.",
+            "¿Me lo podés cambiar por otro nuevo o hacerme una devolución?"
+          ]
+        }
+      ]
+    }
+  }
+]

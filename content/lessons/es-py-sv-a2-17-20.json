@@ -1,0 +1,343 @@
+[
+  {
+    "languagePairCode": "es-PY>sv-speaker",
+    "level": "A2",
+    "topic": "dining-at-a-restaurant",
+    "title": "Jag tar grillat kött med mandioca",
+    "position": 17,
+    "content": {
+      "intro": "Lär dig beställa mat på restaurang, välja stekgrad på köttet och be om notan på ett naturligt sätt. Svenskar beställer ofta 'biff' utan att ange styckningsdetalj eller glömmer att tilltala kyparen med ledigt voseo ('¿me traés...?'). I Paraguay serveras grillat kött (asado) nästan alltid med varm, nykokt mandioca.",
+      "vocab": [
+        {
+          "term": "el mozo",
+          "gloss": "kyparen / servitören"
+        },
+        {
+          "term": "la carne asada",
+          "gloss": "det grillade köttet"
+        },
+        {
+          "term": "a punto",
+          "gloss": "mediumstekt"
+        },
+        {
+          "term": "bien cocido",
+          "gloss": "genomstekt / välstekt"
+        },
+        {
+          "term": "jugoso",
+          "gloss": "saftigt / blodigt (om kött)"
+        },
+        {
+          "term": "la mandioca",
+          "gloss": "manioken (klassisk rotfrukt som tillbehör)"
+        },
+        {
+          "term": "la guarnición",
+          "gloss": "tillbehöret (till maten)"
+        },
+        {
+          "term": "la cuenta",
+          "gloss": "notan"
+        },
+        {
+          "term": "sin gas",
+          "gloss": "stilla / utan kolsyra (om vatten)"
+        },
+        {
+          "term": "la propina",
+          "gloss": "dricksen"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Kalla på servitören och be artigt om menyn och en flaska mineralvatten utan kolsyra.",
+          "targetHints": [
+            "Mozo, ¿me traés la carta y una botella de agua sin gas?"
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "El asado sale con mandioca caliente y ensalada mixta de guarnición.",
+          "prompt": "Servitören beskriver rätten. Vilka två tillbehör serveras köttet med?"
+        },
+        {
+          "type": "fill_gap_speak",
+          "sentence": "Por favor, ___ la cuenta cuando puedas.",
+          "prompt": "Be kyparen hämta notan med voseo-imperativ av traer (traeme).",
+          "answer": "Por favor, traeme la cuenta cuando puedas.",
+          "targetHints": [
+            "traeme"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Beställ en portion grillat kött mediumstekt med mandioca och sallad. Fråga sedan kyparen om det går bra att betala med kort eller om de bara tar kontanter.",
+          "targetHints": [
+            "Quiero una porción de carne asada a punto con mandioca y ensalada.",
+            "¿Aceptan tarjeta de crédito o tiene que ser en efectivo?",
+            "Muchas gracias."
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>sv-speaker",
+    "level": "A2",
+    "topic": "renting-an-apartment",
+    "title": "Vad ingår i månadshyran?",
+    "position": 18,
+    "content": {
+      "intro": "Efter den här lektionen kan du ställa frågor om hyreskontrakt, deposition och driftskostnader för en lägenhet. En vanlig missuppfattning bland svenskar är att el och vatten ingår i hyran; i Paraguay betalas elräkningen (ANDE) nästan alltid separat via egen mätare. Använd voseo när du talar med hyresvärden eller mäklaren.",
+      "vocab": [
+        {
+          "term": "el alquiler",
+          "gloss": "hyran / hyresobjektet"
+        },
+        {
+          "term": "el departamento",
+          "gloss": "lägenheten"
+        },
+        {
+          "term": "el contrato",
+          "gloss": "hyreskontraktet"
+        },
+        {
+          "term": "el depósito de garantía",
+          "gloss": "garantidepositionen"
+        },
+        {
+          "term": "las expensas",
+          "gloss": "samfällighetsavgifterna / föreningsavgiften"
+        },
+        {
+          "term": "el medidor de luz",
+          "gloss": "elmätaren"
+        },
+        {
+          "term": "la cochera",
+          "gloss": "parkeringsplatsen / garaget"
+        },
+        {
+          "term": "amoblado",
+          "gloss": "möblerad"
+        },
+        {
+          "term": "la inmobiliaria",
+          "gloss": "fastighetsmäklarfirman"
+        },
+        {
+          "term": "incluir",
+          "gloss": "ingå / inkludera",
+          "note": "Voseo presens: vos incluís"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Fråga mäklaren om lägenheten är ledig för inflyttning från och med nästa månad.",
+          "targetHints": [
+            "¿El departamento está disponible desde el próximo mes?"
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "El alquiler cuesta dos millones quinientos mil guaraníes y las expensas ya están incluidas.",
+          "prompt": "Mäklaren anger villkoren. Hur mycket är hyran i Gs. och vad är redan inkluderat?"
+        },
+        {
+          "type": "fill_gap_speak",
+          "sentence": "¿Vos me ___ mostrar la cochera del edificio?",
+          "prompt": "Fråga hyresvärden om hon kan visa bilplatsen med voseo-formen av poder (podés).",
+          "answer": "¿Vos me podés mostrar la cochera del edificio?",
+          "targetHints": [
+            "podés"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Förklara att du vill hyra lägenheten i ett år. Fråga hyresvärden hur många månaders deposition han kräver och om elräkningen från ANDE betalas separat.",
+          "targetHints": [
+            "Quiero alquilar el departamento por un año.",
+            "¿Cuántos meses de depósito de garantía pedís?",
+            "¿La factura de luz de la ANDE se paga aparte?"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>sv-speaker",
+    "level": "A2",
+    "topic": "visiting-the-pharmacy",
+    "title": "Jag har feber och ont i huvudet",
+    "position": 19,
+    "content": {
+      "intro": "Här lär du dig att beskriva symptom, be om råd mot vardagliga åkommor och köpa receptfria mediciner på apoteket. Svenskar använder ofta det allmänna 'jag mår dåligt' istället för att namnge specifika symptom som 'fiebre' eller 'dolor de cabeza'. Observera att man på paraguayanska apotek (farmacias) kan köpa enstaka tablettkartor.",
+      "vocab": [
+        {
+          "term": "la farmacia",
+          "gloss": "apoteket"
+        },
+        {
+          "term": "el remedio",
+          "gloss": "medicinen / läkemedlet"
+        },
+        {
+          "term": "el dolor de cabeza",
+          "gloss": "huvudvärken"
+        },
+        {
+          "term": "la fiebre",
+          "gloss": "febern"
+        },
+        {
+          "term": "la pastilla",
+          "gloss": "tabletten / pillret"
+        },
+        {
+          "term": "el jarabe",
+          "gloss": "hostmedicinen / sirapen"
+        },
+        {
+          "term": "la receta médica",
+          "gloss": "läkarreceptet"
+        },
+        {
+          "term": "la dosis",
+          "gloss": "doseringen"
+        },
+        {
+          "term": "el protector solar",
+          "gloss": "solskyddskrämen"
+        },
+        {
+          "term": "el analgésico",
+          "gloss": "det smärtstillande medlet"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Gå fram till disken på apoteket och säg att du har kraftig huvudvärk och behöver smärtstillande.",
+          "targetHints": [
+            "Hola, tengo un dolor de cabeza muy fuerte y necesito un analgésico."
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Tomá una pastilla cada ocho horas después de las comidas principales.",
+          "prompt": "Farmaceuten förklarar hur du ska ta tabletterna. Vad är instruktionen?"
+        },
+        {
+          "type": "fill_gap_speak",
+          "sentence": "¿Vos me ___ un buen protector solar para este calor?",
+          "prompt": "Fråga apotekaren om ett råd med voseo-formen av recomendar (recomendás).",
+          "answer": "¿Vos me recomendás un buen protector solar para este calor?",
+          "targetHints": [
+            "recomendás"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Förklara för apotekaren att du har haft feber och halsont sedan i går kväll. Fråga om medicinen kräver läkarrecept och hur många tabletter du ska ta per dag.",
+          "targetHints": [
+            "Tengo fiebre y dolor de garganta desde anoche.",
+            "¿Este remedio necesita receta médica?",
+            "¿Cuántas pastillas por día tengo que tomar?"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>sv-speaker",
+    "level": "A2",
+    "topic": "daily-routine-and-siesta",
+    "title": "Vi ses efter siestan vid femtiden",
+    "position": 20,
+    "content": {
+      "intro": "Lär dig beskriva dina dagliga rutiner och anpassa möten och tider efter middagsvärmen och siestan i Paraguay. En typisk fallgrop för svenskar är att försöka boka möten eller uträtta ärenden mellan klockan 12:00 och 15:00, då många butiker och kontor håller stängt. Träna på att föreslå tidiga morgontider eller sena eftermiddagar med voseo.",
+      "vocab": [
+        {
+          "term": "la siesta",
+          "gloss": "siestan / eftermiddagsvilan"
+        },
+        {
+          "term": "madrugar",
+          "gloss": "gå upp i ottan / stiga upp tidigt",
+          "note": "Voseo presens: vos madrugás"
+        },
+        {
+          "term": "el horario de atención",
+          "gloss": "öppettiderna / expeditionstiden"
+        },
+        {
+          "term": "de corrido",
+          "gloss": "utan avbrott / utan siestastängning"
+        },
+        {
+          "term": "la sombra",
+          "gloss": "skuggan"
+        },
+        {
+          "term": "el tereré",
+          "gloss": "den kalla mate-drycken med örter och is"
+        },
+        {
+          "term": "despertarse",
+          "gloss": "vakna",
+          "note": "Voseo presens: vos te despertás"
+        },
+        {
+          "term": "cerrar",
+          "gloss": "stänga",
+          "note": "Voseo presens: vos cerrás"
+        },
+        {
+          "term": "abrir",
+          "gloss": "öppna",
+          "note": "Voseo presens: vos abrís"
+        },
+        {
+          "term": "la tardecita",
+          "gloss": "den sena eftermiddagen / skymningen"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Berätta för en vän att du brukar gå upp tidigt på morgonen för att träna innan solen blir för stark.",
+          "targetHints": [
+            "Yo madrugo para entrenar antes de que salga el sol fuerte."
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "El negocio cierra a las doce por la siesta y volvemos a abrir a las tres y media.",
+          "prompt": "Affärsägaren redogör för dagens öppettider. Vilka tider stänger och öppnar butiken?"
+        },
+        {
+          "type": "fill_gap_speak",
+          "sentence": "¿Vos a qué hora te ___ para tomar el primer tereré del día?",
+          "prompt": "Fråga kompisen när hon vaknar med voseo-formen av despertarse (despertás).",
+          "answer": "¿Vos a qué hora te despertás para tomar el primer tereré del día?",
+          "targetHints": [
+            "despertás"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Föreslå för din kollega att ni håller mötet klockan åtta på morgonen. Säg att du vilar hemma under siestan och fråga om ni kan höras igen vid femtiden på eftermiddagen.",
+          "targetHints": [
+            "Podemos hacer la reunión a las ocho de la mañana.",
+            "Durante la siesta descanso en casa por el calor.",
+            "¿Nos hablamos de nuevo a las cinco de la tarde?"
+          ]
+        }
+      ]
+    }
+  }
+]

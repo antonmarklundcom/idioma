@@ -1,0 +1,343 @@
+[
+  {
+    "languagePairCode": "es-PY>en-speaker",
+    "level": "B1",
+    "topic": "opening-a-bank-account",
+    "title": "I want to open a savings account",
+    "position": 25,
+    "content": {
+      "intro": "In this lesson, you will learn how to open a bank account, inquire about monthly fees, and provide the required income verification documents. An English trap is confusing a checking account (cuenta corriente) with a standard savings account (caja de ahorro), which is what most residents use for debit cards and everyday transactions. Remember to use voseo when speaking with bank representatives.",
+      "vocab": [
+        {
+          "term": "la caja de ahorro",
+          "gloss": "savings account"
+        },
+        {
+          "term": "el comprobante de ingresos",
+          "gloss": "proof of income"
+        },
+        {
+          "term": "el saldo mínimo",
+          "gloss": "minimum balance"
+        },
+        {
+          "term": "el mantenimiento de cuenta",
+          "gloss": "account maintenance fee"
+        },
+        {
+          "term": "la tarjeta de débito",
+          "gloss": "debit card"
+        },
+        {
+          "term": "la sucursal",
+          "gloss": "bank branch"
+        },
+        {
+          "term": "el depósito inicial",
+          "gloss": "initial deposit"
+        },
+        {
+          "term": "el extracto bancario",
+          "gloss": "bank statement"
+        },
+        {
+          "term": "firmar",
+          "gloss": "to sign",
+          "note": "Voseo present: vos firmás"
+        },
+        {
+          "term": "la firma autorizada",
+          "gloss": "authorized signature"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "You are at a bank branch in Asunción. Tell the officer that you want to open a savings account in local currency.",
+          "targetHints": [
+            "Hola, quiero abrir una caja de ahorro en guaraníes, por favor."
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Para abrir la cuenta necesitamos una copia de tu cédula, una factura de servicios y tu comprobante de ingresos.",
+          "prompt": "The bank officer explains the requirements. Which three documents does she ask for?"
+        },
+        {
+          "type": "fill_gap_speak",
+          "sentence": "¿Vos me ___ decir cuál es el monto del depósito inicial?",
+          "prompt": "Ask the clerk about the initial deposit amount using the voseo form of poder (podés).",
+          "answer": "¿Vos me podés decir cuál es el monto del depósito inicial?",
+          "targetHints": [
+            "podés"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Explain to the banker that you have your passport and income statement ready. Ask if there is a minimum balance requirement and when your debit card will be ready for pickup.",
+          "targetHints": [
+            "Acá tengo mi pasaporte y el comprobante de ingresos listo.",
+            "¿Esta caja de ahorro exige algún saldo mínimo mensual?",
+            "¿Cuándo puedo pasar a retirar la tarjeta de débito?"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>en-speaker",
+    "level": "B1",
+    "topic": "notary-and-official-procedures",
+    "title": "I need to certify this document",
+    "position": 26,
+    "content": {
+      "intro": "You will learn how to handle official paperwork at a notary office (escribanía), request authenticated copies, and verify document validity. English speakers often confuse an Anglo-Saxon notary public with a Paraguayan 'escribano', who is a specialized legal professional responsible for certifying all major contracts and official copies. Always address the notary naturally with voseo.",
+      "vocab": [
+        {
+          "term": "el escribano",
+          "gloss": "notary public (civil law notary)"
+        },
+        {
+          "term": "la escribanía",
+          "gloss": "notary office"
+        },
+        {
+          "term": "la fotocopia autenticada",
+          "gloss": "certified photocopy"
+        },
+        {
+          "term": "el trámite",
+          "gloss": "official procedure / paperwork step"
+        },
+        {
+          "term": "el sello",
+          "gloss": "official stamp / seal"
+        },
+        {
+          "term": "la firma",
+          "gloss": "signature"
+        },
+        {
+          "term": "la constancia",
+          "gloss": "certificate / written proof"
+        },
+        {
+          "term": "el arancel",
+          "gloss": "notary fee / official fee"
+        },
+        {
+          "term": "autenticar",
+          "gloss": "to notarize / to certify",
+          "note": "Voseo imperative: autenticá"
+        },
+        {
+          "term": "la validez",
+          "gloss": "validity"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Enter the notary office and say that you need two certified photocopies of your passport.",
+          "targetHints": [
+            "Buenos días, necesito dos fotocopias autenticadas de mi pasaporte."
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "El escribano tiene que revisar el documento original antes de poner el sello y la firma.",
+          "prompt": "The assistant explains the workflow. What must the notary do before signing and stamping?"
+        },
+        {
+          "type": "fill_gap_speak",
+          "sentence": "Por favor, ___ este contrato de alquiler hoy mismo.",
+          "prompt": "Ask the notary to certify the contract using the voseo imperative of autenticar (autenticá).",
+          "answer": "Por favor, autenticá este contrato de alquiler hoy mismo.",
+          "targetHints": [
+            "autenticá"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Hand over your documents to the notary. Ask how much the certification fee costs per page and confirm if you can come back this afternoon to pick up the stamped copies.",
+          "targetHints": [
+            "Acá te dejo los documentos originales para hacer el trámite.",
+            "¿Cuánto cuesta el arancel por cada fotocopia autenticada?",
+            "¿Puedo pasar esta tarde a retirar las copias con el sello?"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>en-speaker",
+    "level": "B1",
+    "topic": "leasing-and-tenant-disputes",
+    "title": "There is an issue with the rental contract",
+    "position": 27,
+    "content": {
+      "intro": "Learn how to discuss lease terms, report maintenance obligations to your landlord, and negotiate the return of your security deposit. A major pitfall for English speakers is using standard tuteo ('tú dijiste') instead of Paraguayan voseo ('vos dijiste') when defending their rights. In Paraguay, major structural repairs are the owner's responsibility by law.",
+      "vocab": [
+        {
+          "term": "el propietario",
+          "gloss": "landlord / property owner"
+        },
+        {
+          "term": "el inquilino",
+          "gloss": "tenant"
+        },
+        {
+          "term": "la cláusula",
+          "gloss": "contract clause"
+        },
+        {
+          "term": "el arreglo",
+          "gloss": "repair / maintenance fix"
+        },
+        {
+          "term": "la humedad",
+          "gloss": "water dampness / moisture"
+        },
+        {
+          "term": "el plazo",
+          "gloss": "deadline / agreed time period"
+        },
+        {
+          "term": "rescindir",
+          "gloss": "to terminate (a contract)",
+          "note": "Voseo present: vos rescindís"
+        },
+        {
+          "term": "el recibo de pago",
+          "gloss": "payment receipt"
+        },
+        {
+          "term": "el garante",
+          "gloss": "guarantor / co-signer"
+        },
+        {
+          "term": "devolver",
+          "gloss": "to return (money/deposit)",
+          "note": "Voseo present: vos devolvés"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Call your landlord and state that there is severe dampness in the bedroom wall that needs fixing.",
+          "targetHints": [
+            "Hola, te llamo porque hay un problema grave de humedad en la pieza."
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Según la cláusula tres del contrato, el propietario se encarga de las reparaciones estructurales.",
+          "prompt": "The estate agent cites the lease agreement. Who is responsible for structural repairs?"
+        },
+        {
+          "type": "fill_gap_speak",
+          "sentence": "Vos me ___ que ibas a mandar al técnico la semana pasada.",
+          "prompt": "Remind the landlord what he said using the past tense voseo form of decir (dijiste).",
+          "answer": "Vos me dijiste que ibas a mandar al técnico la semana pasada.",
+          "targetHints": [
+            "dijiste"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Tell the landlord that you have complied with all monthly payments on time. Explain that if the water leak is not repaired this week, you will terminate the lease and request your full security deposit back.",
+          "targetHints": [
+            "Tengo todos los recibos de pago al día.",
+            "Si no arreglás esta pérdida de agua esta semana, voy a rescindir el contrato.",
+            "Espero la devolución completa de mi depósito de garantía."
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>en-speaker",
+    "level": "B1",
+    "topic": "auto-repairs-and-mechanics",
+    "title": "The engine is overheating and making a noise",
+    "position": 28,
+    "content": {
+      "intro": "In this lesson, you will describe complex mechanical problems, ask for genuine replacement parts, and negotiate repair deadlines with a mechanic. A frequent trap is directly translating 'fix' as 'fijar' rather than 'arreglar' or 'solucionar'. Paraguayan workshops (talleres) typically offer separate quotes for parts (repuestos) and labor (mano de obra).",
+      "vocab": [
+        {
+          "term": "el taller mecánico",
+          "gloss": "mechanic workshop / garage"
+        },
+        {
+          "term": "recalentar",
+          "gloss": "to overheat (engine)"
+        },
+        {
+          "term": "el radiador",
+          "gloss": "radiator"
+        },
+        {
+          "term": "la pastilla de freno",
+          "gloss": "brake pad"
+        },
+        {
+          "term": "la mano de obra",
+          "gloss": "labor cost"
+        },
+        {
+          "term": "el repuesto original",
+          "gloss": "original spare part"
+        },
+        {
+          "term": "la batería",
+          "gloss": "car battery"
+        },
+        {
+          "term": "el cambio de aceite",
+          "gloss": "oil change"
+        },
+        {
+          "term": "la grúa",
+          "gloss": "tow truck"
+        },
+        {
+          "term": "revisar",
+          "gloss": "to check / inspect",
+          "note": "Voseo imperative: revisá"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Arrive at the workshop and explain that your car engine overheats whenever you turn on the air conditioner.",
+          "targetHints": [
+            "Hola, el motor recalienta cada vez que prendo el aire acondicionado."
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Hay que cambiar las pastillas de freno y revisar el nivel de líquido del radiador.",
+          "prompt": "The mechanic inspects the vehicle. What two actions does he recommend?"
+        },
+        {
+          "type": "fill_gap_speak",
+          "sentence": "Por favor, ___ el motor completo antes de darme el presupuesto.",
+          "prompt": "Tell the mechanic to check the entire engine using the voseo imperative of revisar (revisá).",
+          "answer": "Por favor, revisá el motor completo antes de darme el presupuesto.",
+          "targetHints": [
+            "revisá"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Explain to the mechanic that the car makes a strange noise when braking. Ask him how much the original spare parts cost, how much he charges for labor, and when the car will be ready.",
+          "targetHints": [
+            "El auto hace un ruido raro cada vez que freno.",
+            "¿Cuánto cuestan los repuestos originales y la mano de obra?",
+            "¿Para qué día podés tener listo el vehículo?"
+          ]
+        }
+      ]
+    }
+  }
+]

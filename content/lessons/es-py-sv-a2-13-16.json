@@ -1,0 +1,344 @@
+[
+  {
+    "languagePairCode": "es-PY>sv-speaker",
+    "level": "A2",
+    "topic": "banking-and-money-exchange",
+    "title": "Jag vill växla dollar till guaraníes",
+    "position": 13,
+    "content": {
+      "intro": "Efter den här lektionen kan du växla utländsk valuta på växlingskontor, göra uttag i bankomat och förstå vanliga bankavgifter i Paraguay. En vanlig fälla för svenskar är att använda 'tú cambiás' eller 'tú cambias' istället för paraguayansk voseo ('vos cambiás'). Tänk också på att belopp i guaraníes snabbt rör sig i hundratusentals eller miljontals Gs.",
+      "vocab": [
+        {
+          "term": "cambiar",
+          "gloss": "växla (pengar)",
+          "note": "Voseo presens: vos cambiás"
+        },
+        {
+          "term": "los guaraníes",
+          "gloss": "guaraníes (valutan i Paraguay)",
+          "note": "Förkortas ofta Gs."
+        },
+        {
+          "term": "el tipo de cambio",
+          "gloss": "växelkursen"
+        },
+        {
+          "term": "la ventanilla",
+          "gloss": "kassaluckan / bankdisken"
+        },
+        {
+          "term": "el cajero automático",
+          "gloss": "bankomaten"
+        },
+        {
+          "term": "retirar efectivo",
+          "gloss": "ta ut kontanter"
+        },
+        {
+          "term": "la comisión",
+          "gloss": "avgiften / växlingsavgiften"
+        },
+        {
+          "term": "el billete",
+          "gloss": "sedeln"
+        },
+        {
+          "term": "hacer la fila",
+          "gloss": "stå i kön"
+        },
+        {
+          "term": "el comprobante",
+          "gloss": "kvittot / transaktionsbeviset"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Du står vid luckan på ett växlingskontor i Asunción och vill växla 100 dollar till lokal valuta.",
+          "targetHints": [
+            "Quiero cambiar",
+            "cien dólares a guaraníes"
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "El cajero automático de acá solo entrega billetes de cien mil guaraníes.",
+          "prompt": "Banktjänstemannen ger dig information om uttagsautomaten vid entrén. Vad säger hon?"
+        },
+        {
+          "type": "fill_gap_speak",
+          "sentence": "Vos ___ retirar hasta un millón y medio de guaraníes por día.",
+          "prompt": "Säg meningen och fyll i voseo-formen av poder (podés).",
+          "answer": "Vos podés retirar hasta un millón y medio de guaraníes por día.",
+          "targetHints": [
+            "podés"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Du är framme vid växlingsdisken. Säg att du vill växla tvåhundra euro till guaraníes, fråga vad växelkursen är i dag och om de tar ut någon extra avgift.",
+          "targetHints": [
+            "Hola, quiero cambiar doscientos euros a guaraníes.",
+            "¿Cuál es el tipo de cambio de hoy?",
+            "¿Cobran alguna comisión por la operación?"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>sv-speaker",
+    "level": "A2",
+    "topic": "riding-the-colectivo",
+    "title": "Stanna vid nästa hörn, tack",
+    "position": 14,
+    "content": {
+      "intro": "Här lär du dig att ta lokalbussen (colectivo), fråga om resväg och säga till chauffören exakt var du vill kliva av. Många svenskar glömmer att man i Paraguay ofta ropar till chauffören med voseo-imperativ ('bajame') istället för att bara trycka på en stoppknapp. Se till att ha ditt busskort laddat eller jämna sedlar redo.",
+      "vocab": [
+        {
+          "term": "el colectivo",
+          "gloss": "lokalbussen"
+        },
+        {
+          "term": "la parada",
+          "gloss": "busshållplatsen"
+        },
+        {
+          "term": "el chofer",
+          "gloss": "busschauffören"
+        },
+        {
+          "term": "el pasaje",
+          "gloss": "bussbiljetten / priset för resan"
+        },
+        {
+          "term": "el saldo",
+          "gloss": "saldot (på resekortet)"
+        },
+        {
+          "term": "el cambio",
+          "gloss": "växelpengarna"
+        },
+        {
+          "term": "bajar",
+          "gloss": "stiga av / gå av bussen",
+          "note": "Imperativ voseo: bajá / bajame"
+        },
+        {
+          "term": "la esquina",
+          "gloss": "gathörnet"
+        },
+        {
+          "term": "frenar",
+          "gloss": "stanna / bromsa"
+        },
+        {
+          "term": "el molinete",
+          "gloss": "vändkorset (inne i bussen)"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Du kliver på bussen och vill försäkra dig om att den passerar centrum.",
+          "targetHints": [
+            "¿Este colectivo pasa por el centro?"
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Apoyá tu tarjeta en el lector para pagar el pasaje.",
+          "prompt": "Chauffören förklarar hur du validerar din resa. Vad ber han dig göra?"
+        },
+        {
+          "type": "fill_gap_speak",
+          "sentence": "Por favor, ___ en la próxima esquina.",
+          "prompt": "Be chauffören släppa av dig vid nästa gathörn med voseo-imperativ av bajar (bajame).",
+          "answer": "Por favor, bajame en la próxima esquina.",
+          "targetHints": [
+            "bajame"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Du står vid en hållplats. Fråga en person om buss nummer 23 stannar här, säg att du behöver ladda saldo på ditt kort och fråga var närmaste laddningsställe ligger.",
+          "targetHints": [
+            "Disculpá, ¿la línea veintitrés para acá?",
+            "Necesito cargar saldo en mi tarjeta.",
+            "¿Dónde hay un punto de recarga cerca?"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>sv-speaker",
+    "level": "A2",
+    "topic": "shopping-at-the-despensa",
+    "title": "Jag vill handla i kvartersbutiken",
+    "position": 15,
+    "content": {
+      "intro": "Efter lektionen kan du handla matvaror i en lokal kvartersbutik (despensa), be om lösvikt och be om en specificerad faktura. En klassisk fälla för svenskar är att fråga butiksägaren med tuteo ('¿tienes...?') istället för paraguayansk voseo ('¿vos tenés...?'). I Paraguay är det vanligt att butiksägaren frågar om du har jämna pengar.",
+      "vocab": [
+        {
+          "term": "la despensa",
+          "gloss": "kvartersbutiken / närbutiken"
+        },
+        {
+          "term": "el kilo",
+          "gloss": "kilot"
+        },
+        {
+          "term": "la docena",
+          "gloss": "dussinet (t.ex. ägg)"
+        },
+        {
+          "term": "el queso paraguay",
+          "gloss": "den traditionella färskosten"
+        },
+        {
+          "term": "la carne molida",
+          "gloss": "köttfärsen"
+        },
+        {
+          "term": "la factura",
+          "gloss": "kvittot / momsfakturan"
+        },
+        {
+          "term": "el sencillo",
+          "gloss": "småpengar / jämna pengar"
+        },
+        {
+          "term": "pesar",
+          "gloss": "väga",
+          "note": "Voseo presens: vos pesás"
+        },
+        {
+          "term": "el paquete",
+          "gloss": "paketet / påsen"
+        },
+        {
+          "term": "el vuelto",
+          "gloss": "växelpengarna tillbaka"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Du står vid disken i despensan och ber om ett kilo tomater och en halv liter mjölk.",
+          "targetHints": [
+            "Quiero un kilo de tomates y medio litro de leche, por favor."
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Son cuarenta y cinco mil guaraníes en total. ¿Tenés sencillo?",
+          "prompt": "Expediten ger dig priset. Vad kostar det och vad frågar hon om därefter?"
+        },
+        {
+          "type": "fill_gap_speak",
+          "sentence": "¿Vos ___ queso paraguay fresco para hoy?",
+          "prompt": "Fråga butiksägaren om han har färskost inne med voseo-formen av tener (tenés).",
+          "answer": "¿Vos tenés queso paraguay fresco para hoy?",
+          "targetHints": [
+            "tenés"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Beställ ett halvt kilo köttfärs och ett dussin ägg i despensan. Fråga vad det blir sammanlagt och be butiksägaren skriva ut en officiell faktura.",
+          "targetHints": [
+            "Dame medio kilo de carne molida y una docena de huevos, por favor.",
+            "¿Cuánto cuesta todo?",
+            "¿Me hacés una factura legal?"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>sv-speaker",
+    "level": "A2",
+    "topic": "repair-and-maintenance",
+    "title": "Min luftkonditionering fungerar inte",
+    "position": 16,
+    "content": {
+      "intro": "Du lär dig att beskriva tekniska fel i hemmet och boka tid med en reparatör eller rörmokare. Svenskar översätter ofta 'läcka' ordagrant istället för att använda 'perder agua' eller 'tener una pérdida'. I det paraguayanska klimatet bokas hantverksbesök oftast tidigt på morgonen för att undvika eftermiddagshettan.",
+      "vocab": [
+        {
+          "term": "el plomero",
+          "gloss": "rörmokaren"
+        },
+        {
+          "term": "el electricista",
+          "gloss": "elektrikern"
+        },
+        {
+          "term": "la pérdida de agua",
+          "gloss": "vattenläckan"
+        },
+        {
+          "term": "el caño",
+          "gloss": "röret / vattenledningen"
+        },
+        {
+          "term": "arreglar",
+          "gloss": "reparera / laga",
+          "note": "Voseo imperativ: arreglá"
+        },
+        {
+          "term": "el presupuesto",
+          "gloss": "kostnadsförslaget / offerten"
+        },
+        {
+          "term": "el aire acondicionado",
+          "gloss": "luftkonditioneringen / AC:n"
+        },
+        {
+          "term": "gotear",
+          "gloss": "droppa / läcka droppar"
+        },
+        {
+          "term": "el repuesto",
+          "gloss": "reservdelen"
+        },
+        {
+          "term": "la llave de paso",
+          "gloss": "huvudkranen / avstängningsventilen"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Ring teknikern och säg att din luftkonditionering droppar vatten och inte kyler rummet.",
+          "targetHints": [
+            "Hola, mi aire acondicionado gotea y no enfría la pieza."
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Puedo pasar mañana a las siete de la mañana para revisar la pérdida del caño.",
+          "prompt": "Rörmokaren föreslår en tid. När tänker han komma och vad ska han undersöka?"
+        },
+        {
+          "type": "fill_gap_speak",
+          "sentence": "Decime cuánto ___ por cambiar este repuesto roto.",
+          "prompt": "Fråga hantverkaren vad han tar betalt med voseo-formen av cobrar (cobrás).",
+          "answer": "Decime cuánto cobrás por cambiar este repuesto roto.",
+          "targetHints": [
+            "cobrás"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Förklara för elektrikern att strömmen bryts varje gång du sätter på ugnen. Fråga om han kan komma förbi före lunch och be honom skicka en offert innan han börjar.",
+          "targetHints": [
+            "Hola, salta la llave de la luz cada vez que prendo el horno.",
+            "¿Podés venir antes del mediodía a mirar?",
+            "¿Me pasás un presupuesto antes de empezar?"
+          ]
+        }
+      ]
+    }
+  }
+]
