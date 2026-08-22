@@ -12,6 +12,7 @@ export function UtteranceRecorder({
   locale,
   handsFree = false,
   autoStartToken,
+  onAbandoned,
 }: {
   onRecorded: (blob: Blob, mimeType: string) => void;
   /** Called synchronously inside the tap handler, before recording starts - use
@@ -40,10 +41,12 @@ export function UtteranceRecorder({
    * what unlocks audio playback on iOS.
    */
   autoStartToken?: number;
+  /** Hands-free only: the mic opened, nobody spoke, and the turn was dropped. */
+  onAbandoned?: () => void;
 }) {
   const strings = t(locale).recorder;
   const { status, level, elapsedSeconds, silenceCountdownMs, error, start, stop, maxSeconds } =
-    useRecorder(onRecorded, strings.micDenied, { handsFree });
+    useRecorder(onRecorded, strings.micDenied, { handsFree, onAbandoned });
 
   const isCapturing = status === 'recording';
   const isListening = status === 'listening';
