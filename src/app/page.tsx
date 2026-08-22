@@ -33,7 +33,7 @@ export default async function Home() {
       >
         <button
           type="submit"
-          className="rounded-full bg-slate-900 px-6 py-3 font-medium text-white dark:bg-white dark:text-slate-900"
+          className="rounded-full bg-slate-900 px-6 py-3 font-medium text-white transition-colors hover:bg-slate-700 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
         >
           Sign in with Google
         </button>
