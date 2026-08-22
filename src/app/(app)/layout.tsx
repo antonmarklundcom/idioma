@@ -71,11 +71,6 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             </span>
             <span className="hidden sm:inline">{strings.nav.settings}</span>
           </Link>
-          {session.user.role === 'admin' && (
-            <Link className="min-h-11 rounded-xl px-2 py-2.5 font-semibold hover:text-brand-600" href="/admin">
-              {strings.nav.admin}
-            </Link>
-          )}
           <form
             action={async () => {
               'use server';
