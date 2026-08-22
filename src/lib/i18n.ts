@@ -177,6 +177,10 @@ const en = {
     rateLimited: "You've reached today's practice limit — come back tomorrow to keep going.",
     timedOut: 'The tutor is taking longer than usual to reply. Check your connection and try again.',
     streakMilestone: (n: number) => `🔥 ${n}-day streak!`,
+    correctionsLabel: 'Corrections',
+    correctionsOn: 'Correct me',
+    correctionsOff: 'Just chat',
+    correctionsHint: 'Your tutor always checks your Spanish — this decides whether you see it.',
   },
   feedbackCard: {
     youSaid: 'You said',
@@ -427,6 +431,10 @@ const es: Dictionary = {
     rateLimited: 'Llegaste al límite de práctica de hoy — volvé mañana para seguir.',
     timedOut: 'El tutor está tardando más de lo normal en responder. Revisá tu conexión e intentá de nuevo.',
     streakMilestone: (n: number) => `🔥 ¡Racha de ${n} día${n === 1 ? '' : 's'}!`,
+    correctionsLabel: 'Correcciones',
+    correctionsOn: 'Corregime',
+    correctionsOff: 'Solo charlar',
+    correctionsHint: 'Tu tutor siempre revisa lo que decís — esto decide si lo ves o no.',
   },
   feedbackCard: {
     youSaid: 'Dijiste',
@@ -676,6 +684,10 @@ const sv: Dictionary = {
     rateLimited: 'Du har nått dagens övningsgräns — kom tillbaka imorgon för att fortsätta.',
     timedOut: 'Handledaren tar längre tid än vanligt att svara. Kontrollera din anslutning och försök igen.',
     streakMilestone: (n: number) => `🔥 ${n} dagars streak!`,
+    correctionsLabel: 'Rättningar',
+    correctionsOn: 'Rätta mig',
+    correctionsOff: 'Bara prata',
+    correctionsHint: 'Din handledare kollar alltid det du säger — det här avgör om du ser det.',
   },
   feedbackCard: {
     youSaid: 'Du sa',
