@@ -1,6 +1,11 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { buildLessonPath, nextLessonInPath, type LessonSummary } from '@/lib/lessons';
+import {
+  buildLessonPath,
+  formatTopic,
+  nextLessonInPath,
+  type LessonSummary,
+} from '@/lib/lessons';
 
 // ROADMAP.md P0.1. The path's whole promise is that there is exactly ONE
 // highlighted starting point, and that it points at the same lesson on
@@ -82,5 +87,28 @@ describe('buildLessonPath', () => {
       path.flatMap((g) => g.lessons).map((l) => l.state),
       ['later', 'later'],
     );
+  });
+});
+
+// The topic slug is a URL filter key AND a label on screen. It was shipping raw,
+// so /lesson showed the learner 42 hyphenated database identifiers.
+describe('formatTopic', () => {
+  it('turns a slug into something a person would read', () => {
+    assert.equal(formatTopic('asking-directions'), 'Asking directions');
+    assert.equal(formatTopic('banking-and-bills'), 'Banking and bills');
+    assert.equal(formatTopic('numbers-prices-money'), 'Numbers prices money');
+  });
+
+  it('leaves an already-readable topic alone apart from its capital', () => {
+    assert.equal(formatTopic('clarification'), 'Clarification');
+  });
+
+  it('handles underscores and stray whitespace without producing junk', () => {
+    assert.equal(formatTopic('basic_health'), 'Basic health');
+    assert.equal(formatTopic('  small-talk-basics '), 'Small talk basics');
+  });
+
+  it('returns an empty-ish topic unchanged rather than crashing the page', () => {
+    assert.equal(formatTopic(''), '');
   });
 });

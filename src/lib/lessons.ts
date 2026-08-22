@@ -122,6 +122,20 @@ export function buildLessonPath(
   return levels;
 }
 
+/**
+ * Topics are owner-authored slugs ('asking-directions', 'basic-health') because
+ * they are also filter keys in the URL. They were being rendered raw, which put
+ * 42 hyphenated database identifiers on the screen where a learner expected
+ * lessons - the single most confusing thing on the page. Sentence case, not Title
+ * Case: "Banking and bills" reads like a topic, "Banking And Bills" reads like a
+ * spreadsheet column.
+ */
+export function formatTopic(topic: string): string {
+  const words = topic.replace(/[-_]+/g, ' ').trim();
+  if (words.length === 0) return topic;
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
 // Distinct topics for a pair, used to populate the browser's topic filter.
 export async function getTopicsForPair(languagePairId: string): Promise<string[]> {
   const rows = await db

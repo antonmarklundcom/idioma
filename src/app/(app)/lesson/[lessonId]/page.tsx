@@ -1,6 +1,6 @@
 import { notFound, redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
-import { getLessonForPair, toPlayerExercises } from '@/lib/lessons';
+import { formatTopic, getLessonForPair, toPlayerExercises } from '@/lib/lessons';
 import { getUserLocale } from '@/lib/getUserLocale';
 import { LessonPlayer } from '@/components/lesson/LessonPlayer';
 import type { LessonContent } from '@/lib/zodSchemas';
@@ -36,7 +36,7 @@ export default async function LessonDetailPage({
     <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-5 py-8 sm:px-6 sm:py-10">
       <div>
         <p className="text-xs font-extrabold tracking-wide text-brand-600 uppercase dark:text-brand-300">
-          {lesson.level} · {lesson.topic}
+          {lesson.level} · {formatTopic(lesson.topic)}
         </p>
         <h1 className="heading-page mt-1">{lesson.title}</h1>
         <p className="mt-2 text-ink-muted">{content.intro}</p>
