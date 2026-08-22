@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { languagePairs } from '@/lib/db/schema';
-import { getLessonForPair, getListenAudioText } from '@/lib/lessons';
+import { getLessonForPair, getListenAudioText, getVocabAudioText } from '@/lib/lessons';
 import { speakingRateFor, synthesizeTutorSpeech } from '@/lib/tts';
 import {
   getCachedListenAudio,
@@ -13,12 +13,14 @@ import {
 import { isUnderMonthlyTtsCharCap, logUsage } from '@/lib/usage';
 
 /**
- * Audio for one `listen_prompt` exercise (PLAN.md §3.4, Phase 5B).
+ * Audio for one `listen_prompt` exercise (PLAN.md §3.4, Phase 5B) or one vocab item
+ * of the lesson's vocab step (ROADMAP.md P1.5).
  *
- * The browser asks for an exercise by index; the text being synthesized is read
- * from the lesson row here. That is what keeps `audioText` off the client (it is
- * played, never displayed) and keeps TTS server-side-only, so the quota can't be
- * driven by client-supplied text (§2).
+ * The browser asks for an item by index - `?exercise=N` or `?vocab=N` - and the text
+ * being synthesized is read from the lesson row here. That is what keeps `audioText`
+ * off the client (it is played, never displayed) and keeps TTS server-side-only, so
+ * the quota can't be driven by client-supplied text (§2). A vocab term is not secret,
+ * but it goes through the same door so there is only one way to spend characters.
  */
 export async function GET(request: Request, { params }: { params: Promise<{ lessonId: string }> }) {
   const session = await auth();
@@ -32,11 +34,15 @@ export async function GET(request: Request, { params }: { params: Promise<{ less
     );
   }
 
-  const exerciseParam = new URL(request.url).searchParams.get('exercise');
-  const exerciseIndex = Number(exerciseParam);
-  if (!exerciseParam || !Number.isInteger(exerciseIndex) || exerciseIndex < 0) {
+  const searchParams = new URL(request.url).searchParams;
+  const vocabParam = searchParams.get('vocab');
+  const exerciseParam = searchParams.get('exercise');
+  const slot: 'exercise' | 'vocab' = vocabParam !== null ? 'vocab' : 'exercise';
+  const indexParam = slot === 'vocab' ? vocabParam : exerciseParam;
+  const index = Number(indexParam);
+  if (!indexParam || !Number.isInteger(index) || index < 0) {
     return NextResponse.json(
-      { error: 'Invalid exercise index', code: 'validation_error' },
+      { error: 'Invalid item index', code: 'validation_error' },
       { status: 400 },
     );
   }
@@ -47,10 +53,13 @@ export async function GET(request: Request, { params }: { params: Promise<{ less
     return NextResponse.json({ error: 'Lesson not found', code: 'not_found' }, { status: 404 });
   }
 
-  const audioText = getListenAudioText(lesson.content, exerciseIndex);
+  const audioText =
+    slot === 'vocab'
+      ? getVocabAudioText(lesson.content, index)
+      : getListenAudioText(lesson.content, index);
   if (!audioText) {
     return NextResponse.json(
-      { error: 'No listening audio for that exercise', code: 'not_found' },
+      { error: 'No audio for that item', code: 'not_found' },
       { status: 404 },
     );
   }
@@ -68,13 +77,15 @@ export async function GET(request: Request, { params }: { params: Promise<{ less
     );
   }
 
-  // A listening prompt is static content and gets replayed on purpose, so the same
+  // A listening prompt - and even more so a vocab chip, which is TAPPED repeatedly -
+  // is static content, so the same
   // bytes were being re-synthesized - and re-billed - every time (§6.12). A cache hit
   // spends no characters, so it also logs none and is not subject to the monthly stop
   // below: nothing was bought this time.
   const cacheKey = listenAudioKey({
     lessonId,
-    exerciseIndex,
+    exerciseIndex: index,
+    slot,
     voice: pair.ttsVoice,
     speakingRate: speakingRateFor(session.user.level),
     audioText,
