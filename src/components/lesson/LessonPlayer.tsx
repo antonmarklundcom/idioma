@@ -636,36 +636,49 @@ export function LessonPlayer({
         </div>
       )}
 
+      {/* What was just said to them, above their cue and replayable: the exchange is
+          the point, and a line answered without hearing the setup is a flashcard. */}
+      {exercise?.kind === 'dialogue' && exercise.contextLine && (
+        <button
+          type="button"
+          onClick={() => playDialogueLine(exercise.index - 1)}
+          disabled={slotAudioStatus === 'unavailable'}
+          className="card flex w-full max-w-lg items-center justify-between gap-3 text-left transition-transform active:scale-[0.99] disabled:active:scale-100"
+        >
+          <span className="flex min-w-0 flex-col">
+            <span className="text-xs font-bold tracking-wide text-ink-muted uppercase">
+              {strings.theySaid}
+            </span>
+            <span className="mt-1 font-semibold text-ink">{exercise.contextLine}</span>
+          </span>
+          {slotAudioStatus === 'idle' && (
+            <span aria-hidden="true" className="shrink-0 text-xl">
+              🔊
+            </span>
+          )}
+        </button>
+      )}
+
       <p className="max-w-lg text-center text-xl font-semibold text-balance text-ink">
         {exercise ? exercise.prompt : promptContext}
       </p>
 
-      {/* A dialogue turn: what was just said to them, then their cue. The line itself
-          is one tap away rather than on screen - reading it aloud is a different (and
-          much easier) exercise than producing it from the meaning. */}
-      {exercise?.kind === 'dialogue' && (
-        <div className="flex w-full max-w-lg flex-col items-center gap-3">
-          {exercise.contextLine && (
-            <div className="card w-full py-3">
-              <p className="text-xs font-bold tracking-wide text-ink-muted uppercase">
-                {strings.theySaid}
-              </p>
-              <p className="mt-1 font-semibold text-ink">{exercise.contextLine}</p>
-            </div>
-          )}
-          {peeking ? (
-            <p className="text-lg font-extrabold text-balance text-ink">{exercise.answer}</p>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setPeeking(true)}
-              className="cursor-pointer px-2 py-1 text-sm font-bold text-ink-muted"
-            >
-              {strings.peekAtTheLine}
-            </button>
-          )}
-        </div>
-      )}
+      {/* Their own line is one tap away rather than on screen: reading it aloud is a
+          much easier exercise than producing it from the meaning. */}
+      {exercise?.kind === 'dialogue' &&
+        (peeking ? (
+          <p className="max-w-lg text-center text-lg font-extrabold text-balance text-ink">
+            {exercise.answer}
+          </p>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setPeeking(true)}
+            className="-my-1 cursor-pointer px-2 py-1 text-sm font-bold text-ink-muted"
+          >
+            {strings.peekAtTheLine}
+          </button>
+        ))}
 
       {/* The gapped sentence is the thing being read, so it outweighs the instruction
           above it. The completed answer stays on the server (lib/lessons.ts). */}
