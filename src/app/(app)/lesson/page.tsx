@@ -1,7 +1,14 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
-import { getLessonsForPair, getTopicsForPair } from '@/lib/lessons';
+import {
+  buildLessonPath,
+  getCompletedLessonIds,
+  getLessonsForPair,
+  getTopicsForPair,
+  nextLessonInPath,
+  type LessonPathEntry,
+} from '@/lib/lessons';
 import { getUserLocale } from '@/lib/getUserLocale';
 import { t } from '@/lib/i18n';
 import type { CefrLevel } from '@/lib/db/schema';
@@ -20,9 +27,48 @@ function filterHref(level?: string, topic?: string): string {
   return qs ? `/lesson?${qs}` : '/lesson';
 }
 
-// PLAN.md §8 Phase 5: the real lesson browser in front of LessonPlayer. All
-// curriculum comes from the owner via /api/admin/content - never generated
-// here, not even as a placeholder. No content for the pair/filter = empty state.
+function matchesFilter(
+  lesson: { level: CefrLevel; topic: string },
+  level?: CefrLevel,
+  topic?: string,
+): boolean {
+  return (!level || lesson.level === level) && (!topic || lesson.topic === topic);
+}
+
+// A row in a level section. "Later" lessons are dimmed, never locked (ROADMAP.md
+// P0.1): an adult may jump ahead, so the link stays live and tappable.
+function PathRow({ lesson, doneLabel }: { lesson: LessonPathEntry; doneLabel: string }) {
+  return (
+    <li>
+      <Link
+        href={`/lesson/${lesson.id}`}
+        className={`flex items-center justify-between gap-3 rounded-xl border border-slate-200 px-4 py-3 dark:border-slate-700 ${
+          lesson.state === 'later' ? 'opacity-60' : ''
+        }`}
+      >
+        <span className="flex flex-col">
+          <span className="font-medium text-slate-900 dark:text-white">{lesson.title}</span>
+          <span className="text-xs text-slate-400">
+            {lesson.level} · {lesson.topic}
+          </span>
+        </span>
+        {lesson.state === 'done' ? (
+          <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+            {doneLabel}
+          </span>
+        ) : (
+          <span className="text-slate-400">→</span>
+        )}
+      </Link>
+    </li>
+  );
+}
+
+// PLAN.md §8 Phase 5 + ROADMAP.md P0.1: the lesson browser is a path, not a wall.
+// Lessons group into level sections in the existing level→position→title order,
+// the first uncompleted one is hoisted into a highlighted "Next up" card, and
+// everything after it dims. All curriculum comes from the owner via
+// /api/admin/content - never generated here, not even as a placeholder.
 export default async function LessonPage({
   searchParams,
 }: {
@@ -36,12 +82,21 @@ export default async function LessonPage({
   const level = isCefrLevel(levelParam) ? levelParam : undefined;
   const topic = topicParam && topicParam.trim().length > 0 ? topicParam : undefined;
 
-  const [lessons, topics, locale] = await Promise.all([
-    getLessonsForPair(session.user.languagePairId, { level, topic }),
+  // The path pointer is computed over the WHOLE pair, then the filter is applied
+  // in memory - so narrowing to one level never moves what "Next up" means.
+  const [allLessons, completed, topics, locale] = await Promise.all([
+    getLessonsForPair(session.user.languagePairId),
+    getCompletedLessonIds(session.user.id),
     getTopicsForPair(session.user.languagePairId),
     getUserLocale(session.user.id),
   ]);
   const strings = t(locale);
+
+  const nextUp = nextLessonInPath(allLessons, completed);
+  const lessons = allLessons.filter((lesson) => matchesFilter(lesson, level, topic));
+  const path = buildLessonPath(lessons, completed, nextUp?.id ?? null);
+  // Hoisted into its own card above the sections, so it is not listed twice.
+  const heroLesson = nextUp && matchesFilter(nextUp, level, topic) ? nextUp : null;
 
   return (
     <div className="flex flex-1 flex-col gap-6 px-6 py-10">
@@ -111,6 +166,26 @@ export default async function LessonPage({
         )}
       </div>
 
+      {heroLesson && (
+        <Link
+          href={`/lesson/${heroLesson.id}`}
+          className="flex items-center justify-between gap-3 rounded-2xl border-2 border-indigo-500 bg-indigo-50 px-5 py-5 dark:border-indigo-500 dark:bg-indigo-950"
+        >
+          <span className="flex flex-col gap-1">
+            <span className="text-xs font-semibold tracking-wide text-indigo-600 uppercase dark:text-indigo-300">
+              {strings.lessons.nextUp}
+            </span>
+            <span className="text-lg font-bold text-indigo-900 dark:text-indigo-50">
+              {heroLesson.title}
+            </span>
+            <span className="text-xs text-indigo-700 dark:text-indigo-300">
+              {heroLesson.level} · {heroLesson.topic}
+            </span>
+          </span>
+          <span className="text-2xl text-indigo-500">→</span>
+        </Link>
+      )}
+
       {lessons.length === 0 ? (
         <p className="rounded-xl border border-dashed border-slate-300 px-4 py-8 text-center text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
           {strings.lessons.emptyBefore}{' '}
@@ -120,24 +195,30 @@ export default async function LessonPage({
           {strings.lessons.emptyAfter}
         </p>
       ) : (
-        <ul className="flex flex-col gap-2">
-          {lessons.map((lesson) => (
-            <li key={lesson.id}>
-              <Link
-                href={`/lesson/${lesson.id}`}
-                className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 px-4 py-3 dark:border-slate-700"
-              >
-                <span className="flex flex-col">
-                  <span className="font-medium text-slate-900 dark:text-white">{lesson.title}</span>
+        <div className="flex flex-col gap-6">
+          {path.map((group) => {
+            const rows = group.lessons.filter((lesson) => lesson.id !== heroLesson?.id);
+            return (
+              <section key={group.level} className="flex flex-col gap-2">
+                <div className="flex items-baseline justify-between gap-3">
+                  <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+                    {group.level}
+                  </h2>
                   <span className="text-xs text-slate-400">
-                    {lesson.level} · {lesson.topic}
+                    {strings.lessons.pathHint(group.doneCount, group.total)}
                   </span>
-                </span>
-                <span className="text-slate-400">→</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
+                </div>
+                {rows.length > 0 && (
+                  <ul className="flex flex-col gap-2">
+                    {rows.map((lesson) => (
+                      <PathRow key={lesson.id} lesson={lesson} doneLabel={strings.lessons.done} />
+                    ))}
+                  </ul>
+                )}
+              </section>
+            );
+          })}
+        </div>
       )}
     </div>
   );

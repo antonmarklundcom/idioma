@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { auth } from '@/lib/auth';
 import { getProgressData, getWeeklyRecap } from '@/lib/progress';
 import { getPartnerStreak, getUserStatsSummary } from '@/lib/gamification';
+import { getCompletedLessonIds, getLessonsForPair, nextLessonInPath } from '@/lib/lessons';
 import { getUserLocale } from '@/lib/getUserLocale';
 import { t } from '@/lib/i18n';
 import { estimateReviewMinutes } from '@/lib/srs';
@@ -21,6 +22,19 @@ export default async function DashboardPage() {
   const recap = session?.user ? await getWeeklyRecap(session.user.id, session.user.timezone) : null;
   const locale = session?.user ? await getUserLocale(session.user.id) : 'en';
   const strings = t(locale);
+
+  // ROADMAP.md P0.1: the same "Next up" pointer /lesson highlights, so the two
+  // pages never disagree about where the learner left off. Derived at read time
+  // from finished lesson sessions - no new table, no stored cursor.
+  const nextLesson =
+    session?.user && session.user.languagePairId
+      ? nextLessonInPath(
+          ...(await Promise.all([
+            getLessonsForPair(session.user.languagePairId),
+            getCompletedLessonIds(session.user.id),
+          ])),
+        )
+      : null;
 
   return (
     <div className="flex flex-1 flex-col gap-8 px-6 py-10">
@@ -53,6 +67,26 @@ export default async function DashboardPage() {
             </p>
           </div>
         </section>
+      )}
+
+      {nextLesson && (
+        <Link
+          href={`/lesson/${nextLesson.id}`}
+          className="flex items-center justify-between gap-3 rounded-2xl border-2 border-indigo-500 bg-indigo-50 px-5 py-4 dark:border-indigo-500 dark:bg-indigo-950"
+        >
+          <span className="flex flex-col gap-1">
+            <span className="text-xs font-semibold tracking-wide text-indigo-600 uppercase dark:text-indigo-300">
+              {strings.dashboard.continueLearning}
+            </span>
+            <span className="text-lg font-bold text-indigo-900 dark:text-indigo-50">
+              {nextLesson.title}
+            </span>
+            <span className="text-xs text-indigo-700 dark:text-indigo-300">
+              {nextLesson.level} · {nextLesson.topic}
+            </span>
+          </span>
+          <span className="text-2xl text-indigo-500">→</span>
+        </Link>
       )}
 
       {/* PLAN.md §13.1/§8: the guaranteed-short re-entry point on a busy day. Shown
