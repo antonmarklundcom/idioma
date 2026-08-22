@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { and, asc, eq } from 'drizzle-orm';
+import { and, asc, eq, isNotNull } from 'drizzle-orm';
 import { db } from '@/lib/db';
-import { languagePairs, lessonContent, type CefrLevel } from '@/lib/db/schema';
+import { languagePairs, lessonContent, practiceSessions, type CefrLevel } from '@/lib/db/schema';
 import { lessonVocabItemSchema } from '@/lib/zodSchemas';
 import type { LessonVocabItem } from '@/lib/srs';
 
@@ -34,6 +34,40 @@ export async function getLessonsForPair(
     .from(lessonContent)
     .where(and(...conditions))
     .orderBy(asc(lessonContent.level), asc(lessonContent.position), asc(lessonContent.title));
+}
+
+/**
+ * Lessons this user has finished at least once. "Completed" = a lesson-mode
+ * practice session with `ended_at` set, which only the completion route and the
+ * leave/idle close paths write - close enough for ordering the learning path,
+ * and it needs no new table. Powers the "Next up" pointer on /lesson and the
+ * dashboard's continue card.
+ */
+export async function getCompletedLessonIds(userId: string): Promise<Set<string>> {
+  const rows = await db
+    .selectDistinct({ lessonId: practiceSessions.lessonId })
+    .from(practiceSessions)
+    .where(
+      and(
+        eq(practiceSessions.userId, userId),
+        eq(practiceSessions.mode, 'lesson'),
+        isNotNull(practiceSessions.lessonId),
+        isNotNull(practiceSessions.endedAt),
+      ),
+    );
+  return new Set(rows.flatMap((r) => (r.lessonId ? [r.lessonId] : [])));
+}
+
+/**
+ * The learning path's "start here" pointer: the first lesson (in the same
+ * level → position → title order the browser lists them in) the user hasn't
+ * completed yet. Null when there are no lessons or everything is done.
+ */
+export function nextLessonInPath(
+  lessons: LessonSummary[],
+  completed: Set<string>,
+): LessonSummary | null {
+  return lessons.find((lesson) => !completed.has(lesson.id)) ?? null;
 }
 
 // Distinct topics for a pair, used to populate the browser's topic filter.

@@ -93,6 +93,9 @@ export const users = pgTable('users', {
   // /live. /lesson never auto-stops regardless of this flag, because a thinking pause
   // must not end a graded answer.
   handsFreeTurnTaking: boolean('hands_free_turn_taking').notNull().default(true),
+  // UI language override ('en' | 'es' | 'sv'). NULL = derive from nativeLang as
+  // before, so existing rows keep their current UI language untouched.
+  uiLocale: text('ui_locale'),
   // PLAN.md §15.3. Defaults to 'free' so a new sign-in can never unlock a paid mode
   // by existing; the owner promotes a row by hand.
   tier: userTierEnum('tier').notNull().default('free'),

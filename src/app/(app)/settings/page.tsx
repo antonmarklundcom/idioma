@@ -27,8 +27,6 @@ export default async function SettingsPage() {
 
       {/* PLAN.md §8 Phase 7B item 2 */}
       <HandsFreeToggle initial={user?.handsFreeTurnTaking ?? true} locale={locale} />
-
-      <p className="text-sm text-slate-400 dark:text-slate-500">{strings.settings.editingNote}</p>
     </div>
   );
 }

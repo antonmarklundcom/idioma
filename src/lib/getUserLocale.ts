@@ -8,8 +8,10 @@ import { normalizeLocale, type Locale } from '@/lib/i18n';
 // (PLAN.md §8 Phase 8) rather than the Auth.js session, which doesn't carry it.
 export async function getUserLocale(userId: string): Promise<Locale> {
   const [row] = await db
-    .select({ nativeLang: users.nativeLang })
+    .select({ nativeLang: users.nativeLang, uiLocale: users.uiLocale })
     .from(users)
     .where(eq(users.id, userId));
-  return normalizeLocale(row?.nativeLang);
+  // An explicit UI-language choice (settings flag switcher) wins; otherwise the
+  // pre-existing behavior: derive from the language pair's native side.
+  return normalizeLocale(row?.uiLocale ?? row?.nativeLang);
 }
