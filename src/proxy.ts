@@ -56,6 +56,6 @@ export default auth((req) => {
 // fallback. None of these paths expose user data.
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|icons/|manifest.webmanifest|sw.js|offline).*)',
+    '/((?!_next/static|_next/image|favicon.ico|icons/|manifest.webmanifest|sw.js|offline|api/auth).*)',
   ],
 };
