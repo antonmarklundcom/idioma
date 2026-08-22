@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build && npm run build:sw",
+    "build": "tsx scripts/deploy-migrate.ts && next build && npm run build:sw",
     "build:sw": "serwist build serwist.config.mjs",
     "icons": "tsx scripts/generate-icons.ts",
     "start": "next start",
@@ -14,7 +14,8 @@
     "db:seed": "tsx scripts/seed.ts",
     "lessons:validate": "tsx scripts/validate-lessons.ts",
     "typecheck": "tsc --noEmit",
-    "test": "node --import tsx --test tests/*.test.ts"
+    "test": "node --import tsx --test tests/*.test.ts",
+    "db:migrate:deploy": "tsx scripts/deploy-migrate.ts"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.11.2",
