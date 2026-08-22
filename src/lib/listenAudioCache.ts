@@ -48,12 +48,13 @@ export function listenAudioKey(args: {
   speakingRate: number;
   audioText: string;
   /**
-   * Which list `exerciseIndex` indexes into. The vocab step (ROADMAP.md P1.5) plays
-   * from `content.vocab`, so vocab item 0 and exercise 0 are different recordings
+   * Which list `exerciseIndex` indexes into - `content.exercises`, `content.vocab`
+   * (the vocab step) or `content.dialogue.lines`. Vocab item 0 and exercise 0 are
+   * different recordings
    * that would otherwise be one key apart only by their text hash. Defaults to
    * 'exercise' so existing call sites keep their keys.
    */
-  slot?: 'exercise' | 'vocab';
+  slot?: 'exercise' | 'vocab' | 'dialogue';
 }): string {
   const textHash = createHash('sha256').update(args.audioText).digest('hex').slice(0, 16);
   return [

@@ -1,0 +1,55 @@
+[
+  {
+    "languagePairCode": "es-PY>en-speaker",
+    "level": "A2",
+    "topic": "corner-shop",
+    "title": "At the despensa",
+    "position": 99,
+    "content": {
+      "canDo": "After this you can buy something at a corner shop, ask what it costs and hand over the money without switching to English.",
+      "intro": "Buying at a despensa is a fixed little exchange, and it starts with the shopkeeper, not you: '¿Qué te doy?' is the Paraguayan opening, and it uses vos, so the verb is 'doy' + 'te'. Two traps for English speakers: prices are said in thousands ('diez mil', not 'ten thousand guaranies'), and 'dame' sounds blunt in English but is completely normal here — softening it with 'por favor' is all you need.",
+      "vocab": [
+        { "term": "¿Qué te doy?", "gloss": "What can I get you?", "note": "The shopkeeper opens with this. Literally 'what do I give you' — the vos form." },
+        { "term": "Dame dos empanadas, por favor.", "gloss": "Give me two empanadas, please.", "note": "'Dame' is the normal way to order. It is not rude." },
+        { "term": "¿Cuánto es?", "gloss": "How much is it?" },
+        { "term": "Son diez mil.", "gloss": "That's ten thousand.", "note": "Guaraníes are always said in thousands. Nobody says the currency out loud." },
+        { "term": "Acá tenés.", "gloss": "Here you go.", "note": "'Tenés' is the vos form of tener — never 'tienes' here." },
+        { "term": "¿Tenés cambio?", "gloss": "Do you have change?" },
+        { "term": "Nada más, gracias.", "gloss": "Nothing else, thanks." },
+        { "term": "Un poco más barato", "gloss": "A bit cheaper" }
+      ],
+      "dialogue": {
+        "setup": "At the corner shop, mid-afternoon",
+        "learnerSpeaker": "You",
+        "lines": [
+          { "speaker": "Shopkeeper", "text": "¿Qué te doy?", "gloss": "What can I get you?" },
+          { "speaker": "You", "text": "Dame dos empanadas, por favor.", "gloss": "Ask for two empanadas, politely." },
+          { "speaker": "Shopkeeper", "text": "¿De carne o de pollo?", "gloss": "Beef or chicken?" },
+          { "speaker": "You", "text": "De carne. ¿Cuánto es?", "gloss": "Say beef, and ask what it comes to." },
+          { "speaker": "Shopkeeper", "text": "Son diez mil.", "gloss": "That's ten thousand." },
+          { "speaker": "You", "text": "Acá tenés. Gracias.", "gloss": "Hand over the money and thank them." }
+        ]
+      },
+      "exercises": [
+        {
+          "type": "fill_gap_speak",
+          "prompt": "Say the whole sentence, using the vos form.",
+          "sentence": "Acá ___. Gracias.",
+          "answer": "Acá tenés. Gracias.",
+          "targetHints": ["tenés, not tienes"]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Son quince mil, pero si llevás tres te hago catorce.",
+          "prompt": "What did the shopkeeper offer you? Answer in Spanish.",
+          "targetHints": ["quince mil", "si llevo tres"]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "You are at the despensa and want a cold bottle of water and a packet of biscuits. Order both, then ask what it comes to.",
+          "targetHints": ["Dame...", "¿Cuánto es?"]
+        }
+      ]
+    }
+  }
+]

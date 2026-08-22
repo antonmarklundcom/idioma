@@ -1,11 +1,16 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
+  buildDialoguePromptContext,
   buildExercisePromptContext,
   buildLessonPath,
   deriveLessonMastery,
   formatTopic,
+  getDialogueAudioText,
   getVocabAudioText,
+  splitIntro,
+  toDialogueTurns,
+  toPlayerDialogue,
   nextLessonAfter,
   nextLessonInPath,
   shakiestLesson,
@@ -326,5 +331,147 @@ describe('nextLessonAfter', () => {
 
   it('ignores completion - the next lesson is the next one, done or not', () => {
     assert.equal(nextLessonAfter(ALL, 'a1-1')?.id, 'a1-2');
+  });
+});
+
+
+// ---------------------------------------------------------------------------
+// The dialogue block (ROADMAP.md lesson-loop item 4)
+// ---------------------------------------------------------------------------
+
+const DIALOGUE_LESSON = {
+  intro: 'Ordering at a corner shop. In Paraguay the shopkeeper opens, not you.',
+  canDo: 'After this you can buy something at a despensa and ask what it costs.',
+  dialogue: {
+    setup: 'En la despensa de la esquina',
+    learnerSpeaker: 'Vos',
+    lines: [
+      { speaker: 'Vendedora', text: '¿Qué te doy?', gloss: 'What can I get you?' },
+      { speaker: 'Vos', text: 'Dame dos empanadas, por favor.', gloss: 'Give me two empanadas.' },
+      { speaker: 'Vendedora', text: 'Son diez mil.', gloss: "That's ten thousand." },
+      { speaker: 'Vos', text: 'Acá tenés. Gracias.', gloss: 'Here you go. Thanks.' },
+    ],
+  },
+  exercises: [{ type: 'speak_prompt', prompt: 'Order something else.' }],
+};
+
+describe('toPlayerDialogue', () => {
+  it('marks the learner\'s own lines and keeps the exchange in order', () => {
+    const dialogue = toPlayerDialogue(DIALOGUE_LESSON);
+    assert.deepEqual(
+      dialogue?.lines.map((l) => `${l.index}:${l.isLearner}`),
+      ['0:false', '1:true', '2:false', '3:true'],
+    );
+    assert.equal(dialogue?.setup, 'En la despensa de la esquina');
+  });
+
+  it('is null for a lesson with no dialogue, so nothing renders', () => {
+    assert.equal(toPlayerDialogue({ intro: 'x', exercises: [] }), null);
+  });
+
+  it('refuses a dialogue nobody performs, and one nobody answers', () => {
+    const noLearner = {
+      ...DIALOGUE_LESSON,
+      dialogue: { ...DIALOGUE_LESSON.dialogue, learnerSpeaker: 'Nadie' },
+    };
+    assert.equal(toPlayerDialogue(noLearner), null);
+
+    const allLearner = {
+      ...DIALOGUE_LESSON,
+      dialogue: {
+        learnerSpeaker: 'Vos',
+        lines: [
+          { speaker: 'Vos', text: 'Hola' },
+          { speaker: 'Vos', text: 'Chau' },
+        ],
+      },
+    };
+    assert.equal(toPlayerDialogue(allLearner), null);
+  });
+
+  it('refuses a malformed line rather than rendering half an exchange', () => {
+    const broken = {
+      ...DIALOGUE_LESSON,
+      dialogue: {
+        learnerSpeaker: 'Vos',
+        lines: [{ speaker: 'Vendedora', text: '¿Qué te doy?' }, { speaker: 'Vos' }],
+      },
+    };
+    assert.equal(toPlayerDialogue(broken), null);
+  });
+});
+
+describe('toDialogueTurns', () => {
+  it('turns each learner line into a step cued by its meaning', () => {
+    const turns = toDialogueTurns(DIALOGUE_LESSON);
+    assert.deepEqual(
+      turns.map((t) => [t.index, t.kind, t.prompt]),
+      [
+        [1, 'dialogue', 'Give me two empanadas.'],
+        [3, 'dialogue', 'Here you go. Thanks.'],
+      ],
+    );
+  });
+
+  it('carries what the other person just said, for context on screen', () => {
+    assert.equal(toDialogueTurns(DIALOGUE_LESSON)[0].contextLine, '¿Qué te doy?');
+  });
+
+  it('is empty for a lesson without a dialogue', () => {
+    assert.deepEqual(toDialogueTurns({ intro: 'x', exercises: [] }), []);
+  });
+});
+
+describe('buildDialoguePromptContext', () => {
+  it('grades the line inside its exchange, not as a stray sentence', () => {
+    const context = buildDialoguePromptContext(DIALOGUE_LESSON, 1) ?? '';
+    assert.match(context, /¿Qué te doy\?/);
+    assert.match(context, /Dame dos empanadas, por favor\./);
+    assert.match(context, /En la despensa de la esquina/);
+  });
+
+  it('refuses a line the learner does not perform', () => {
+    assert.equal(buildDialoguePromptContext(DIALOGUE_LESSON, 0), null);
+    assert.equal(buildDialoguePromptContext(DIALOGUE_LESSON, 9), null);
+  });
+});
+
+describe('getDialogueAudioText', () => {
+  it('synthesizes the line as written, including the other side', () => {
+    assert.equal(getDialogueAudioText(DIALOGUE_LESSON, 0), '¿Qué te doy?');
+    assert.equal(getDialogueAudioText(DIALOGUE_LESSON, 3), 'Acá tenés. Gracias.');
+  });
+
+  it('returns null for a lesson with no dialogue', () => {
+    assert.equal(getDialogueAudioText({ intro: 'x', exercises: [] }, 0), null);
+  });
+});
+
+// ROADMAP.md lesson-loop item 5: the promise first, the fine print behind a toggle.
+describe('splitIntro', () => {
+  it('prefers an explicit canDo, keeping the whole intro as the detail', () => {
+    const { lead, rest } = splitIntro('Long explanation. With a trap.', 'You can order food.');
+    assert.equal(lead, 'You can order food.');
+    assert.equal(rest, 'Long explanation. With a trap.');
+  });
+
+  it('falls back to the first sentence, so old lessons need no rewrite', () => {
+    const { lead, rest } = splitIntro(
+      'Vas a poder presentarte en inglés. Fijate en la trampa clásica: la edad va con "be".',
+    );
+    assert.equal(lead, 'Vas a poder presentarte en inglés.');
+    assert.equal(rest, 'Fijate en la trampa clásica: la edad va con "be".');
+  });
+
+  it('leaves a one-sentence intro with nothing hidden behind the toggle', () => {
+    assert.deepEqual(splitIntro('Just the one sentence.'), {
+      lead: 'Just the one sentence.',
+      rest: null,
+    });
+  });
+
+  it('handles ? and ! endings and an empty intro', () => {
+    assert.equal(splitIntro('¿Cómo andás? Eso vas a aprender.').lead, '¿Cómo andás?');
+    assert.deepEqual(splitIntro(''), { lead: '', rest: null });
   });
 });
