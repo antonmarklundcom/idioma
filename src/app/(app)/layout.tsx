@@ -51,6 +51,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <Link className="min-h-11 rounded-xl px-2 py-2.5 font-semibold hover:text-brand-600" href="/live">
               {strings.nav.live}
             </Link>
+            <Link
+              className="min-h-11 rounded-xl px-2 py-2.5 font-semibold hover:text-brand-600"
+              href="/history"
+            >
+              {strings.nav.history}
+            </Link>
           </span>
           {/* Icon-only below sm so the compact header still fits the ring, the
               flame and a way into settings; sign-out lives on that page for

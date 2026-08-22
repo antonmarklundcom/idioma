@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { EmptyState } from '@/components/ui/EmptyState';
 import type { SessionSummary } from '@/lib/progress';
 import { t, type Locale } from '@/lib/i18n';
@@ -26,16 +27,23 @@ export function SessionHistory({
   return (
     <ul className="card flex flex-col divide-y divide-line py-1">
       {sessions.map((s) => (
-        <li key={s.id} className="flex items-center justify-between py-3 text-sm">
-          <div>
-            <span className="font-bold text-ink">
-              {strings.dashboardComponents.modeLabels[s.mode]}
+        <li key={s.id}>
+          {/* Every row is now a way back into what was actually said (saved
+              conversations, Aug 2026) - the count alone told the learner nothing. */}
+          <Link
+            href={`/history/${s.id}`}
+            className="flex items-center justify-between py-3 text-sm"
+          >
+            <div>
+              <span className="font-bold text-ink">
+                {strings.dashboardComponents.modeLabels[s.mode]}
+              </span>
+              <span className="ml-2 text-ink-muted">{formatDateTime(s.startedAt)}</span>
+            </div>
+            <span className="text-ink-muted">
+              {strings.dashboardComponents.utteranceCount(s.utteranceCount)}
             </span>
-            <span className="ml-2 text-ink-muted">{formatDateTime(s.startedAt)}</span>
-          </div>
-          <span className="text-ink-muted">
-            {strings.dashboardComponents.utteranceCount(s.utteranceCount)}
-          </span>
+          </Link>
         </li>
       ))}
     </ul>

@@ -1,12 +1,14 @@
-import { and, count, desc, eq, gte, lt, sql } from 'drizzle-orm';
+import { and, asc, count, desc, eq, gte, inArray, lt, sql } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import {
   errorPatterns,
+  lessonContent,
   practiceSessions,
   usageLog,
   userStats,
   utterances,
   type PracticeMode,
+  type UtteranceError,
 } from '@/lib/db/schema';
 import { countDueReviewItems } from '@/lib/srs';
 import { GAMIFICATION } from '@/lib/gamification';
@@ -198,5 +200,224 @@ export async function getWeeklyRecap(userId: string, timezone: string | null): P
       : null,
     xpThisWeek,
     xpLastWeek,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Saved conversations (owner request, Aug 2026)
+//
+// Nothing new is recorded for this: every turn has always written its transcript,
+// the corrected version, the tutor's reply and the structured error list to
+// `utterances`. Until now none of it was readable back, so a practice session was
+// a number on the dashboard and then gone. These two functions are the read side.
+// ---------------------------------------------------------------------------
+
+export type ConversationTurn = {
+  id: string;
+  transcript: string | null;
+  corrected: string | null;
+  tutorReply: string | null;
+  followUpQuestion: string | null;
+  errors: UtteranceError[];
+  createdAt: Date;
+};
+
+export type Conversation = {
+  id: string;
+  mode: PracticeMode;
+  startedAt: Date;
+  endedAt: Date | null;
+  lessonTitle: string | null;
+  turns: ConversationTurn[];
+};
+
+/**
+ * One past session, in full. Scoped by userId in the WHERE clause rather than
+ * checked afterwards: a transcript is the most personal thing this app stores, so
+ * another user's session id must return "not found", never a row.
+ */
+export async function getConversation(
+  sessionId: string,
+  userId: string,
+): Promise<Conversation | null> {
+  const [session] = await db
+    .select({
+      id: practiceSessions.id,
+      mode: practiceSessions.mode,
+      startedAt: practiceSessions.startedAt,
+      endedAt: practiceSessions.endedAt,
+      lessonTitle: lessonContent.title,
+    })
+    .from(practiceSessions)
+    .leftJoin(lessonContent, eq(lessonContent.id, practiceSessions.lessonId))
+    .where(and(eq(practiceSessions.id, sessionId), eq(practiceSessions.userId, userId)));
+  if (!session) return null;
+
+  const rows = await db
+    .select({
+      id: utterances.id,
+      transcript: utterances.transcript,
+      corrected: utterances.corrected,
+      tutorReply: utterances.tutorReply,
+      followUpQuestion: utterances.followUpQuestion,
+      errors: utterances.errors,
+      createdAt: utterances.createdAt,
+    })
+    .from(utterances)
+    .where(eq(utterances.sessionId, sessionId))
+    .orderBy(asc(utterances.createdAt));
+
+  return {
+    ...session,
+    turns: rows.map((row) => ({ ...row, errors: row.errors ?? [] })),
+  };
+}
+
+export type ConversationSummary = SessionSummary & {
+  lessonTitle: string | null;
+  /** First thing the learner said, for a recognisable label in the list. */
+  preview: string | null;
+  errorCount: number;
+};
+
+/**
+ * The history list. Sessions with no utterances are dropped - an opened-and-
+ * abandoned session is not a conversation, and a list full of empty rows would
+ * bury the real ones.
+ */
+export async function getConversationList(
+  userId: string,
+  limit = 50,
+): Promise<ConversationSummary[]> {
+  const sessions = await db
+    .select({
+      id: practiceSessions.id,
+      mode: practiceSessions.mode,
+      startedAt: practiceSessions.startedAt,
+      endedAt: practiceSessions.endedAt,
+      utteranceCount: count(utterances.id),
+      lessonTitle: lessonContent.title,
+    })
+    .from(practiceSessions)
+    .leftJoin(utterances, eq(utterances.sessionId, practiceSessions.id))
+    .leftJoin(lessonContent, eq(lessonContent.id, practiceSessions.lessonId))
+    .where(eq(practiceSessions.userId, userId))
+    .groupBy(practiceSessions.id, lessonContent.title)
+    .orderBy(desc(practiceSessions.startedAt))
+    .limit(limit);
+
+  const withTurns = sessions.filter((s) => s.utteranceCount > 0);
+  if (withTurns.length === 0) return [];
+
+  // One extra query for every listed session's turns, rather than N: the preview
+  // and the error tally both come out of the same rows.
+  const turnRows = await db
+    .select({
+      sessionId: utterances.sessionId,
+      transcript: utterances.transcript,
+      errors: utterances.errors,
+      createdAt: utterances.createdAt,
+    })
+    .from(utterances)
+    .where(
+      inArray(
+        utterances.sessionId,
+        withTurns.map((s) => s.id),
+      ),
+    )
+    .orderBy(asc(utterances.createdAt));
+
+  const previews = new Map<string, string>();
+  const errorCounts = new Map<string, number>();
+  for (const row of turnRows) {
+    if (row.transcript && !previews.has(row.sessionId)) previews.set(row.sessionId, row.transcript);
+    errorCounts.set(row.sessionId, (errorCounts.get(row.sessionId) ?? 0) + (row.errors?.length ?? 0));
+  }
+
+  return withTurns.map((s) => ({
+    ...s,
+    preview: previews.get(s.id) ?? null,
+    errorCount: errorCounts.get(s.id) ?? 0,
+  }));
+}
+
+// ---------------------------------------------------------------------------
+// "How am I doing, and what should I fix?" (owner request, Aug 2026)
+//
+// Deliberately NOT a chart: eight sparse weekly points on a phone answers neither
+// question as well as one comparison and a ranked list does. The headline is
+// mistakes per turn - turns alone reward talking more, and a raw mistake count
+// punishes it.
+// ---------------------------------------------------------------------------
+
+export type AccuracyWindow = {
+  turns: number;
+  mistakes: number;
+  /** null when there were no turns: 0.0 would read as a perfect week. */
+  mistakesPerTurn: number | null;
+};
+
+export type ProgressInsights = {
+  thisWeek: AccuracyWindow;
+  lastWeek: AccuracyWindow;
+  /** The mistakes still happening, worst first - what to actually work on. */
+  focusAreas: ErrorPatternWithFlag[];
+  conquered: ErrorPatternWithFlag[];
+};
+
+async function accuracyBetween(
+  userId: string,
+  from: Date,
+  to: Date,
+): Promise<AccuracyWindow> {
+  const [row] = await db
+    .select({
+      turns: sql<number>`count(*)`,
+      // errors is nullable jsonb; a null column and an empty array both mean zero.
+      mistakes: sql<number>`coalesce(sum(jsonb_array_length(coalesce(${utterances.errors}, '[]'::jsonb))), 0)`,
+    })
+    .from(utterances)
+    .where(
+      and(
+        eq(utterances.userId, userId),
+        gte(utterances.createdAt, from),
+        lt(utterances.createdAt, to),
+      ),
+    );
+
+  const turns = Number(row?.turns ?? 0);
+  const mistakes = Number(row?.mistakes ?? 0);
+  return { turns, mistakes, mistakesPerTurn: turns > 0 ? mistakes / turns : null };
+}
+
+export async function getProgressInsights(userId: string): Promise<ProgressInsights> {
+  const now = new Date();
+  const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+
+  const [thisWeek, lastWeek, patternRows] = await Promise.all([
+    accuracyBetween(userId, weekAgo, now),
+    accuracyBetween(userId, twoWeeksAgo, weekAgo),
+    db
+      .select()
+      .from(errorPatterns)
+      .where(eq(errorPatterns.userId, userId))
+      .orderBy(desc(errorPatterns.occurrenceCount), desc(errorPatterns.lastSeenAt)),
+  ]);
+
+  const staleCutoff = Date.now() - CONQUERED_STALE_DAYS * 24 * 60 * 60 * 1000;
+  const patterns: ErrorPatternWithFlag[] = patternRows.map((p) => ({
+    ...p,
+    conquered:
+      p.occurrenceCount >= CONQUERED_MIN_OCCURRENCES && p.lastSeenAt.getTime() < staleCutoff,
+  }));
+
+  return {
+    thisWeek,
+    lastWeek,
+    // Three, not ten: a list of everything you have ever got wrong is a wall, not
+    // a plan. The rest stay on the dashboard's full pattern list.
+    focusAreas: patterns.filter((p) => !p.conquered).slice(0, 3),
+    conquered: patterns.filter((p) => p.conquered).slice(0, 3),
   };
 }

@@ -38,6 +38,17 @@ const SILENCE_PAUSE_MS = 700;
 /** Hands-free auto-stop: end the turn after this much silence (PLAN.md §8 Phase 7B item 2). */
 export const SILENCE_STOP_MS = 1500;
 /**
+ * Hands-free only: give up on a turn nobody started.
+ *
+ * The auto-stop arms on `sawSpeech`, so a mic opened between turns that never hears
+ * anything used to keep capturing until the 90s cap, upload 90 seconds of silence,
+ * get a reply to nothing, and - because the loop hands the mic back after every
+ * reply - do it again. That is a metered turn per cycle for a learner who has walked
+ * away from the phone. Now the mic simply closes and sends nothing; the next turn is
+ * a deliberate tap, exactly like the first one.
+ */
+const NO_SPEECH_TIMEOUT_MS = 8000;
+/**
  * How long to wait for a suspended AudioContext to come alive before giving up on the
  * analyser. The context is created after the getUserMedia await - outside the tap
  * gesture's call stack - so iOS Safari starts it 'suspended' and may refuse resume().
@@ -112,6 +123,8 @@ export function useRecorder(
   const startingRef = useRef(false);
   /** Set on unmount so a getUserMedia that resolves late releases its stream. */
   const disposedRef = useRef(false);
+  /** Set when a turn is abandoned rather than finished: onstop must not deliver a blob. */
+  const abortedRef = useRef(false);
   // Read inside the animation frame, so toggling the setting mid-session can't leave a
   // stale value baked into the closure.
   const handsFreeRef = useRef(handsFree);
@@ -171,12 +184,41 @@ export function useRecorder(
     setStatus((prev) => (prev === 'recording' || prev === 'listening' ? 'idle' : prev));
   }, [clearTimer, cleanupAudioGraph, stopStream]);
 
+  /**
+   * End the turn WITHOUT handing anything back - the hands-free "nobody is there"
+   * path. Distinct from stop(), which always delivers what it captured.
+   */
+  const abort = useCallback(() => {
+    clearTimer();
+    setSilenceCountdownMs(null);
+    abortedRef.current = true;
+    const endpoint = endpointRef.current;
+    if (endpoint) endpoint.finished = true;
+
+    const recorder = mediaRecorderRef.current;
+    if (recorder && recorder.state !== 'inactive') {
+      recorder.stop(); // onstop sees abortedRef and discards the blob
+      return;
+    }
+    cleanupAudioGraph();
+    stopStream();
+    setStatus('idle');
+  }, [clearTimer, cleanupAudioGraph, stopStream]);
+
+  // The tick loop lives inside start()'s closure, so it reaches abort through a ref
+  // rather than a dependency - same reason `stop` is called directly there.
+  const abortRef = useRef(abort);
+  useEffect(() => {
+    abortRef.current = abort;
+  }, [abort]);
+
   const start = useCallback(async () => {
     // Re-entrancy guard: a double-tap or the hands-free auto-start racing a manual tap
     // would otherwise overwrite streamRef/mediaRecorderRef and leak the first mic
     // stream (indicator stuck on) and its rAF loop.
     if (startingRef.current || streamRef.current) return;
     startingRef.current = true;
+    abortedRef.current = false;
     setError(null);
     setElapsedSeconds(0);
     setSilenceCountdownMs(null);
@@ -203,10 +245,16 @@ export function useRecorder(
       };
       recorder.onstop = () => {
         const recordedBlob = new Blob(chunksRef.current, { type: recorder.mimeType });
-        setStatus('stopped');
         setSilenceCountdownMs(null);
         cleanupAudioGraph();
         stopStream();
+        // Abandoned turn (nobody spoke): drop the bytes on the floor. Handing them to
+        // the caller would cost a graded turn for a recording of an empty room.
+        if (abortedRef.current) {
+          setStatus('idle');
+          return;
+        }
+        setStatus('stopped');
         onStopRef.current?.(recordedBlob, recorder.mimeType);
       };
 
@@ -324,9 +372,14 @@ export function useRecorder(
         if (endpoint.phase === 'waiting') {
           if (isVoice) {
             beginCapture(now, true);
+          } else if (handsFreeRef.current) {
+            // Hands-free opened this mic on the learner's behalf, so silence means
+            // "not here" rather than "still thinking": close it and send nothing.
+            if (now - endpoint.openedAt >= NO_SPEECH_TIMEOUT_MS) abortRef.current();
           } else if (now - endpoint.openedAt >= SPEECH_ONSET_GRACE_MS) {
-            // Nothing crossed the bar. Record anyway (and, having never heard speech,
-            // don't let the auto-stop end a turn that hasn't started).
+            // Tap-to-record: the learner deliberately opened the mic, so record anyway
+            // (and, having never heard speech, don't let the auto-stop end a turn that
+            // hasn't started).
             beginCapture(now, false);
           }
           return;
@@ -341,6 +394,13 @@ export function useRecorder(
         }
 
         const silentFor = now - endpoint.lastVoiceAt;
+
+        // Capturing but still never having heard speech - only the suspended-context
+        // fallback gets here. Same rule: hands-free doesn't sit recording an empty room.
+        if (handsFreeRef.current && !endpoint.sawSpeech && silentFor >= NO_SPEECH_TIMEOUT_MS) {
+          abortRef.current();
+          return;
+        }
 
         if (trimSilenceRef.current && !endpoint.trimDisabled && silentFor >= SILENCE_PAUSE_MS) {
           pauseCapture();

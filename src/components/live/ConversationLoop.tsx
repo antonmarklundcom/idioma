@@ -39,6 +39,10 @@ export function ConversationLoop({
   const [status, setStatus] = useState<'idle' | 'sending' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [turnCount, setTurnCount] = useState(0);
+  // Owner request: "correct me if I want to". The tutor grades every turn either
+  // way - this only decides whether the corrections are open or tucked away, so
+  // flipping it costs nothing and loses nothing. Starts from the coaching profile.
+  const [correctMe, setCorrectMe] = useState(coachingProfile === 'accuracy_focus');
   const [xpEvent, setXpEvent] = useState<{ id: number; xp: number } | null>(null);
   const [celebrationMessage, setCelebrationMessage] = useState<string | null>(null);
   // Bumped when the tutor finishes speaking; UtteranceRecorder watches it to reopen the
@@ -108,9 +112,21 @@ export function ConversationLoop({
 
   return (
     <div className="flex flex-1 flex-col items-center gap-6 px-5 py-8 sm:px-6 sm:py-10">
-      <p className="text-xs font-bold tracking-wide text-ink-muted uppercase">
-        {strings.turnOf(turnCount + 1)}
-      </p>
+      <div className="flex w-full max-w-lg items-center justify-between gap-3">
+        <p className="text-xs font-bold tracking-wide text-ink-muted uppercase">
+          {strings.turnOf(turnCount + 1)}
+        </p>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={correctMe}
+          aria-label={strings.correctionsLabel}
+          onClick={() => setCorrectMe((v) => !v)}
+          className={`chip ${correctMe ? 'chip-active' : ''}`}
+        >
+          {correctMe ? strings.correctionsOn : strings.correctionsOff}
+        </button>
+      </div>
       <p className="max-w-lg text-center text-xl font-semibold text-balance text-ink">
         {promptContext}
       </p>
@@ -125,8 +141,11 @@ export function ConversationLoop({
         autoStartToken={autoStartToken}
       />
 
-      {handsFree && status === 'idle' && (
-        <p className="text-xs text-ink-muted">{strings.handsFreeHint}</p>
+      {status === 'idle' && (
+        <p className="max-w-lg text-center text-xs text-ink-muted">
+          {strings.correctionsHint}
+          {handsFree ? ` ${strings.handsFreeHint}` : ''}
+        </p>
       )}
       {status === 'sending' && (
         <p className="text-sm text-ink-muted" aria-live="polite">
@@ -141,6 +160,7 @@ export function ConversationLoop({
 
       {feedback && (
         <FeedbackCard
+          expandErrors={correctMe}
           feedback={feedback}
           tutorAudioBase64={feedback.tutorAudioBase64}
           coachingProfile={coachingProfile}

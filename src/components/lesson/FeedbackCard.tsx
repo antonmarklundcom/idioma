@@ -23,16 +23,26 @@ export function FeedbackCard({
   coachingProfile,
   onReplay,
   locale,
+  expandErrors,
 }: {
   feedback: FeedbackResult;
   tutorAudioBase64: string | null;
   coachingProfile: CoachingProfile | null;
   onReplay: () => void;
   locale: Locale;
+  /**
+   * Overrides the coaching profile's default for this card - /live's "Correct me"
+   * switch. Kept as a DEFAULT rather than a controlled value: a learner who opens
+   * the details on one card should keep them open even if the switch says otherwise.
+   */
+  expandErrors?: boolean;
 }) {
   const strings = t(locale).feedbackCard;
   const isAccuracyFocus = coachingProfile === 'accuracy_focus';
-  const [errorsExpanded, setErrorsExpanded] = useState(isAccuracyFocus);
+  // null = "follow whatever the parent/profile says"; a click pins it either way.
+  const [pinned, setPinned] = useState<boolean | null>(null);
+  const errorsExpanded = pinned ?? expandErrors ?? isAccuracyFocus;
+  const setErrorsExpanded = (next: boolean) => setPinned(next);
 
   return (
     <div className="card animate-rise flex w-full max-w-lg flex-col gap-4 p-5">
@@ -61,7 +71,7 @@ export function FeedbackCard({
         <div>
           <button
             type="button"
-            onClick={() => setErrorsExpanded((v) => !v)}
+            onClick={() => setErrorsExpanded(!errorsExpanded)}
             aria-expanded={errorsExpanded}
             className="-mx-2 -my-1 cursor-pointer px-2 py-2 text-sm font-bold text-ink-muted"
           >
