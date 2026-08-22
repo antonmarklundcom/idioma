@@ -21,6 +21,39 @@ const COACHING_PROFILE_TEXT: Record<CoachingProfile, string> = {
 
 const DEFAULT_COACHING_PROFILE: CoachingProfile = 'confidence_first';
 
+/**
+ * What "what do you want to focus on?" actually means to the tutor (PLAN.md §11.3).
+ *
+ * Onboarding and /settings have collected `users.focus_skills` since Phase 2 and
+ * NOTHING read it: the learner picked pronunciation, and the tutor never heard about
+ * it. These lines ride along with the coaching-profile block, which is already the
+ * "how to coach this person" part of the prompt - so no language pair's template in
+ * the database has to change for the setting to start working.
+ */
+const FOCUS_SKILL_TEXT: Record<string, string> = {
+  'speaking-confidence':
+    'they want to build the confidence to speak, so prioritise keeping them talking over ' +
+    'completeness of correction',
+  grammar: 'they asked to work on grammar, so name the rule behind a grammatical error',
+  listening:
+    'they asked to work on listening, so make followUpQuestion something they must ' +
+    'understand before they can answer, not just a prompt to keep talking',
+  pronunciation:
+    'they asked to work on pronunciation, so do not let a pronunciation error pass ' +
+    'unreported just because the meaning came through',
+  vocabulary:
+    'they asked to work on vocabulary, so introduce or recycle one useful word per turn ' +
+    'and use it in your own reply first',
+};
+
+function focusSkillsText(focusSkills: string[] | null): string {
+  const lines = (focusSkills ?? [])
+    .map((skill) => FOCUS_SKILL_TEXT[skill])
+    .filter((line): line is string => Boolean(line));
+  if (lines.length === 0) return '';
+  return `\nThis learner also told us what they want to work on: ${lines.join('; ')}.`;
+}
+
 type LanguagePairPromptFields = {
   tutorPromptTemplate: string;
   conversationPromptTemplate: string | null;
@@ -41,6 +74,8 @@ export function assembleSystemPrompt(args: {
   mode: PracticeMode;
   level: string;
   coachingProfile: CoachingProfile | null;
+  /** users.focus_skills - what the learner asked to work on. Null/empty is fine. */
+  focusSkills: string[] | null;
   recurringErrors: RecurringErrorSummary[];
   lessonContext: string;
 }): string {
@@ -59,7 +94,8 @@ export function assembleSystemPrompt(args: {
     .replaceAll('{{correction_style}}', args.pair.correctionStyle ?? 'Encouraging and concise.')
     .replaceAll(
       '{{coaching_profile}}',
-      COACHING_PROFILE_TEXT[args.coachingProfile ?? DEFAULT_COACHING_PROFILE],
+      COACHING_PROFILE_TEXT[args.coachingProfile ?? DEFAULT_COACHING_PROFILE] +
+        focusSkillsText(args.focusSkills),
     )
     .replaceAll('{{recurring_errors}}', recurringErrorsText)
     .replaceAll('{{lesson_context}}', args.lessonContext)
