@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { languagePairs } from '@/lib/db/schema';
@@ -61,6 +62,19 @@ export default async function SettingsPage() {
 
       {/* PLAN.md §8 Phase 7B item 2 */}
       <HandsFreeToggle initial={user?.handsFreeTurnTaking ?? true} locale={locale} />
+
+      {/* The word "Admin" sat next to the gear in the header, where it read as part
+          of everyone's navigation rather than as the one owner-only door in the app.
+          It belongs down here with the other settings. */}
+      {user?.role === 'admin' && (
+        <section className="flex flex-col gap-2">
+          <h2 className="heading-section">{strings.settings.ownerHeading}</h2>
+          <p className="text-sm text-ink-muted">{strings.settings.ownerHint}</p>
+          <Link href="/admin" className="btn-secondary btn-sm self-start">
+            {strings.nav.admin}
+          </Link>
+        </section>
+      )}
 
       {/* The header's sign-out is desktop-only since P0.3 moved phone navigation
           to the bottom tab bar, so this is the way out on a phone. */}
