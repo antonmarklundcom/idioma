@@ -33,25 +33,22 @@ export default async function LessonDetailPage({
   const initialPrompt = exercises[0]?.prompt ?? content.intro;
 
   return (
-    <div className="flex flex-1 flex-col gap-6 px-6 py-10">
+    <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-5 py-8 sm:px-6 sm:py-10">
       <div>
-        <p className="text-xs font-medium uppercase tracking-wide text-indigo-500">
+        <p className="text-xs font-extrabold tracking-wide text-brand-600 uppercase dark:text-brand-300">
           {lesson.level} · {lesson.topic}
         </p>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{lesson.title}</h1>
-        <p className="mt-2 text-slate-600 dark:text-slate-300">{content.intro}</p>
+        <h1 className="heading-page mt-1">{lesson.title}</h1>
+        <p className="mt-2 text-ink-muted">{content.intro}</p>
       </div>
 
       {content.vocab.length > 0 && (
         <ul className="flex flex-col gap-2">
           {content.vocab.map((v, i) => (
-            <li
-              key={i}
-              className="rounded-xl border border-slate-200 px-4 py-2 dark:border-slate-700"
-            >
-              <p className="font-medium text-slate-900 dark:text-white">{v.term}</p>
-              <p className="text-sm text-slate-500 dark:text-slate-400">{v.gloss}</p>
-              {v.note && <p className="mt-1 text-xs text-slate-400">{v.note}</p>}
+            <li key={i} className="card py-3">
+              <p className="font-bold text-ink">{v.term}</p>
+              <p className="text-sm text-ink-muted">{v.gloss}</p>
+              {v.note && <p className="mt-1 text-xs text-ink-muted italic">{v.note}</p>}
             </li>
           ))}
         </ul>

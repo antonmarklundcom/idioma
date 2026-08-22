@@ -1,3 +1,4 @@
+import { EmptyState } from '@/components/ui/EmptyState';
 import type { ErrorPatternWithFlag } from '@/lib/progress';
 import { t, type Locale } from '@/lib/i18n';
 
@@ -25,11 +26,7 @@ export function ErrorPatternList({
 }) {
   const strings = t(locale);
   if (patterns.length === 0) {
-    return (
-      <p className="text-sm text-slate-500 dark:text-slate-400">
-        {strings.dashboardComponents.noMistakesYet}
-      </p>
-    );
+    return <EmptyState emoji="🌱">{strings.dashboardComponents.noMistakesYet}</EmptyState>;
   }
 
   return (
@@ -37,10 +34,10 @@ export function ErrorPatternList({
       {patterns.map((p) => (
         <li
           key={p.id}
-          className={`rounded-xl border px-4 py-3 text-sm ${
+          className={`rounded-2xl border-2 px-4 py-3 text-sm ${
             p.conquered
               ? 'border-emerald-300 bg-emerald-50 text-emerald-900 dark:border-emerald-700 dark:bg-emerald-950 dark:text-emerald-200'
-              : (CATEGORY_STYLES[p.category] ?? 'border-slate-200 dark:border-slate-700')
+              : (CATEGORY_STYLES[p.category] ?? 'border-line bg-surface text-ink')
           }`}
         >
           <div className="flex items-center justify-between gap-2">

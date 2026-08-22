@@ -142,24 +142,17 @@ export function ReviewSession({
 
   if (done || !card) {
     return (
-      <div className="flex flex-1 flex-col items-center gap-4 px-6 py-10">
-        <p className="text-lg font-semibold text-slate-900 dark:text-white">
-          {strings.roundComplete}
-        </p>
-        <p className="text-sm text-slate-600 dark:text-slate-300">
-          {strings.roundSummary(gradedCount, xpEarned)}
-        </p>
+      <div className="flex flex-1 flex-col items-center gap-4 px-5 py-10 sm:px-6">
+        <span aria-hidden="true" className="animate-pop text-5xl">
+          🎉
+        </span>
+        <p className="text-xl font-extrabold text-ink">{strings.roundComplete}</p>
+        <p className="text-sm text-ink-muted">{strings.roundSummary(gradedCount, xpEarned)}</p>
         <div className="flex flex-col items-center gap-2">
-          <Link
-            href="/review"
-            className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white"
-          >
+          <Link href="/review" className="btn-primary">
             {strings.anotherRound}
           </Link>
-          <Link
-            href="/dashboard"
-            className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 dark:border-slate-700 dark:text-slate-200"
-          >
+          <Link href="/dashboard" className="btn-secondary btn-sm">
             {strings.backToDashboard}
           </Link>
         </div>
@@ -170,23 +163,23 @@ export function ReviewSession({
   const busy = status === 'sending' || status === 'grading';
 
   return (
-    <div className="flex flex-1 flex-col items-center gap-6 px-6 py-10">
-      <div className="flex w-full max-w-lg items-center justify-between text-xs uppercase tracking-wide text-slate-400">
+    <div className="flex flex-1 flex-col items-center gap-6 px-5 py-8 sm:px-6 sm:py-10">
+      <div className="flex w-full max-w-lg items-center justify-between text-xs font-bold tracking-wide text-ink-muted uppercase">
         <span>{strings.cardOf(index + 1, cards.length)}</span>
         <span>{t(locale).gamification.xpAwarded(xpEarned)}</span>
       </div>
 
-      <div className="flex w-full max-w-lg flex-col gap-3 rounded-2xl border border-slate-200 p-5 text-center dark:border-slate-700">
-        <p className="text-xs font-medium uppercase tracking-wide text-indigo-500">
+      <div className="card flex w-full max-w-lg flex-col gap-3 p-6 text-center">
+        <p className="text-xs font-extrabold tracking-wide text-brand-600 uppercase dark:text-brand-300">
           {strings.kindLabel[card.kind]}
         </p>
-        <p className="text-lg text-slate-800 dark:text-slate-100">{card.front}</p>
+        <p className="text-xl font-bold text-ink">{card.front}</p>
         {revealed ? (
-          <p className="rounded-xl bg-slate-50 px-3 py-2 font-medium text-slate-900 dark:bg-slate-800 dark:text-white">
+          <p className="animate-rise rounded-xl bg-surface-muted px-3 py-2 font-bold text-ink">
             {card.back}
           </p>
         ) : (
-          <p className="text-sm text-slate-400">{strings.sayItOutLoud}</p>
+          <p className="text-sm text-ink-muted">{strings.sayItOutLoud}</p>
         )}
       </div>
 
@@ -199,13 +192,13 @@ export function ReviewSession({
               maxLength={TEXT_ANSWER_MAX_CHARS}
               rows={2}
               placeholder={strings.typePlaceholder}
-              className="w-full rounded-xl border border-slate-200 bg-transparent px-3 py-2 text-slate-800 dark:border-slate-700 dark:text-slate-100"
+              className="w-full rounded-2xl border-2 border-line bg-surface px-3 py-2 text-ink"
             />
             <div className="flex items-center justify-between gap-2">
               <button
                 type="button"
                 onClick={() => setTyping(false)}
-                className="-mx-2 -my-1 px-2 py-2 text-sm text-slate-500 dark:text-slate-400"
+                className="-mx-2 -my-1 cursor-pointer px-2 py-2 text-sm font-semibold text-ink-muted"
               >
                 {strings.useMicInstead}
               </button>
@@ -213,7 +206,7 @@ export function ReviewSession({
                 type="button"
                 disabled={busy || typedAnswer.trim().length === 0}
                 onClick={() => submitAnswer({ text: typedAnswer.trim() })}
-                className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+                className="btn-primary btn-sm"
               >
                 {strings.checkAnswer}
               </button>
@@ -233,7 +226,7 @@ export function ReviewSession({
               <button
                 type="button"
                 onClick={() => setTyping(true)}
-                className="-mx-2 -my-1 px-2 py-2 text-sm text-slate-500 underline dark:text-slate-400"
+                className="-mx-2 -my-1 cursor-pointer px-2 py-2 text-sm font-semibold text-ink-muted underline"
               >
                 {strings.typeInstead}
               </button>
@@ -244,7 +237,7 @@ export function ReviewSession({
                   setRevealed(true);
                   setFeedback(null);
                 }}
-                className="-mx-2 -my-1 px-2 py-2 text-sm text-slate-500 underline disabled:opacity-50 dark:text-slate-400"
+                className="-mx-2 -my-1 cursor-pointer px-2 py-2 text-sm font-semibold text-ink-muted underline disabled:opacity-50"
               >
                 {strings.dontKnow}
               </button>
@@ -252,8 +245,16 @@ export function ReviewSession({
           </div>
         ))}
 
-      {status === 'sending' && <p className="text-sm text-slate-400">{strings.checkingAnswer}</p>}
-      {errorMessage && <p className="text-sm text-red-600 dark:text-red-400">{errorMessage}</p>}
+      {status === 'sending' && (
+        <p className="text-sm text-ink-muted" aria-live="polite">
+          {strings.checkingAnswer}
+        </p>
+      )}
+      {errorMessage && (
+        <p className="text-sm font-semibold text-brand-700 dark:text-brand-300" aria-live="polite">
+          {errorMessage}
+        </p>
+      )}
 
       {feedback && (
         <FeedbackCard
@@ -275,7 +276,7 @@ export function ReviewSession({
                 type="button"
                 disabled={busy}
                 onClick={() => grade('good')}
-                className="flex-1 rounded-lg bg-emerald-600 px-4 py-3 text-sm font-medium text-white disabled:opacity-50"
+                className="btn-success flex-1"
               >
                 {strings.gotIt}
               </button>
@@ -283,7 +284,7 @@ export function ReviewSession({
                 type="button"
                 disabled={busy}
                 onClick={() => grade('easy')}
-                className="flex-1 rounded-lg bg-sky-600 px-4 py-3 text-sm font-medium text-white disabled:opacity-50"
+                className="btn-primary flex-1"
               >
                 {strings.easy}
               </button>
@@ -293,7 +294,7 @@ export function ReviewSession({
               type="button"
               disabled={busy}
               onClick={() => grade('again')}
-              className="rounded-lg bg-slate-700 px-4 py-3 text-sm font-medium text-white disabled:opacity-50 dark:bg-slate-600"
+              className="btn-secondary"
             >
               {strings.showAgain}
             </button>

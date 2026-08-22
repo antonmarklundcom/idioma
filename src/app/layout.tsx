@@ -38,7 +38,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0f172a",
+  themeColor: "#d6321f",
   // Installed PWAs run edge-to-edge; without this the iOS notch area is letterboxed.
   viewportFit: "cover",
 };
@@ -53,7 +53,7 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="flex min-h-full flex-col bg-surface-sunken font-sans text-ink">
         {children}
         <ServiceWorkerRegistrar />
         <InstallPrompt />

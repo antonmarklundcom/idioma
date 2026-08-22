@@ -23,10 +23,10 @@ export default async function AdminPage() {
   const providers = PROVIDER_IDS.map((id) => ({ ...PROVIDERS[id], hasKey: keys[id] }));
 
   return (
-    <div className="flex flex-1 flex-col gap-6 px-6 py-10">
+    <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 px-5 py-8 sm:px-6 sm:py-10">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Admin</h1>
-        <p className="mt-1 text-slate-500 dark:text-slate-400">
+        <h1 className="heading-page">Admin</h1>
+        <p className="mt-1 text-ink-muted">
           Which model runs which part of the app. Changes take effect within 30 seconds — no
           redeploy.
         </p>

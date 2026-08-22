@@ -38,8 +38,8 @@ export function AppLanguageSwitcher({ current }: { current: Locale }) {
   }
 
   return (
-    <div className="flex max-w-md flex-col gap-2 rounded-xl border border-slate-200 p-4 dark:border-slate-700">
-      <span className="font-medium text-slate-900 dark:text-white">{strings.appLanguage}</span>
+    <div className="card flex max-w-md flex-col gap-3">
+      <span className="font-bold text-ink">{strings.appLanguage}</span>
       <div className="flex flex-wrap gap-2">
         {LOCALES.map((locale) => (
           <button
@@ -48,18 +48,20 @@ export function AppLanguageSwitcher({ current }: { current: Locale }) {
             aria-pressed={locale === current}
             disabled={saving !== null}
             onClick={() => choose(locale)}
-            className={`flex min-h-11 items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-medium transition disabled:opacity-50 ${
-              locale === current
-                ? 'border-sky-500 bg-sky-500 text-white'
-                : 'border-slate-200 text-slate-600 dark:border-slate-700 dark:text-slate-300'
-            }`}
+            className={`chip gap-2 disabled:opacity-50 ${locale === current ? 'chip-active' : ''}`}
           >
-            <span aria-hidden="true">{LOCALE_FLAGS[locale]}</span>
+            <span aria-hidden="true" className="text-base">
+              {LOCALE_FLAGS[locale]}
+            </span>
             {locale.toUpperCase()}
           </button>
         ))}
       </div>
-      {failed && <p className="text-sm text-red-600 dark:text-red-400">{strings.saveFailed}</p>}
+      {failed && (
+        <p className="text-sm font-semibold text-brand-700 dark:text-brand-300">
+          {strings.saveFailed}
+        </p>
+      )}
     </div>
   );
 }

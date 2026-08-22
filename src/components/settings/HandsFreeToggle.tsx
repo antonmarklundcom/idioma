@@ -35,24 +35,26 @@ export function HandsFreeToggle({ initial, locale }: { initial: boolean; locale:
   };
 
   return (
-    <div className="flex max-w-md flex-col gap-2 rounded-xl border border-slate-200 p-4 dark:border-slate-700">
+    <div className="card flex max-w-md flex-col gap-2">
       <div className="flex items-center justify-between gap-4">
-        <span className="font-medium text-slate-900 dark:text-white">{strings.handsFreeTitle}</span>
+        <span className="font-bold text-ink">{strings.handsFreeTitle}</span>
         <button
           type="button"
           role="switch"
           aria-checked={enabled}
           disabled={saving}
           onClick={toggle}
-          className={`rounded-full px-3 py-1 text-sm font-medium transition disabled:opacity-50 ${
-            enabled ? 'bg-sky-600 text-white' : 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200'
-          }`}
+          className={`chip ${enabled ? 'chip-active' : ''}`}
         >
           {enabled ? strings.handsFreeOn : strings.handsFreeOff}
         </button>
       </div>
-      <p className="text-sm text-slate-500 dark:text-slate-400">{strings.handsFreeDesc}</p>
-      {failed && <p className="text-sm text-red-600 dark:text-red-400">{strings.saveFailed}</p>}
+      <p className="text-sm text-ink-muted">{strings.handsFreeDesc}</p>
+      {failed && (
+        <p className="text-sm font-semibold text-brand-700 dark:text-brand-300">
+          {strings.saveFailed}
+        </p>
+      )}
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { languagePairs } from '@/lib/db/schema';
-import { auth } from '@/lib/auth';
+import { auth, signOut } from '@/lib/auth';
 import { getUserLocale } from '@/lib/getUserLocale';
 import { t } from '@/lib/i18n';
 import { AppLanguageSwitcher } from '@/components/settings/AppLanguageSwitcher';
@@ -28,25 +28,23 @@ export default async function SettingsPage() {
   const strings = t(locale);
 
   return (
-    <div className="flex flex-1 flex-col gap-8 px-6 py-10">
-      <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{strings.settings.title}</h1>
+    <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-5 py-8 sm:px-6 sm:py-10">
+      <h1 className="heading-page">{strings.settings.title}</h1>
 
-      <dl className="grid max-w-md grid-cols-2 gap-y-2 text-sm">
-        <dt className="text-slate-500 dark:text-slate-400">{strings.settings.name}</dt>
-        <dd className="text-slate-800 dark:text-slate-100">{user?.name ?? '—'}</dd>
-        <dt className="text-slate-500 dark:text-slate-400">{strings.settings.email}</dt>
-        <dd className="text-slate-800 dark:text-slate-100">{user?.email ?? '—'}</dd>
-        <dt className="text-slate-500 dark:text-slate-400">{strings.settings.timezone}</dt>
-        <dd className="text-slate-800 dark:text-slate-100">{user?.timezone ?? '—'}</dd>
+      <dl className="card grid max-w-md grid-cols-2 gap-y-2 text-sm">
+        <dt className="text-ink-muted">{strings.settings.name}</dt>
+        <dd className="font-semibold text-ink">{user?.name ?? '—'}</dd>
+        <dt className="text-ink-muted">{strings.settings.email}</dt>
+        <dd className="font-semibold text-ink">{user?.email ?? '—'}</dd>
+        <dt className="text-ink-muted">{strings.settings.timezone}</dt>
+        <dd className="font-semibold text-ink">{user?.timezone ?? '—'}</dd>
       </dl>
 
       <AppLanguageSwitcher current={locale} />
 
       {user && (
         <section className="flex flex-col gap-4">
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
-            {strings.settings.profileHeading}
-          </h2>
+          <h2 className="heading-section">{strings.settings.profileHeading}</h2>
           <SettingsForm
             pairs={pairs}
             locale={locale}
@@ -63,6 +61,20 @@ export default async function SettingsPage() {
 
       {/* PLAN.md §8 Phase 7B item 2 */}
       <HandsFreeToggle initial={user?.handsFreeTurnTaking ?? true} locale={locale} />
+
+      {/* The header's sign-out is desktop-only since P0.3 moved phone navigation
+          to the bottom tab bar, so this is the way out on a phone. */}
+      <form
+        className="sm:hidden"
+        action={async () => {
+          'use server';
+          await signOut({ redirectTo: '/' });
+        }}
+      >
+        <button type="submit" className="btn-secondary btn-sm">
+          {strings.nav.signOut}
+        </button>
+      </form>
     </div>
   );
 }

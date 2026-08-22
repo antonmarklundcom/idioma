@@ -27,12 +27,12 @@ export function ErrorRetryPanel({
 
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-16 text-center">
-      <p className="text-lg font-semibold text-slate-900 dark:text-white">{strings.title}</p>
-      <p className="max-w-sm text-sm text-slate-600 dark:text-slate-300">{strings.body}</p>
+      <p className="text-lg font-bold text-ink">{strings.title}</p>
+      <p className="max-w-sm text-sm text-ink-muted">{strings.body}</p>
       <button
         type="button"
         onClick={reset}
-        className="min-h-11 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white"
+        className="btn-primary btn-sm"
       >
         {strings.retry}
       </button>
