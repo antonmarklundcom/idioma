@@ -24,6 +24,8 @@ export type OnboardingInput = z.infer<typeof onboardingSchema>;
 // is a valid no-op rather than an error.
 export const preferencesSchema = z.object({
   handsFreeTurnTaking: z.boolean().optional(),
+  // UI language override, independent of the language pair being learned.
+  uiLocale: z.enum(['en', 'es', 'sv']).optional(),
 });
 
 export type PreferencesInput = z.infer<typeof preferencesSchema>;
