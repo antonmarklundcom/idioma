@@ -3,12 +3,15 @@ import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import {
   buildLessonPath,
+  completedFromMastery,
   formatTopic,
-  getCompletedLessonIds,
+  getLessonMastery,
   getLessonsForPair,
   getTopicsForPair,
   nextLessonInPath,
+  shakiestLesson,
   type LessonPathEntry,
+  type MasteryState,
 } from '@/lib/lessons';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { getUserLocale } from '@/lib/getUserLocale';
@@ -37,11 +40,36 @@ function matchesFilter(
   return (!level || lesson.level === level) && (!topic || lesson.topic === topic);
 }
 
+// ROADMAP.md P1.6: the four mastery states have to be distinguishable at a glance,
+// which means a different mark AND a different word - a colour alone doesn't survive
+// a sunny bus window, and 'done' vs 'done well' is the whole point of the state.
+const MASTERY_MARK: Record<MasteryState, string> = {
+  untouched: '📘',
+  started: '▶️',
+  completed: '✓',
+  mastered: '⭐',
+};
+
+// Both finished states are success-tinted on purpose: the palette has exactly one
+// "you got that right" colour (globals.css), and inventing a second one for mastery
+// would put a new hue on the page to say something the ⭐ and the word already say.
+function masteryBadge(mastery: MasteryState): string {
+  return mastery === 'completed' || mastery === 'mastered'
+    ? 'bg-success-100 dark:bg-success-500/20'
+    : 'bg-surface-muted';
+}
+
 // A row in a level section. "Later" lessons are dimmed, never locked (ROADMAP.md
 // P0.1): an adult may jump ahead, so the link stays live and tappable - and now
 // SAYS so, because a dimmed card with only a grey arrow read as disabled.
 function PathRow({ lesson, locale }: { lesson: LessonPathEntry; locale: Locale }) {
   const strings = t(locale).lessons;
+  const action =
+    lesson.mastery === 'started'
+      ? strings.continueLesson
+      : lesson.mastery === 'untouched'
+        ? strings.start
+        : strings.doAgain;
   return (
     <li>
       <Link
@@ -53,23 +81,25 @@ function PathRow({ lesson, locale }: { lesson: LessonPathEntry; locale: Locale }
         <span className="flex min-w-0 items-center gap-3">
           <span
             aria-hidden="true"
-            className={`flex size-9 shrink-0 items-center justify-center rounded-full text-base ${
-              lesson.state === 'done' ? 'bg-success-100 dark:bg-success-500/20' : 'bg-surface-muted'
-            }`}
+            className={`flex size-9 shrink-0 items-center justify-center rounded-full text-base ${masteryBadge(
+              lesson.mastery,
+            )}`}
           >
-            {lesson.state === 'done' ? '✓' : '📘'}
+            {MASTERY_MARK[lesson.mastery]}
           </span>
           <span className="flex min-w-0 flex-col">
             <span className="truncate font-bold text-ink">{lesson.title}</span>
             <span className="truncate text-xs font-semibold text-ink-muted">
               {lesson.level} · {formatTopic(lesson.topic)}
+              {lesson.mastery === 'mastered' && ` · ${strings.mastered}`}
+              {lesson.mastery === 'started' && ` · ${strings.inProgress}`}
             </span>
           </span>
         </span>
         {/* A word, not a bare arrow: the complaint was that nothing on this page
             looked clickable. */}
         <span className="shrink-0 text-xs font-bold text-brand-600 dark:text-brand-300">
-          {lesson.state === 'done' ? strings.doAgain : strings.start} →
+          {action} →
         </span>
       </Link>
     </li>
@@ -95,17 +125,23 @@ export default async function LessonPage({
 
   // The path pointer is computed over the WHOLE pair, then the filter is applied
   // in memory - so narrowing to one level never moves what "Next up" means.
-  const [allLessons, completed, topics, locale] = await Promise.all([
+  const [allLessons, mastery, topics, locale] = await Promise.all([
     getLessonsForPair(session.user.languagePairId),
-    getCompletedLessonIds(session.user.id),
+    // One query answers both questions: which lessons are finished, and how well
+    // (ROADMAP.md P1.6). Nothing is stored for this - it is derived per request.
+    getLessonMastery(session.user.id),
     getTopicsForPair(session.user.languagePairId),
     getUserLocale(session.user.id),
   ]);
   const strings = t(locale);
+  const completed = completedFromMastery(mastery);
 
   const nextUp = nextLessonInPath(allLessons, completed);
   const lessons = allLessons.filter((lesson) => matchesFilter(lesson, level, topic));
-  const path = buildLessonPath(lessons, completed, nextUp?.id ?? null);
+  const path = buildLessonPath(lessons, completed, nextUp?.id ?? null, mastery);
+  // The redo suggestion is computed over the WHOLE pair for the same reason the path
+  // pointer is: a filter narrows what is listed, not what the learner is shaky at.
+  const shakiest = shakiestLesson(allLessons, mastery);
   // Hoisted into its own card above the sections, so it is not listed twice.
   const heroLesson = nextUp && matchesFilter(nextUp, level, topic) ? nextUp : null;
   const filtering = Boolean(level || topic);
@@ -139,6 +175,27 @@ export default async function LessonPage({
           </span>
           <span className="btn-primary btn-sm shrink-0" aria-hidden="true">
             {strings.lessons.start}
+          </span>
+        </Link>
+      )}
+
+      {/* ROADMAP.md P1.6. Only appears once something has been completed WITHOUT being
+          mastered, and never points at the lesson already hoisted above - two cards
+          asking for the same tap is a worse page, not a more helpful one. */}
+      {shakiest && shakiest.id !== heroLesson?.id && (
+        <Link
+          href={`/lesson/${shakiest.id}`}
+          className="card flex items-center justify-between gap-4 transition-transform active:scale-[0.99]"
+        >
+          <span className="flex min-w-0 flex-col gap-1">
+            <span className="text-xs font-extrabold tracking-wide text-ink-muted uppercase">
+              {strings.lessons.redoShakiest}
+            </span>
+            <span className="font-bold text-ink">{shakiest.title}</span>
+            <span className="text-xs text-ink-muted">{strings.lessons.redoShakiestHint}</span>
+          </span>
+          <span aria-hidden="true" className="shrink-0 text-2xl">
+            🔁
           </span>
         </Link>
       )}

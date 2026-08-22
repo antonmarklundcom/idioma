@@ -42,23 +42,15 @@ export default async function LessonDetailPage({
         <p className="mt-2 text-ink-muted">{content.intro}</p>
       </div>
 
-      {content.vocab.length > 0 && (
-        <ul className="flex flex-col gap-2">
-          {content.vocab.map((v, i) => (
-            <li key={i} className="card py-3">
-              <p className="font-bold text-ink">{v.term}</p>
-              <p className="text-sm text-ink-muted">{v.gloss}</p>
-              {v.note && <p className="mt-1 text-xs text-ink-muted italic">{v.note}</p>}
-            </li>
-          ))}
-        </ul>
-      )}
-
+      {/* The vocab list used to sit here as a static wall above the recorder. It is now
+          the player's first STEP instead (ROADMAP.md P1.5) - same words, but audible,
+          and the exercises don't start until the learner says they are ready. */}
       <LessonPlayer
         coachingProfile={session.user.coachingProfile ?? null}
         initialPrompt={initialPrompt}
         lessonId={lesson.id}
         exercises={exercises}
+        vocab={content.vocab}
         locale={locale}
       />
     </div>

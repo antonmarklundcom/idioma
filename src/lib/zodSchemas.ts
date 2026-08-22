@@ -193,7 +193,7 @@ export const lessonVocabItemSchema = z.object({
 });
 
 // The player MUST skip exercise `type` values it doesn't recognize (§3.4 forward
-// compatibility), so only the two known types are validated strictly; any other
+// compatibility), so only the known types are validated strictly; any other
 // non-empty `type` is accepted as-is and passed through untouched.
 export const lessonExerciseSchema = z
   .object({ type: z.string().trim().min(1) })
@@ -215,6 +215,31 @@ export const lessonExerciseSchema = z
           code: 'custom',
           message: '"targetHints" must be an array of strings',
           path: ['targetHints'],
+        });
+      }
+    } else if (exercise.type === 'fill_gap_speak') {
+      // ROADMAP.md P1.5: `sentence` carries the blank the learner has to fill by
+      // speaking; `answer` is the completed sentence and is optional - it only ever
+      // reaches the grader, never the browser.
+      if (typeof exercise.sentence !== 'string' || exercise.sentence.trim().length === 0) {
+        ctx.addIssue({
+          code: 'custom',
+          message: 'fill_gap_speak exercises require a non-empty "sentence"',
+          path: ['sentence'],
+        });
+      }
+      if (typeof exercise.prompt !== 'string' || exercise.prompt.trim().length === 0) {
+        ctx.addIssue({
+          code: 'custom',
+          message: 'fill_gap_speak exercises require a non-empty "prompt"',
+          path: ['prompt'],
+        });
+      }
+      if (exercise.answer !== undefined && typeof exercise.answer !== 'string') {
+        ctx.addIssue({
+          code: 'custom',
+          message: '"answer" must be a string',
+          path: ['answer'],
         });
       }
     } else if (exercise.type === 'listen_prompt') {

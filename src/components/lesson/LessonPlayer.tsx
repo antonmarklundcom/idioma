@@ -13,6 +13,7 @@ import { XpToast } from '@/components/gamification/XpToast';
 import { Celebration } from '@/components/gamification/Celebration';
 import type { CoachingProfile } from '@/lib/db/schema';
 import type { PlayerExercise } from '@/lib/lessons';
+import type { LessonVocabItem } from '@/lib/srs';
 import type { LessonAttemptResponse, LessonCompleteResponse } from '@/types';
 import { t, type Locale } from '@/lib/i18n';
 
@@ -22,6 +23,10 @@ const MAX_LISTEN_PLAYS = 3;
 /**
  * The record→feedback loop, in two shapes:
  *
+ * - **Vocab step** (ROADMAP.md P1.5): when a guided lesson brings `vocab`, the words
+ *   come first as tap-to-hear chips - nothing recorded, nothing graded - and the
+ *   exercises start when the learner says they are ready. Audio is fetched by INDEX
+ *   from the lesson's own audio route, so the words are never sent to TTS from here.
  * - **Guided** (a lesson, Phase 5B): walks `exercises` one at a time and reports
  *   completion to /api/lessons/[id]/complete, which enqueues the lesson's vocab for
  *   review (§13.2). `speak_prompt` records straight away; `listen_prompt` plays
@@ -36,6 +41,7 @@ export function LessonPlayer({
   initialPrompt,
   lessonId,
   exercises = [],
+  vocab = [],
   locale,
   onFinished,
   turnLimit,
@@ -45,6 +51,8 @@ export function LessonPlayer({
   initialPrompt: string;
   lessonId?: string;
   exercises?: PlayerExercise[];
+  /** Shown as the tap-to-hear vocab step before the first exercise (P1.5). */
+  vocab?: LessonVocabItem[];
   locale: Locale;
   /**
    * Set by an orchestrator that owns the ending - /today's session (ROADMAP.md
@@ -61,6 +69,12 @@ export function LessonPlayer({
   const router = useRouter();
   const isGuided = lessonId !== undefined && exercises.length > 0;
 
+  // The vocab step is where a guided lesson STARTS when it has words to present.
+  const [showVocab, setShowVocab] = useState(
+    () => lessonId !== undefined && exercises.length > 0 && vocab.length > 0,
+  );
+  const [vocabAudioStatus, setVocabAudioStatus] = useState<'idle' | 'unavailable'>('idle');
+  const [playingVocab, setPlayingVocab] = useState<number | null>(null);
   const [step, setStep] = useState(0);
   const [promptContext, setPromptContext] = useState(initialPrompt);
   const [feedback, setFeedback] = useState<LessonAttemptResponse | null>(null);
@@ -78,8 +92,10 @@ export function LessonPlayer({
   // Finishing a lesson closes it too (via /complete), so the beacon is the backstop
   // for leaving mid-lesson.
   const { markTurnRecorded } = useSessionEndBeacon('lesson', lessonId);
-  // Keyed by exercise index: a replay must not cost another TTS call (§6.12 quota).
-  const audioCache = useRef<Map<number, string>>(new Map());
+  // Keyed by '<slot>:<index>': a replay must not cost another TTS call (§6.12 quota).
+  // Vocab chips are tapped far more often than a listening prompt is replayed, so this
+  // matters more for them than it ever did for exercises.
+  const audioCache = useRef<Map<string, string>>(new Map());
 
   const exercise: PlayerExercise | null = isGuided ? (exercises[step] ?? null) : null;
   const isLastExercise = isGuided && step === exercises.length - 1;
@@ -102,7 +118,7 @@ export function LessonPlayer({
     // Must happen inside the tap's own call stack for iOS (PLAN.md §4.5).
     player.unlock();
 
-    const cached = audioCache.current.get(exercise.index);
+    const cached = audioCache.current.get(`exercise:${exercise.index}`);
     if (cached) {
       player.play(cached);
       setPlays((n) => n + 1);
@@ -117,7 +133,7 @@ export function LessonPlayer({
         return;
       }
       const data: { audioBase64: string } = await res.json();
-      audioCache.current.set(exercise.index, data.audioBase64);
+      audioCache.current.set(`exercise:${exercise.index}`, data.audioBase64);
       player.play(data.audioBase64);
       setPlays((n) => n + 1);
       setAudioStatus('idle');
@@ -125,6 +141,40 @@ export function LessonPlayer({
       setAudioStatus('error');
     }
   }, [lessonId, exercise, plays, audioStatus, player]);
+
+  const playVocabAudio = useCallback(
+    async (index: number) => {
+      if (!lessonId || vocabAudioStatus === 'unavailable') return;
+      // Must happen inside the tap's own call stack for iOS (PLAN.md §4.5).
+      player.unlock();
+
+      const cached = audioCache.current.get(`vocab:${index}`);
+      if (cached) {
+        player.play(cached);
+        return;
+      }
+
+      setPlayingVocab(index);
+      try {
+        const res = await fetch(`/api/lessons/${lessonId}/audio?vocab=${index}`);
+        if (!res.ok) {
+          // A pair with no configured voice (409) will never have audio, so the step
+          // stops offering it rather than failing once per word. Anything else is
+          // transient and the chip stays tappable.
+          if (res.status === 409) setVocabAudioStatus('unavailable');
+          return;
+        }
+        const data: { audioBase64: string } = await res.json();
+        audioCache.current.set(`vocab:${index}`, data.audioBase64);
+        player.play(data.audioBase64);
+      } catch {
+        // Silent: the words are on screen, and a failed tap costs the learner nothing.
+      } finally {
+        setPlayingVocab(null);
+      }
+    },
+    [lessonId, player, vocabAudioStatus],
+  );
 
   const handleRecorded = useCallback(
     async (blob: Blob, mimeType: string) => {
@@ -237,12 +287,56 @@ export function LessonPlayer({
     );
   }
 
+  // The words, before any production is asked for. Deliberately not a carousel and
+  // not timed: the learner decides when to move on.
+  if (showVocab) {
+    return (
+      <div className="flex w-full flex-1 flex-col gap-4 py-6">
+        <div className="flex flex-col gap-1">
+          <h2 className="heading-section">{strings.vocabTitle}</h2>
+          <p className="text-sm text-ink-muted">
+            {vocabAudioStatus === 'unavailable' ? strings.vocabAudioUnavailable : strings.vocabHint}
+          </p>
+        </div>
+
+        <ul className="flex flex-col gap-2">
+          {vocab.map((item, i) => (
+            <li key={i}>
+              <button
+                type="button"
+                onClick={() => playVocabAudio(i)}
+                disabled={vocabAudioStatus === 'unavailable'}
+                className="card flex w-full items-center justify-between gap-3 text-left transition-transform active:scale-[0.99] disabled:active:scale-100"
+              >
+                <span className="flex min-w-0 flex-col">
+                  <span className="font-bold text-ink">{item.term}</span>
+                  <span className="text-sm text-ink-muted">{item.gloss}</span>
+                  {item.note && <span className="mt-1 text-xs text-ink-muted italic">{item.note}</span>}
+                </span>
+                {vocabAudioStatus === 'idle' && (
+                  <span aria-hidden="true" className="shrink-0 text-xl">
+                    {playingVocab === i ? '…' : '🔊'}
+                  </span>
+                )}
+              </button>
+            </li>
+          ))}
+        </ul>
+
+        <button type="button" onClick={() => setShowVocab(false)} className="btn-primary self-start">
+          {strings.startExercises}
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-1 flex-col items-center gap-6 px-5 py-8 sm:px-6 sm:py-10">
       {isGuided && (
         <p className="text-xs font-bold tracking-wide text-ink-muted uppercase">
           {strings.exerciseOf(step + 1, exercises.length)}
           {exercise?.kind === 'listen' ? strings.listeningSuffix : ''}
+          {exercise?.kind === 'fill_gap' ? strings.fillGapSuffix : ''}
         </p>
       )}
 
@@ -276,6 +370,17 @@ export function LessonPlayer({
       <p className="max-w-lg text-center text-xl font-semibold text-balance text-ink">
         {exercise ? exercise.prompt : promptContext}
       </p>
+
+      {/* The gapped sentence is the thing being read, so it outweighs the instruction
+          above it. The completed answer stays on the server (lib/lessons.ts). */}
+      {exercise?.kind === 'fill_gap' && exercise.sentence && (
+        <div className="flex max-w-lg flex-col items-center gap-2">
+          <p className="card-raised px-5 py-4 text-center text-2xl font-extrabold text-balance text-ink">
+            {exercise.sentence}
+          </p>
+          <p className="text-xs font-semibold text-ink-muted">{strings.fillGapHint}</p>
+        </div>
+      )}
 
       <UtteranceRecorder
         onRecorded={handleRecorded}

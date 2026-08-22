@@ -192,6 +192,37 @@ describe('lessonImportItemSchema (§3.4 — the /admin import contract)', () => 
     );
   });
 
+  it('requires a sentence on fill_gap_speak, and keeps the answer optional', () => {
+    const withExercise = (exercise: unknown) =>
+      lessonImportItemSchema.safeParse({ ...valid, content: { ...valid.content, exercises: [exercise] } })
+        .success;
+
+    assert.equal(withExercise({ type: 'fill_gap_speak', prompt: 'Say it all.' }), false);
+    assert.equal(withExercise({ type: 'fill_gap_speak', sentence: 'I ___ tired.' }), false);
+    assert.equal(
+      withExercise({ type: 'fill_gap_speak', prompt: 'Say it all.', sentence: 'I ___ tired.' }),
+      true,
+    );
+    assert.equal(
+      withExercise({
+        type: 'fill_gap_speak',
+        prompt: 'Say it all.',
+        sentence: 'I ___ tired.',
+        answer: "I'm tired.",
+      }),
+      true,
+    );
+    assert.equal(
+      withExercise({
+        type: 'fill_gap_speak',
+        prompt: 'Say it all.',
+        sentence: 'I ___ tired.',
+        answer: 42,
+      }),
+      false,
+    );
+  });
+
   it('passes an unknown exercise type through untouched (§3.4 forward compatibility)', () => {
     const parsed = lessonImportItemSchema.parse({
       ...valid,
