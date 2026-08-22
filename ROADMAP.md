@@ -127,7 +127,7 @@ i18n strings (en/es/sv) for the path badges, continue card, and settings form.
 
 ### P1 — Pedagogy depth
 
-**P1.5 Richer lesson flow — medium**
+**P1.5 Richer lesson flow — SHIPPED (PR #41, August 2026)**
 - Lesson player gets a vocab-presentation step before production: the lesson's `vocab`
   list as tap-to-hear chips (TTS via the existing audio route pattern) with gloss + note,
   THEN the speak/listen exercises. Content schema unchanged (vocab already exists).
@@ -136,22 +136,49 @@ i18n strings (en/es/sv) for the path badges, continue card, and settings form.
   sentence). The content schema was built forward-compatible; the player skips unknown
   types, so old clients are safe. Grade through the existing attempt pipeline with a
   server-built promptContext (same pattern as listen_prompt).
-- AC: at least one imported lesson uses the new type; vocab step plays audio; lesson
-  completion/XP/SRS behavior unchanged.
+- AC: vocab step plays audio; lesson completion/XP/SRS behavior unchanged. `fill_gap_speak`
+  is live end to end (schema, validator, player, grader) but no *imported* lesson uses it yet
+  — `content/samples/dialogue-demo.json` does, and the next pack should.
 
-**P1.6 Mastery states — small**
+**P1.6 Mastery states — SHIPPED (PR #41, August 2026)**
 - Per-lesson state derived at read time: untouched / started (open or closed session, not
   completed) / completed / mastered (completed AND last completed session's utterances
   averaged ≤1 minor error — computable from existing tables). Path shows the four states
   distinctly; "redo your shakiest lesson" chip on /lesson when a completed-but-not-mastered
   lesson exists.
-- AC: states render on the path; no schema change.
+- AC met: states render on the path; the redo card ranks by mistakes-per-turn; no schema change.
+
+**P1.5b The in-lesson loop — SHIPPED (PRs #42, #43, August 2026)**
+Seven changes to make a lesson feel like a lesson rather than a form. All render/content-shape
+work; no migration, no new route.
+1. **Say it again** — one retry per exercise on the same prompt, with the correction on
+   screen. Capped at two attempts: every attempt is a graded turn against the daily cap.
+2. **The learner's own sentence, marked up** — `markUpTranscript` places `errors[].quote`
+   back into the transcript; `correctedUtterance` (returned all along, never shown) is now
+   the "closer to" line.
+3. **Scorecard** — "5 of 6 clean", a dot per step, and ONE sentence to remember. Makes the
+   P1.6 mastery state legible.
+4. **Dialogue block** — optional `content.dialogue`; played whole, then performed one line at
+   a time. The learner's lines are player steps of kind `dialogue`, graded through the
+   existing pipeline from `dialogueLineIndex`, so there is no second grading path.
+5. **canDo** — optional one-line promise leads the lesson; the intro moves behind a "why this
+   is tricky" toggle, with the first sentence as fallback for the 60 existing lessons.
+6. **Hear yourself** — the captured recording is replayable next to the tutor's version.
+7. **Chain lessons** — the completion screen offers the next lesson by name.
+
+Open follow-ons, in the order they are worth doing:
+- The dialogue and `canDo` are dark until content uses them (see P1.7).
+- `/today` still skips the vocab and dialogue steps: it is time-boxed, and a step is not free
+  there. Worth revisiting once the steps have been used in anger.
+- Retry offers no *comparison* between attempt one and attempt two. Showing both would make
+  improvement visible within a single exercise.
 
 **P1.7 Curriculum expansion via admin import — content task (Opus writes, owner imports)**
 - Opus generates lesson packs as import-ready JSON validated by `npm run lessons:validate`:
   fill A2/B1 for `es-PY>en-speaker` and the Swedish pair, ~10 lessons per level per pair,
   same topics style as seeds; every lesson includes vocab (8–12 items) and 4–6 exercises
-  mixing speak/listen (+ fill_gap_speak once P1.5 lands).
+  mixing speak/listen/fill_gap_speak, plus a `canDo` and a 4-6 line `dialogue` per lesson
+  (both live since P1.5b — `content/prompts/curriculum-generation.md` carries the contract).
 - Each lesson gets a one-line cultural/jopara note in its intro where natural (tereré
   etiquette, colectivo habits). Guaraní **words** stay opt-in per the dialect notes.
 - AC: packs import cleanly via /admin; owner spot-review before import.

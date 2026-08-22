@@ -25,16 +25,25 @@ and the Phase 5 admin importer accept — anything else fails Zod validation at 
 ```jsonc
 [
   {
-    "languagePairCode": "es-PY>en-speaker",   // or "en>es-speaker" — exactly these two strings
+    "languagePairCode": "es-PY>en-speaker",   // or "en>es-speaker" or "es-PY>sv-speaker"
     "level": "A1",                             // A1 | A2 | B1 | B2 | C1
     "topic": "greetings",                      // lowercase slug, groups lessons in the browser
     "title": "Saludos y presentaciones",       // shown to the learner, in the TARGET language
     "position": 1,                             // integer sort order within (pair, level)
     "content": {
-      "intro": "…",                            // 1–3 sentences, in the learner's NATIVE language
+      "canDo": "…",                            // ONE sentence, native language: what they can DO after this
+      "intro": "…",                            // 1–3 sentences, native language: the detail and the trap
       "vocab": [
         { "term": "…", "gloss": "…", "note": "…" }   // term = target language, gloss = native, note optional
       ],
+      "dialogue": {                             // optional but wanted: one exchange per lesson
+        "setup": "…",                           // one line of scene-setting, NATIVE language
+        "learnerSpeaker": "You",                // must equal the `speaker` of at least one line
+        "lines": [
+          { "speaker": "Shopkeeper", "text": "…", "gloss": "…" },  // text = TARGET, gloss = native
+          { "speaker": "You", "text": "…", "gloss": "…" }          // gloss on a learner line is their CUE
+        ]
+      },
       "exercises": [
         {
           "type": "speak_prompt",
@@ -42,9 +51,16 @@ and the Phase 5 admin importer accept — anything else fails Zod validation at 
           "targetHints": ["…", "…"]            // 1–4 short strings passed to the tutor as lesson context
         },
         {
-          "type": "listen_prompt",             // Phase 5B only — safe to include now, player skips unknown types
+          "type": "listen_prompt",
           "audioText": "…",                    // TARGET language; spoken via TTS, NEVER displayed
           "prompt": "…",                       // comprehension question
+          "targetHints": ["…"]
+        },
+        {
+          "type": "fill_gap_speak",            // learner SPEAKS the whole sentence with the gap filled
+          "sentence": "Acá ___. Gracias.",     // TARGET language, `___` marks the gap — this IS shown
+          "prompt": "…",                       // the instruction, in the NATIVE language
+          "answer": "Acá tenés. Gracias.",     // the completed sentence; goes to the grader, never shown
           "targetHints": ["…"]
         }
       ]
@@ -57,6 +73,16 @@ Rules that make the difference between "imports cleanly" and "an evening of manu
 
 - **Raw JSON only** — no ` ```json ` fences, no prose before or after, no trailing commas, no
   comments. Ask for it explicitly every time; models add fences by default.
+- **`canDo` is the promise, `intro` is the fine print.** The lesson header shows `canDo`
+  first and hides `intro` behind a "why this is tricky" toggle, so write them as two
+  different jobs: `canDo` = "After this you can buy something at a corner shop and ask what
+  it costs"; `intro` = the trap, the dialect note, the thing that goes wrong. A lesson with
+  no `canDo` still works (the first sentence of `intro` is used), but writing one is better.
+- **The dialogue is the lesson's spine.** The learner hears the whole exchange, then performs
+  their own side of it, line by line, graded like any other turn. Their cue on screen is the
+  `gloss` of their line — so a learner line's gloss must be an INSTRUCTION or a meaning
+  ("Ask for two empanadas, politely"), never a word-for-word crib. 4–6 lines, alternating,
+  and `learnerSpeaker` must exactly match the `speaker` string of their lines.
 - **`intro` is in the learner's native language.** For `es-PY>en-speaker` (English speaker
   learning Spanish) that means English. For `en>es-speaker` it means Spanish. Getting this
   backwards makes A1 lessons unusable for a beginner.
@@ -130,13 +156,22 @@ The edited map is the input to pass 2 and should not change afterward.
 > **Output format:** [paste the entire "target format" section above, including the rules]
 >
 > Content requirements per lesson:
-> - `intro`: 1–3 sentences in the learner's native language. Say what the learner will be able to
->   do after the lesson and flag one thing that commonly trips people up. No pep talk.
+> - `canDo`: ONE sentence in the learner's native language, in the form "After this you can …",
+>   describing a real situation. This is the first thing the learner reads.
+> - `intro`: 1–3 sentences in the learner's native language. The detail behind the promise: flag
+>   one thing that commonly trips people up in this situation. No pep talk, no restating `canDo`.
+> - `dialogue`: one exchange of 4–6 alternating lines set in the situation the lesson is about,
+>   using the lesson's own vocabulary. `learnerSpeaker` is the side the learner performs; every
+>   learner line's `gloss` is written as an instruction ("Ask what it comes to"), never as a
+>   translation to read off. The other side's lines carry a plain translation as their `gloss`.
 > - `vocab`: 6–10 entries. Real spoken usage, not dictionary citation forms — include the phrase
 >   as it is actually said. Use `note` for dialect specifics (voseo forms, Paraguayan usage,
 >   register, false friends).
 > - `exercises`: 4–6 per lesson, **at least 3 of type `speak_prompt`**, ordered easy → hard. The
 >   last one must be open-ended enough that a strong learner can stretch.
+> - Include **one `fill_gap_speak`** per lesson from position 3 onward, on the structure the
+>   lesson is teaching. `sentence` shows the gap as `___`; `answer` is the whole sentence
+>   completed and is only ever seen by the grader.
 > - Include **1–2 `listen_prompt`** exercises per lesson from position 6 onward. `audioText` must
 >   be natural connected speech in the target language, 1–3 sentences, at a level the learner can
 >   *almost* handle — and must never give away the answer to its own `prompt`.
@@ -163,9 +198,14 @@ just wrote.
 >
 > 1. Valid JSON, no fences, no trailing commas. `languagePairCode` is exactly `[paste the one
 >    correct string]`. `level` is one of A1/A2/B1/B2/C1. `position` values are unique.
-> 2. `intro` is in [NATIVE LANGUAGE]; `title` and all `vocab[].term` are in [TARGET LANGUAGE].
-> 3. Every exercise has a `type` of `speak_prompt` or `listen_prompt`, and every field required
->    by that type is present and non-empty.
+> 2. `canDo` and `intro` are in [NATIVE LANGUAGE]; `title`, all `vocab[].term` and all
+>    `dialogue.lines[].text` are in [TARGET LANGUAGE].
+> 3. Every exercise has a `type` of `speak_prompt`, `listen_prompt` or `fill_gap_speak`, and
+>    every field required by that type is present and non-empty (`fill_gap_speak` needs
+>    `sentence` with a `___` gap and a `prompt`; `answer` is optional but should be there).
+> 3b. If a `dialogue` is present: `learnerSpeaker` matches the `speaker` of at least one line,
+>    there are at least two speakers, every line has non-empty `text`, and each learner line's
+>    `gloss` is an instruction rather than a word-for-word translation of its own `text`.
 > 4. No `listen_prompt` whose `prompt` can be answered without hearing the `audioText`.
 > 5. No vocabulary repeated from an earlier position in this batch without a reason.
 > 6. Dialect consistency: [voseo throughout, no tuteo forms, no Peninsular vocabulary | General
@@ -191,7 +231,11 @@ taste.
   arrives at B1 and the taxonomy has only `subjunctive-missing` — add keys there in the same
   session. A missing key means the tutor files real errors under `other` and they never
   aggregate (PLAN.md §10 item 3).
-- The two Claude-authored sample lessons in `content/lessons/*.sample.json` are placeholders.
-  Delete them once real A1 content exists, or they will show up in the lesson browser.
-- Generate **A1 + A2 first** (§9 Q4) and let the learners actually use them before writing B1+.
-  Curriculum written ahead of real usage is curriculum written against a guess.
+- `content/samples/dialogue-demo.json` is a worked example of the current shape - `canDo`, a
+  dialogue, and a `fill_gap_speak` in one lesson. It is outside `content/lessons` so neither
+  the seed script nor CI treats it as curriculum; read it before writing a pack, and paste it
+  into /admin if you want to see the steps it produces.
+- **A1 + A2 exist for both Spanish-taught pairs; `es-PY>sv-speaker` has A1 only.** The two gaps
+  worth filling next are that pair's A2 and B1 for the pairs that have finished A2 - and B1 is
+  worth writing only once the learners have actually worked through A2. Curriculum written
+  ahead of real usage is curriculum written against a guess.
