@@ -1,0 +1,345 @@
+[
+  {
+    "languagePairCode": "es-PY>en-speaker",
+    "level": "B1",
+    "topic": "road-trips-and-rural-travel",
+    "title": "Is the road paved all the way there?",
+    "position": 33,
+    "content": {
+      "intro": "Learn how to ask about highway conditions, unpaved red clay roads (caminos de tierra), and book rural lodges (posadas turísticas) across the Paraguayan interior. An English trap is assuming all regional routes are asphalted; heavy rains can render dirt tracks impassable without a 4x4. Master local travel inquiries with authentic voseo.",
+      "vocab": [
+        {
+          "term": "la ruta asfaltada",
+          "gloss": "paved highway"
+        },
+        {
+          "term": "el camino de tierra",
+          "gloss": "unpaved dirt road (red clay)"
+        },
+        {
+          "term": "la posada turística",
+          "gloss": "rural tourist lodge / guesthouse"
+        },
+        {
+          "term": "el peaje",
+          "gloss": "toll booth / highway toll"
+        },
+        {
+          "term": "el desvío",
+          "gloss": "detour / turnoff"
+        },
+        {
+          "term": "el estado del camino",
+          "gloss": "road conditions"
+        },
+        {
+          "term": "la camioneta",
+          "gloss": "pickup truck / SUV"
+        },
+        {
+          "term": "el temporal",
+          "gloss": "heavy rainstorm / severe weather"
+        },
+        {
+          "term": "cargar combustible",
+          "gloss": "to fill up gas / refuel",
+          "note": "Voseo present: vos cargás"
+        },
+        {
+          "term": "quedar lejos",
+          "gloss": "to be far away"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Ask the receptionist at a rural lodge if the access road from the highway is fully paved.",
+          "targetHints": [
+            "Hola, ¿el camino de entrada desde la ruta principal está totalmente asfaltado?"
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Si llueve muy fuerte el camino de tierra se pone feo y conviene entrar con camioneta.",
+          "prompt": "The local lodge owner gives advice on weather. What happens if it rains heavily?"
+        },
+        {
+          "type": "fill_gap_speak",
+          "sentence": "Asegurate de ___ combustible antes de salir hacia el interior.",
+          "prompt": "Tell your travel companion to fill the gas tank, using the infinitive cargar.",
+          "answer": "Asegurate de cargar combustible antes de salir hacia el interior.",
+          "targetHints": [
+            "cargar"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Tell the lodge owner that you want to book a room for two nights this weekend. Inquire how many kilometers away the nearest toll booth is and ask if your normal sedan can handle the dirt road.",
+          "targetHints": [
+            "Quiero reservar una habitación por dos noches para este fin de semana.",
+            "¿A cuántos kilómetros queda el desvío de la ruta asfaltada?",
+            "¿Se puede entrar bien con un auto bajo si no llueve?"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>en-speaker",
+    "level": "B1",
+    "topic": "bargaining-and-volume-purchases",
+    "title": "What is your best price if I take three?",
+    "position": 34,
+    "content": {
+      "intro": "You will practice negotiating prices for volume purchases, requesting discounts politely at open-air markets like Mercado 4, and checking product quality. English speakers often sound overly aggressive when bargaining; in Paraguay, price discussions are friendly and relational ('haceme precio'). Use smooth voseo expressions.",
+      "vocab": [
+        {
+          "term": "hacer precio",
+          "gloss": "to give a discount / good price",
+          "note": "Voseo imperative: haceme precio"
+        },
+        {
+          "term": "la rebaja",
+          "gloss": "price discount / markdown"
+        },
+        {
+          "term": "llevar por mayor",
+          "gloss": "to buy wholesale / in bulk"
+        },
+        {
+          "term": "el puesto",
+          "gloss": "market stall / vendor booth"
+        },
+        {
+          "term": "la mercadería",
+          "gloss": "merchandise / goods"
+        },
+        {
+          "term": "la calidad",
+          "gloss": "quality"
+        },
+        {
+          "term": "el cliente habitual",
+          "gloss": "regular customer"
+        },
+        {
+          "term": "el precio final",
+          "gloss": "final bottom price"
+        },
+        {
+          "term": "el descuento",
+          "gloss": "discount"
+        },
+        {
+          "term": "dejar",
+          "gloss": "to let go for / to sell at",
+          "note": "Voseo present: vos me dejás"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Ask the market vendor what final price he can give you if you buy three pairs of sunglasses.",
+          "targetHints": [
+            "¿A cuánto me dejás el precio final si te llevo tres unidades?"
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Si llevás la docena completa de mercadería te hago un descuento del veinte por ciento.",
+          "prompt": "The wholesaler presents a deal. How much discount do you get if you buy a full dozen?"
+        },
+        {
+          "type": "fill_gap_speak",
+          "sentence": "Dale, ___ un buen precio y te compro toda la caja ahora mismo.",
+          "prompt": "Urge the vendor for a friendly deal using the voseo imperative of hacer (haceme).",
+          "answer": "Dale, haceme un buen precio y te compro toda la caja ahora mismo.",
+          "targetHints": [
+            "haceme"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Tell the shopkeeper that you want to buy fifty units for your online store. Ask what the wholesale rate is per piece and if he can issue an official tax invoice with the order.",
+          "targetHints": [
+            "Quiero comprar cincuenta unidades de esta mercadería por mayor.",
+            "¿Cuál es el mejor precio unitario que me podés hacer?",
+            "¿Me entregás una factura legal con el pedido?"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>en-speaker",
+    "level": "B1",
+    "topic": "home-security-and-locksmiths",
+    "title": "Can you make a copy of this gate key?",
+    "position": 35,
+    "content": {
+      "intro": "In this lesson, you will learn how to duplicate security keys, configure automatic gate remotes, and resolve lock malfunctions with a locksmith (cerrajero). A common English pitfall is using generic words like 'key' for electric gate clickers instead of 'control del portón'. Use clear voseo instructions when hiring security services.",
+      "vocab": [
+        {
+          "term": "el cerrajero",
+          "gloss": "locksmith"
+        },
+        {
+          "term": "la cerrajería",
+          "gloss": "locksmith shop"
+        },
+        {
+          "term": "el duplicado de llave",
+          "gloss": "key duplicate / copy"
+        },
+        {
+          "term": "la cerradura trabada",
+          "gloss": "jammed lock"
+        },
+        {
+          "term": "el portón eléctrico",
+          "gloss": "electric gate"
+        },
+        {
+          "term": "el control remoto",
+          "gloss": "remote control / clicker"
+        },
+        {
+          "term": "el candado",
+          "gloss": "padlock"
+        },
+        {
+          "term": "la reja de seguridad",
+          "gloss": "security iron bars / gate"
+        },
+        {
+          "term": "cambiar el tambor",
+          "gloss": "to replace the lock cylinder",
+          "note": "Voseo present: vos cambiás"
+        },
+        {
+          "term": "el timbre",
+          "gloss": "doorbell"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Go to the locksmith and ask him to make three duplicate copies of your front door key.",
+          "targetHints": [
+            "Hola, necesito hacer tres duplicados de esta llave de entrada, por favor."
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "El tambor de la cerradura está roto; te conviene cambiarlo por uno de alta seguridad.",
+          "prompt": "The locksmith inspects your lock. What is broken and what does he recommend replacing?"
+        },
+        {
+          "type": "fill_gap_speak",
+          "sentence": "¿Vos ___ configurar este control remoto nuevo para el portón eléctrico?",
+          "prompt": "Ask the locksmith if he can program the remote with the voseo form of saber (sabés).",
+          "answer": "¿Vos sabés configurar este control remoto nuevo para el portón eléctrico?",
+          "targetHints": [
+            "sabés"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Explain to the locksmith that your front gate lock is completely jammed and the key won't turn. Ask if he can come to your house this afternoon and how much an urgent on-site visit costs.",
+          "targetHints": [
+            "La cerradura del portón quedó totalmente trabada y no gira la llave.",
+            "¿Podés venir a mi casa esta tarde a revisar el problema?",
+            "¿Cuánto me cobrás por la visita de urgencia?"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>en-speaker",
+    "level": "B1",
+    "topic": "coordinating-community-favors",
+    "title": "Can you lend me a hand with this project?",
+    "position": 36,
+    "content": {
+      "intro": "Learn how to ask neighbors and colleagues for practical favors, coordinate collaborative work, and express heartfelt gratitude. English speakers often translate idioms literally instead of using natural Latin American structures like 'dar una mano' or 'hacerme un favor'. In Paraguay, community solidarity and warmth are conveyed through natural voseo.",
+      "vocab": [
+        {
+          "term": "dar una mano",
+          "gloss": "to lend a hand / to help out",
+          "note": "Voseo present: vos me das una mano"
+        },
+        {
+          "term": "prestar",
+          "gloss": "to lend / to loan",
+          "note": "Voseo present: vos me prestás"
+        },
+        {
+          "term": "la herramienta",
+          "gloss": "tool / hardware"
+        },
+        {
+          "term": "el vecino",
+          "gloss": "neighbor"
+        },
+        {
+          "term": "el favor",
+          "gloss": "favor"
+        },
+        {
+          "term": "ponerse de acuerdo",
+          "gloss": "to reach an agreement / coordinate"
+        },
+        {
+          "term": "avisar con tiempo",
+          "gloss": "to give advance notice",
+          "note": "Voseo imperative: avisame"
+        },
+        {
+          "term": "el compromiso",
+          "gloss": "commitment / obligation"
+        },
+        {
+          "term": "el trabajo en equipo",
+          "gloss": "teamwork / collaborative effort"
+        },
+        {
+          "term": "agradecer de corazón",
+          "gloss": "to thank wholeheartedly"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Ask your neighbor if he can lend you a ladder and a drill for a few hours this Saturday.",
+          "targetHints": [
+            "Hola vecino, ¿me prestás una escalera y un taladro por un par de horas este sábado?"
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Contá conmigo para ayudarte a mover los muebles pesados el fin de semana.",
+          "prompt": "Your colleague offers his support. What does he promise to help you with over the weekend?"
+        },
+        {
+          "type": "fill_gap_speak",
+          "sentence": "Cualquier cosa que necesites, ___ con tiempo y nos organizamos.",
+          "prompt": "Tell your friend to let you know in advance using the voseo imperative of avisar (avisame).",
+          "answer": "Cualquier cosa que necesites, avisame con tiempo y nos organizamos.",
+          "targetHints": [
+            "avisame"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Ask your friend if he can give you a hand setting up the new office space on Saturday morning. Promise that you will order food and drinks for everyone, and thank him sincerely for his help.",
+          "targetHints": [
+            "¿Me das una mano para ordenar la oficina este sábado a la mañana?",
+            "Yo me encargo de invitar el almuerzo y las bebidas para el equipo.",
+            "Te agradezco de corazón por la ayuda."
+          ]
+        }
+      ]
+    }
+  }
+]

@@ -1,0 +1,342 @@
+[
+  {
+    "languagePairCode": "es-PY>en-speaker",
+    "level": "B1",
+    "topic": "hosting-a-traditional-asado",
+    "title": "How many kilos of meat should we buy?",
+    "position": 29,
+    "content": {
+      "intro": "Master the art of planning an authentic Paraguayan asado, choosing proper beef cuts, and assigning responsibilities among friends. English speakers often view a barbecue as informal, whereas in Paraguay, the asador takes pride in specific cuts like costilla and tapa de cuadril. Use relaxed voseo to coordinate ingredients and timing.",
+      "vocab": [
+        {
+          "term": "el asador",
+          "gloss": "the grill master / person in charge of grilling"
+        },
+        {
+          "term": "la costilla vacuna",
+          "gloss": "beef ribs"
+        },
+        {
+          "term": "el vacío",
+          "gloss": "flank steak cut for grilling"
+        },
+        {
+          "term": "la tapa de cuadril",
+          "gloss": "picanha / top sirloin cap"
+        },
+        {
+          "term": "prender el fuego",
+          "gloss": "to light the fire"
+        },
+        {
+          "term": "el carbón vegetal",
+          "gloss": "charcoal"
+        },
+        {
+          "term": "la picada previa",
+          "gloss": "finger food / appetizers before the main meat"
+        },
+        {
+          "term": "la ensalada rusa",
+          "gloss": "potato and mayonnaise salad"
+        },
+        {
+          "term": "calcular",
+          "gloss": "to estimate / calculate",
+          "note": "Voseo present: vos calculás"
+        },
+        {
+          "term": "la mandioca hervida",
+          "gloss": "boiled cassava"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Suggest to your group of friends that you organize an asado at your place this Sunday noon.",
+          "targetHints": [
+            "¿Qué les parece si hacemos un asado en mi casa este domingo al mediodía?"
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Calculamos medio kilo de carne por persona entre costilla vacuna y vacío.",
+          "prompt": "Your friend is planning the shopping list. What meat cuts and quantity per person does he calculate?"
+        },
+        {
+          "type": "fill_gap_speak",
+          "sentence": "___ el fuego temprano mientras nosotros preparamos la mandioca.",
+          "prompt": "Tell your friend to light the fire using the voseo imperative of prender (prendé).",
+          "answer": "Prendé el fuego temprano mientras nosotros preparamos la mandioca.",
+          "targetHints": [
+            "prendé"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Tell your friends that you will buy three kilos of beef ribs and two bags of charcoal. Ask one of them to bring the cold drinks and another to prepare the potato salad.",
+          "targetHints": [
+            "Yo compro tres kilos de costilla vacuna y dos bolsas de carbón.",
+            "Vos encargate de traer las bebidas bien frías.",
+            "¿Podés preparar la ensalada rusa para el mediodía?"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>en-speaker",
+    "level": "B1",
+    "topic": "medical-consultations-and-symptoms",
+    "title": "I have been feeling dizzy and nauseous since yesterday",
+    "position": 30,
+    "content": {
+      "intro": "After this lesson, you will be able to describe complex medical symptoms, follow a doctor's diagnosis, and understand lab test instructions. A common English mistake is saying 'me siento enfermo' instead of using accurate terms like 'tengo mareos' or 'tengo náuseas'. Paraguayan clinics (sanatorios) typically issue a written prescription (receta) alongside lab orders.",
+      "vocab": [
+        {
+          "term": "el sanatorio",
+          "gloss": "private hospital / medical clinic"
+        },
+        {
+          "term": "el mareo",
+          "gloss": "dizziness / lightheadedness"
+        },
+        {
+          "term": "las náuseas",
+          "gloss": "nausea"
+        },
+        {
+          "term": "el análisis de sangre",
+          "gloss": "blood test"
+        },
+        {
+          "term": "la presión arterial",
+          "gloss": "blood pressure"
+        },
+        {
+          "term": "el reposo",
+          "gloss": "medical bed rest"
+        },
+        {
+          "term": "la orden médica",
+          "gloss": "medical order / lab referral"
+        },
+        {
+          "term": "el especialista",
+          "gloss": "medical specialist"
+        },
+        {
+          "term": "el síntoma",
+          "gloss": "symptom"
+        },
+        {
+          "term": "sentirse",
+          "gloss": "to feel",
+          "note": "Voseo present: vos te sentís"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Tell the doctor that you have had a severe stomach ache and persistent dizziness since yesterday morning.",
+          "targetHints": [
+            "Doctor, tengo un dolor de estómago muy fuerte y mareos desde ayer a la mañana."
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "Te voy a tomar la presión y después te hago una orden médica para un análisis de sangre.",
+          "prompt": "The physician outlines the next steps. What two medical checks will he perform?"
+        },
+        {
+          "type": "fill_gap_speak",
+          "sentence": "Decime cómo te ___ después de tomar este medicamento.",
+          "prompt": "Ask the patient how they feel with the voseo form of sentirse (sentís).",
+          "answer": "Decime cómo te sentís después de tomar este medicamento.",
+          "targetHints": [
+            "sentís"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Explain to the doctor that your fever went down after taking the painkiller, but the dizziness continues. Ask if you need to take absolute bed rest and when the blood test results will be ready.",
+          "targetHints": [
+            "La fiebre me bajó con el analgésico pero los mareos siguen.",
+            "¿Tengo que guardar reposo absoluto en casa?",
+            "¿Para cuándo van a estar listos los resultados del análisis?"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>en-speaker",
+    "level": "B1",
+    "topic": "business-billing-and-taxes",
+    "title": "I need to issue an official tax invoice",
+    "position": 31,
+    "content": {
+      "intro": "Learn how to discuss commercial invoices, tax identification numbers (RUC), and value-added tax (IVA) in Paraguayan business settings. English speakers often overlook that every commercial service in Paraguay legally requires an official invoice (factura legal) with a valid tax stamp (timbrado). Address clients and accountants with professional yet natural voseo.",
+      "vocab": [
+        {
+          "term": "el RUC",
+          "gloss": "tax ID number (Registro Único de Contribuyentes)"
+        },
+        {
+          "term": "la factura legal",
+          "gloss": "official tax invoice"
+        },
+        {
+          "term": "el IVA incluido",
+          "gloss": "VAT included (value added tax)"
+        },
+        {
+          "term": "el timbrado",
+          "gloss": "official tax invoice authorization code"
+        },
+        {
+          "term": "la retención",
+          "gloss": "tax withholding"
+        },
+        {
+          "term": "la razón social",
+          "gloss": "registered business name"
+        },
+        {
+          "term": "los honorarios",
+          "gloss": "professional fees"
+        },
+        {
+          "term": "la transferencia bancaria",
+          "gloss": "bank wire transfer"
+        },
+        {
+          "term": "emitir",
+          "gloss": "to issue (an invoice)",
+          "note": "Voseo present: vos emitís"
+        },
+        {
+          "term": "el contador",
+          "gloss": "accountant"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Ask a client for their corporate tax ID number (RUC) and legal business name so you can issue the invoice.",
+          "targetHints": [
+            "¿Me pasás tu número de RUC y la razón social para emitir la factura?"
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "El presupuesto de los honorarios profesionales ya incluye el IVA del diez por ciento.",
+          "prompt": "Your accountant explains the fee structure. What is included in the professional quote?"
+        },
+        {
+          "type": "fill_gap_speak",
+          "sentence": "¿Vos me ___ el comprobante de la transferencia por correo?",
+          "prompt": "Ask the client to email the transfer receipt using the voseo form of mandar (mandás).",
+          "answer": "¿Vos me mandás el comprobante de la transferencia por correo?",
+          "targetHints": [
+            "mandás"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "Tell the client that you have already issued the official invoice with the current tax stamp. Ask them to process the payment via bank transfer and confirm when the funds are deposited.",
+          "targetHints": [
+            "Ya emití la factura legal con el timbrado vigente.",
+            "Podés hacer el pago de los honorarios por transferencia bancaria.",
+            "Avisame cuando esté hecho el depósito, por favor."
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "languagePairCode": "es-PY>en-speaker",
+    "level": "B1",
+    "topic": "job-interviews-and-work-experience",
+    "title": "I have five years of experience in this field",
+    "position": 32,
+    "content": {
+      "intro": "In this lesson, you will practice presenting your work background, explaining technical skills, and negotiating compensation during a job interview in Paraguay. English speakers often sound overly robotic; aim for grounded, confident phrasing while recognizing voseo questions from interviewers. Highlight your adaptability and practical achievements.",
+      "vocab": [
+        {
+          "term": "la experiencia laboral",
+          "gloss": "work experience"
+        },
+        {
+          "term": "el puesto",
+          "gloss": "job position / role"
+        },
+        {
+          "term": "el sueldo pretendido",
+          "gloss": "expected salary"
+        },
+        {
+          "term": "la jornada completa",
+          "gloss": "full-time workday"
+        },
+        {
+          "term": "el desempeño",
+          "gloss": "job performance"
+        },
+        {
+          "term": "la capacitación",
+          "gloss": "professional training"
+        },
+        {
+          "term": "las referencias",
+          "gloss": "work references"
+        },
+        {
+          "term": "el rubro",
+          "gloss": "industry / business sector"
+        },
+        {
+          "term": "manejar",
+          "gloss": "to handle / to manage / to operate",
+          "note": "Voseo present: vos manejás"
+        },
+        {
+          "term": "el contrato a prueba",
+          "gloss": "probationary contract period"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "speak_prompt",
+          "prompt": "Explain to the interviewer that you have worked for more than four years in software development and marketing.",
+          "targetHints": [
+            "Tengo más de cuatro años de experiencia laboral en desarrollo de software y marketing."
+          ]
+        },
+        {
+          "type": "listen_prompt",
+          "audioText": "¿Cuáles son tus expectativas salariales y qué disponibilidad horaria tenés para empezar?",
+          "prompt": "The hiring manager asks you two key questions. What are they?"
+        },
+        {
+          "type": "fill_gap_speak",
+          "sentence": "Contame qué herramientas digitales ___ para gestionar proyectos.",
+          "prompt": "The interviewer asks what tools you use. Fill in the voseo form of usar (usás).",
+          "answer": "Contame qué herramientas digitales usás para gestionar proyectos.",
+          "targetHints": [
+            "usás"
+          ]
+        },
+        {
+          "type": "speak_prompt",
+          "prompt": "State your expected monthly salary for a full-time position. Explain that you can provide solid references from past employers and are available to start immediately after signing the contract.",
+          "targetHints": [
+            "Mi sueldo pretendido para una jornada completa es de seis millones de guaraníes.",
+            "Puedo presentar excelentes referencias laborales de mis trabajos anteriores.",
+            "Tengo disponibilidad inmediata para empezar a trabajar."
+          ]
+        }
+      ]
+    }
+  }
+]
