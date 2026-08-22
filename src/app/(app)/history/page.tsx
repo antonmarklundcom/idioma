@@ -1,10 +1,11 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
-import { getConversationList } from '@/lib/progress';
+import { getConversationList, getProgressInsights } from '@/lib/progress';
 import { getUserLocale } from '@/lib/getUserLocale';
 import { t } from '@/lib/i18n';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { InsightsPanel } from '@/components/dashboard/InsightsPanel';
 
 function formatDateTime(d: Date): string {
   return new Date(d).toLocaleString(undefined, {
@@ -22,8 +23,9 @@ export default async function HistoryPage() {
   const session = await auth();
   if (!session?.user) redirect('/');
 
-  const [conversations, locale] = await Promise.all([
+  const [conversations, insights, locale] = await Promise.all([
     getConversationList(session.user.id),
+    getProgressInsights(session.user.id),
     getUserLocale(session.user.id),
   ]);
   const strings = t(locale);
@@ -34,6 +36,9 @@ export default async function HistoryPage() {
         <h1 className="heading-page">{strings.history.title}</h1>
         <p className="mt-1 text-sm text-ink-muted">{strings.history.subtitle}</p>
       </div>
+
+      {/* What the conversations add up to, above the conversations themselves. */}
+      <InsightsPanel insights={insights} locale={locale} />
 
       {conversations.length === 0 ? (
         <EmptyState emoji="💬">{strings.history.empty}</EmptyState>

@@ -340,3 +340,84 @@ export async function getConversationList(
     errorCount: errorCounts.get(s.id) ?? 0,
   }));
 }
+
+// ---------------------------------------------------------------------------
+// "How am I doing, and what should I fix?" (owner request, Aug 2026)
+//
+// Deliberately NOT a chart: eight sparse weekly points on a phone answers neither
+// question as well as one comparison and a ranked list does. The headline is
+// mistakes per turn - turns alone reward talking more, and a raw mistake count
+// punishes it.
+// ---------------------------------------------------------------------------
+
+export type AccuracyWindow = {
+  turns: number;
+  mistakes: number;
+  /** null when there were no turns: 0.0 would read as a perfect week. */
+  mistakesPerTurn: number | null;
+};
+
+export type ProgressInsights = {
+  thisWeek: AccuracyWindow;
+  lastWeek: AccuracyWindow;
+  /** The mistakes still happening, worst first - what to actually work on. */
+  focusAreas: ErrorPatternWithFlag[];
+  conquered: ErrorPatternWithFlag[];
+};
+
+async function accuracyBetween(
+  userId: string,
+  from: Date,
+  to: Date,
+): Promise<AccuracyWindow> {
+  const [row] = await db
+    .select({
+      turns: sql<number>`count(*)`,
+      // errors is nullable jsonb; a null column and an empty array both mean zero.
+      mistakes: sql<number>`coalesce(sum(jsonb_array_length(coalesce(${utterances.errors}, '[]'::jsonb))), 0)`,
+    })
+    .from(utterances)
+    .where(
+      and(
+        eq(utterances.userId, userId),
+        gte(utterances.createdAt, from),
+        lt(utterances.createdAt, to),
+      ),
+    );
+
+  const turns = Number(row?.turns ?? 0);
+  const mistakes = Number(row?.mistakes ?? 0);
+  return { turns, mistakes, mistakesPerTurn: turns > 0 ? mistakes / turns : null };
+}
+
+export async function getProgressInsights(userId: string): Promise<ProgressInsights> {
+  const now = new Date();
+  const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+
+  const [thisWeek, lastWeek, patternRows] = await Promise.all([
+    accuracyBetween(userId, weekAgo, now),
+    accuracyBetween(userId, twoWeeksAgo, weekAgo),
+    db
+      .select()
+      .from(errorPatterns)
+      .where(eq(errorPatterns.userId, userId))
+      .orderBy(desc(errorPatterns.occurrenceCount), desc(errorPatterns.lastSeenAt)),
+  ]);
+
+  const staleCutoff = Date.now() - CONQUERED_STALE_DAYS * 24 * 60 * 60 * 1000;
+  const patterns: ErrorPatternWithFlag[] = patternRows.map((p) => ({
+    ...p,
+    conquered:
+      p.occurrenceCount >= CONQUERED_MIN_OCCURRENCES && p.lastSeenAt.getTime() < staleCutoff,
+  }));
+
+  return {
+    thisWeek,
+    lastWeek,
+    // Three, not ten: a list of everything you have ever got wrong is a wall, not
+    // a plan. The rest stay on the dashboard's full pattern list.
+    focusAreas: patterns.filter((p) => !p.conquered).slice(0, 3),
+    conquered: patterns.filter((p) => p.conquered).slice(0, 3),
+  };
+}
