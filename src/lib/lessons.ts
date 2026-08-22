@@ -77,6 +77,22 @@ export function nextLessonInPath(
 }
 
 /**
+ * The lesson that follows this one in the path, for the completion screen's "next
+ * lesson" hand-off. Ordering is the same level → position → title order the browser
+ * lists them in, and completion is deliberately NOT considered: after finishing
+ * lesson 7 the obvious offer is lesson 8, even if it was practised once before.
+ * Null at the end of the curriculum, where the screen simply doesn't make the offer.
+ */
+export function nextLessonAfter(
+  lessons: LessonSummary[],
+  lessonId: string,
+): LessonSummary | null {
+  const index = lessons.findIndex((lesson) => lesson.id === lessonId);
+  if (index === -1) return null;
+  return lessons[index + 1] ?? null;
+}
+
+/**
  * The path's three visual states. A lesson is `next` when it is the pointer
  * `nextLessonInPath` returned, `later` when it comes after that pointer, and
  * `done` when it has been completed. "Later" is a dimming hint only - adults may

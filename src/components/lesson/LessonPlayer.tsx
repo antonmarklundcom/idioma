@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { UtteranceRecorder } from '@/components/recorder/UtteranceRecorder';
@@ -21,6 +21,13 @@ import { t, type Locale } from '@/lib/i18n';
 const MAX_LISTEN_PLAYS = 3;
 
 /**
+ * One retry per exercise. Producing the corrected sentence immediately after hearing
+ * the fix is where the learning actually happens - but every attempt is a graded turn
+ * against the daily cap (§6.5), so this is deliberately "one more go", not unlimited.
+ */
+const MAX_ATTEMPTS_PER_EXERCISE = 2;
+
+/**
  * The record→feedback loop, in two shapes:
  *
  * - **Vocab step** (ROADMAP.md P1.5): when a guided lesson brings `vocab`, the words
@@ -36,12 +43,21 @@ const MAX_LISTEN_PLAYS = 3;
  * - **Free practice** (no exercises): the Phase 3 behaviour, where each turn's
  *   followUpQuestion becomes the next turn's promptContext.
  */
+/** What one exercise ended up looking like, for the end-of-lesson scorecard. */
+type ExerciseResult = {
+  errorCount: number;
+  /** The tutor's version of what they said - the sentence worth remembering. */
+  corrected: string;
+  attempts: number;
+};
+
 export function LessonPlayer({
   coachingProfile,
   initialPrompt,
   lessonId,
   exercises = [],
   vocab = [],
+  nextLesson,
   locale,
   onFinished,
   turnLimit,
@@ -53,6 +69,8 @@ export function LessonPlayer({
   exercises?: PlayerExercise[];
   /** Shown as the tap-to-hear vocab step before the first exercise (P1.5). */
   vocab?: LessonVocabItem[];
+  /** Offered from the completion screen so a good run can continue immediately. */
+  nextLesson?: { id: string; title: string } | null;
   locale: Locale;
   /**
    * Set by an orchestrator that owns the ending - /today's session (ROADMAP.md
@@ -87,6 +105,13 @@ export function LessonPlayer({
   const [summary, setSummary] = useState<LessonCompleteResponse | null>(null);
   const [xpEarned, setXpEarned] = useState(0);
   const [turnsTaken, setTurnsTaken] = useState(0);
+  // Per-exercise attempt count (the retry budget) and the outcome the scorecard reads.
+  const [attempts, setAttempts] = useState(0);
+  const [results, setResults] = useState<Record<number, ExerciseResult>>({});
+  // An object URL for the learner's own last recording, so they can hear it back
+  // against the tutor's version. Revoked as soon as it is replaced (below).
+  const [ownRecordingUrl, setOwnRecordingUrl] = useState<string | null>(null);
+  const ownAudioRef = useRef<HTMLAudioElement | null>(null);
   const player = useTutorAudioPlayer();
   // PLAN.md §16 defect 1: closes the practice_sessions row when the learner leaves.
   // Finishing a lesson closes it too (via /complete), so the beacon is the backstop
@@ -96,6 +121,15 @@ export function LessonPlayer({
   // Vocab chips are tapped far more often than a listening prompt is replayed, so this
   // matters more for them than it ever did for exercises.
   const audioCache = useRef<Map<string, string>>(new Map());
+
+  // Leaving mid-lesson must not leak the last recording, and must not leave an
+  // Audio element playing over the next page.
+  useEffect(() => {
+    return () => {
+      ownAudioRef.current?.pause();
+      if (ownRecordingUrl) URL.revokeObjectURL(ownRecordingUrl);
+    };
+  }, [ownRecordingUrl]);
 
   const exercise: PlayerExercise | null = isGuided ? (exercises[step] ?? null) : null;
   const isLastExercise = isGuided && step === exercises.length - 1;
@@ -180,6 +214,14 @@ export function LessonPlayer({
     async (blob: Blob, mimeType: string) => {
       setStatus('sending');
       setErrorMessage(null);
+      // Kept for "hear yourself": the blob is already in hand, so this costs one
+      // object URL and nothing else. The previous turn's URL is released here rather
+      // than on unmount alone, so a long lesson doesn't accumulate them.
+      setOwnRecordingUrl((previous) => {
+        if (previous) URL.revokeObjectURL(previous);
+        return URL.createObjectURL(blob);
+      });
+
       let audioBase64: string;
       try {
         audioBase64 = await blobToBase64(blob);
@@ -207,6 +249,19 @@ export function LessonPlayer({
       const data = result.data;
       markTurnRecorded();
       setFeedback(data);
+      if (isGuided && exercise) {
+        // A retry REPLACES the exercise's result: the question the scorecard answers
+        // is "did they end up saying it right", not "did they say it right first time".
+        setAttempts((n) => n + 1);
+        setResults((current) => ({
+          ...current,
+          [exercise.index]: {
+            errorCount: data.errors.length,
+            corrected: data.correctedUtterance,
+            attempts: (current[exercise.index]?.attempts ?? 0) + 1,
+          },
+        }));
+      }
       if (!isGuided) setPromptContext(data.followUpQuestion);
       setStatus('idle');
       if (data.tutorAudioBase64) player.play(data.tutorAudioBase64);
@@ -227,9 +282,29 @@ export function LessonPlayer({
   const goToNextExercise = useCallback(() => {
     setFeedback(null);
     setPlays(0);
+    setAttempts(0);
     setAudioStatus('idle');
     setStep((s) => s + 1);
   }, []);
+
+  /**
+   * The retry (ROADMAP.md lesson-loop item 1). Clears the feedback but NOT the step,
+   * so the recorder comes back on the same exercise with the correction still fresh.
+   * The listening budget is not refunded - they have already heard the clip.
+   */
+  const retryExercise = useCallback(() => {
+    setFeedback(null);
+    setErrorMessage(null);
+  }, []);
+
+  const playOwnRecording = useCallback(() => {
+    if (!ownRecordingUrl) return;
+    // Inside the tap's own call stack, so iOS allows it (PLAN.md §4.5). A separate
+    // element from the tutor's: playing one must not cut the other off mid-word.
+    const audio = (ownAudioRef.current ??= new Audio());
+    audio.src = ownRecordingUrl;
+    audio.play().catch(() => {});
+  }, [ownRecordingUrl]);
 
   const finishLesson = useCallback(async () => {
     if (!lessonId) return;
@@ -254,12 +329,58 @@ export function LessonPlayer({
   }, [lessonId, router, strings, messageForError, onFinished, xpEarned]);
 
   if (summary) {
+    // The scorecard (ROADMAP.md lesson-loop item 3). Counted over the exercises that
+    // were actually attempted, so leaving one unanswered can't read as a clean run.
+    const attempted = Object.values(results);
+    const cleanCount = attempted.filter((r) => r.errorCount === 0).length;
+    // "The one sentence to remember" is the tutor's version of the turn that went
+    // worst - one thing to carry away beats a list nobody rereads.
+    const worst = attempted.reduce<ExerciseResult | null>(
+      (acc, r) => (r.errorCount > 0 && (!acc || r.errorCount > acc.errorCount) ? r : acc),
+      null,
+    );
+
     return (
       <div className="flex flex-1 flex-col items-center gap-4 px-5 py-10 sm:px-6">
         <span aria-hidden="true" className="animate-pop text-6xl">
           🎉
         </span>
         <p className="text-xl font-extrabold text-ink">{strings.lessonComplete}</p>
+
+        {attempted.length > 0 && (
+          <div className="flex w-full max-w-sm flex-col items-center gap-3">
+            <p className="text-base font-extrabold text-ink">
+              {strings.scorecard(cleanCount, attempted.length)}
+            </p>
+            <div className="flex gap-1.5" aria-hidden="true">
+              {exercises.map((ex) => {
+                const result = results[ex.index];
+                return (
+                  <span
+                    key={ex.index}
+                    className={`size-2.5 rounded-full ${
+                      !result
+                        ? 'bg-surface-muted'
+                        : result.errorCount === 0
+                          ? 'bg-success-500'
+                          : 'bg-brand-400'
+                    }`}
+                  />
+                );
+              })}
+            </div>
+            {worst ? (
+              <div className="card w-full py-3">
+                <p className="text-xs font-bold tracking-wide text-ink-muted uppercase">
+                  {strings.rememberThis}
+                </p>
+                <p className="mt-1 font-semibold text-ink">{worst.corrected}</p>
+              </div>
+            ) : (
+              <p className="text-sm font-bold text-success-600">{strings.scorecardPerfect}</p>
+            )}
+          </div>
+        )}
         {summary.gamification.xpAwarded > 0 && (
           <p className="animate-pop rounded-full bg-success-100 px-4 py-1.5 text-sm font-extrabold text-success-700 dark:bg-success-500/20 dark:text-success-500">
             {t(locale).gamification.xpAwarded(summary.gamification.xpAwarded)}
@@ -271,9 +392,20 @@ export function LessonPlayer({
             : strings.nothingNewForReview}
         </p>
         <div className="flex flex-col items-center gap-2">
+          {/* Item 7: a finished lesson offers the next one directly. Review still wins
+              the primary slot when something is due - the queue is time-sensitive and
+              the next lesson is not. */}
           {summary.dueReviewCount > 0 && (
             <Link href="/review" className="btn-primary">
               {strings.reviewNow(summary.dueReviewCount)}
+            </Link>
+          )}
+          {nextLesson && (
+            <Link
+              href={`/lesson/${nextLesson.id}`}
+              className={summary.dueReviewCount > 0 ? 'btn-secondary' : 'btn-primary'}
+            >
+              {strings.nextLesson(nextLesson.title)}
             </Link>
           )}
           <Link href="/lesson" className="btn-secondary btn-sm">
@@ -337,6 +469,7 @@ export function LessonPlayer({
           {strings.exerciseOf(step + 1, exercises.length)}
           {exercise?.kind === 'listen' ? strings.listeningSuffix : ''}
           {exercise?.kind === 'fill_gap' ? strings.fillGapSuffix : ''}
+          {attempts > 0 && !feedback ? ` · ${strings.secondAttempt}` : ''}
         </p>
       )}
 
@@ -407,19 +540,40 @@ export function LessonPlayer({
           tutorAudioBase64={feedback.tutorAudioBase64}
           coachingProfile={coachingProfile}
           onReplay={() => feedback.tutorAudioBase64 && player.play(feedback.tutorAudioBase64)}
+          onPlayOwnRecording={ownRecordingUrl ? playOwnRecording : undefined}
           locale={locale}
         />
       )}
 
       {isGuided && feedback && (
-        <button
-          type="button"
-          onClick={isLastExercise ? finishLesson : goToNextExercise}
-          disabled={status === 'sending'}
-          className="btn-primary"
-        >
-          {isLastExercise ? strings.finishLesson : strings.nextExercise}
-        </button>
+        <div className="flex flex-col items-center gap-2">
+          {/* Item 1: say it again, now that the correction is on screen. Offered
+              whether or not there were errors - a clean turn said more fluently is
+              still worth having - but only once, because every attempt is graded. */}
+          {attempts < MAX_ATTEMPTS_PER_EXERCISE && (
+            <button
+              type="button"
+              onClick={retryExercise}
+              disabled={status === 'sending'}
+              className="btn-secondary"
+            >
+              {strings.sayItAgain}
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={isLastExercise ? finishLesson : goToNextExercise}
+            disabled={status === 'sending'}
+            className="btn-primary"
+          >
+            {isLastExercise ? strings.finishLesson : strings.nextExercise}
+          </button>
+          {attempts >= MAX_ATTEMPTS_PER_EXERCISE && (
+            <span className="text-xs font-semibold text-ink-muted">
+              {strings.secondAttemptDone}
+            </span>
+          )}
+        </div>
       )}
 
       {/* Free practice with a turn limit: /today's closing speaking turn. The
