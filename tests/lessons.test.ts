@@ -6,6 +6,7 @@ import {
   deriveLessonMastery,
   formatTopic,
   getVocabAudioText,
+  nextLessonAfter,
   nextLessonInPath,
   shakiestLesson,
   toPlayerExercises,
@@ -306,5 +307,24 @@ describe('buildLessonPath with mastery', () => {
       path.flatMap((g) => g.lessons).map((l) => l.mastery),
       ['completed', 'untouched', 'untouched', 'untouched'],
     );
+  });
+});
+
+
+describe('nextLessonAfter', () => {
+  it('offers the following lesson in path order', () => {
+    assert.equal(nextLessonAfter(ALL, 'a1-2')?.id, 'a2-1');
+  });
+
+  it('offers nothing at the end of the curriculum', () => {
+    assert.equal(nextLessonAfter(ALL, 'a2-2'), null);
+  });
+
+  it('offers nothing for a lesson that is not in the list', () => {
+    assert.equal(nextLessonAfter(ALL, 'not-a-lesson'), null);
+  });
+
+  it('ignores completion - the next lesson is the next one, done or not', () => {
+    assert.equal(nextLessonAfter(ALL, 'a1-1')?.id, 'a1-2');
   });
 });

@@ -202,6 +202,14 @@ const en = {
     skipVocab: 'Skip to the exercises',
     fillGapSuffix: ' · fill the gap',
     fillGapHint: 'Say the whole sentence out loud, with the blank filled in.',
+    // The retry loop: hear the fix, then produce it correctly, before moving on.
+    sayItAgain: '↻ Say it again',
+    secondAttempt: 'Second attempt',
+    secondAttemptDone: 'Second attempt recorded',
+    scorecard: (clean: number, total: number) => `${clean} of ${total} exercises clean`,
+    scorecardPerfect: 'Every exercise clean. That is a mastered lesson.',
+    rememberThis: 'The one sentence to remember',
+    nextLesson: (title: string) => `Next: ${title}`,
   },
   live: {
     openingPrompt: "Say hi and tell your tutor what's on your mind today - anything goes.",
@@ -225,6 +233,8 @@ const en = {
     hideDetails: 'Hide details',
     thingsToPolish: (count: number) =>
       `${count} thing${count > 1 ? 's' : ''} to polish — tap to see`,
+    closerTo: 'Closer to',
+    hearYourself: '🎤 Hear yourself',
   },
   recorder: {
     stopRecording: 'Stop recording',
@@ -490,6 +500,13 @@ const es: Dictionary = {
     skipVocab: 'Ir directo a los ejercicios',
     fillGapSuffix: ' · completar',
     fillGapHint: 'Decí la oración entera en voz alta, con el espacio completado.',
+    sayItAgain: '↻ Decilo de nuevo',
+    secondAttempt: 'Segundo intento',
+    secondAttemptDone: 'Segundo intento grabado',
+    scorecard: (clean: number, total: number) => `${clean} de ${total} ejercicios sin errores`,
+    scorecardPerfect: 'Todos los ejercicios sin errores. Eso es una lección dominada.',
+    rememberThis: 'La frase para acordarte',
+    nextLesson: (title: string) => `Seguir con: ${title}`,
   },
   live: {
     openingPrompt: 'Saludá y contale a tu tutor qué tenés en mente hoy - lo que sea.',
@@ -513,6 +530,8 @@ const es: Dictionary = {
     hideDetails: 'Ocultar detalles',
     thingsToPolish: (count: number) =>
       `${count} cosa${count > 1 ? 's' : ''} para pulir — tocá para ver`,
+    closerTo: 'Más cerca sería',
+    hearYourself: '🎤 Escuchate',
   },
   recorder: {
     stopRecording: 'Detener grabación',
@@ -777,6 +796,13 @@ const sv: Dictionary = {
     skipVocab: 'Hoppa till övningarna',
     fillGapSuffix: ' · fyll i luckan',
     fillGapHint: 'Säg hela meningen högt, med luckan ifylld.',
+    sayItAgain: '↻ Säg det igen',
+    secondAttempt: 'Andra försöket',
+    secondAttemptDone: 'Andra försöket inspelat',
+    scorecard: (clean: number, total: number) => `${clean} av ${total} övningar felfria`,
+    scorecardPerfect: 'Alla övningar felfria. Det är en behärskad lektion.',
+    rememberThis: 'Meningen att komma ihåg',
+    nextLesson: (title: string) => `Nästa: ${title}`,
   },
   live: {
     openingPrompt: 'Säg hej och berätta för din handledare vad du tänker på idag - vad som helst.',
@@ -800,6 +826,8 @@ const sv: Dictionary = {
     hideDetails: 'Dölj detaljer',
     thingsToPolish: (count: number) =>
       `${count} ${count > 1 ? 'saker' : 'sak'} att förbättra — tryck för att se`,
+    closerTo: 'Närmare vore',
+    hearYourself: '🎤 Hör dig själv',
   },
   recorder: {
     stopRecording: 'Stoppa inspelning',

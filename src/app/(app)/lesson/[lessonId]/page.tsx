@@ -1,6 +1,12 @@
 import { notFound, redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
-import { formatTopic, getLessonForPair, toPlayerExercises } from '@/lib/lessons';
+import {
+  formatTopic,
+  getLessonForPair,
+  getLessonsForPair,
+  nextLessonAfter,
+  toPlayerExercises,
+} from '@/lib/lessons';
 import { getUserLocale } from '@/lib/getUserLocale';
 import { LessonPlayer } from '@/components/lesson/LessonPlayer';
 import type { LessonContent } from '@/lib/zodSchemas';
@@ -20,11 +26,16 @@ export default async function LessonDetailPage({
   if (!session.user.languagePairId) redirect('/onboarding');
 
   const { lessonId } = await params;
-  const [lesson, locale] = await Promise.all([
+  const [lesson, pairLessons, locale] = await Promise.all([
     getLessonForPair(lessonId, session.user.languagePairId),
+    // Summaries only (id/level/topic/title/position) - enough to know what comes
+    // next, which the completion screen offers instead of dead-ending in a list.
+    getLessonsForPair(session.user.languagePairId),
     getUserLocale(session.user.id),
   ]);
   if (!lesson) notFound();
+
+  const nextLesson = nextLessonAfter(pairLessons, lesson.id);
 
   const content = lesson.content as LessonContent;
   const exercises = toPlayerExercises(lesson.content);
@@ -51,6 +62,7 @@ export default async function LessonDetailPage({
         lessonId={lesson.id}
         exercises={exercises}
         vocab={content.vocab}
+        nextLesson={nextLesson && { id: nextLesson.id, title: nextLesson.title }}
         locale={locale}
       />
     </div>
