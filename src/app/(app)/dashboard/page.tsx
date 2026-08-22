@@ -144,7 +144,12 @@ export default async function DashboardPage() {
       </section>
 
       <section className="flex flex-col gap-3">
-        <h2 className="heading-section">{strings.dashboard.practiceHistory}</h2>
+        <div className="flex items-baseline justify-between gap-3">
+          <h2 className="heading-section">{strings.dashboard.practiceHistory}</h2>
+          <Link href="/history" className="text-sm font-bold text-brand-600 dark:text-brand-300">
+            {strings.nav.history} →
+          </Link>
+        </div>
         <SessionHistory sessions={data?.sessions ?? []} locale={locale} />
       </section>
     </div>

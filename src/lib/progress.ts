@@ -1,12 +1,14 @@
-import { and, count, desc, eq, gte, lt, sql } from 'drizzle-orm';
+import { and, asc, count, desc, eq, gte, inArray, lt, sql } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import {
   errorPatterns,
+  lessonContent,
   practiceSessions,
   usageLog,
   userStats,
   utterances,
   type PracticeMode,
+  type UtteranceError,
 } from '@/lib/db/schema';
 import { countDueReviewItems } from '@/lib/srs';
 import { GAMIFICATION } from '@/lib/gamification';
@@ -199,4 +201,142 @@ export async function getWeeklyRecap(userId: string, timezone: string | null): P
     xpThisWeek,
     xpLastWeek,
   };
+}
+
+// ---------------------------------------------------------------------------
+// Saved conversations (owner request, Aug 2026)
+//
+// Nothing new is recorded for this: every turn has always written its transcript,
+// the corrected version, the tutor's reply and the structured error list to
+// `utterances`. Until now none of it was readable back, so a practice session was
+// a number on the dashboard and then gone. These two functions are the read side.
+// ---------------------------------------------------------------------------
+
+export type ConversationTurn = {
+  id: string;
+  transcript: string | null;
+  corrected: string | null;
+  tutorReply: string | null;
+  followUpQuestion: string | null;
+  errors: UtteranceError[];
+  createdAt: Date;
+};
+
+export type Conversation = {
+  id: string;
+  mode: PracticeMode;
+  startedAt: Date;
+  endedAt: Date | null;
+  lessonTitle: string | null;
+  turns: ConversationTurn[];
+};
+
+/**
+ * One past session, in full. Scoped by userId in the WHERE clause rather than
+ * checked afterwards: a transcript is the most personal thing this app stores, so
+ * another user's session id must return "not found", never a row.
+ */
+export async function getConversation(
+  sessionId: string,
+  userId: string,
+): Promise<Conversation | null> {
+  const [session] = await db
+    .select({
+      id: practiceSessions.id,
+      mode: practiceSessions.mode,
+      startedAt: practiceSessions.startedAt,
+      endedAt: practiceSessions.endedAt,
+      lessonTitle: lessonContent.title,
+    })
+    .from(practiceSessions)
+    .leftJoin(lessonContent, eq(lessonContent.id, practiceSessions.lessonId))
+    .where(and(eq(practiceSessions.id, sessionId), eq(practiceSessions.userId, userId)));
+  if (!session) return null;
+
+  const rows = await db
+    .select({
+      id: utterances.id,
+      transcript: utterances.transcript,
+      corrected: utterances.corrected,
+      tutorReply: utterances.tutorReply,
+      followUpQuestion: utterances.followUpQuestion,
+      errors: utterances.errors,
+      createdAt: utterances.createdAt,
+    })
+    .from(utterances)
+    .where(eq(utterances.sessionId, sessionId))
+    .orderBy(asc(utterances.createdAt));
+
+  return {
+    ...session,
+    turns: rows.map((row) => ({ ...row, errors: row.errors ?? [] })),
+  };
+}
+
+export type ConversationSummary = SessionSummary & {
+  lessonTitle: string | null;
+  /** First thing the learner said, for a recognisable label in the list. */
+  preview: string | null;
+  errorCount: number;
+};
+
+/**
+ * The history list. Sessions with no utterances are dropped - an opened-and-
+ * abandoned session is not a conversation, and a list full of empty rows would
+ * bury the real ones.
+ */
+export async function getConversationList(
+  userId: string,
+  limit = 50,
+): Promise<ConversationSummary[]> {
+  const sessions = await db
+    .select({
+      id: practiceSessions.id,
+      mode: practiceSessions.mode,
+      startedAt: practiceSessions.startedAt,
+      endedAt: practiceSessions.endedAt,
+      utteranceCount: count(utterances.id),
+      lessonTitle: lessonContent.title,
+    })
+    .from(practiceSessions)
+    .leftJoin(utterances, eq(utterances.sessionId, practiceSessions.id))
+    .leftJoin(lessonContent, eq(lessonContent.id, practiceSessions.lessonId))
+    .where(eq(practiceSessions.userId, userId))
+    .groupBy(practiceSessions.id, lessonContent.title)
+    .orderBy(desc(practiceSessions.startedAt))
+    .limit(limit);
+
+  const withTurns = sessions.filter((s) => s.utteranceCount > 0);
+  if (withTurns.length === 0) return [];
+
+  // One extra query for every listed session's turns, rather than N: the preview
+  // and the error tally both come out of the same rows.
+  const turnRows = await db
+    .select({
+      sessionId: utterances.sessionId,
+      transcript: utterances.transcript,
+      errors: utterances.errors,
+      createdAt: utterances.createdAt,
+    })
+    .from(utterances)
+    .where(
+      inArray(
+        utterances.sessionId,
+        withTurns.map((s) => s.id),
+      ),
+    )
+    .orderBy(asc(utterances.createdAt));
+
+  const previews = new Map<string, string>();
+  const errorCounts = new Map<string, number>();
+  for (const row of turnRows) {
+    if (row.transcript && !previews.has(row.sessionId)) previews.set(row.sessionId, row.transcript);
+    errorCounts.set(row.sessionId, (errorCounts.get(row.sessionId) ?? 0) + (row.errors?.length ?? 0));
+  }
+
+  return withTurns.map((s) => ({
+    ...s,
+    preview: previews.get(s.id) ?? null,
+    errorCount: errorCounts.get(s.id) ?? 0,
+  }));
 }
