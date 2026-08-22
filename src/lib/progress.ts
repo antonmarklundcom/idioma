@@ -112,7 +112,11 @@ async function estimateXpInRange(
     .where(
       and(eq(utterances.userId, userId), gte(utterances.createdAt, start), lt(utterances.createdAt, end)),
     )
-    .groupBy(sql`to_char(${utterances.createdAt} at time zone ${timezone}, 'YYYY-MM-DD')`);
+    // Group by the "day" output alias rather than repeating the to_char(...) expression:
+    // each sql`` template embeds `timezone` as its own bound parameter, so a repeated
+    // expression is only value-equal, not textually identical - Postgres's GROUP BY
+    // column-matching requires the latter and rejects the query otherwise (42803).
+    .groupBy(sql`day`);
 
   const turns = Number(turnRow?.turns ?? 0);
   const zeroErrorTurns = Number(turnRow?.zeroErrorTurns ?? 0);
