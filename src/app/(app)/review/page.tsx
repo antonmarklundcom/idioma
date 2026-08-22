@@ -4,6 +4,7 @@ import { auth } from '@/lib/auth';
 import { getDueReviewItems } from '@/lib/srs';
 import { getUserLocale } from '@/lib/getUserLocale';
 import { t } from '@/lib/i18n';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { ReviewSession } from '@/components/review/ReviewSession';
 import type { ReviewCard } from '@/types';
 
@@ -34,15 +35,12 @@ export default async function ReviewPage() {
 
   if (cards.length === 0) {
     return (
-      <div className="flex flex-1 flex-col items-center gap-4 px-6 py-10">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{strings.review.title}</h1>
-        <p className="max-w-sm text-center text-sm text-slate-600 dark:text-slate-300">
+      <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col items-center gap-5 px-5 py-10 sm:px-6">
+        <h1 className="heading-page">{strings.review.title}</h1>
+        <EmptyState emoji="🌤️" className="w-full">
           {strings.review.emptyState}
-        </p>
-        <Link
-          href="/lesson"
-          className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white"
-        >
+        </EmptyState>
+        <Link href="/lesson" className="btn-primary">
           {strings.review.goToLessons}
         </Link>
       </div>
@@ -51,11 +49,9 @@ export default async function ReviewPage() {
 
   return (
     <div className="flex flex-1 flex-col">
-      <div className="px-6 pt-10">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{strings.review.title}</h1>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-          {strings.review.itemsDue(cards.length)}
-        </p>
+      <div className="mx-auto w-full max-w-2xl px-5 pt-8 sm:px-6 sm:pt-10">
+        <h1 className="heading-page">{strings.review.title}</h1>
+        <p className="mt-1 text-sm text-ink-muted">{strings.review.itemsDue(cards.length)}</p>
       </div>
       <ReviewSession
         cards={cards}

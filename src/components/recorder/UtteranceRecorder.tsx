@@ -78,8 +78,8 @@ export function UtteranceRecorder({
             start();
           }
         }}
-        className={`relative flex h-20 w-20 items-center justify-center rounded-full text-3xl text-white transition disabled:opacity-50 ${
-          isOpen ? 'bg-red-500' : 'bg-sky-600'
+        className={`relative flex size-24 cursor-pointer items-center justify-center rounded-full text-3xl text-white shadow-raised transition-transform duration-100 active:scale-95 disabled:pointer-events-none disabled:opacity-50 ${
+          isOpen ? 'animate-pop bg-brand-600' : 'bg-brand-500 hover:bg-brand-400'
         }`}
         aria-label={isOpen ? strings.stopRecording : strings.startRecording}
       >
@@ -96,13 +96,13 @@ export function UtteranceRecorder({
 
       {isOpen && (
         <div className="flex w-full max-w-xs flex-col items-center gap-1">
-          <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+          <div className="h-2.5 w-full overflow-hidden rounded-full bg-line">
             <div
-              className="h-full bg-sky-500 transition-[width] duration-75"
+              className="h-full bg-success-500 transition-[width] duration-75"
               style={{ width: `${Math.min(100, level * 140)}%` }}
             />
           </div>
-          <span className="text-xs text-slate-400" aria-live="polite">
+          <span className="text-xs font-semibold text-ink-muted" aria-live="polite">
             {isListening
               ? strings.waitingForSpeech
               : countdownSeconds !== null
@@ -113,12 +113,14 @@ export function UtteranceRecorder({
       )}
 
       {!isOpen && status !== 'requesting' && (
-        <p className="text-sm text-slate-500 dark:text-slate-400" aria-live="polite">
+        <p className="text-sm font-semibold text-ink-muted" aria-live="polite">
           {sending ? strings.sending : strings.tapToRecord}
         </p>
       )}
 
-      {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+      {error && (
+        <p className="text-sm font-semibold text-brand-700 dark:text-brand-300">{error}</p>
+      )}
     </div>
   );
 }

@@ -29,8 +29,9 @@ export function XpToast({
   return (
     <div
       role="status"
-      className={`pointer-events-none fixed bottom-6 right-6 z-50 rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-lg transition-all duration-300 ${
-        visible ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'
+      // Sits above the mobile tab bar rather than behind it (P0.3).
+      className={`pointer-events-none fixed right-5 bottom-[calc(env(safe-area-inset-bottom)+5.5rem)] z-50 rounded-full bg-success-600 px-5 py-2.5 text-sm font-extrabold text-white shadow-raised transition-all duration-300 sm:bottom-6 ${
+        visible ? 'animate-pop translate-y-0 opacity-100' : 'translate-y-2 opacity-0'
       }`}
     >
       {t(locale).gamification.xpAwarded(xpAwarded)}

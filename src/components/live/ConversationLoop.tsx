@@ -107,11 +107,11 @@ export function ConversationLoop({
   );
 
   return (
-    <div className="flex flex-1 flex-col items-center gap-6 px-6 py-10">
-      <p className="text-xs uppercase tracking-wide text-slate-400">
+    <div className="flex flex-1 flex-col items-center gap-6 px-5 py-8 sm:px-6 sm:py-10">
+      <p className="text-xs font-bold tracking-wide text-ink-muted uppercase">
         {strings.turnOf(turnCount + 1)}
       </p>
-      <p className="max-w-lg text-center text-lg text-slate-700 dark:text-slate-200">
+      <p className="max-w-lg text-center text-xl font-semibold text-balance text-ink">
         {promptContext}
       </p>
 
@@ -126,15 +126,15 @@ export function ConversationLoop({
       />
 
       {handsFree && status === 'idle' && (
-        <p className="text-xs text-slate-400">{strings.handsFreeHint}</p>
+        <p className="text-xs text-ink-muted">{strings.handsFreeHint}</p>
       )}
       {status === 'sending' && (
-        <p className="text-sm text-slate-400" aria-live="polite">
+        <p className="text-sm text-ink-muted" aria-live="polite">
           {strings.listeningBack}
         </p>
       )}
       {errorMessage && (
-        <p className="text-sm text-red-600 dark:text-red-400" aria-live="polite">
+        <p className="text-sm font-semibold text-brand-700 dark:text-brand-300" aria-live="polite">
           {errorMessage}
         </p>
       )}

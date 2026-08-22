@@ -37,12 +37,25 @@ export function LessonPlayer({
   lessonId,
   exercises = [],
   locale,
+  onFinished,
+  turnLimit,
+  finishLabel,
 }: {
   coachingProfile: CoachingProfile | null;
   initialPrompt: string;
   lessonId?: string;
   exercises?: PlayerExercise[];
   locale: Locale;
+  /**
+   * Set by an orchestrator that owns the ending - /today's session (ROADMAP.md
+   * P0.4). The player hands back the XP it awarded instead of rendering its own
+   * completion screen. The completion call itself is unchanged.
+   */
+  onFinished?: (xpEarned: number) => void;
+  /** Free practice only: stop after this many turns instead of looping forever. */
+  turnLimit?: number;
+  /** Label for the button that ends a turn-limited free-practice run. */
+  finishLabel?: string;
 }) {
   const strings = t(locale).lessonPlayer;
   const router = useRouter();
@@ -58,6 +71,8 @@ export function LessonPlayer({
   const [plays, setPlays] = useState(0);
   const [audioStatus, setAudioStatus] = useState<'idle' | 'loading' | 'error'>('idle');
   const [summary, setSummary] = useState<LessonCompleteResponse | null>(null);
+  const [xpEarned, setXpEarned] = useState(0);
+  const [turnsTaken, setTurnsTaken] = useState(0);
   const player = useTutorAudioPlayer();
   // PLAN.md §16 defect 1: closes the practice_sessions row when the learner leaves.
   // Finishing a lesson closes it too (via /complete), so the beacon is the backstop
@@ -149,6 +164,8 @@ export function LessonPlayer({
       // PLAN.md §12.2: XP toast after every turn; a short celebration on streak
       // milestones (lesson completion has its own, below).
       setXpEvent({ id: Date.now(), xp: data.gamification.xpAwarded });
+      setXpEarned((xp) => xp + data.gamification.xpAwarded);
+      setTurnsTaken((n) => n + 1);
       if (data.gamification.celebration?.type === 'streak_milestone') {
         setCelebrationMessage(strings.streakMilestone(data.gamification.celebration.milestone));
       }
@@ -175,42 +192,41 @@ export function LessonPlayer({
       setStatus('error');
       return;
     }
-    setSummary(result.data);
     setFeedback(null);
     setStatus('idle');
-    setCelebrationMessage(strings.lessonCompleteCelebration);
     router.refresh();
-  }, [lessonId, router, strings, messageForError]);
+    if (onFinished) {
+      onFinished(xpEarned + result.data.gamification.xpAwarded);
+      return;
+    }
+    setSummary(result.data);
+    setCelebrationMessage(strings.lessonCompleteCelebration);
+  }, [lessonId, router, strings, messageForError, onFinished, xpEarned]);
 
   if (summary) {
     return (
-      <div className="flex flex-1 flex-col items-center gap-4 px-6 py-10">
-        <p className="text-lg font-semibold text-slate-900 dark:text-white">
-          {strings.lessonComplete}
-        </p>
+      <div className="flex flex-1 flex-col items-center gap-4 px-5 py-10 sm:px-6">
+        <span aria-hidden="true" className="animate-pop text-6xl">
+          🎉
+        </span>
+        <p className="text-xl font-extrabold text-ink">{strings.lessonComplete}</p>
         {summary.gamification.xpAwarded > 0 && (
-          <p className="text-sm text-emerald-600 dark:text-emerald-400">
+          <p className="animate-pop rounded-full bg-success-100 px-4 py-1.5 text-sm font-extrabold text-success-700 dark:bg-success-500/20 dark:text-success-500">
             {t(locale).gamification.xpAwarded(summary.gamification.xpAwarded)}
           </p>
         )}
-        <p className="max-w-sm text-center text-sm text-slate-600 dark:text-slate-300">
+        <p className="max-w-sm text-center text-sm text-ink-muted">
           {summary.enqueuedCount > 0
             ? strings.newWordsAdded(summary.enqueuedCount)
             : strings.nothingNewForReview}
         </p>
         <div className="flex flex-col items-center gap-2">
           {summary.dueReviewCount > 0 && (
-            <Link
-              href="/review"
-              className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white"
-            >
+            <Link href="/review" className="btn-primary">
               {strings.reviewNow(summary.dueReviewCount)}
             </Link>
           )}
-          <Link
-            href="/lesson"
-            className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 dark:border-slate-700 dark:text-slate-200"
-          >
+          <Link href="/lesson" className="btn-secondary btn-sm">
             {strings.backToLessons}
           </Link>
         </div>
@@ -222,9 +238,9 @@ export function LessonPlayer({
   }
 
   return (
-    <div className="flex flex-1 flex-col items-center gap-6 px-6 py-10">
+    <div className="flex flex-1 flex-col items-center gap-6 px-5 py-8 sm:px-6 sm:py-10">
       {isGuided && (
-        <p className="text-xs uppercase tracking-wide text-slate-400">
+        <p className="text-xs font-bold tracking-wide text-ink-muted uppercase">
           {strings.exerciseOf(step + 1, exercises.length)}
           {exercise?.kind === 'listen' ? strings.listeningSuffix : ''}
         </p>
@@ -236,7 +252,7 @@ export function LessonPlayer({
             type="button"
             onClick={playListenAudio}
             disabled={plays >= MAX_LISTEN_PLAYS || audioStatus === 'loading'}
-            className="rounded-full bg-indigo-600 px-5 py-3 text-sm font-medium text-white transition disabled:opacity-50"
+            className="btn-primary btn-sm"
           >
             {audioStatus === 'loading'
               ? strings.loading
@@ -244,20 +260,20 @@ export function LessonPlayer({
                 ? strings.playClip
                 : strings.playAgain}
           </button>
-          <span className="text-xs text-slate-400">
+          <span className="text-xs font-semibold text-ink-muted">
             {plays >= MAX_LISTEN_PLAYS
               ? strings.noPlaysLeft
               : strings.playsLeft(MAX_LISTEN_PLAYS - plays)}
           </span>
           {audioStatus === 'error' && (
-            <span className="text-sm text-red-600 dark:text-red-400">
+            <span className="text-sm font-semibold text-brand-700 dark:text-brand-300">
               {strings.couldntLoadAudio}
             </span>
           )}
         </div>
       )}
 
-      <p className="max-w-lg text-center text-lg text-slate-700 dark:text-slate-200">
+      <p className="max-w-lg text-center text-xl font-semibold text-balance text-ink">
         {exercise ? exercise.prompt : promptContext}
       </p>
 
@@ -269,9 +285,13 @@ export function LessonPlayer({
         locale={locale}
       />
 
-      {status === 'sending' && <p className="text-sm text-slate-400" aria-live="polite">{strings.analyzing}</p>}
+      {status === 'sending' && (
+        <p className="text-sm text-ink-muted" aria-live="polite">
+          {strings.analyzing}
+        </p>
+      )}
       {errorMessage && (
-        <p className="text-sm text-red-600 dark:text-red-400" aria-live="polite">
+        <p className="text-sm font-semibold text-brand-700 dark:text-brand-300" aria-live="polite">
           {errorMessage}
         </p>
       )}
@@ -291,9 +311,22 @@ export function LessonPlayer({
           type="button"
           onClick={isLastExercise ? finishLesson : goToNextExercise}
           disabled={status === 'sending'}
-          className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+          className="btn-primary"
         >
           {isLastExercise ? strings.finishLesson : strings.nextExercise}
+        </button>
+      )}
+
+      {/* Free practice with a turn limit: /today's closing speaking turn. The
+          loop is otherwise open-ended, so the orchestrator ends it here. */}
+      {!isGuided && feedback && turnLimit !== undefined && turnsTaken >= turnLimit && (
+        <button
+          type="button"
+          onClick={() => onFinished?.(xpEarned)}
+          disabled={status === 'sending'}
+          className="btn-primary"
+        >
+          {finishLabel ?? strings.finishLesson}
         </button>
       )}
 

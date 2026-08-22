@@ -9,6 +9,7 @@ import {
   nextLessonInPath,
   type LessonPathEntry,
 } from '@/lib/lessons';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { getUserLocale } from '@/lib/getUserLocale';
 import { t } from '@/lib/i18n';
 import type { CefrLevel } from '@/lib/db/schema';
@@ -42,22 +43,34 @@ function PathRow({ lesson, doneLabel }: { lesson: LessonPathEntry; doneLabel: st
     <li>
       <Link
         href={`/lesson/${lesson.id}`}
-        className={`flex items-center justify-between gap-3 rounded-xl border border-slate-200 px-4 py-3 dark:border-slate-700 ${
-          lesson.state === 'later' ? 'opacity-60' : ''
+        className={`card flex items-center justify-between gap-3 transition-transform active:scale-[0.99] ${
+          lesson.state === 'later' ? 'opacity-55' : ''
         }`}
       >
-        <span className="flex flex-col">
-          <span className="font-medium text-slate-900 dark:text-white">{lesson.title}</span>
-          <span className="text-xs text-slate-400">
-            {lesson.level} · {lesson.topic}
+        <span className="flex items-center gap-3">
+          <span
+            aria-hidden="true"
+            className={`flex size-9 shrink-0 items-center justify-center rounded-full text-base ${
+              lesson.state === 'done'
+                ? 'bg-success-100 dark:bg-success-500/20'
+                : 'bg-surface-muted'
+            }`}
+          >
+            {lesson.state === 'done' ? '✓' : '📘'}
+          </span>
+          <span className="flex flex-col">
+            <span className="font-bold text-ink">{lesson.title}</span>
+            <span className="text-xs font-semibold text-ink-muted">
+              {lesson.level} · {lesson.topic}
+            </span>
           </span>
         </span>
         {lesson.state === 'done' ? (
-          <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
-            {doneLabel}
-          </span>
+          <span className="text-xs font-bold text-success-600">{doneLabel}</span>
         ) : (
-          <span className="text-slate-400">→</span>
+          <span aria-hidden="true" className="text-ink-muted">
+            →
+          </span>
         )}
       </Link>
     </li>
@@ -99,13 +112,10 @@ export default async function LessonPage({
   const heroLesson = nextUp && matchesFilter(nextUp, level, topic) ? nextUp : null;
 
   return (
-    <div className="flex flex-1 flex-col gap-6 px-6 py-10">
-      <div className="flex items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{strings.lessons.title}</h1>
-        <Link
-          href="/lesson/practice"
-          className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 dark:border-slate-700 dark:text-slate-200"
-        >
+    <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-5 py-8 sm:px-6 sm:py-10">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="heading-page">{strings.lessons.title}</h1>
+        <Link href="/lesson/practice" className="btn-secondary btn-sm">
           {strings.lessons.freePractice}
         </Link>
       </div>
@@ -114,11 +124,7 @@ export default async function LessonPage({
         <div className="flex flex-wrap gap-2">
           <Link
             href={filterHref(undefined, topic)}
-            className={`rounded-full px-3 py-1 text-xs font-medium ${
-              !level
-                ? 'bg-indigo-600 text-white'
-                : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
-            }`}
+            className={`chip ${!level ? 'chip-active' : ''}`}
           >
             {strings.lessons.allLevels}
           </Link>
@@ -126,11 +132,7 @@ export default async function LessonPage({
             <Link
               key={l}
               href={filterHref(l, topic)}
-              className={`rounded-full px-3 py-1 text-xs font-medium ${
-                level === l
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
-              }`}
+              className={`chip ${level === l ? 'chip-active' : ''}`}
             >
               {l}
             </Link>
@@ -141,11 +143,7 @@ export default async function LessonPage({
           <div className="flex flex-wrap gap-2">
             <Link
               href={filterHref(level, undefined)}
-              className={`rounded-full px-3 py-1 text-xs font-medium ${
-                !topic
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
-              }`}
+              className={`chip ${!topic ? 'chip-active' : ''}`}
             >
               {strings.lessons.allTopics}
             </Link>
@@ -153,11 +151,7 @@ export default async function LessonPage({
               <Link
                 key={t}
                 href={filterHref(level, t)}
-                className={`rounded-full px-3 py-1 text-xs font-medium ${
-                  topic === t
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
-                }`}
+                className={`chip ${topic === t ? 'chip-active' : ''}`}
               >
                 {t}
               </Link>
@@ -169,31 +163,31 @@ export default async function LessonPage({
       {heroLesson && (
         <Link
           href={`/lesson/${heroLesson.id}`}
-          className="flex items-center justify-between gap-3 rounded-2xl border-2 border-indigo-500 bg-indigo-50 px-5 py-5 dark:border-indigo-500 dark:bg-indigo-950"
+          className="card-raised flex items-center justify-between gap-4 transition-transform active:scale-[0.99]"
         >
           <span className="flex flex-col gap-1">
-            <span className="text-xs font-semibold tracking-wide text-indigo-600 uppercase dark:text-indigo-300">
+            <span className="text-xs font-extrabold tracking-wide text-brand-700 uppercase dark:text-brand-300">
               {strings.lessons.nextUp}
             </span>
-            <span className="text-lg font-bold text-indigo-900 dark:text-indigo-50">
-              {heroLesson.title}
-            </span>
-            <span className="text-xs text-indigo-700 dark:text-indigo-300">
+            <span className="text-xl font-extrabold text-ink">{heroLesson.title}</span>
+            <span className="text-xs font-semibold text-ink-muted">
               {heroLesson.level} · {heroLesson.topic}
             </span>
           </span>
-          <span className="text-2xl text-indigo-500">→</span>
+          <span aria-hidden="true" className="text-2xl text-brand-600 dark:text-brand-300">
+            →
+          </span>
         </Link>
       )}
 
       {lessons.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-slate-300 px-4 py-8 text-center text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+        <EmptyState emoji="📚">
           {strings.lessons.emptyBefore}{' '}
-          <Link href="/lesson/practice" className="underline">
+          <Link href="/lesson/practice" className="font-bold text-brand-600 underline">
             {strings.lessons.emptyLink}
           </Link>{' '}
           {strings.lessons.emptyAfter}
-        </p>
+        </EmptyState>
       ) : (
         <div className="flex flex-col gap-6">
           {path.map((group) => {
@@ -201,10 +195,8 @@ export default async function LessonPage({
             return (
               <section key={group.level} className="flex flex-col gap-2">
                 <div className="flex items-baseline justify-between gap-3">
-                  <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
-                    {group.level}
-                  </h2>
-                  <span className="text-xs text-slate-400">
+                  <h2 className="heading-section">{group.level}</h2>
+                  <span className="text-xs font-semibold text-ink-muted">
                     {strings.lessons.pathHint(group.doneCount, group.total)}
                   </span>
                 </div>

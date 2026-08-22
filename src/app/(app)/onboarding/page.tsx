@@ -17,10 +17,10 @@ export default async function OnboardingPage() {
   return (
     <div className="flex flex-1 flex-col items-center gap-8 px-6 py-12">
       <div className="flex flex-col items-center gap-2 text-center">
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
+        <h1 className="heading-page text-4xl">
           {strings.onboarding.title}
         </h1>
-        <p className="max-w-md text-slate-500 dark:text-slate-400">
+        <p className="max-w-md text-ink-muted">
           {strings.onboarding.subtitle}
         </p>
       </div>
