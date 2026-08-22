@@ -100,7 +100,9 @@ export function LessonPlayer({
   const [showVocab, setShowVocab] = useState(
     () => lessonId !== undefined && exercises.length > 0 && vocab.length > 0,
   );
-  const [vocabAudioStatus, setVocabAudioStatus] = useState<'idle' | 'unavailable'>('idle');
+  // One flag for every lesson-audio slot: a pair with no configured voice has none of
+  // it, and finding that out once is enough for the vocab chips and the dialogue both.
+  const [slotAudioStatus, setSlotAudioStatus] = useState<'idle' | 'unavailable'>('idle');
   const [showDialogue, setShowDialogue] = useState(
     () => lessonId !== undefined && exercises.length > 0 && dialogue !== null,
   );
@@ -198,7 +200,7 @@ export function LessonPlayer({
    */
   const playSlotAudio = useCallback(
     async (slot: 'vocab' | 'dialogue', index: number, onEnded?: () => void) => {
-      if (!lessonId || vocabAudioStatus === 'unavailable') {
+      if (!lessonId || slotAudioStatus === 'unavailable') {
         onEnded?.();
         return;
       }
@@ -212,7 +214,7 @@ export function LessonPlayer({
       try {
         const res = await fetch(`/api/lessons/${lessonId}/audio?${slot}=${index}`);
         if (!res.ok) {
-          if (res.status === 409) setVocabAudioStatus('unavailable');
+          if (res.status === 409) setSlotAudioStatus('unavailable');
           onEnded?.();
           return;
         }
@@ -223,7 +225,7 @@ export function LessonPlayer({
         onEnded?.();
       }
     },
-    [lessonId, player, vocabAudioStatus],
+    [lessonId, player, slotAudioStatus],
   );
 
   const playVocabAudio = useCallback(
@@ -495,7 +497,7 @@ export function LessonPlayer({
         <div className="flex flex-col gap-1">
           <h2 className="heading-section">{strings.vocabTitle}</h2>
           <p className="text-sm text-ink-muted">
-            {vocabAudioStatus === 'unavailable' ? strings.vocabAudioUnavailable : strings.vocabHint}
+            {slotAudioStatus === 'unavailable' ? strings.vocabAudioUnavailable : strings.vocabHint}
           </p>
         </div>
 
@@ -505,7 +507,7 @@ export function LessonPlayer({
               <button
                 type="button"
                 onClick={() => playVocabAudio(i)}
-                disabled={vocabAudioStatus === 'unavailable'}
+                disabled={slotAudioStatus === 'unavailable'}
                 className="card flex w-full items-center justify-between gap-3 text-left transition-transform active:scale-[0.99] disabled:active:scale-100"
               >
                 <span className="flex min-w-0 flex-col">
@@ -513,7 +515,7 @@ export function LessonPlayer({
                   <span className="text-sm text-ink-muted">{item.gloss}</span>
                   {item.note && <span className="mt-1 text-xs text-ink-muted italic">{item.note}</span>}
                 </span>
-                {vocabAudioStatus === 'idle' && (
+                {slotAudioStatus === 'idle' && (
                   <span aria-hidden="true" className="shrink-0 text-xl">
                     {playingVocab === i ? '…' : '🔊'}
                   </span>
@@ -524,7 +526,9 @@ export function LessonPlayer({
         </ul>
 
         <button type="button" onClick={() => setShowVocab(false)} className="btn-primary self-start">
-          {strings.startExercises}
+          {/* Naming the step that actually follows: with a dialogue in the lesson, the
+              next thing is listening to it, not being graded. */}
+          {showDialogue ? strings.onToTheConversation : strings.startExercises}
         </button>
       </div>
     );
@@ -538,12 +542,12 @@ export function LessonPlayer({
         <div className="flex flex-col gap-1">
           <h2 className="heading-section">{strings.dialogueTitle}</h2>
           <p className="text-sm text-ink-muted">
-            {vocabAudioStatus === 'unavailable' ? strings.vocabAudioUnavailable : strings.dialogueHint}
+            {slotAudioStatus === 'unavailable' ? strings.vocabAudioUnavailable : strings.dialogueHint}
           </p>
           {dialogue.setup && <p className="text-sm font-semibold text-ink">{dialogue.setup}</p>}
         </div>
 
-        {vocabAudioStatus === 'idle' && (
+        {slotAudioStatus === 'idle' && (
           <button
             type="button"
             onClick={() => playDialogueFrom(0)}
@@ -559,7 +563,7 @@ export function LessonPlayer({
               <button
                 type="button"
                 onClick={() => playDialogueLine(line.index)}
-                disabled={vocabAudioStatus === 'unavailable'}
+                disabled={slotAudioStatus === 'unavailable'}
                 className={`card flex w-full items-start justify-between gap-3 text-left transition-transform active:scale-[0.99] disabled:active:scale-100 ${
                   dialoguePlaying === line.index ? 'ring-2 ring-brand-400' : ''
                 } ${line.isLearner ? 'border-l-4 border-l-brand-400' : ''}`}
@@ -572,7 +576,7 @@ export function LessonPlayer({
                   <span className="font-semibold text-ink">{line.text}</span>
                   {line.gloss && <span className="text-sm text-ink-muted">{line.gloss}</span>}
                 </span>
-                {vocabAudioStatus === 'idle' && (
+                {slotAudioStatus === 'idle' && (
                   <span aria-hidden="true" className="shrink-0 text-xl">
                     {dialoguePlaying === line.index ? '🔈' : '🔊'}
                   </span>

@@ -220,6 +220,7 @@ const en = {
     dialogueSuffix: ' · conversation',
     theySaid: 'They say',
     peekAtTheLine: 'Peek at the line',
+    onToTheConversation: 'On to the conversation →',
   },
   live: {
     openingPrompt: "Say hi and tell your tutor what's on your mind today - anything goes.",
@@ -526,6 +527,7 @@ const es: Dictionary = {
     dialogueSuffix: ' · conversación',
     theySaid: 'Te dicen',
     peekAtTheLine: 'Ver la línea',
+    onToTheConversation: 'Vamos a la conversación →',
   },
   live: {
     openingPrompt: 'Saludá y contale a tu tutor qué tenés en mente hoy - lo que sea.',
@@ -831,6 +833,7 @@ const sv: Dictionary = {
     dialogueSuffix: ' · samtal',
     theySaid: 'De säger',
     peekAtTheLine: 'Titta på repliken',
+    onToTheConversation: 'Vidare till samtalet →',
   },
   live: {
     openingPrompt: 'Säg hej och berätta för din handledare vad du tänker på idag - vad som helst.',
