@@ -48,9 +48,16 @@ export function ConversationLoop({
   // Bumped when the tutor finishes speaking; UtteranceRecorder watches it to reopen the
   // mic. A counter rather than a boolean so two consecutive turns are distinguishable.
   const [autoStartToken, setAutoStartToken] = useState(0);
+  /**
+   * Hands-free walked away: the mic opened, nobody said anything, and the turn was
+   * dropped before it cost anything. The loop stops here instead of reopening the mic
+   * on a timer, and says so - a conversation that goes silent for no visible reason
+   * reads as the app being broken.
+   */
+  const [afkPaused, setAfkPaused] = useState(false);
   const player = useTutorAudioPlayer();
   // PLAN.md §16 defect 1: closes the practice_sessions row when the learner leaves.
-  const { markTurnRecorded } = useSessionEndBeacon('live');
+  const { markTurnRecorded, endSessionNow } = useSessionEndBeacon('live');
 
   // PLAN.md §8: 429 (daily cap) and timeouts get their own copy - a stuck request
   // reads very differently to a learner than "you're out of turns for today".
@@ -131,15 +138,39 @@ export function ConversationLoop({
         {promptContext}
       </p>
 
-      <UtteranceRecorder
-        onRecorded={handleRecorded}
-        onBeforeStart={player.unlock}
-        disabled={status === 'sending'}
-        sending={status === 'sending'}
-        locale={locale}
-        handsFree={handsFree}
-        autoStartToken={autoStartToken}
-      />
+      {afkPaused ? (
+        <div className="flex flex-col items-center gap-3">
+          <p className="max-w-lg text-center text-base font-bold text-ink">{strings.afkPaused}</p>
+          <button
+            type="button"
+            onClick={() => {
+              player.unlock();
+              setAfkPaused(false);
+              setAutoStartToken((n) => n + 1);
+            }}
+            className="btn-primary"
+          >
+            {strings.afkResume}
+          </button>
+        </div>
+      ) : (
+        <UtteranceRecorder
+          onRecorded={handleRecorded}
+          onBeforeStart={player.unlock}
+          disabled={status === 'sending'}
+          sending={status === 'sending'}
+          locale={locale}
+          handsFree={handsFree}
+          autoStartToken={autoStartToken}
+          onAbandoned={() => {
+            if (!handsFree) return;
+            setAfkPaused(true);
+            // Close the practice session too: an abandoned room is the end of the
+            // session, and leaving it open would stretch it until the idle sweep.
+            endSessionNow();
+          }}
+        />
+      )}
 
       {status === 'idle' && (
         <p className="max-w-lg text-center text-xs text-ink-muted">

@@ -59,5 +59,14 @@ export function useSessionEndBeacon(mode: PracticeMode, lessonId?: string) {
     hasUnreportedTurn.current = true;
   }, []);
 
-  return { markTurnRecorded };
+  /**
+   * Closes the practice session NOW rather than waiting for the page to go away -
+   * used when the app itself decides the session is over (the hands-free AFK pause).
+   * Idempotent: with no unreported turn it does nothing.
+   */
+  const endSessionNow = useCallback(() => {
+    send();
+  }, [send]);
+
+  return { markTurnRecorded, endSessionNow };
 }

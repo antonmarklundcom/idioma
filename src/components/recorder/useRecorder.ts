@@ -101,9 +101,16 @@ export function useRecorder(
     handsFree?: boolean;
     /** Excise silence from the recording as it happens. Independent of handsFree. */
     trimSilence?: boolean;
+    /**
+     * Fired when a hands-free turn is abandoned because nobody ever spoke - the
+     * learner walked away. The bytes are already discarded either way; this lets the
+     * caller stop handing the mic back and SAY why it stopped, instead of the loop
+     * going quiet for no visible reason.
+     */
+    onAbandoned?: () => void;
   } = {},
 ) {
-  const { handsFree = false, trimSilence = true } = options;
+  const { handsFree = false, trimSilence = true, onAbandoned } = options;
 
   const [status, setStatus] = useState<RecorderStatus>('idle');
   const [level, setLevel] = useState(0);
@@ -135,6 +142,11 @@ export function useRecorder(
   useEffect(() => {
     trimSilenceRef.current = trimSilence;
   }, [trimSilence]);
+
+  const onAbandonedRef = useRef(onAbandoned);
+  useEffect(() => {
+    onAbandonedRef.current = onAbandoned;
+  }, [onAbandoned]);
 
   const onStopRef = useRef(onStop);
   useEffect(() => {
@@ -191,6 +203,8 @@ export function useRecorder(
   const abort = useCallback(() => {
     clearTimer();
     setSilenceCountdownMs(null);
+    // Only the first abort of a turn reports; onstop can re-enter this path.
+    if (!abortedRef.current) onAbandonedRef.current?.();
     abortedRef.current = true;
     const endpoint = endpointRef.current;
     if (endpoint) endpoint.finished = true;
