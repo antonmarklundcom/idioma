@@ -60,16 +60,16 @@ npm run db:seed              # language pairs + demo lessons from content/lesson
 npm run dev
 ```
 
-Run migrations and seeds **from your own machine**, never from Hostinger SSH — the shared server
-cannot route IPv6 to Neon (PLAN.md §3.1, §6.13).
+Migrations reach production automatically (see **Deploy** below); run them locally only against
+a database you own.
 
 ### Owner setup (Phase 0, one-time, manual — PLAN.md §8)
 
 No code is written for this phase; it's owner-run account setup. Summary (full checklist in
 PLAN.md §8 Phase 0):
 
-1. **Hostinger**: hPanel → Websites → Add Website → Node.js Apps → Import Git Repository →
-   `antonmarklundcom/idioma`, branch `main`.
+1. **Vercel**: import `antonmarklundcom/idioma`, production branch `main`. (The project was
+   originally planned for Hostinger; PLAN.md still describes that. Vercel is what actually runs.)
 2. **Neon**: create a project, copy the pooled connection string → `DATABASE_URL`.
 3. **Google project A** ("idioma-free", AI Studio) → `GEMINI_API_KEY`. **Never link a billing
    account to this project** — that permanently kills its Gemini free tier.
@@ -78,16 +78,33 @@ PLAN.md §8 Phase 0):
 5. **Google OAuth** consent screen (Testing, every beta tester added as a test user) + Web
    application client → `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`.
 6. `AUTH_SECRET` via `npx auth secret`.
-7. All values into **hPanel → the app → Environment Variables** *and* local `.env.local`.
-   **Redeploy after any env change** (§6.14) — restarting the app is not enough, and a stale
-   value fails as an opaque blank `Digest: …` error page.
-8. Run `npm run db:migrate` and `npm run db:seed` from your own machine (never Hostinger SSH).
+7. All values into **Vercel → Settings → Environment Variables** *and* local `.env.local`.
+   Tick **Production** — a variable saved only for Preview does not exist on the live site.
+   **Redeploy after any env change**: Vercel bakes them in at build time, so saving alone
+   changes nothing.
+8. Add `RUN_MIGRATIONS_ON_DEPLOY=true`, **Production only** (see Deploy).
+9. Run `npm run db:seed` once, from your own machine, to insert the language pairs and the
+   starter lessons. Migrations do not need this — they run on deploy.
 
 ### Deploy
 
-Deployment is Hostinger's GitHub integration, building from `main` (`npm run build` /
-`npm start`, auto-detected). Push to `main` → Hostinger builds and deploys. Env var changes need
-an explicit **redeploy** in hPanel, not just a restart (PLAN.md §6.14).
+Vercel builds from `main` on every push — no manual redeploy for a merge. Env var changes DO
+need an explicit redeploy, because Vercel resolves them at build time.
+
+**Migrations run as part of the production build** (`scripts/deploy-migrate.ts`, wired into
+`npm run build`). This is gated on `RUN_MIGRATIONS_ON_DEPLOY=true`, which must be set for the
+**Production environment only**: previews share the same database, and a preview build applying
+a feature branch's migrations would push unreviewed schema changes onto live data. Without the
+flag — locally, and in CI, which has no database by design — the step logs that it is skipping
+and does nothing.
+
+A failing migration fails the build, so the previous deployment keeps serving instead of new
+code meeting an old schema. Check the build log for the `[migrate]` lines.
+
+This exists because the alternative bit us: a merged PR added `users.ui_locale`, the column was
+never applied by hand, and since Auth.js uses database sessions the whole app presented as
+"there is a problem with the server configuration" at the login screen. Schema and code now
+ship together.
 
 ### Promote a user to admin
 
