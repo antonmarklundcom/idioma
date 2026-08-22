@@ -28,6 +28,7 @@ function assemble(pair: (typeof SEED_PAIRS)[number], mode: 'lesson' | 'live' | '
     mode,
     level: 'A2',
     coachingProfile: 'confidence_first',
+      focusSkills: null,
     recurringErrors: [{ category: 'grammar', description: 'ser vs estar with locations' }],
     lessonContext: 'Ordering at a café.',
   });
@@ -87,6 +88,33 @@ describe('template ↔ assembler contract', () => {
       assert.ok(prompt.includes(pair.dialectNotes), 'the dialect notes never arrived');
     });
 
+    it(`${pair.code} passes the learner's focus skills through to the tutor`, () => {
+      // The setting existed in onboarding and /settings from Phase 2 and reached
+      // nothing; this is the assertion that it now does.
+      const withFocus = assembleSystemPrompt({
+        pair,
+        mode: 'lesson',
+        level: 'A1',
+        coachingProfile: 'confidence_first',
+        focusSkills: ['pronunciation', 'listening'],
+        recurringErrors: [],
+        lessonContext: 'x',
+      });
+      assert.match(withFocus, /pronunciation error pass/);
+      assert.match(withFocus, /followUpQuestion something they must/);
+
+      const without = assembleSystemPrompt({
+        pair,
+        mode: 'lesson',
+        level: 'A1',
+        coachingProfile: 'confidence_first',
+        focusSkills: null,
+        recurringErrors: [],
+        lessonContext: 'x',
+      });
+      assert.ok(!without.includes('what they want to work on'), 'invented a focus nobody chose');
+    });
+
     it(`${pair.code} carries a coaching-profile slot that actually varies (§11.3)`, () => {
       const rendered = PROFILES.map((coachingProfile) =>
         assembleSystemPrompt({
@@ -94,6 +122,7 @@ describe('template ↔ assembler contract', () => {
           mode: 'lesson',
           level: 'A1',
           coachingProfile,
+          focusSkills: null,
           recurringErrors: [],
           lessonContext: 'x',
         }),
@@ -150,6 +179,7 @@ describe('mode selection', () => {
       mode: 'live',
       level: 'A2',
       coachingProfile: 'confidence_first',
+      focusSkills: null,
       recurringErrors: [],
       lessonContext: FREE_PRACTICE_LESSON_CONTEXT,
     });
@@ -164,6 +194,7 @@ describe('defaults for a learner with no history', () => {
       mode: 'lesson',
       level: 'A1',
       coachingProfile: null,
+      focusSkills: null,
       recurringErrors: [],
       lessonContext: FREE_PRACTICE_LESSON_CONTEXT,
     });
@@ -177,6 +208,7 @@ describe('defaults for a learner with no history', () => {
       mode: 'lesson',
       level: 'A1',
       coachingProfile: null,
+      focusSkills: null,
       recurringErrors: [],
       lessonContext: 'x',
     });
@@ -191,6 +223,7 @@ describe('defaults for a learner with no history', () => {
       mode: 'lesson',
       level: 'A1',
       coachingProfile: 'accuracy_focus',
+      focusSkills: null,
       recurringErrors: [],
       lessonContext: 'x',
     });

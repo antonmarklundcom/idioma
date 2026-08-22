@@ -205,6 +205,7 @@ export async function POST(request: Request) {
     mode,
     level: session.user.level ?? 'A1',
     coachingProfile: session.user.coachingProfile,
+    focusSkills: session.user.focusSkills,
     recurringErrors: recurringErrorRows,
     lessonContext,
   });
