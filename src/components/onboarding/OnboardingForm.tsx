@@ -36,6 +36,10 @@ export function OnboardingForm({
   const [timezone, setTimezone] = useState('UTC');
 
   useEffect(() => {
+    // The one-time extra render this causes is the point: it's what corrects the
+    // 'UTC' placeholder to the browser's real timezone after hydration has already
+    // completed safely.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC');
   }, []);
   const [submitting, setSubmitting] = useState(false);
