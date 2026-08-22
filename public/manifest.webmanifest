@@ -3,7 +3,7 @@
   "name": "Idioma",
   "short_name": "Idioma",
   "description": "Speak and learn: Paraguayan Spanish and English practice with an AI tutor.",
-  "start_url": "/dashboard",
+  "start_url": "/today",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",

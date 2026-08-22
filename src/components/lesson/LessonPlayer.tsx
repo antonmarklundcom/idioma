@@ -37,12 +37,25 @@ export function LessonPlayer({
   lessonId,
   exercises = [],
   locale,
+  onFinished,
+  turnLimit,
+  finishLabel,
 }: {
   coachingProfile: CoachingProfile | null;
   initialPrompt: string;
   lessonId?: string;
   exercises?: PlayerExercise[];
   locale: Locale;
+  /**
+   * Set by an orchestrator that owns the ending - /today's session (ROADMAP.md
+   * P0.4). The player hands back the XP it awarded instead of rendering its own
+   * completion screen. The completion call itself is unchanged.
+   */
+  onFinished?: (xpEarned: number) => void;
+  /** Free practice only: stop after this many turns instead of looping forever. */
+  turnLimit?: number;
+  /** Label for the button that ends a turn-limited free-practice run. */
+  finishLabel?: string;
 }) {
   const strings = t(locale).lessonPlayer;
   const router = useRouter();
@@ -58,6 +71,8 @@ export function LessonPlayer({
   const [plays, setPlays] = useState(0);
   const [audioStatus, setAudioStatus] = useState<'idle' | 'loading' | 'error'>('idle');
   const [summary, setSummary] = useState<LessonCompleteResponse | null>(null);
+  const [xpEarned, setXpEarned] = useState(0);
+  const [turnsTaken, setTurnsTaken] = useState(0);
   const player = useTutorAudioPlayer();
   // PLAN.md §16 defect 1: closes the practice_sessions row when the learner leaves.
   // Finishing a lesson closes it too (via /complete), so the beacon is the backstop
@@ -149,6 +164,8 @@ export function LessonPlayer({
       // PLAN.md §12.2: XP toast after every turn; a short celebration on streak
       // milestones (lesson completion has its own, below).
       setXpEvent({ id: Date.now(), xp: data.gamification.xpAwarded });
+      setXpEarned((xp) => xp + data.gamification.xpAwarded);
+      setTurnsTaken((n) => n + 1);
       if (data.gamification.celebration?.type === 'streak_milestone') {
         setCelebrationMessage(strings.streakMilestone(data.gamification.celebration.milestone));
       }
@@ -175,12 +192,16 @@ export function LessonPlayer({
       setStatus('error');
       return;
     }
-    setSummary(result.data);
     setFeedback(null);
     setStatus('idle');
-    setCelebrationMessage(strings.lessonCompleteCelebration);
     router.refresh();
-  }, [lessonId, router, strings, messageForError]);
+    if (onFinished) {
+      onFinished(xpEarned + result.data.gamification.xpAwarded);
+      return;
+    }
+    setSummary(result.data);
+    setCelebrationMessage(strings.lessonCompleteCelebration);
+  }, [lessonId, router, strings, messageForError, onFinished, xpEarned]);
 
   if (summary) {
     return (
@@ -293,6 +314,19 @@ export function LessonPlayer({
           className="btn-primary"
         >
           {isLastExercise ? strings.finishLesson : strings.nextExercise}
+        </button>
+      )}
+
+      {/* Free practice with a turn limit: /today's closing speaking turn. The
+          loop is otherwise open-ended, so the orchestrator ends it here. */}
+      {!isGuided && feedback && turnLimit !== undefined && turnsTaken >= turnLimit && (
+        <button
+          type="button"
+          onClick={() => onFinished?.(xpEarned)}
+          disabled={status === 'sending'}
+          className="btn-primary"
+        >
+          {finishLabel ?? strings.finishLesson}
         </button>
       )}
 

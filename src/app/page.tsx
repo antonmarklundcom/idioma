@@ -3,8 +3,10 @@ import { auth, signIn } from '@/lib/auth';
 
 export default async function Home() {
   const session = await auth();
+  // ROADMAP.md P0.4: signed-in users land on today's session, not on a wall of
+  // stats. /dashboard is still one tap away in the nav.
   if (session?.user) {
-    redirect('/dashboard');
+    redirect('/today');
   }
 
   return (
@@ -26,7 +28,7 @@ export default async function Home() {
       <form
         action={async () => {
           'use server';
-          await signIn('google', { redirectTo: '/dashboard' });
+          await signIn('google', { redirectTo: '/today' });
         }}
       >
         <button
