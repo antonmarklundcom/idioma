@@ -60,6 +60,15 @@ const en = {
     emptyBefore: 'No lessons here yet. Try',
     emptyLink: 'free practice',
     emptyAfter: 'in the meantime.',
+    howItWorks:
+      'Lessons run in order. Start with the highlighted one — tap any lesson to open it, including ones further down.',
+    filters: 'Filter lessons',
+    levelFilter: 'Level',
+    topicFilter: 'Topic',
+    clearFilters: 'Clear filters',
+    start: 'Start',
+    doAgain: 'Do again',
+    noMatches: 'No lessons match that filter.',
   },
   insights: {
     title: 'How it is going',
@@ -327,6 +336,15 @@ const es: Dictionary = {
     emptyBefore: 'Todavía no hay lecciones acá. Probá',
     emptyLink: 'práctica libre',
     emptyAfter: 'mientras tanto.',
+    howItWorks:
+      'Las lecciones van en orden. Empezá por la destacada — tocá cualquier lección para abrirla, incluso las de más abajo.',
+    filters: 'Filtrar lecciones',
+    levelFilter: 'Nivel',
+    topicFilter: 'Tema',
+    clearFilters: 'Quitar filtros',
+    start: 'Empezar',
+    doAgain: 'Hacer de nuevo',
+    noMatches: 'Ninguna lección coincide con ese filtro.',
   },
   insights: {
     title: 'Cómo va',
@@ -593,6 +611,15 @@ const sv: Dictionary = {
     emptyBefore: 'Inga lektioner än. Prova',
     emptyLink: 'fri övning',
     emptyAfter: 'under tiden.',
+    howItWorks:
+      'Lektionerna går i ordning. Börja med den markerade — tryck på vilken lektion som helst för att öppna den, även längre ner.',
+    filters: 'Filtrera lektioner',
+    levelFilter: 'Nivå',
+    topicFilter: 'Ämne',
+    clearFilters: 'Rensa filter',
+    start: 'Börja',
+    doAgain: 'Gör igen',
+    noMatches: 'Inga lektioner matchar det filtret.',
   },
   insights: {
     title: 'Hur det går',
