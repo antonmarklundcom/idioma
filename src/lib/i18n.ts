@@ -92,6 +92,7 @@ const en = {
     workOnThis: 'Worth working on',
     conquered: 'You have beaten these',
     nothingToFix: 'No recurring mistakes right now. Keep going!',
+    practiceThese: '🎯 Practise these',
   },
   history: {
     title: 'Your conversations',
@@ -305,6 +306,21 @@ const en = {
       'There are not enough lessons in this language yet to place you fairly. The level you chose stands.',
     setItYourself: 'Set my level myself',
   },
+  problemAreas: {
+    // Built from the learner's own recorded mistakes - picked from stored material,
+    // never written on the fly (PLAN.md §0).
+    title: 'Your problem areas',
+    subtitle: 'The mistakes that keep coming back, worst first — and a short drill built from them.',
+    timesSeen: (n: number) => `${n}×`,
+    nothingStoredYet: 'Nothing stored practises this one yet.',
+    requestPractice: 'I want practice on this',
+    practiceRequested: '✓ Noted — this goes on the list for the next lessons.',
+    startDrill: (n: number) => `Drill ${n} of these →`,
+    drillSize: (n: number) => `${n} item${n === 1 ? '' : 's'} from your own mistakes`,
+    nothingToDrill: 'Nothing to drill from these yet — keep practising and it will fill up.',
+    emptyState: 'No recurring mistakes yet. Practise a few turns and this fills itself in.',
+    backToDashboard: 'Back to dashboard',
+  },
   recorder: {
     stopRecording: 'Stop recording',
     startRecording: 'Start recording',
@@ -462,6 +478,7 @@ const es: Dictionary = {
     workOnThis: 'Para trabajar',
     conquered: 'Ya los superaste',
     nothingToFix: 'Ahora mismo no hay errores recurrentes. ¡Seguí así!',
+    practiceThese: '🎯 Practicar estos',
   },
   history: {
     title: 'Tus conversaciones',
@@ -667,6 +684,19 @@ const es: Dictionary = {
       'Todavía no hay suficientes lecciones en este idioma para ubicarte con justicia. Queda el nivel que elegiste.',
     setItYourself: 'Elegir mi nivel yo misma',
   },
+  problemAreas: {
+    title: 'Tus puntos flojos',
+    subtitle: 'Los errores que vuelven siempre, del peor para abajo — y una práctica corta hecha con ellos.',
+    timesSeen: (n: number) => `${n}×`,
+    nothingStoredYet: 'Todavía no hay nada guardado que practique esto.',
+    requestPractice: 'Quiero practicar esto',
+    practiceRequested: '✓ Anotado — va a la lista para las próximas lecciones.',
+    startDrill: (n: number) => `Practicar ${n} de estos →`,
+    drillSize: (n: number) => `${n} ítem${n === 1 ? '' : 's'} de tus propios errores`,
+    nothingToDrill: 'Todavía no hay con qué practicar esto — seguí practicando y se va a llenar.',
+    emptyState: 'Todavía no hay errores recurrentes. Practicá unos turnos y esto se llena solo.',
+    backToDashboard: 'Volver al panel',
+  },
   recorder: {
     stopRecording: 'Detener grabación',
     startRecording: 'Iniciar grabación',
@@ -823,6 +853,7 @@ const sv: Dictionary = {
     workOnThis: 'Värt att öva på',
     conquered: 'De här har du besegrat',
     nothingToFix: 'Inga återkommande misstag just nu. Kör på!',
+    practiceThese: '🎯 Öva på dem',
   },
   history: {
     title: 'Dina konversationer',
@@ -1027,6 +1058,19 @@ const sv: Dictionary = {
     notAvailable:
       'Det finns inte tillräckligt med lektioner i det här språket än för att placera dig rättvist. Nivån du valde gäller.',
     setItYourself: 'Välja nivå själv',
+  },
+  problemAreas: {
+    title: 'Dina svaga punkter',
+    subtitle: 'Misstagen som kommer tillbaka, värst först — och en kort övning byggd på dem.',
+    timesSeen: (n: number) => `${n}×`,
+    nothingStoredYet: 'Det finns inget sparat som övar det här än.',
+    requestPractice: 'Jag vill öva på det här',
+    practiceRequested: '✓ Noterat — det hamnar på listan för nästa lektioner.',
+    startDrill: (n: number) => `Öva ${n} av dem →`,
+    drillSize: (n: number) => `${n} sak${n === 1 ? '' : 'er'} från dina egna misstag`,
+    nothingToDrill: 'Inget att öva på härifrån än — fortsätt öva så fylls det på.',
+    emptyState: 'Inga återkommande misstag än. Öva några turer så fyller det här sig självt.',
+    backToDashboard: 'Tillbaka till panelen',
   },
   recorder: {
     stopRecording: 'Stoppa inspelning',

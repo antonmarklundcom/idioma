@@ -51,6 +51,64 @@ export async function logUsage(userId: string, kind: string, amount = 1): Promis
   await db.insert(usageLog).values({ userId, kind, amount });
 }
 
+/** Every content-gap row is `content_gap:<patternKey>`; the prefix is the only index. */
+export const CONTENT_GAP_PREFIX = 'content_gap:';
+
+/**
+ * Content gaps (ROADMAP.md P1.5b follow-on item 5): a recurring mistake with nothing
+ * stored that practises it. Logged as `content_gap:<patternKey>` so the next
+ * curriculum pack is written against what the family actually gets wrong, rather than
+ * against a guess - and so it needs no table of its own.
+ *
+ * At most one row per user per pattern per day: the automatic detection runs every
+ * time the problem-areas page is opened, and a learner who opens it six times has not
+ * asked for six lessons.
+ */
+export async function logContentGap(userId: string, patternKey: string): Promise<void> {
+  const kind = `${CONTENT_GAP_PREFIX}${patternKey}`;
+  const [existing] = await db
+    .select({ id: usageLog.id })
+    .from(usageLog)
+    .where(
+      and(
+        eq(usageLog.userId, userId),
+        eq(usageLog.kind, kind),
+        gte(usageLog.createdAt, startOfUtcDay()),
+      ),
+    )
+    .limit(1);
+  if (existing) return;
+  await db.insert(usageLog).values({ userId, kind });
+}
+
+export type ContentGapSummary = {
+  patternKey: string;
+  /** How many days a learner has hit this with nothing to practise it. */
+  requests: number;
+  learners: number;
+};
+
+/** The gaps worth writing lessons for, most-requested first (the /admin panel). */
+export async function getContentGaps(limit = 10): Promise<ContentGapSummary[]> {
+  const rows = await db
+    .select({
+      kind: usageLog.kind,
+      requests: sql<number>`count(*)`,
+      learners: sql<number>`count(distinct ${usageLog.userId})`,
+    })
+    .from(usageLog)
+    .where(sql`${usageLog.kind} like ${CONTENT_GAP_PREFIX + '%'}`)
+    .groupBy(usageLog.kind)
+    .orderBy(sql`count(*) desc`)
+    .limit(limit);
+
+  return rows.map((row) => ({
+    patternKey: row.kind.slice(CONTENT_GAP_PREFIX.length),
+    requests: Number(row.requests),
+    learners: Number(row.learners),
+  }));
+}
+
 export async function getMonthlyTtsCharCount(): Promise<number> {
   const [row] = await db
     .select({ total: sql<number>`coalesce(sum(${usageLog.amount}), 0)` })
@@ -106,6 +164,8 @@ export type AdminUsageSummary = {
   monthlyTtsCharCount: number;
   perUserToday: AdminUsagePerUser[];
   dailySeries: AdminUsageDailyPoint[];
+  /** What learners tried to practise and found nothing for - the content backlog. */
+  contentGaps: ContentGapSummary[];
 };
 
 // PLAN.md §6.5: early-warning dashboard, not a per-user metering feature. Reads
@@ -115,7 +175,7 @@ export async function getAdminUsageSummary(): Promise<AdminUsageSummary> {
   const seriesStart = new Date(todayStart);
   seriesStart.setUTCDate(seriesStart.getUTCDate() - 13);
 
-  const [perUserToday, seriesRows, monthlyTtsCharCount] = await Promise.all([
+  const [perUserToday, seriesRows, monthlyTtsCharCount, contentGaps] = await Promise.all([
     db
       .select({
         userId: usageLog.userId,
@@ -147,6 +207,7 @@ export async function getAdminUsageSummary(): Promise<AdminUsageSummary> {
       )
       .groupBy(sql`to_char(${usageLog.createdAt} at time zone 'UTC', 'YYYY-MM-DD')`, usageLog.kind),
     getMonthlyTtsCharCount(),
+    getContentGaps(),
   ]);
 
   const byDate = new Map<string, AdminUsageDailyPoint>();
@@ -175,5 +236,6 @@ export async function getAdminUsageSummary(): Promise<AdminUsageSummary> {
       lessonAttemptsToday: Number(r.lessonAttemptsToday),
     })),
     dailySeries: Array.from(byDate.values()),
+    contentGaps,
   };
 }

@@ -36,6 +36,16 @@ export const preferencesSchema = z.object({
 
 export type PreferencesInput = z.infer<typeof preferencesSchema>;
 
+// --- /api/content-gap -------------------------------------------------------
+/**
+ * "I want practice on this": the pattern key of a recurring mistake the learner wants
+ * lessons for. Bounded like every other client-supplied string - it becomes a
+ * `usage_log.kind`, and an unbounded one would be a free write into that column.
+ */
+export const contentGapRequestSchema = z.object({
+  patternKey: z.string().trim().min(1).max(120),
+});
+
 // --- /api/lesson/attempt (PLAN.md §2, §4.1) ---------------------------------
 
 /** Typed answers (the §13.4 "type instead" fallback) are bounded: one utterance, not an essay. */
