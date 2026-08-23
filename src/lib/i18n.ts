@@ -207,6 +207,18 @@ const en = {
     sayItAgain: '↻ Say it again',
     secondAttempt: 'Second attempt',
     secondAttemptDone: 'Second attempt recorded',
+    // Attempt 1 vs attempt 2: without the comparison, the retry quietly erases the
+    // evidence that the second go was better.
+    attemptComparison: 'First vs second',
+    attemptDelta: (first: number, latest: number) =>
+      `${first} mistake${first === 1 ? '' : 's'} → ${latest}`,
+    attemptTrend: {
+      improved: 'Better the second time.',
+      same: 'Same as the first go.',
+      worse: 'The first go was closer.',
+    },
+    retriesImproved: (improved: number, retried: number) =>
+      `You improved on ${improved} of ${retried} second attempt${retried === 1 ? '' : 's'}.`,
     scorecard: (clean: number, total: number) => `${clean} of ${total} exercises clean`,
     scorecardPerfect: 'Every exercise clean. That is a mastered lesson.',
     rememberThis: 'The one sentence to remember',
@@ -519,6 +531,16 @@ const es: Dictionary = {
     sayItAgain: '↻ Decilo de nuevo',
     secondAttempt: 'Segundo intento',
     secondAttemptDone: 'Segundo intento grabado',
+    attemptComparison: 'Primero vs segundo',
+    attemptDelta: (first: number, latest: number) =>
+      `${first} error${first === 1 ? '' : 'es'} → ${latest}`,
+    attemptTrend: {
+      improved: 'Mejor en el segundo intento.',
+      same: 'Igual que la primera vez.',
+      worse: 'El primer intento estuvo más cerca.',
+    },
+    retriesImproved: (improved: number, retried: number) =>
+      `Mejoraste en ${improved} de ${retried} ${retried === 1 ? 'segundo intento' : 'segundos intentos'}.`,
     scorecard: (clean: number, total: number) => `${clean} de ${total} ejercicios sin errores`,
     scorecardPerfect: 'Todos los ejercicios sin errores. Eso es una lección dominada.',
     rememberThis: 'La frase para acordarte',
@@ -829,6 +851,16 @@ const sv: Dictionary = {
     sayItAgain: '↻ Säg det igen',
     secondAttempt: 'Andra försöket',
     secondAttemptDone: 'Andra försöket inspelat',
+    attemptComparison: 'Första mot andra',
+    attemptDelta: (first: number, latest: number) =>
+      `${first} fel → ${latest}`,
+    attemptTrend: {
+      improved: 'Bättre andra gången.',
+      same: 'Samma som första gången.',
+      worse: 'Första försöket var närmare.',
+    },
+    retriesImproved: (improved: number, retried: number) =>
+      `Du blev bättre på ${improved} av ${retried} andra försök.`,
     scorecard: (clean: number, total: number) => `${clean} av ${total} övningar felfria`,
     scorecardPerfect: 'Alla övningar felfria. Det är en behärskad lektion.',
     rememberThis: 'Meningen att komma ihåg',

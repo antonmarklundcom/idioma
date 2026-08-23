@@ -15,6 +15,7 @@ import type { CoachingProfile } from '@/lib/db/schema';
 import type { PlayerDialogue, PlayerExercise } from '@/lib/lessons';
 import type { LessonVocabItem } from '@/lib/srs';
 import type { LessonAttemptResponse, LessonCompleteResponse } from '@/types';
+import { attemptTrend, countImprovedRetries } from '@/lib/attemptComparison';
 import { t, type Locale } from '@/lib/i18n';
 
 /** §3.4 desirable difficulty: a listening clip can be replayed, but not indefinitely. */
@@ -47,7 +48,13 @@ const stepKey = (exercise: PlayerExercise) => `${exercise.kind === 'dialogue' ? 
 
 /** What one exercise ended up looking like, for the end-of-lesson scorecard. */
 type ExerciseResult = {
+  /** Mistakes on the most recent attempt - what the scorecard grades. */
   errorCount: number;
+  /**
+   * Mistakes on the FIRST attempt, kept whatever the retry does to them. Without it
+   * the retry silently erases the only evidence that the second go was better.
+   */
+  firstErrorCount: number;
   /** The tutor's version of what they said - the sentence worth remembering. */
   corrected: string;
   attempts: number;
@@ -150,6 +157,9 @@ export function LessonPlayer({
 
   const exercise: PlayerExercise | null = isGuided ? (exercises[step] ?? null) : null;
   const isLastExercise = isGuided && step === exercises.length - 1;
+  // Only ever set once a retry has landed on THIS step, which is the only time the
+  // two attempts can be put side by side.
+  const currentResult = exercise ? results[stepKey(exercise)] : undefined;
 
   // PLAN.md §8: 429 (daily cap) and timeouts get their own copy - a stuck request
   // reads very differently to a learner than "you're out of turns for today".
@@ -321,12 +331,15 @@ export function LessonPlayer({
         setAttempts((n) => n + 1);
         setResults((current) => {
           const key = stepKey(exercise);
+          const previous = current[key];
           return {
             ...current,
             [key]: {
               errorCount: data.errors.length,
+              // Set once, on the first attempt, and carried through every retry.
+              firstErrorCount: previous?.firstErrorCount ?? data.errors.length,
               corrected: data.correctedUtterance,
-              attempts: (current[key]?.attempts ?? 0) + 1,
+              attempts: (previous?.attempts ?? 0) + 1,
             },
           };
         });
@@ -405,6 +418,8 @@ export function LessonPlayer({
     const cleanCount = attempted.filter((r) => r.errorCount === 0).length;
     // "The one sentence to remember" is the tutor's version of the turn that went
     // worst - one thing to carry away beats a list nobody rereads.
+    // Item: the retry is only worth offering if the learner can see it working.
+    const { improved, retried } = countImprovedRetries(attempted);
     const worst = attempted.reduce<ExerciseResult | null>(
       (acc, r) => (r.errorCount > 0 && (!acc || r.errorCount > acc.errorCount) ? r : acc),
       null,
@@ -439,6 +454,11 @@ export function LessonPlayer({
                 );
               })}
             </div>
+            {retried > 0 && (
+              <p className="text-sm font-bold text-ink-muted">
+                {strings.retriesImproved(improved, retried)}
+              </p>
+            )}
             {worst ? (
               <div className="card w-full py-3">
                 <p className="text-xs font-bold tracking-wide text-ink-muted uppercase">
@@ -708,6 +728,31 @@ export function LessonPlayer({
         <p className="text-sm font-semibold text-brand-700 dark:text-brand-300" aria-live="polite">
           {errorMessage}
         </p>
+      )}
+
+      {feedback && currentResult && currentResult.attempts > 1 && (
+        <div
+          className={`flex w-full max-w-lg items-center justify-between gap-3 rounded-2xl border-2 px-4 py-3 ${
+            attemptTrend(currentResult.firstErrorCount, currentResult.errorCount) === 'improved'
+              ? 'border-success-500 bg-success-100 dark:bg-success-500/20'
+              : 'border-surface-muted bg-surface-muted'
+          }`}
+          aria-live="polite"
+        >
+          <span className="text-xs font-bold tracking-wide text-ink-muted uppercase">
+            {strings.attemptComparison}
+          </span>
+          <span className="flex flex-col items-end">
+            <span className="font-extrabold text-ink">
+              {strings.attemptDelta(currentResult.firstErrorCount, currentResult.errorCount)}
+            </span>
+            <span className="text-xs font-semibold text-ink-muted">
+              {strings.attemptTrend[
+                attemptTrend(currentResult.firstErrorCount, currentResult.errorCount)
+              ]}
+            </span>
+          </span>
+        </div>
       )}
 
       {feedback && (
