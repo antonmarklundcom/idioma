@@ -17,6 +17,7 @@ import type { PlayerDialogue, PlayerExercise } from '@/lib/lessons';
 import type { LessonVocabItem } from '@/lib/srs';
 import type { LessonAttemptResponse, LessonCompleteResponse } from '@/types';
 import { attemptTrend, countImprovedRetries } from '@/lib/attemptComparison';
+import { useUiSounds } from '@/components/ui/useUiSounds';
 import { t, type Locale } from '@/lib/i18n';
 
 /** §3.4 desirable difficulty: a listening clip can be replayed, but not indefinitely. */
@@ -110,7 +111,10 @@ export function LessonPlayer({
   );
   // One flag for every lesson-audio slot: a pair with no configured voice has none of
   // it, and finding that out once is enough for the vocab chips and the dialogue both.
-  const [slotAudioStatus, setSlotAudioStatus] = useState<'idle' | 'unavailable'>('idle');
+  // 'unavailable' = this language has no voice configured, and never will until a
+  // voice is set. 'error' = it should work and didn't (no TTS key, a failed call),
+  // which is a different sentence to the learner and a different fix for the owner.
+  const [slotAudioStatus, setSlotAudioStatus] = useState<'idle' | 'unavailable' | 'error'>('idle');
   const [showDialogue, setShowDialogue] = useState(
     () => lessonId !== undefined && exercises.length > 0 && dialogue !== null,
   );
@@ -140,6 +144,7 @@ export function LessonPlayer({
   const [ownRecordingUrl, setOwnRecordingUrl] = useState<string | null>(null);
   const ownAudioRef = useRef<HTMLAudioElement | null>(null);
   const player = useTutorAudioPlayer();
+  const sound = useUiSounds();
   // PLAN.md §16 defect 1: closes the practice_sessions row when the learner leaves.
   // Finishing a lesson closes it too (via /complete), so the beacon is the backstop
   // for leaving mid-lesson.
@@ -213,7 +218,7 @@ export function LessonPlayer({
    */
   const playSlotAudio = useCallback(
     async (slot: 'vocab' | 'dialogue', index: number, onEnded?: () => void) => {
-      if (!lessonId || slotAudioStatus === 'unavailable') {
+      if (!lessonId || slotAudioStatus !== 'idle') {
         onEnded?.();
         return;
       }
@@ -227,7 +232,10 @@ export function LessonPlayer({
       try {
         const res = await fetch(`/api/lessons/${lessonId}/audio?${slot}=${index}`);
         if (!res.ok) {
-          if (res.status === 409) setSlotAudioStatus('unavailable');
+          // 409 is "this language has no voice"; anything else is a fault worth
+          // naming, rather than a tap that appears to do nothing at all.
+          setSlotAudioStatus(res.status === 409 ? 'unavailable' : 'error');
+          sound('error');
           onEnded?.();
           return;
         }
@@ -238,7 +246,7 @@ export function LessonPlayer({
         onEnded?.();
       }
     },
-    [lessonId, player, slotAudioStatus],
+    [lessonId, player, slotAudioStatus, sound],
   );
 
   const playVocabAudio = useCallback(
@@ -328,6 +336,7 @@ export function LessonPlayer({
         body: JSON.stringify(body),
       });
       if (!result.ok) {
+        sound('error');
         setErrorMessage(messageForError(result.kind, result.message ?? strings.couldntAnalyze));
         setStatus('error');
         return;
@@ -335,6 +344,8 @@ export function LessonPlayer({
 
       const data = result.data;
       markTurnRecorded();
+      // Before the tutor's voice, not over it: a short chime, then the reply.
+      sound(data.errors.length === 0 ? 'success' : 'miss');
       setFeedback(data);
       if (isGuided && exercise) {
         // A retry REPLACES the exercise's result: the question the scorecard answers
@@ -369,7 +380,18 @@ export function LessonPlayer({
       }
       router.refresh(); // updates the app-shell header's DailyGoalRing/StreakBadge
     },
-    [isGuided, exercise, lessonId, promptContext, player, router, markTurnRecorded, strings, messageForError],
+    [
+      isGuided,
+      exercise,
+      lessonId,
+      promptContext,
+      player,
+      router,
+      markTurnRecorded,
+      strings,
+      messageForError,
+      sound,
+    ],
   );
 
   const goToNextExercise = useCallback(() => {
@@ -418,9 +440,10 @@ export function LessonPlayer({
       onFinished(xpEarned + result.data.gamification.xpAwarded);
       return;
     }
+    sound('complete');
     setSummary(result.data);
     setCelebrationMessage(strings.lessonCompleteCelebration);
-  }, [lessonId, router, strings, messageForError, onFinished, xpEarned]);
+  }, [lessonId, router, strings, messageForError, onFinished, xpEarned, sound]);
 
   if (summary) {
     // The scorecard (ROADMAP.md lesson-loop item 3). Counted over the exercises that
@@ -528,6 +551,7 @@ export function LessonPlayer({
         vocab={vocab}
         locale={locale}
         playTerm={playVocabTerm}
+        audioBroken={slotAudioStatus !== 'idle'}
         onExit={() => setShadowing(false)}
       />
     );
@@ -539,7 +563,11 @@ export function LessonPlayer({
         <div className="flex flex-col gap-1">
           <h2 className="heading-section">{strings.vocabTitle}</h2>
           <p className="text-sm text-ink-muted">
-            {slotAudioStatus === 'unavailable' ? strings.vocabAudioUnavailable : strings.vocabHint}
+            {slotAudioStatus === 'unavailable'
+              ? strings.vocabAudioUnavailable
+              : slotAudioStatus === 'error'
+                ? strings.audioNotWorking
+                : strings.vocabHint}
           </p>
         </div>
 
@@ -549,7 +577,7 @@ export function LessonPlayer({
               <button
                 type="button"
                 onClick={() => playVocabAudio(i)}
-                disabled={slotAudioStatus === 'unavailable'}
+                disabled={slotAudioStatus !== 'idle'}
                 className="card flex w-full items-center justify-between gap-3 text-left transition-transform active:scale-[0.99] disabled:active:scale-100"
               >
                 <span className="flex min-w-0 flex-col">
@@ -597,7 +625,11 @@ export function LessonPlayer({
         <div className="flex flex-col gap-1">
           <h2 className="heading-section">{strings.dialogueTitle}</h2>
           <p className="text-sm text-ink-muted">
-            {slotAudioStatus === 'unavailable' ? strings.vocabAudioUnavailable : strings.dialogueHint}
+            {slotAudioStatus === 'unavailable'
+              ? strings.vocabAudioUnavailable
+              : slotAudioStatus === 'error'
+                ? strings.audioNotWorking
+                : strings.dialogueHint}
           </p>
           {dialogue.setup && <p className="text-sm font-semibold text-ink">{dialogue.setup}</p>}
         </div>
@@ -618,7 +650,7 @@ export function LessonPlayer({
               <button
                 type="button"
                 onClick={() => playDialogueLine(line.index)}
-                disabled={slotAudioStatus === 'unavailable'}
+                disabled={slotAudioStatus !== 'idle'}
                 className={`card flex w-full items-start justify-between gap-3 text-left transition-transform active:scale-[0.99] disabled:active:scale-100 ${
                   dialoguePlaying === line.index ? 'ring-2 ring-brand-400' : ''
                 } ${line.isLearner ? 'border-l-4 border-l-brand-400' : ''}`}
@@ -697,7 +729,7 @@ export function LessonPlayer({
         <button
           type="button"
           onClick={() => playDialogueLine(exercise.index - 1)}
-          disabled={slotAudioStatus === 'unavailable'}
+          disabled={slotAudioStatus !== 'idle'}
           className="card flex w-full max-w-lg items-center justify-between gap-3 text-left transition-transform active:scale-[0.99] disabled:active:scale-100"
         >
           <span className="flex min-w-0 flex-col">
@@ -748,7 +780,10 @@ export function LessonPlayer({
 
       <UtteranceRecorder
         onRecorded={handleRecorded}
-        onBeforeStart={player.unlock}
+        onBeforeStart={() => {
+          player.unlock();
+          sound('listening');
+        }}
         disabled={status === 'sending'}
         sending={status === 'sending'}
         locale={locale}

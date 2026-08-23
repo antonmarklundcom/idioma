@@ -9,6 +9,7 @@ import { useSessionEndBeacon } from '@/components/practice/useSessionEndBeacon';
 import { fetchJson, type ApiErrorKind } from '@/lib/apiError';
 import { FeedbackCard } from '@/components/lesson/FeedbackCard';
 import { useTutorAudioPlayer } from '@/components/lesson/useTutorAudioPlayer';
+import { useUiSounds } from '@/components/ui/useUiSounds';
 import { TEXT_ANSWER_MAX_CHARS } from '@/lib/zodSchemas';
 import type { CoachingProfile } from '@/lib/db/schema';
 import type { ReviewOutcome } from '@/lib/srs';
@@ -54,6 +55,7 @@ export function ReviewSession({
   const [gradedCount, setGradedCount] = useState(0);
   const [done, setDone] = useState(false);
   const player = useTutorAudioPlayer();
+  const sound = useUiSounds();
   // A review round opens a practice session of its own (mode 'review'), so it needs
   // the same leave-close as lessons and live conversation (PLAN.md §16 defect 1).
   const { markTurnRecorded } = useSessionEndBeacon('review');
@@ -86,6 +88,7 @@ export function ReviewSession({
         body: JSON.stringify({ ...input, mode: 'review', reviewItemId: card.id }),
       });
       if (!result.ok) {
+        sound('error');
         setErrorMessage(messageForError(result.kind, result.message ?? strings.couldntCheckAnswer));
         setStatus('error');
         return;
@@ -93,6 +96,7 @@ export function ReviewSession({
 
       const data = result.data;
       markTurnRecorded();
+      sound(data.errors.length === 0 ? 'success' : 'miss');
       setFeedback(data);
       setRevealed(true);
       setXpEarned((xp) => xp + data.gamification.xpAwarded);
@@ -100,7 +104,7 @@ export function ReviewSession({
       if (data.tutorAudioBase64) player.play(data.tutorAudioBase64);
       router.refresh(); // app-shell DailyGoalRing: review turns count toward the goal
     },
-    [card, player, router, markTurnRecorded, strings, messageForError],
+    [card, player, router, markTurnRecorded, strings, messageForError, sound],
   );
 
   const handleRecorded = useCallback(
