@@ -170,8 +170,10 @@ Open follow-ons, in the order they are worth doing:
 - The dialogue and `canDo` are dark until content uses them (see P1.7).
 - `/today` still skips the vocab and dialogue steps: it is time-boxed, and a step is not free
   there. Worth revisiting once the steps have been used in anger.
-- Retry offers no *comparison* between attempt one and attempt two. Showing both would make
-  improvement visible within a single exercise.
+- ~~Retry offers no *comparison* between attempt one and attempt two.~~ SHIPPED: the first
+  attempt's mistake count is kept alongside the latest, shown as "3 mistakes → 0" under the
+  second attempt's feedback, and summed on the scorecard ("you improved on 2 of 3 second
+  attempts"). Client state only - `lib/attemptComparison.ts` holds the arithmetic.
 
 **P1.7 Curriculum expansion via admin import — content task (Opus writes, owner imports)**
 - Opus generates lesson packs as import-ready JSON validated by `npm run lessons:validate`:
