@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { UtteranceRecorder } from '@/components/recorder/UtteranceRecorder';
+import { useUiSounds } from '@/components/ui/useUiSounds';
 import { t, type Locale } from '@/lib/i18n';
 import type { LessonVocabItem } from '@/lib/srs';
 
@@ -19,22 +20,33 @@ export function ShadowRun({
   vocab,
   locale,
   playTerm,
+  audioBroken,
   onExit,
 }: {
   vocab: LessonVocabItem[];
   locale: Locale;
   /** Plays one vocab item by index and calls back when it finishes (or fails). */
   playTerm: (index: number, onEnded: () => void) => void;
+  /**
+   * True once the lesson's audio has failed. Shadowing is "hear it, say it back" -
+   * with nothing to hear there is no exercise, only a mic opening at someone for no
+   * reason, so the run stops and says why.
+   */
+  audioBroken: boolean;
   onExit: () => void;
 }) {
   const strings = t(locale).shadowing;
   const [index, setIndex] = useState(0);
-  const [phase, setPhase] = useState<'listening' | 'speaking' | 'compare'>('listening');
+  // 'paused' is where an unanswered turn lands. It is deliberately a dead end until
+  // the learner taps: the mic reopening on its own, forever, is exactly what walking
+  // away from the phone used to produce.
+  const [phase, setPhase] = useState<'listening' | 'speaking' | 'compare' | 'paused'>('listening');
   const [ownUrl, setOwnUrl] = useState<string | null>(null);
   // Bumped to open the mic without a tap, the moment the native version finishes.
   const [micToken, setMicToken] = useState(0);
   const ownAudioRef = useRef<HTMLAudioElement | null>(null);
 
+  const sound = useUiSounds();
   const item = vocab[index];
   const isLast = index === vocab.length - 1;
 
@@ -56,7 +68,7 @@ export function ShadowRun({
   // Play the word, then hand the mic over. Re-runs when the index changes, which is
   // what makes "next word" a single tap rather than three.
   useEffect(() => {
-    if (phase !== 'listening') return;
+    if (phase !== 'listening' || audioBroken) return;
     let cancelled = false;
     playTerm(index, () => {
       if (cancelled) return;
@@ -66,11 +78,12 @@ export function ShadowRun({
     return () => {
       cancelled = true;
     };
-  }, [phase, index, playTerm]);
+  }, [phase, index, playTerm, audioBroken]);
 
   // Plain functions, not useCallback: the React Compiler memoizes them, and hand-written
   // dependency lists here only stop it from doing so.
   const handleRecorded = (blob: Blob) => {
+    sound('sent');
     setOwnUrl((previous) => {
       if (previous) URL.revokeObjectURL(previous);
       return URL.createObjectURL(blob);
@@ -96,6 +109,19 @@ export function ShadowRun({
   };
 
   if (!item) return null;
+
+  // Nothing to shadow. Said plainly, with the way out, instead of a mic that keeps
+  // opening on a word the learner cannot hear.
+  if (audioBroken) {
+    return (
+      <div className="flex w-full flex-1 flex-col items-center gap-4 py-8">
+        <p className="max-w-sm text-center text-sm text-ink-muted">{strings.audioBroken}</p>
+        <button type="button" onClick={onExit} className="btn-primary">
+          {strings.exit}
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex w-full flex-1 flex-col items-center gap-4 py-6">
@@ -127,6 +153,19 @@ export function ShadowRun({
         </p>
       )}
 
+      {/* The mic opened, heard nothing, and stopped. It does NOT reopen by itself:
+          one unanswered turn means nobody is there, and the next one is a tap. */}
+      {phase === 'paused' && (
+        <div className="flex flex-col items-center gap-2">
+          <p className="text-sm font-semibold text-ink-muted" aria-live="polite">
+            {strings.pausedNoSpeech}
+          </p>
+          <button type="button" onClick={() => goTo(index)} className="btn-primary">
+            {strings.resume}
+          </button>
+        </div>
+      )}
+
       {/* Mounted for the whole run, shown only when it is the learner's turn: the
           recorder auto-starts on a CHANGE of `autoStartToken`, so a component mounted
           with the new value already in hand would sit there waiting for a tap. */}
@@ -136,9 +175,10 @@ export function ShadowRun({
           locale={locale}
           handsFree
           autoStartToken={micToken}
-          // Walking away mid-run just returns the word to the "play it again" state:
-          // nothing was said, so there is nothing to compare.
-          onAbandoned={() => setPhase('listening')}
+          // Nobody spoke. Stop, and wait to be asked again - going back to
+          // 'listening' would replay the word and reopen the mic, and keep doing
+          // that for as long as the learner is out of the room.
+          onAbandoned={() => setPhase('paused')}
         />
       </div>
 

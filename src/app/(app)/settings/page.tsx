@@ -7,6 +7,7 @@ import { getUserLocale } from '@/lib/getUserLocale';
 import { t } from '@/lib/i18n';
 import { AppLanguageSwitcher } from '@/components/settings/AppLanguageSwitcher';
 import { HandsFreeToggle } from '@/components/settings/HandsFreeToggle';
+import { SoundToggle } from '@/components/settings/SoundToggle';
 import { SettingsForm } from '@/components/settings/SettingsForm';
 import { ProfileNotesForm } from '@/components/settings/ProfileNotesForm';
 
@@ -78,6 +79,8 @@ export default async function SettingsPage() {
           locale={locale}
         />
       )}
+
+      <SoundToggle locale={locale} />
 
       {/* PLAN.md §8 Phase 7B item 2 */}
       <HandsFreeToggle initial={user?.handsFreeTurnTaking ?? true} locale={locale} />

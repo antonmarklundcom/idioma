@@ -213,6 +213,9 @@ const en = {
     vocabTitle: 'Words for this lesson',
     vocabHint: 'Tap a word to hear it. Take as long as you like — nothing here is graded.',
     vocabAudioUnavailable: 'Audio is not available for this language yet — read the words instead.',
+    // The difference matters to whoever has to fix it: a language with no voice is
+    // permanent; this is something that should be working and is not.
+    audioNotWorking: 'The sound is not working right now — read the words instead, and tell the owner.',
     startExercises: "I'm ready — start the exercises →",
     shadowTheseWords: '🎤 Shadow these words',
     skipVocab: 'Skip to the exercises',
@@ -281,6 +284,9 @@ const en = {
     // shadowing is worth doing twenty times, which a metered turn would not be.
     progress: (n: number, total: number) => `Word ${n} of ${total}`,
     exit: 'Back to the words',
+    pausedNoSpeech: 'Paused — the mic opened and heard nothing.',
+    resume: 'I am here — play it again',
+    audioBroken: 'Shadowing needs sound, and the sound is not working right now. Tell the owner — the tutor\'s voice needs setting up.',
     listenFirst: 'Listen…',
     nowYou: 'Now you — say it straight back.',
     hearNative: '🔊 The native version',
@@ -368,6 +374,9 @@ const en = {
     timezone: 'Timezone',
     appLanguage: 'App language',
     profileHeading: 'Learning profile',
+    soundEffects: 'Sounds',
+    soundEffectsHint:
+      'Small sounds when you record, when an answer comes back, and when a lesson ends. Saved on this device only.',
     recheckLevel: '🎙️ Check my level by speaking',
     ownerHeading: 'Owner tools',
     ownerHint: 'Model settings, usage against the free tiers, and the lesson importer.',
@@ -626,6 +635,7 @@ const es: Dictionary = {
     vocabTitle: 'Las palabras de esta lección',
     vocabHint: 'Tocá una palabra para escucharla. Tomate el tiempo que quieras — acá no se corrige nada.',
     vocabAudioUnavailable: 'Todavía no hay audio para este idioma — leé las palabras.',
+    audioNotWorking: 'El sonido no está funcionando ahora — leé las palabras y avisale al dueño.',
     startExercises: 'Listo — empezar los ejercicios →',
     shadowTheseWords: '🎤 Repetir estas palabras',
     skipVocab: 'Ir directo a los ejercicios',
@@ -688,6 +698,9 @@ const es: Dictionary = {
   shadowing: {
     progress: (n: number, total: number) => `Palabra ${n} de ${total}`,
     exit: 'Volver a las palabras',
+    pausedNoSpeech: 'En pausa — el micrófono se abrió y no escuchó nada.',
+    resume: 'Acá estoy — reproducilo de nuevo',
+    audioBroken: 'Para repetir hace falta sonido, y el sonido no está funcionando. Avisale al dueño — falta configurar la voz del tutor.',
     listenFirst: 'Escuchá…',
     nowYou: 'Ahora vos — repetilo enseguida.',
     hearNative: '🔊 La versión nativa',
@@ -772,6 +785,9 @@ const es: Dictionary = {
     timezone: 'Zona horaria',
     appLanguage: 'Idioma de la app',
     profileHeading: 'Perfil de aprendizaje',
+    soundEffects: 'Sonidos',
+    soundEffectsHint:
+      'Sonidos cortos al grabar, al recibir una respuesta y al terminar una lección. Se guarda solo en este dispositivo.',
     recheckLevel: '🎙️ Comprobar mi nivel hablando',
     ownerHeading: 'Herramientas del dueño',
     ownerHint: 'Configuración de modelos, uso contra los límites gratuitos e importación de lecciones.',
@@ -1029,6 +1045,7 @@ const sv: Dictionary = {
     vocabTitle: 'Lektionens ord',
     vocabHint: 'Tryck på ett ord för att höra det. Ta den tid du vill — inget rättas här.',
     vocabAudioUnavailable: 'Det finns inget ljud för det här språket än — läs orden i stället.',
+    audioNotWorking: 'Ljudet fungerar inte just nu — läs orden så länge, och säg till ägaren.',
     startExercises: 'Redo — börja övningarna →',
     shadowTheseWords: '🎤 Härma de här orden',
     skipVocab: 'Hoppa till övningarna',
@@ -1091,6 +1108,9 @@ const sv: Dictionary = {
   shadowing: {
     progress: (n: number, total: number) => `Ord ${n} av ${total}`,
     exit: 'Tillbaka till orden',
+    pausedNoSpeech: 'Pausad — mikrofonen öppnades och hörde ingenting.',
+    resume: 'Jag är här — spela upp igen',
+    audioBroken: 'Att härma kräver ljud, och ljudet fungerar inte just nu. Säg till ägaren — lärarens röst behöver ställas in.',
     listenFirst: 'Lyssna…',
     nowYou: 'Nu du — säg det direkt efter.',
     hearNative: '🔊 Så låter det',
@@ -1175,6 +1195,9 @@ const sv: Dictionary = {
     timezone: 'Tidszon',
     appLanguage: 'Appens språk',
     profileHeading: 'Inlärningsprofil',
+    soundEffects: 'Ljud',
+    soundEffectsHint:
+      'Korta ljud när du spelar in, när ett svar kommer tillbaka och när en lektion är klar. Sparas bara på den här enheten.',
     recheckLevel: '🎙️ Kolla min nivå genom att prata',
     ownerHeading: 'Ägarverktyg',
     ownerHint: 'Modellinställningar, förbrukning mot gratisnivåerna och lektionsimporten.',
