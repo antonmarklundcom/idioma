@@ -86,83 +86,131 @@
   {
     "languagePairCode": "es-PY>sv-speaker",
     "level": "A2",
-    "topic": "renting-an-apartment",
-    "title": "Vad ingår i månadshyran?",
+    "topic": "being-a-houseguest",
+    "title": "¿Te ayudo a levantar la mesa?",
     "position": 18,
     "content": {
-      "intro": "Efter den här lektionen kan du ställa frågor om hyreskontrakt, deposition och driftskostnader för en lägenhet. En vanlig missuppfattning bland svenskar är att el och vatten ingår i hyran; i Paraguay betalas elräkningen (ANDE) nästan alltid separat via egen mätare. Använd voseo när du talar med hyresvärden eller mäklaren.",
+      "canDo": "Efter den här lektionen kan du vara gäst hemma hos någon: erbjuda din hjälp, tacka nej vänligt till mer mat och fråga var saker finns.",
+      "intro": "Som gäst förväntas du inte diska, men att erbjuda dig är alltid rätt och sägs alltid två gånger. En svensk fälla är att tacka nej av artighet första gången — här bjuds mat och dryck om och om igen, och det behövs ett vänligt 'ya estoy bien, gracias' för att det ska sluta. Tereré-guampan går laget runt: drick ur den och lämna tillbaka den till den som häller.",
       "vocab": [
         {
-          "term": "el alquiler",
-          "gloss": "hyran / hyresobjektet"
+          "term": "la anfitriona",
+          "gloss": "värdinnan"
         },
         {
-          "term": "el departamento",
-          "gloss": "lägenheten"
+          "term": "el huésped",
+          "gloss": "gästen"
         },
         {
-          "term": "el contrato",
-          "gloss": "hyreskontraktet"
+          "term": "la toalla",
+          "gloss": "handduken"
         },
         {
-          "term": "el depósito de garantía",
-          "gloss": "garantidepositionen"
+          "term": "la almohada",
+          "gloss": "kudden"
         },
         {
-          "term": "las expensas",
-          "gloss": "samfällighetsavgifterna / föreningsavgiften"
+          "term": "el placard",
+          "gloss": "garderoben",
+          "note": "Vanligare än armario i Paraguay"
         },
         {
-          "term": "el medidor de luz",
-          "gloss": "elmätaren"
+          "term": "la guampa",
+          "gloss": "tereré-bägaren",
+          "note": "Går laget runt: drick ur och lämna tillbaka den"
         },
         {
-          "term": "la cochera",
-          "gloss": "parkeringsplatsen / garaget"
+          "term": "el termo",
+          "gloss": "termosen med isvatten"
         },
         {
-          "term": "amoblado",
-          "gloss": "möblerad"
+          "term": "la sobremesa",
+          "gloss": "pratstunden kvar vid bordet efter maten",
+          "note": "Att gå upp direkt efter maten läses som att man har bråttom bort"
         },
         {
-          "term": "la inmobiliaria",
-          "gloss": "fastighetsmäklarfirman"
+          "term": "levantar la mesa",
+          "gloss": "duka av"
         },
         {
-          "term": "incluir",
-          "gloss": "ingå / inkludera",
-          "note": "Voseo presens: vos incluís"
+          "term": "ayudar",
+          "gloss": "hjälpa till",
+          "note": "Voseo presens: vos ayudás"
+        },
+        {
+          "term": "molestar",
+          "gloss": "störa / vara till besvär"
         }
       ],
+      "dialogue": {
+        "setup": "Du bor hos din dotters familj i Asunción. Ni har precis ätit klart.",
+        "learnerSpeaker": "Du",
+        "lines": [
+          {
+            "speaker": "Värdinna",
+            "text": "¿Querés un poco más? Hay bastante todavía.",
+            "gloss": "Hon frågar om du vill ha mer mat."
+          },
+          {
+            "speaker": "Du",
+            "text": "Ya estoy bien, gracias. Estaba riquísimo.",
+            "gloss": "Tacka nej vänligt och säg att maten var jättegod."
+          },
+          {
+            "speaker": "Värdinna",
+            "text": "Dejá los platos ahí, después levantamos la mesa.",
+            "gloss": "Hon säger att du kan lämna tallrikarna."
+          },
+          {
+            "speaker": "Du",
+            "text": "¿Te ayudo a levantar la mesa igual?",
+            "gloss": "Erbjud dig ändå att hjälpa till att duka av."
+          },
+          {
+            "speaker": "Värdinna",
+            "text": "Bueno, dale. Y después tomamos tereré afuera.",
+            "gloss": "Hon tackar ja och föreslår tereré ute på gården."
+          },
+          {
+            "speaker": "Du",
+            "text": "Buenísimo. ¿Dónde dejo la toalla mojada?",
+            "gloss": "Fråga var du ska lägga den blöta handduken."
+          }
+        ]
+      },
       "exercises": [
         {
           "type": "speak_prompt",
-          "prompt": "Fråga mäklaren om lägenheten är ledig för inflyttning från och med nästa månad.",
+          "prompt": "Din värdinna visar dig rummet där du ska bo. Tacka för att du får bo hos dem och fråga var du kan ställa väskan.",
           "targetHints": [
-            "¿El departamento está disponible desde el próximo mes?"
+            "Gracias por recibirme en su casa.",
+            "¿Dónde puedo dejar la valija?"
           ]
         },
         {
           "type": "listen_prompt",
-          "audioText": "El alquiler cuesta dos millones quinientos mil guaraníes y las expensas ya están incluidas.",
-          "prompt": "Mäklaren anger villkoren. Hur mycket är hyran i Gs. och vad är redan inkluderat?"
+          "audioText": "Ponete cómoda: la toalla limpia está en el placard y el baño de visitas es el de la izquierda.",
+          "prompt": "Värdinnan förklarar två saker. Var ligger den rena handduken, och vilket badrum ska du använda?",
+          "targetHints": [
+            "la toalla está en el placard",
+            "el baño de la izquierda"
+          ]
         },
         {
           "type": "fill_gap_speak",
-          "sentence": "¿Vos me ___ mostrar la cochera del edificio?",
-          "prompt": "Fråga hyresvärden om hon kan visa bilplatsen med voseo-formen av poder (podés).",
-          "answer": "¿Vos me podés mostrar la cochera del edificio?",
+          "sentence": "¿Te ___ con los platos?",
+          "prompt": "Erbjud dig att hjälpa till med disken. Använd presens av ayudar i jag-form (ayudo).",
+          "answer": "¿Te ayudo con los platos?",
           "targetHints": [
-            "podés"
+            "ayudo"
           ]
         },
         {
           "type": "speak_prompt",
-          "prompt": "Förklara att du vill hyra lägenheten i ett år. Fråga hyresvärden hur många månaders deposition han kräver och om elräkningen från ANDE betalas separat.",
+          "prompt": "Säg att du gärna hjälper till med frukosten i morgon bitti, och fråga vilken tid familjen brukar äta.",
           "targetHints": [
-            "Quiero alquilar el departamento por un año.",
-            "¿Cuántos meses de depósito de garantía pedís?",
-            "¿La factura de luz de la ANDE se paga aparte?"
+            "Mañana quiero ayudar con el desayuno.",
+            "¿A qué hora desayunan ustedes?"
           ]
         }
       ]

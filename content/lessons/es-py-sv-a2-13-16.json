@@ -259,83 +259,132 @@
   {
     "languagePairCode": "es-PY>sv-speaker",
     "level": "A2",
-    "topic": "repair-and-maintenance",
-    "title": "Min luftkonditionering fungerar inte",
+    "topic": "day-trips-and-excursions",
+    "title": "El domingo vamos a Areguá",
     "position": 16,
     "content": {
-      "intro": "Du lär dig att beskriva tekniska fel i hemmet och boka tid med en reparatör eller rörmokare. Svenskar översätter ofta 'läcka' ordagrant istället för att använda 'perder agua' eller 'tener una pérdida'. I det paraguayanska klimatet bokas hantverksbesök oftast tidigt på morgonen för att undvika eftermiddagshettan.",
+      "canDo": "Efter den här lektionen kan du föreslå en utflykt, fråga hur lång tid resan tar och komma överens om när ni åker och kommer hem.",
+      "intro": "Utflykter planeras muntligt och ofta samma vecka, och avstånd anges i tid snarare än i kilometer: 'una hora por la ruta'. Fällan för svenskar är dubbel — tú-formerna (¿quieres?, ¿puedes?) hörs aldrig här, det heter ¿querés?, ¿podés?, och en avtalad tid är en ungefärlig tid. Fråga hellre en gång för mycket när ni ska vara tillbaka.",
       "vocab": [
         {
-          "term": "el plomero",
-          "gloss": "rörmokaren"
+          "term": "la excursión",
+          "gloss": "utflykten"
         },
         {
-          "term": "el electricista",
-          "gloss": "elektrikern"
+          "term": "el paseo",
+          "gloss": "turen / utflykten",
+          "note": "Vanligare i vardagligt tal än excursión"
         },
         {
-          "term": "la pérdida de agua",
-          "gloss": "vattenläckan"
+          "term": "Areguá",
+          "gloss": "staden vid Ypacaraísjön",
+          "note": "Känd för keramik och jordgubbar; en dryg timme från Asunción"
         },
         {
-          "term": "el caño",
-          "gloss": "röret / vattenledningen"
+          "term": "la laguna",
+          "gloss": "sjön / lagunen"
         },
         {
-          "term": "arreglar",
-          "gloss": "reparera / laga",
-          "note": "Voseo imperativ: arreglá"
+          "term": "la ruta",
+          "gloss": "landsvägen"
         },
         {
-          "term": "el presupuesto",
-          "gloss": "kostnadsförslaget / offerten"
+          "term": "el peaje",
+          "gloss": "vägtullen"
         },
         {
-          "term": "el aire acondicionado",
-          "gloss": "luftkonditioneringen / AC:n"
+          "term": "la merienda",
+          "gloss": "mellanmålet på eftermiddagen"
         },
         {
-          "term": "gotear",
-          "gloss": "droppa / läcka droppar"
+          "term": "el sombrero",
+          "gloss": "hatten / solhatten"
         },
         {
-          "term": "el repuesto",
-          "gloss": "reservdelen"
+          "term": "volver",
+          "gloss": "åka tillbaka",
+          "note": "Voseo presens: vos volvés"
         },
         {
-          "term": "la llave de paso",
-          "gloss": "huvudkranen / avstängningsventilen"
+          "term": "llevar",
+          "gloss": "ta med sig",
+          "note": "Voseo presens: vos llevás"
+        },
+        {
+          "term": "salir temprano",
+          "gloss": "åka tidigt"
         }
       ],
+      "dialogue": {
+        "setup": "Din svärson föreslår en söndagsutflykt medan ni dricker tereré i köket.",
+        "learnerSpeaker": "Du",
+        "lines": [
+          {
+            "speaker": "Svärson",
+            "text": "El domingo podemos ir a Areguá, ¿te gusta la idea?",
+            "gloss": "Han föreslår en utflykt till Areguá på söndag."
+          },
+          {
+            "speaker": "Du",
+            "text": "Sí, me encanta. ¿Cuánto se tarda desde Asunción?",
+            "gloss": "Säg ja och fråga hur lång tid resan tar."
+          },
+          {
+            "speaker": "Svärson",
+            "text": "Como una hora por la ruta, si salimos temprano.",
+            "gloss": "Ungefär en timme, om ni åker tidigt."
+          },
+          {
+            "speaker": "Du",
+            "text": "Perfecto. ¿Qué llevamos para la merienda?",
+            "gloss": "Fråga vad ni ska ta med till mellanmålet."
+          },
+          {
+            "speaker": "Svärson",
+            "text": "Llevá tu sombrero nomás, a la siesta hace mucho calor.",
+            "gloss": "Han säger att du framför allt ska ta med hatt."
+          },
+          {
+            "speaker": "Du",
+            "text": "Bueno, salimos a las siete y volvemos antes de la noche.",
+            "gloss": "Bekräfta avfärdstiden och att ni är hemma före kvällen."
+          }
+        ]
+      },
       "exercises": [
         {
           "type": "speak_prompt",
-          "prompt": "Ring teknikern och säg att din luftkonditionering droppar vatten och inte kyler rummet.",
+          "prompt": "Föreslå för din svärdotter att ni åker till Areguá på söndag, och fråga om hon vill följa med.",
           "targetHints": [
-            "Hola, mi aire acondicionado gotea y no enfría la pieza."
+            "¿Vamos a Areguá el domingo?",
+            "¿Querés venir con nosotros?"
           ]
         },
         {
           "type": "listen_prompt",
-          "audioText": "Puedo pasar mañana a las siete de la mañana para revisar la pérdida del caño.",
-          "prompt": "Rörmokaren föreslår en tid. När tänker han komma och vad ska han undersöka?"
+          "audioText": "Si salimos a las siete llegamos antes del calor, pero acordate de llevar agua y sombrero.",
+          "prompt": "Din granne förklarar planen. När ska ni åka, och vilka två saker ska du ta med dig?",
+          "targetHints": [
+            "salir temprano",
+            "llevar agua y sombrero"
+          ]
         },
         {
           "type": "fill_gap_speak",
-          "sentence": "Decime cuánto ___ por cambiar este repuesto roto.",
-          "prompt": "Fråga hantverkaren vad han tar betalt med voseo-formen av cobrar (cobrás).",
-          "answer": "Decime cuánto cobrás por cambiar este repuesto roto.",
+          "sentence": "¿A qué hora ___ para Asunción?",
+          "prompt": "Fråga när ni åker tillbaka till Asunción. Använd voseo-formen av volver (volvés).",
+          "answer": "¿A qué hora volvés para Asunción?",
           "targetHints": [
-            "cobrás"
+            "volvés"
           ]
         },
         {
           "type": "speak_prompt",
-          "prompt": "Förklara för elektrikern att strömmen bryts varje gång du sätter på ugnen. Fråga om han kan komma förbi före lunch och be honom skicka en offert innan han börjar.",
+          "prompt": "Berätta att du har varit i San Bernardino men aldrig i Areguá. Fråga om det finns keramikbutiker där, och om ni hinner bada i sjön.",
           "targetHints": [
-            "Hola, salta la llave de la luz cada vez que prendo el horno.",
-            "¿Podés venir antes del mediodía a mirar?",
-            "¿Me pasás un presupuesto antes de empezar?"
+            "Estuve en San Bernardino, pero nunca fui a Areguá.",
+            "¿Hay tiendas de cerámica allá?",
+            "¿Nos da el tiempo para bañarnos en la laguna?"
           ]
         }
       ]
