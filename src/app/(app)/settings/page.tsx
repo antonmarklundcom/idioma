@@ -8,6 +8,7 @@ import { t } from '@/lib/i18n';
 import { AppLanguageSwitcher } from '@/components/settings/AppLanguageSwitcher';
 import { HandsFreeToggle } from '@/components/settings/HandsFreeToggle';
 import { SettingsForm } from '@/components/settings/SettingsForm';
+import { ProfileNotesForm } from '@/components/settings/ProfileNotesForm';
 
 // ROADMAP.md P0.2: settings is a form now, not a receipt. Identity (name, email)
 // comes from Google and stays read-only; everything the learner chose about how
@@ -63,6 +64,19 @@ export default async function SettingsPage() {
             {strings.settings.recheckLevel}
           </Link>
         </section>
+      )}
+
+      {/* What the tutor knows about them, and how it explains corrections
+          (ROADMAP.md P1.5b follow-on item 6). */}
+      {user && (
+        <ProfileNotesForm
+          initial={{
+            profileNotes: user.profileNotes,
+            factLearning: user.factLearning,
+            explanationLanguage: user.explanationLanguage,
+          }}
+          locale={locale}
+        />
       )}
 
       {/* PLAN.md §8 Phase 7B item 2 */}

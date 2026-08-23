@@ -4,6 +4,7 @@ import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { languagePairs, users } from '@/lib/db/schema';
 import { onboardingSchema } from '@/lib/zodSchemas';
+import { factsFromOnboardingAnswers } from '@/lib/profileFacts';
 
 export async function GET() {
   const session = await auth();
@@ -33,7 +34,8 @@ export async function PATCH(request: Request) {
       { status: 400 },
     );
   }
-  const { languagePairId, level, coachingProfile, focusSkills, timezone } = parsed.data;
+  const { languagePairId, level, coachingProfile, focusSkills, timezone, profileAnswers } =
+    parsed.data;
 
   const [pair] = await db
     .select()
@@ -46,6 +48,10 @@ export async function PATCH(request: Request) {
     );
   }
 
+  // The three optional questions become facts here rather than in the browser: what a
+  // stored fact looks like is the server's business, and an empty answer is not a fact.
+  const askedFacts = factsFromOnboardingAnswers(profileAnswers ?? {});
+
   const [updated] = await db
     .update(users)
     .set({
@@ -56,6 +62,7 @@ export async function PATCH(request: Request) {
       coachingProfile,
       focusSkills,
       timezone,
+      ...(askedFacts.length > 0 ? { profileNotes: askedFacts } : {}),
     })
     .where(eq(users.id, session.user.id))
     .returning();

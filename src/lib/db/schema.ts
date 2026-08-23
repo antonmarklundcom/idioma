@@ -38,11 +38,31 @@ export const coachingProfileEnum = pgEnum('coaching_profile', [
 // real-time upgrade, funded by the $10 credit) can be enabled for one user without
 // enabling it for everyone.
 export const userTierEnum = pgEnum('user_tier', ['free', 'premium']);
+// Which language a correction is EXPLAINED in. Today it is fixed by the language pair
+// and cannot be changed without changing the pair, which is wrong for a learner who
+// wants the explanation in the language they are learning (or in both).
+export const explanationLanguageEnum = pgEnum('explanation_language', [
+  'native',
+  'target',
+  'both',
+]);
 
 export type CefrLevel = (typeof cefrEnum.enumValues)[number];
 export type CoachingProfile = (typeof coachingProfileEnum.enumValues)[number];
 export type PracticeMode = (typeof modeEnum.enumValues)[number];
 export type UserTier = (typeof userTierEnum.enumValues)[number];
+export type ExplanationLanguage = (typeof explanationLanguageEnum.enumValues)[number];
+
+/**
+ * One thing the tutor knows about the learner. `asked` facts come from the three
+ * optional questions at onboarding; `learned` ones are picked up from conversation,
+ * and only when the learner has turned that on.
+ */
+export type ProfileFact = {
+  id: string;
+  text: string;
+  source: 'asked' | 'learned';
+};
 
 // ---------------------------------------------------------------------------
 // Language-pair config: THE extensibility point. Adding Guaraní later must be
@@ -99,6 +119,17 @@ export const users = pgTable('users', {
   // PLAN.md §15.3. Defaults to 'free' so a new sign-in can never unlock a paid mode
   // by existing; the owner promotes a row by hand.
   tier: userTierEnum('tier').notNull().default('free'),
+  // What the tutor knows about this learner (ROADMAP.md P1.5b follow-on item 6). NULL
+  // until the first fact is stored. Fed into the system prompt the same way
+  // focus_skills is - so no language pair's template has to change.
+  profileNotes: jsonb('profile_notes').$type<ProfileFact[]>(),
+  // Whether the tutor may add to that list from what it hears. Default OFF by owner
+  // decision: a tutor quietly building a profile is something you opt into. The three
+  // facts ASKED for at onboarding are stored regardless - the learner typed them.
+  factLearning: boolean('fact_learning').notNull().default(false),
+  explanationLanguage: explanationLanguageEnum('explanation_language')
+    .notNull()
+    .default('native'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
 

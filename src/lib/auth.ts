@@ -30,6 +30,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       // session the route already has. It is never sent to the browser as a feature
       // flag - the gate is the server check, not this value.
       session.user.tier = user.tier;
+      // What the tutor knows about them, and how they want to be explained to
+      // (ROADMAP.md P1.5b follow-on item 6). Read on every graded turn, so it rides
+      // the session rather than costing the attempt route another query.
+      session.user.profileNotes = user.profileNotes;
+      session.user.factLearning = user.factLearning;
+      session.user.explanationLanguage = user.explanationLanguage;
       return session;
     },
   },

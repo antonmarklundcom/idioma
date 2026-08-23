@@ -1,4 +1,10 @@
-import type { CefrLevel, CoachingProfile, UserTier } from '@/lib/db/schema';
+import type {
+  CefrLevel,
+  CoachingProfile,
+  ExplanationLanguage,
+  ProfileFact,
+  UserTier,
+} from '@/lib/db/schema';
 
 declare module 'next-auth' {
   interface Session {
@@ -12,6 +18,9 @@ declare module 'next-auth' {
       timezone: string | null;
       handsFreeTurnTaking: boolean;
       tier: UserTier;
+      profileNotes: ProfileFact[] | null;
+      factLearning: boolean;
+      explanationLanguage: ExplanationLanguage;
       name?: string | null;
       email?: string | null;
       image?: string | null;
@@ -27,5 +36,8 @@ declare module 'next-auth' {
     timezone: string | null;
     handsFreeTurnTaking: boolean;
     tier: UserTier;
+    profileNotes: ProfileFact[] | null;
+    factLearning: boolean;
+    explanationLanguage: ExplanationLanguage;
   }
 }

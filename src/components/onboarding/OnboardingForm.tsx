@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { focusSkillValues } from '@/lib/zodSchemas';
+import { focusSkillValues, PROFILE_FACT_MAX_CHARS } from '@/lib/zodSchemas';
 import { t, type Locale } from '@/lib/i18n';
 
 type LanguagePairOption = {
@@ -32,6 +32,11 @@ export function OnboardingForm({
     'confidence_first',
   );
   const [focusSkills, setFocusSkills] = useState<string[]>(['speaking-confidence']);
+  // Three optional answers the tutor keeps, so it can pick topics that are actually
+  // about this person (ROADMAP.md P1.5b follow-on item 6). All three can be left blank.
+  const [job, setJob] = useState('');
+  const [city, setCity] = useState('');
+  const [caresAbout, setCaresAbout] = useState('');
   // Starts as 'UTC' (matches the server's render) and is corrected client-side after
   // mount, so the server-rendered HTML and the first client render agree - computing
   // the browser's real timezone directly in useState's initializer diverges from the
@@ -67,7 +72,14 @@ export function OnboardingForm({
       const res = await fetch('/api/me', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ languagePairId, level, coachingProfile, focusSkills, timezone }),
+        body: JSON.stringify({
+          languagePairId,
+          level,
+          coachingProfile,
+          focusSkills,
+          timezone,
+          profileAnswers: { job, city, caresAbout },
+        }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -177,6 +189,29 @@ export function OnboardingForm({
             </button>
           ))}
         </div>
+      </fieldset>
+
+      <fieldset className="flex flex-col gap-3">
+        <legend className="heading-section">{strings.aboutYouHeading}</legend>
+        <p className="text-sm text-ink-muted">{strings.aboutYouHint}</p>
+        {(
+          [
+            ['job', strings.aboutYouJob, job, setJob],
+            ['city', strings.aboutYouCity, city, setCity],
+            ['cares', strings.aboutYouCares, caresAbout, setCaresAbout],
+          ] as const
+        ).map(([key, label, value, setValue]) => (
+          <label key={key} className="flex flex-col gap-1">
+            <span className="text-sm font-semibold text-ink">{label}</span>
+            <input
+              type="text"
+              value={value}
+              maxLength={PROFILE_FACT_MAX_CHARS}
+              onChange={(e) => setValue(e.target.value)}
+              className="rounded-2xl border-2 border-line bg-surface px-4 py-3 text-ink shadow-card"
+            />
+          </label>
+        ))}
       </fieldset>
 
       <p className="text-xs text-ink-muted">{strings.timezoneNote(timezone)}</p>

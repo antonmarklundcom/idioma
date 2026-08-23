@@ -16,9 +16,11 @@ import { tierAllowsMode } from '@/lib/tier';
 import {
   assembleSystemPrompt,
   buildReviewPromptContext,
+  FACT_LEARNING_INSTRUCTION,
   FREE_PRACTICE_LESSON_CONTEXT,
   QUICK_REPLY_INSTRUCTION,
 } from '@/lib/gemini/prompts';
+import { saveLearnedFact } from '@/lib/profileFacts';
 import {
   buildDialoguePromptContext,
   buildExercisePromptContext,
@@ -208,15 +210,19 @@ export async function POST(request: Request) {
     lessonContext = builtContext;
   }
 
-  const systemPrompt = assembleSystemPrompt({
-    pair,
-    mode,
-    level: session.user.level ?? 'A1',
-    coachingProfile: session.user.coachingProfile,
-    focusSkills: session.user.focusSkills,
-    recurringErrors: recurringErrorRows,
-    lessonContext,
-  });
+  const factLearning = session.user.factLearning;
+  const systemPrompt =
+    assembleSystemPrompt({
+      pair,
+      mode,
+      level: session.user.level ?? 'A1',
+      coachingProfile: session.user.coachingProfile,
+      focusSkills: session.user.focusSkills,
+      profileNotes: session.user.profileNotes,
+      explanationLanguage: session.user.explanationLanguage,
+      recurringErrors: recurringErrorRows,
+      lessonContext,
+    }) + (factLearning ? FACT_LEARNING_INSTRUCTION : '');
 
   const callArgs = {
     provider: taskConfig.provider,
@@ -327,6 +333,13 @@ export async function POST(request: Request) {
   // response were computed above from reads taken before the model call; the writes
   // below only make them durable.
   const persistedFeedback = feedback;
+  // A fact the learner volunteered, stored only if they asked the tutor to remember
+  // things (default off). Its own after() so a failure here cannot take the turn's
+  // own writes down with it.
+  if (factLearning && typeof persistedFeedback.learnedFact === 'string') {
+    const fact = persistedFeedback.learnedFact;
+    after(() => saveLearnedFact(userId, fact));
+  }
   after(async () => {
     await persistTurn({
       userId,
