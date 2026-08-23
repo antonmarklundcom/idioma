@@ -112,6 +112,9 @@ const en = {
     whatLearning: 'What are you learning?',
     currentLevel: 'Current level',
     levelHint: "Not sure? A1 is total beginner — that's a perfectly good place to start.",
+    placementTitle: '🎙️ Let me check by speaking instead',
+    placementDesc:
+      'Two minutes, four to six short things to say out loud. We suggest a level, you decide.',
     coachHeading: 'How should your tutor coach you?',
     gentleTitle: 'I want gentle encouragement — help me dare to speak',
     gentleDesc:
@@ -278,6 +281,30 @@ const en = {
     tryAgain: '↻ Try this one again',
     finish: 'Done shadowing',
   },
+  placement: {
+    // The spoken level check. It SUGGESTS; the learner confirms.
+    title: 'Where should you start?',
+    subtitle:
+      'A few short things to say out loud, getting harder as you go. Say as much as you can — if one is beyond you, that is the answer we are looking for.',
+    taskOf: (n: number, total: number) => `Task ${n} of ${total}`,
+    listening: 'Listening…',
+    couldntAnalyze: "Couldn't analyze that recording. Try again.",
+    networkError: 'Network error - please try again.',
+    rateLimited: "You've reached today's practice limit — come back tomorrow to finish this.",
+    timedOut: 'That is taking longer than usual. Check your connection and try again.',
+    couldntSave: "Couldn't save your level. Try again.",
+    resultKicker: 'From how that went, we would start you at',
+    resultExplanation: (tasks: number) =>
+      `Based on ${tasks} spoken task${tasks === 1 ? '' : 's'}. You can change this any time in Settings.`,
+    adjust: 'Or choose your own',
+    startHere: (level: string) => `Start at ${level}`,
+    saving: 'Saving…',
+    skip: 'Skip this for now',
+    skipKeeping: (level: string) => `Skip — keep me at ${level}`,
+    notAvailable:
+      'There are not enough lessons in this language yet to place you fairly. The level you chose stands.',
+    setItYourself: 'Set my level myself',
+  },
   recorder: {
     stopRecording: 'Stop recording',
     startRecording: 'Start recording',
@@ -296,6 +323,7 @@ const en = {
     timezone: 'Timezone',
     appLanguage: 'App language',
     profileHeading: 'Learning profile',
+    recheckLevel: '🎙️ Check my level by speaking',
     ownerHeading: 'Owner tools',
     ownerHint: 'Model settings, usage against the free tiers, and the lesson importer.',
     saveChanges: 'Save changes',
@@ -454,6 +482,9 @@ const es: Dictionary = {
     whatLearning: '¿Qué estás aprendiendo?',
     currentLevel: 'Nivel actual',
     levelHint: '¿No estás segura? A1 es principiante total — es un buen lugar para empezar.',
+    placementTitle: '🎙️ Mejor comprobalo hablando',
+    placementDesc:
+      'Dos minutos, cuatro a seis cosas cortas para decir en voz alta. Nosotros sugerimos un nivel, vos decidís.',
     coachHeading: '¿Cómo querés que te guíe tu tutor?',
     gentleTitle: 'Quiero ánimo suave — ayudame a animarme a hablar',
     gentleDesc:
@@ -613,6 +644,29 @@ const es: Dictionary = {
     tryAgain: '↻ Probar esta de nuevo',
     finish: 'Listo',
   },
+  placement: {
+    title: '¿Por dónde empezar?',
+    subtitle:
+      'Unas cuantas cosas cortas para decir en voz alta, cada vez más difíciles. Decí todo lo que puedas — si una te queda grande, eso es justamente lo que queremos saber.',
+    taskOf: (n: number, total: number) => `Tarea ${n} de ${total}`,
+    listening: 'Escuchando…',
+    couldntAnalyze: 'No se pudo analizar esa grabación. Probá de nuevo.',
+    networkError: 'Error de red - probá de nuevo.',
+    rateLimited: 'Llegaste al límite de práctica de hoy — volvé mañana para terminar esto.',
+    timedOut: 'Está tardando más de lo normal. Revisá tu conexión y probá de nuevo.',
+    couldntSave: 'No se pudo guardar tu nivel. Probá de nuevo.',
+    resultKicker: 'Por cómo salió, te empezaríamos en',
+    resultExplanation: (tasks: number) =>
+      `Según ${tasks} tarea${tasks === 1 ? '' : 's'} habladas. Podés cambiarlo cuando quieras en Ajustes.`,
+    adjust: 'O elegí vos',
+    startHere: (level: string) => `Empezar en ${level}`,
+    saving: 'Guardando…',
+    skip: 'Dejarlo para después',
+    skipKeeping: (level: string) => `Saltar — dejame en ${level}`,
+    notAvailable:
+      'Todavía no hay suficientes lecciones en este idioma para ubicarte con justicia. Queda el nivel que elegiste.',
+    setItYourself: 'Elegir mi nivel yo misma',
+  },
   recorder: {
     stopRecording: 'Detener grabación',
     startRecording: 'Iniciar grabación',
@@ -631,6 +685,7 @@ const es: Dictionary = {
     timezone: 'Zona horaria',
     appLanguage: 'Idioma de la app',
     profileHeading: 'Perfil de aprendizaje',
+    recheckLevel: '🎙️ Comprobar mi nivel hablando',
     ownerHeading: 'Herramientas del dueño',
     ownerHint: 'Configuración de modelos, uso contra los límites gratuitos e importación de lecciones.',
     saveChanges: 'Guardar cambios',
@@ -788,6 +843,9 @@ const sv: Dictionary = {
     whatLearning: 'Vad lär du dig?',
     currentLevel: 'Nuvarande nivå',
     levelHint: 'Osäker? A1 är nybörjarnivå — det är en perfekt plats att börja på.',
+    placementTitle: '🎙️ Kolla genom att prata i stället',
+    placementDesc:
+      'Två minuter, fyra till sex korta saker att säga högt. Vi föreslår en nivå, du bestämmer.',
     coachHeading: 'Hur ska din handledare coacha dig?',
     gentleTitle: 'Jag vill ha mild uppmuntran — hjälp mig våga prata',
     gentleDesc:
@@ -947,6 +1005,29 @@ const sv: Dictionary = {
     tryAgain: '↻ Ta om det här ordet',
     finish: 'Klar',
   },
+  placement: {
+    title: 'Var ska du börja?',
+    subtitle:
+      'Några korta saker att säga högt, som blir svårare efter hand. Säg så mycket du kan — om någon är för svår är det just det vi vill veta.',
+    taskOf: (n: number, total: number) => `Uppgift ${n} av ${total}`,
+    listening: 'Lyssnar…',
+    couldntAnalyze: 'Kunde inte analysera inspelningen. Försök igen.',
+    networkError: 'Nätverksfel - försök igen.',
+    rateLimited: 'Du har nått dagens övningsgräns — kom tillbaka i morgon och gör klart det här.',
+    timedOut: 'Det tar längre tid än vanligt. Kolla din uppkoppling och försök igen.',
+    couldntSave: 'Kunde inte spara din nivå. Försök igen.',
+    resultKicker: 'Utifrån hur det gick skulle vi börja dig på',
+    resultExplanation: (tasks: number) =>
+      `Baserat på ${tasks} talad${tasks === 1 ? '' : 'e'} uppgift${tasks === 1 ? '' : 'er'}. Du kan ändra det när som helst i Inställningar.`,
+    adjust: 'Eller välj själv',
+    startHere: (level: string) => `Börja på ${level}`,
+    saving: 'Sparar…',
+    skip: 'Hoppa över just nu',
+    skipKeeping: (level: string) => `Hoppa över — behåll ${level}`,
+    notAvailable:
+      'Det finns inte tillräckligt med lektioner i det här språket än för att placera dig rättvist. Nivån du valde gäller.',
+    setItYourself: 'Välja nivå själv',
+  },
   recorder: {
     stopRecording: 'Stoppa inspelning',
     startRecording: 'Starta inspelning',
@@ -965,6 +1046,7 @@ const sv: Dictionary = {
     timezone: 'Tidszon',
     appLanguage: 'Appens språk',
     profileHeading: 'Inlärningsprofil',
+    recheckLevel: '🎙️ Kolla min nivå genom att prata',
     ownerHeading: 'Ägarverktyg',
     ownerHint: 'Modellinställningar, förbrukning mot gratisnivåerna och lektionsimporten.',
     saveChanges: 'Spara ändringar',

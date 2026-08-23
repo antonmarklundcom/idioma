@@ -24,6 +24,10 @@ export function OnboardingForm({
   const router = useRouter();
   const [languagePairId, setLanguagePairId] = useState(languagePairs[0]?.id ?? '');
   const [level, setLevel] = useState<(typeof CEFR_LEVELS)[number]>('A1');
+  // "What level are you?" is a question almost nobody can answer about themselves.
+  // The chips stay for the people who can; everyone else can talk for two minutes
+  // and let the app suggest one (ROADMAP.md P1.5b follow-on item 4).
+  const [takePlacement, setTakePlacement] = useState(false);
   const [coachingProfile, setCoachingProfile] = useState<'confidence_first' | 'accuracy_focus'>(
     'confidence_first',
   );
@@ -70,7 +74,7 @@ export function OnboardingForm({
         setError(data.error ?? strings.genericError);
         return;
       }
-      router.push('/today');
+      router.push(takePlacement ? '/placement' : '/today');
       router.refresh();
     } finally {
       setSubmitting(false);
@@ -115,6 +119,18 @@ export function OnboardingForm({
           ))}
         </div>
         <p className="text-sm text-ink-muted">{strings.levelHint}</p>
+        <label className="flex cursor-pointer items-start gap-3 rounded-2xl border-2 border-line bg-surface px-4 py-3.5 shadow-card has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50 dark:has-[:checked]:bg-brand-900/25">
+          <input
+            type="checkbox"
+            className="mt-1"
+            checked={takePlacement}
+            onChange={() => setTakePlacement((on) => !on)}
+          />
+          <span>
+            <span className="block font-bold text-ink">{strings.placementTitle}</span>
+            <span className="block text-sm text-ink-muted">{strings.placementDesc}</span>
+          </span>
+        </label>
       </fieldset>
 
       <fieldset className="flex flex-col gap-3">

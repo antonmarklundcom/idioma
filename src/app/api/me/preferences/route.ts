@@ -28,7 +28,11 @@ export async function PATCH(request: Request) {
     .update(users)
     .set(parsed.data)
     .where(eq(users.id, session.user.id))
-    .returning({ handsFreeTurnTaking: users.handsFreeTurnTaking, uiLocale: users.uiLocale });
+    .returning({
+      handsFreeTurnTaking: users.handsFreeTurnTaking,
+      uiLocale: users.uiLocale,
+      level: users.level,
+    });
 
   return NextResponse.json({ preferences: updated });
 }

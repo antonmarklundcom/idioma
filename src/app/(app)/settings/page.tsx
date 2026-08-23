@@ -57,6 +57,11 @@ export default async function SettingsPage() {
               timezone: user.timezone,
             }}
           />
+          {/* The level above is a self-assessment. This is the same question answered
+              by speaking, and it is the only way back to the check after onboarding. */}
+          <Link href="/placement" className="btn-secondary btn-sm self-start">
+            {strings.settings.recheckLevel}
+          </Link>
         </section>
       )}
 
