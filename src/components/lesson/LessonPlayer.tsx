@@ -8,6 +8,7 @@ import { blobToBase64 } from '@/components/recorder/blobToBase64';
 import { useSessionEndBeacon } from '@/components/practice/useSessionEndBeacon';
 import { fetchJson, type ApiErrorKind } from '@/lib/apiError';
 import { FeedbackCard } from './FeedbackCard';
+import { ShadowRun } from './ShadowRun';
 import { useTutorAudioPlayer } from './useTutorAudioPlayer';
 import { XpToast } from '@/components/gamification/XpToast';
 import { Celebration } from '@/components/gamification/Celebration';
@@ -116,6 +117,8 @@ export function LessonPlayer({
   const [dialoguePlaying, setDialoguePlaying] = useState<number | null>(null);
   const [peeking, setPeeking] = useState(false);
   const [playingVocab, setPlayingVocab] = useState<number | null>(null);
+  // Shadowing runs inside the vocab step: same words, same audio, nothing graded.
+  const [shadowing, setShadowing] = useState(false);
   const [step, setStep] = useState(0);
   const [promptContext, setPromptContext] = useState(initialPrompt);
   const [feedback, setFeedback] = useState<LessonAttemptResponse | null>(null);
@@ -242,6 +245,14 @@ export function LessonPlayer({
     (index: number) => {
       setPlayingVocab(index);
       void playSlotAudio('vocab', index, () => setPlayingVocab(null));
+    },
+    [playSlotAudio],
+  );
+
+  /** The same audio the chips play, with the end of playback reported back. */
+  const playVocabTerm = useCallback(
+    (index: number, onEnded: () => void) => {
+      void playSlotAudio('vocab', index, onEnded);
     },
     [playSlotAudio],
   );
@@ -511,6 +522,17 @@ export function LessonPlayer({
 
   // The words, before any production is asked for. Deliberately not a carousel and
   // not timed: the learner decides when to move on.
+  if (showVocab && shadowing) {
+    return (
+      <ShadowRun
+        vocab={vocab}
+        locale={locale}
+        playTerm={playVocabTerm}
+        onExit={() => setShadowing(false)}
+      />
+    );
+  }
+
   if (showVocab) {
     return (
       <div className="flex w-full flex-1 flex-col gap-4 py-6">
@@ -545,11 +567,24 @@ export function LessonPlayer({
           ))}
         </ul>
 
-        <button type="button" onClick={() => setShowVocab(false)} className="btn-primary self-start">
-          {/* Naming the step that actually follows: with a dialogue in the lesson, the
-              next thing is listening to it, not being graded. */}
-          {showDialogue ? strings.onToTheConversation : strings.startExercises}
-        </button>
+        <div className="flex flex-col items-start gap-2">
+          {/* Shadowing before anything is graded: hear it, say it back, hear both.
+              Hidden when the pair has no voice - there is nothing to shadow. */}
+          {slotAudioStatus === 'idle' && (
+            <button
+              type="button"
+              onClick={() => setShadowing(true)}
+              className="btn-secondary self-start"
+            >
+              {strings.shadowTheseWords}
+            </button>
+          )}
+          <button type="button" onClick={() => setShowVocab(false)} className="btn-primary self-start">
+            {/* Naming the step that actually follows: with a dialogue in the lesson, the
+                next thing is listening to it, not being graded. */}
+            {showDialogue ? strings.onToTheConversation : strings.startExercises}
+          </button>
+        </div>
       </div>
     );
   }
