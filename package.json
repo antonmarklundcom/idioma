@@ -14,6 +14,7 @@
     "db:seed": "tsx scripts/seed.ts",
     "lessons:validate": "tsx scripts/validate-lessons.ts",
     "lessons:qa": "tsx scripts/lesson-qa.ts",
+    "audio:generate": "tsx scripts/generate-audio.ts",
     "typecheck": "tsc --noEmit",
     "test": "node --import tsx --test tests/*.test.ts",
     "db:migrate:deploy": "tsx scripts/deploy-migrate.ts"

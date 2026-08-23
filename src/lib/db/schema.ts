@@ -87,6 +87,48 @@ export const languagePairs = pgTable('language_pairs', {
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
 
+/**
+ * Pre-generated audio for the fixed parts of a lesson (vocabulary, dialogue lines,
+ * listening prompts).
+ *
+ * Why a table: this audio is IMMUTABLE content. Re-synthesizing "la cabaña" every time
+ * someone taps it spends characters from the monthly allowance, waits on a round trip
+ * to Google before the learner hears anything, and cannot work offline. The in-process
+ * cache that came before this held 50 entries and died with the process - which, on a
+ * platform that starts a fresh one constantly, meant it mostly missed.
+ *
+ * The whole library is 901 recordings across 84 lessons; generated once by
+ * `npm run audio:generate`, it is then free forever.
+ *
+ * The tutor's own replies are NOT here and never can be: every reply is new text.
+ */
+export const lessonAudio = pgTable(
+  'lesson_audio',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    /**
+     * Content-addressed: lesson, slot, index, voice, speaking rate and a hash of the
+     * text itself (lib/listenAudioCache.ts builds it). Editing a lesson through /admin
+     * changes the hash, so the old recording simply stops matching rather than being
+     * served for the new words.
+     */
+    cacheKey: text('cache_key').notNull(),
+    lessonId: uuid('lesson_id')
+      .notNull()
+      .references(() => lessonContent.id, { onDelete: 'cascade' }),
+    /** base64 MP3, exactly as the audio route hands it to the browser. */
+    audioBase64: text('audio_base64').notNull(),
+    charCount: integer('char_count').notNull(),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+  },
+  (t) => [
+    // Generating twice must not store twice - the script is meant to be re-runnable.
+    uniqueIndex('lesson_audio_key_idx').on(t.cacheKey),
+    // Deleting a lesson's recordings when its content is replaced.
+    index('lesson_audio_lesson_idx').on(t.lessonId),
+  ],
+);
+
 // ---------------------------------------------------------------------------
 // Auth.js (next-auth v5) adapter tables. Column shapes are dictated by
 // @auth/drizzle-adapter — do not rename columns. `users` additionally carries
