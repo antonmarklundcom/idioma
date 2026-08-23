@@ -26,6 +26,12 @@ export const preferencesSchema = z.object({
   handsFreeTurnTaking: z.boolean().optional(),
   // UI language override, independent of the language pair being learned.
   uiLocale: z.enum(['en', 'es', 'sv']).optional(),
+  /**
+   * The CEFR level on its own - what the spoken placement check confirms. The level is
+   * also part of the onboarding payload (PATCH /api/me), but a learner who has just
+   * been placed has no business re-submitting their language pair to record it.
+   */
+  level: z.enum(['A1', 'A2', 'B1', 'B2', 'C1']).optional(),
 });
 
 export type PreferencesInput = z.infer<typeof preferencesSchema>;
