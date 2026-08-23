@@ -8,6 +8,9 @@ import { PROVIDERS, PROVIDER_IDS, listModels } from '@/lib/llm/catalog';
 import { getLlmSettings, providerKeyStatus } from '@/lib/llm/settings';
 import { getAdminUsageSummary } from '@/lib/usage';
 import { getAllLessonsForAdmin } from '@/lib/lessons';
+import { getAdminLearnerCards } from '@/lib/adminLearners';
+import { buildInviteRows, invitedEmails, ownerEmails } from '@/lib/owner';
+import { PeoplePanel } from '@/components/admin/PeoplePanel';
 
 export default async function AdminPage() {
   const session = await auth();
@@ -15,12 +18,19 @@ export default async function AdminPage() {
     redirect('/dashboard');
   }
 
-  const [settings, keys, usage, lessons] = [
+  const [settings, keys, usage, lessons, learners] = [
     await getLlmSettings(),
     providerKeyStatus(),
     await getAdminUsageSummary(),
     await getAllLessonsForAdmin(),
+    await getAdminLearnerCards(),
   ];
+  const invited = invitedEmails();
+  const invites = buildInviteRows({
+    invited,
+    owners: ownerEmails(),
+    users: learners.map((l) => ({ email: l.email, name: l.name })),
+  });
   const providers = PROVIDER_IDS.map((id) => ({ ...PROVIDERS[id], hasKey: keys[id] }));
 
   return (
@@ -44,6 +54,8 @@ export default async function AdminPage() {
       </div>
 
       <ModelSettingsForm initialSettings={settings} models={listModels()} providers={providers} />
+
+      <PeoplePanel learners={learners} invites={invites} inviteListActive={invited.length > 0} />
 
       <UsagePanel usage={usage} />
 
