@@ -72,7 +72,7 @@ export function ConversationLoop({
   );
 
   const handleRecorded = useCallback(
-    async (blob: Blob, mimeType: string) => {
+    async (blob: Blob, mimeType: string, spokenSeconds: number) => {
       setStatus('sending');
       setErrorMessage(null);
       let audioBase64: string;
@@ -86,7 +86,7 @@ export function ConversationLoop({
       const result = await fetchJson<LessonAttemptResponse>('/api/lesson/attempt', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ audioBase64, mimeType, mode: 'live', promptContext }),
+        body: JSON.stringify({ audioBase64, mimeType, spokenSeconds, mode: 'live', promptContext }),
       });
       if (!result.ok) {
         setErrorMessage(messageForError(result.kind, result.message ?? strings.couldntAnalyze));

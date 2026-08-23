@@ -14,7 +14,8 @@ export function UtteranceRecorder({
   autoStartToken,
   onAbandoned,
 }: {
-  onRecorded: (blob: Blob, mimeType: string) => void;
+  /** `spokenSeconds` is how long the mic was actually capturing - the speaking-time metric. */
+  onRecorded: (blob: Blob, mimeType: string, spokenSeconds: number) => void;
   /** Called synchronously inside the tap handler, before recording starts - use
    * this to unlock audio playback for iOS (PLAN.md §4.5), which requires the
    * unlock to happen inside the same user-gesture call stack. */

@@ -285,7 +285,7 @@ export function LessonPlayer({
   );
 
   const handleRecorded = useCallback(
-    async (blob: Blob, mimeType: string) => {
+    async (blob: Blob, mimeType: string, spokenSeconds: number) => {
       setStatus('sending');
       setErrorMessage(null);
       // Kept for "hear yourself": the blob is already in hand, so this costs one
@@ -307,9 +307,9 @@ export function LessonPlayer({
       const body =
         isGuided && exercise
           ? exercise.kind === 'dialogue'
-            ? { audioBase64, mimeType, lessonId, dialogueLineIndex: exercise.index }
-            : { audioBase64, mimeType, lessonId, exerciseIndex: exercise.index }
-          : { audioBase64, mimeType, lessonId, promptContext };
+            ? { audioBase64, mimeType, spokenSeconds, lessonId, dialogueLineIndex: exercise.index }
+            : { audioBase64, mimeType, spokenSeconds, lessonId, exerciseIndex: exercise.index }
+          : { audioBase64, mimeType, spokenSeconds, lessonId, promptContext };
 
       const result = await fetchJson<LessonAttemptResponse>('/api/lesson/attempt', {
         method: 'POST',

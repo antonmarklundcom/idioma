@@ -93,8 +93,17 @@ function median(values: number[]): number {
   return sorted[Math.floor(sorted.length / 2)];
 }
 
+/**
+ * How long the mic was actually capturing, alongside the recording itself.
+ *
+ * Speaking time is the metric that tracks fluency, and nothing was measuring it: a
+ * learner who talks for two minutes and one who taps through in twenty seconds looked
+ * identical in every stored number. Counted from the moment capture BEGINS, so the
+ * silence before the first word - which is trimmed out of the audio anyway - is not
+ * counted as speech.
+ */
 export function useRecorder(
-  onStop?: (blob: Blob, mimeType: string) => void,
+  onStop?: (blob: Blob, mimeType: string, spokenSeconds: number) => void,
   micDeniedMessage = 'Microphone permission was denied or unavailable.',
   options: {
     /** Auto-stop the turn after ~1.5s of silence. Per-user setting; ON in /live, OFF in /lesson. */
@@ -126,6 +135,8 @@ export function useRecorder(
   const rafRef = useRef<number | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const endpointRef = useRef<EndpointState | null>(null);
+  /** performance.now() at the moment capture started; null while nothing is captured. */
+  const captureStartedAtRef = useRef<number | null>(null);
   /** True from start() until the mic is open (or failed) - blocks re-entrant starts. */
   const startingRef = useRef(false);
   /** Set on unmount so a getUserMedia that resolves late releases its stream. */
@@ -204,6 +215,7 @@ export function useRecorder(
     clearTimer();
     setSilenceCountdownMs(null);
     // Only the first abort of a turn reports; onstop can re-enter this path.
+    captureStartedAtRef.current = null;
     if (!abortedRef.current) onAbandonedRef.current?.();
     abortedRef.current = true;
     const endpoint = endpointRef.current;
@@ -269,7 +281,15 @@ export function useRecorder(
           return;
         }
         setStatus('stopped');
-        onStopRef.current?.(recordedBlob, recorder.mimeType);
+        const startedAt = captureStartedAtRef.current;
+        captureStartedAtRef.current = null;
+        // Wall clock rather than the 1s display tick: a 4.6s turn is 5 seconds of
+        // speaking, not 4, and a backgrounded tab starves the tick but not the clock.
+        const spokenSeconds =
+          startedAt === null
+            ? 0
+            : Math.min(MAX_RECORDING_SECONDS, Math.round((performance.now() - startedAt) / 1000));
+        onStopRef.current?.(recordedBlob, recorder.mimeType, spokenSeconds);
       };
 
       const audioContext = new AudioContext();
@@ -303,6 +323,7 @@ export function useRecorder(
       // learner needed before speaking is simply never captured (leading trim).
       const beginCapture = (now: number, withSpeech: boolean) => {
         endpoint.phase = 'capturing';
+        captureStartedAtRef.current = performance.now();
         endpoint.lastVoiceAt = now;
         endpoint.sawSpeech = withSpeech;
         recorder.start();
