@@ -157,6 +157,32 @@ export function UsagePanel({ usage }: { usage: AdminUsageSummary }) {
         />
         <DailyBars series={usage.dailySeries} pick={(p) => p.ttsChars} label="TTS characters" />
       </div>
+
+      {/* What the family kept getting wrong with nothing in the curriculum to
+          practise it - automatic detection plus explicit "I want practice on this"
+          requests, ranked. This is the brief for the next content pack. */}
+      <div className="rounded-xl border border-slate-200 px-4 py-3 dark:border-slate-700">
+        <p className="text-xs text-slate-400">Content gaps — mistakes with nothing to drill</p>
+        {usage.contentGaps.length === 0 ? (
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+            None recorded. Every recurring mistake has something that practises it.
+          </p>
+        ) : (
+          <ul className="mt-2 flex flex-col gap-1">
+            {usage.contentGaps.map((gap) => (
+              <li
+                key={gap.patternKey}
+                className="flex items-center justify-between gap-2 text-sm text-slate-700 dark:text-slate-300"
+              >
+                <span className="truncate font-mono text-xs">{gap.patternKey}</span>
+                <span className="shrink-0 text-slate-500 dark:text-slate-400">
+                  {gap.requests}× · {gap.learners} learner{gap.learners === 1 ? '' : 's'}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </section>
   );
 }

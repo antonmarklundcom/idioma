@@ -4,6 +4,7 @@ import {
   AUDIO_BASE64_MAX_CHARS,
   PROMPT_CONTEXT_MAX_CHARS,
   SPOKEN_SECONDS_MAX,
+  contentGapRequestSchema,
   TEXT_ANSWER_MAX_CHARS,
   lessonAttemptRequestSchema,
   lessonImportItemSchema,
@@ -349,5 +350,22 @@ describe('lessonAttemptRequestSchema — spoken seconds', () => {
       }).success,
       false,
     );
+  });
+});
+
+describe('contentGapRequestSchema', () => {
+  it('accepts a pattern key', () => {
+    assert.deepEqual(contentGapRequestSchema.parse({ patternKey: 'ser-vs-estar' }), {
+      patternKey: 'ser-vs-estar',
+    });
+  });
+
+  it('bounds it — the value becomes a usage_log kind, not free storage', () => {
+    assert.equal(
+      contentGapRequestSchema.safeParse({ patternKey: 'x'.repeat(500) }).success,
+      false,
+    );
+    assert.equal(contentGapRequestSchema.safeParse({ patternKey: '   ' }).success, false);
+    assert.equal(contentGapRequestSchema.safeParse({}).success, false);
   });
 });

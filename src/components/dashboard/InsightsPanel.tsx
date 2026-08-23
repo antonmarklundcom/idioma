@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import type { ProgressInsights } from '@/lib/progress';
 import { describeSpeakingTime } from '@/lib/speakingTime';
 import { t, type Locale } from '@/lib/i18n';
@@ -103,6 +104,14 @@ export function InsightsPanel({
           </ol>
         )}
       </div>
+
+      {focusAreas.length > 0 && (
+        // The list says what is wrong; this is the only thing on the page that does
+        // something about it (ROADMAP.md P1.5b follow-on item 5).
+        <Link href="/review/problems" className="btn-secondary btn-sm self-start">
+          {strings.practiceThese}
+        </Link>
+      )}
 
       {conquered.length > 0 && (
         <div className="flex flex-col gap-1">
