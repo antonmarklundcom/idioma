@@ -11,6 +11,7 @@ import { getAllLessonsForAdmin } from '@/lib/lessons';
 import { getAdminLearnerCards } from '@/lib/adminLearners';
 import { buildInviteRows, invitedEmails, ownerEmails } from '@/lib/owner';
 import { PeoplePanel } from '@/components/admin/PeoplePanel';
+import { TtsCheckPanel } from '@/components/admin/TtsCheckPanel';
 
 export default async function AdminPage() {
   const session = await auth();
@@ -54,6 +55,8 @@ export default async function AdminPage() {
       </div>
 
       <ModelSettingsForm initialSettings={settings} models={listModels()} providers={providers} />
+
+      <TtsCheckPanel />
 
       <PeoplePanel learners={learners} invites={invites} inviteListActive={invited.length > 0} />
 
