@@ -260,83 +260,132 @@
   {
     "languagePairCode": "es-PY>sv-speaker",
     "level": "A2",
-    "topic": "resolving-a-service-issue",
-    "title": "Varan är sönder och jag vill byta den",
+    "topic": "buying-gifts-and-souvenirs",
+    "title": "Busco algo típico para llevar",
     "position": 24,
     "content": {
-      "intro": "Lär dig att reklamera en defekt vara, förklara vad som gått fel och begära ett byte eller återbetalning i en butik. Svenskar är ofta för försiktiga och glömmer att visa upp originalfakturan direkt eller använder tuteo ('me cambias'). I Paraguay löser du reklamationsärenden snabbast med ett artigt men bestämt voseo och ditt inköpskvitto.",
+      "canDo": "Efter den här lektionen kan du köpa presenter att ta med hem: fråga vad något är gjort av, be om ett bättre pris och få det inslaget.",
+      "intro": "På hantverksmarknaden i Itauguá och i stånden runt Plaza de los Héroes går det att pruta vänligt — men bara på hantverk, aldrig i en butik med prislappar. Ñandutí är den paraguayanska spetsen (ordet är guaraní för spindelnät) och ao po'i den broderade bomullen. Frågan du behöver heter ¿me hacés un precio?, med voseo och med ett leende.",
       "vocab": [
         {
-          "term": "el reclamo",
-          "gloss": "reklamationen / klagomålet"
+          "term": "la artesanía",
+          "gloss": "hantverket"
         },
         {
-          "term": "el cambio",
-          "gloss": "bytet (av en produkt)"
+          "term": "el ñandutí",
+          "gloss": "den paraguayanska spetsen",
+          "note": "Guaraní för 'spindelnät'; säljs efter storlek i centimeter"
         },
         {
-          "term": "la devolución",
-          "gloss": "återlämningen / returen"
+          "term": "el ao po'i",
+          "gloss": "den broderade bomullen",
+          "note": "Uttalas ungefär 'ao poí'"
         },
         {
-          "term": "roto",
-          "gloss": "trasig / sönder"
+          "term": "hecho a mano",
+          "gloss": "handgjort"
         },
         {
-          "term": "la falla de fábrica",
-          "gloss": "fabriksfelet / fabrikationsdefekten"
+          "term": "el mantel",
+          "gloss": "duken"
         },
         {
-          "term": "el encargado",
-          "gloss": "butikschefen / den ansvarige"
+          "term": "el regalo",
+          "gloss": "presenten"
         },
         {
-          "term": "la garantía",
-          "gloss": "garantin"
+          "term": "la bolsa",
+          "gloss": "påsen"
         },
         {
-          "term": "solucionar",
-          "gloss": "lösa / åtgärda",
-          "note": "Voseo imperativ: solucioná"
+          "term": "envolver",
+          "gloss": "slå in",
+          "note": "Voseo presens: vos envolvés"
         },
         {
-          "term": "el tique de compra",
-          "gloss": "kassakvittot"
+          "term": "hacer un precio",
+          "gloss": "ge ett bättre pris",
+          "note": "¿Me hacés un precio? är den artiga prutningen"
         },
         {
-          "term": "el reembolso",
-          "gloss": "återbetalningen av pengarna"
+          "term": "llevar",
+          "gloss": "ta med sig / köpa",
+          "note": "¿Cuánto llevás? betyder hur mycket du tar"
+        },
+        {
+          "term": "el nieto",
+          "gloss": "barnbarnet (pojke)"
         }
       ],
+      "dialogue": {
+        "setup": "Du är på hantverksmarknaden i Itauguá och letar efter presenter till barnbarnen.",
+        "learnerSpeaker": "Du",
+        "lines": [
+          {
+            "speaker": "Försäljerska",
+            "text": "Pasá nomás, señora, todo esto es hecho a mano acá.",
+            "gloss": "Hon bjuder in dig och säger att allt är handgjort."
+          },
+          {
+            "speaker": "Du",
+            "text": "Qué lindo. ¿De qué está hecho este mantel?",
+            "gloss": "Säg att det är fint och fråga vad duken är gjord av."
+          },
+          {
+            "speaker": "Försäljerska",
+            "text": "Es ñandutí puro, tejido a mano. Lleva casi un mes de trabajo.",
+            "gloss": "Hon förklarar att det är äkta ñandutí och tar nästan en månad att göra."
+          },
+          {
+            "speaker": "Du",
+            "text": "¿Me hacés un precio si llevo dos?",
+            "gloss": "Fråga om du får ett bättre pris om du köper två."
+          },
+          {
+            "speaker": "Försäljerska",
+            "text": "Te dejo los dos en trescientos mil guaraníes.",
+            "gloss": "Hon ger dig ett pris för båda."
+          },
+          {
+            "speaker": "Du",
+            "text": "Dale, los llevo. ¿Me los envolvés para regalo?",
+            "gloss": "Tacka ja och be att få dem inslagna som presenter."
+          }
+        ]
+      },
       "exercises": [
         {
           "type": "speak_prompt",
-          "prompt": "Gå till kundtjänst och förklara att produkten du köpte i går har ett fel och inte startar.",
+          "prompt": "Du letar efter något typiskt paraguayanskt att ta med hem till Sverige. Berätta det för försäljerskan och fråga vad hon rekommenderar.",
           "targetHints": [
-            "Compré este aparato ayer y no funciona, tiene una falla."
+            "Busco algo típico paraguayo para llevar a Suecia.",
+            "¿Qué me recomendás?"
           ]
         },
         {
           "type": "listen_prompt",
-          "audioText": "Si vos traés la factura original podemos cambiar el producto por uno nuevo sin problema.",
-          "prompt": "Butiksbiträdet ger dig lösningen. Vilket villkor ställer hon för att byta ut varan?"
+          "audioText": "Este mantel de ñandutí sale doscientos mil, pero si llevás dos te hago un precio especial.",
+          "prompt": "Försäljerskan nämner ett pris och ett erbjudande. Vad kostar en duk, och vad händer om du köper två?",
+          "targetHints": [
+            "doscientos mil guaraníes",
+            "precio especial por dos"
+          ]
         },
         {
           "type": "fill_gap_speak",
-          "sentence": "¿Vos me ___ llamar al encargado de la sucursal para ver mi reclamo?",
-          "prompt": "Be expediten kalla på butikschefen med voseo-formen av poder (podés).",
-          "answer": "¿Vos me podés llamar al encargado de la sucursal para ver mi reclamo?",
+          "sentence": "¿Me lo ___ para regalo, por favor?",
+          "prompt": "Be försäljerskan slå in presenten. Använd voseo-formen av envolver (envolvés).",
+          "answer": "¿Me lo envolvés para regalo, por favor?",
           "targetHints": [
-            "podés"
+            "envolvés"
           ]
         },
         {
           "type": "speak_prompt",
-          "prompt": "Förklara för butikspersonalen att apparaten kom trasig från fabriken. Visa upp ditt originalkvitto och fråga om de kan byta ut den direkt eller göra en återbetalning.",
+          "prompt": "Fråga om spetsduken tål maskintvätt, och be henne lägga en mindre i påsen till ditt barnbarn.",
           "targetHints": [
-            "Hola, este producto vino roto con una falla de fábrica.",
-            "Acá tengo la factura original de compra.",
-            "¿Me lo podés cambiar por otro nuevo o hacerme una devolución?"
+            "¿El ñandutí se puede lavar a máquina?",
+            "¿Me ponés uno más chico en la bolsa para mi nieto?"
           ]
         }
       ]

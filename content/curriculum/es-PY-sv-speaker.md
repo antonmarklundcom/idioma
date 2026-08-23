@@ -13,9 +13,10 @@ explicitly, and none may depend on being let off lightly.
 The target language here is identical to `es-PY>en-speaker`: Paraguayan Spanish, voseo, tereré,
 chipa, guaraníes. A learner in Asunción needs the same twelve survival situations in the same
 order whether they arrived from Sweden or from the United States. **So this pair reuses the
-sequencing in `content/curriculum/es-PY-en-speaker.md` verbatim — all 40 rows, same positions,
-same topics, same titles, same can-do statements.** Read that file as the map; this file records
-only what differs.
+sequencing in `content/curriculum/es-PY-en-speaker.md` — same positions, same topics, same
+titles, same can-do statements — except where the substitution table below replaces a row.**
+Read that file as the map; this file records only what differs. As of the A2 rework that is
+three rows, and the reason is in the table: these learners are visitors, not residents.
 
 Writing a second independent 40-row map would have produced a near-copy with gratuitous
 divergences, and every future fix would then have to be made twice and would drift. If the two
@@ -45,17 +46,38 @@ situation naturally raises them:
 **3. Nothing else.** Same situations, same recycling graph, same level split (A1 12 / A2 12 /
 B1 9 / B2 7).
 
-## Open question for the owner — answer before A2 is written
+## Answered: they are VISITING, not moving — and that is why this deck now diverges
 
-**Are your parents visiting Paraguay, or moving there?** The A1 twelve are right either way:
-greetings, clarification, money, food, transport and health are what any human needs in the
-first week. But the A2 and B1 blocks inherited from the English map assume a *resident*:
-#14 renting an apartment, #20 opening a bank account and transferring money, #22 calling a
-repair technician, #28 residency paperwork. For visitors staying with family, those four are
-close to dead weight, and the slots would be better spent on being a guest in someone's home,
-pharmacy and chronic-medication vocabulary, longer-distance travel, and talking with
-grandchildren.
+The owner's answer (NEXT-SESSION.md, decision 3): **the parents are visiting Paraguay, not
+moving there.** They stay with family, for weeks at a time, several times. That settles the
+question this file has carried since pass 1, and it makes this the first real divergence from
+`content/curriculum/es-PY-en-speaker.md`: the trigger is a difference in the learners' lives,
+exactly as required above, not a difference in their passports.
 
-Given the answer, this file gets a short substitution table for positions 13–33 and the English
-map keeps its own. Until then, only A1 (1–12) should be generated for this pair — those twelve
-are correct under either answer, which is exactly why they are safe to write now.
+**The A1 twelve are unchanged.** Greetings, clarification, money, food, transport and health are
+what any human needs in their first week, resident or guest.
+
+### Substitution table — A2 (positions 13–24)
+
+| position | English map (resident) | this deck (visitor) | why |
+|---|---|---|---|
+| 16 | `repair-and-maintenance` — calling a plumber about a leak | `day-trips-and-excursions` — Areguá, the lake, agreeing a departure time | A guest does not call the plumber; the family does. A guest is taken on trips, and needs to be able to ask how long the drive is and when they will be back. |
+| 18 | `renting-an-apartment` — contracts, deposits, ANDE meters | `being-a-houseguest` — offering to help, declining a fourth helping, the tereré guampa going round | Nobody visiting their daughter signs a lease. Everybody visiting their daughter has to survive the sobremesa. |
+| 24 | `resolving-a-service-issue` — returning faulty goods | `buying-gifts-and-souvenirs` — ñandutí, ao po'i, asking for a price, getting it wrapped | Marginal for a visitor at A2: a return needs an argument and a receipt, and a guest's shopping is presents to take home. |
+
+Positions 13, 14, 15, 17, 19, 20, 21, 22 and 23 keep the English map's topics: money, the
+colectivo, the despensa, restaurants, the pharmacy, the siesta rhythm, a SIM card, being invited
+out, and taxis are all visitor situations already.
+
+**Not yet placed:** `talking-about-sweden` — describing home, seasons and family to people who
+ask, which every visitor is asked about within a day. It is the first candidate for the B1 block
+whenever this pair's B1 is written; there was no A2 slot worth spending on it once the three
+above were taken.
+
+### B1 (positions 25–33), when it is written
+
+The same rule applies, and the English map's `residency-paperwork` (#28) and its bank/transfer
+lessons are the obvious cuts. Replacement candidates, in order: `talking-about-sweden`,
+longer-distance travel (Encarnación, the Jesuit missions, crossing to Argentina), health with a
+chronic prescription from home, and talking with grandchildren — including being talked to in
+Guaraní-flavoured Spanish by children who switch registers without noticing.
