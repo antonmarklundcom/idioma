@@ -1,4 +1,5 @@
 import type { ProgressInsights } from '@/lib/progress';
+import { describeSpeakingTime } from '@/lib/speakingTime';
 import { t, type Locale } from '@/lib/i18n';
 
 /**
@@ -18,7 +19,8 @@ export function InsightsPanel({
   locale: Locale;
 }) {
   const strings = t(locale).insights;
-  const { thisWeek, lastWeek, focusAreas, conquered } = insights;
+  const { thisWeek, lastWeek, speakingSecondsThisWeek, focusAreas, conquered } = insights;
+  const spoken = describeSpeakingTime(speakingSecondsThisWeek);
 
   if (thisWeek.turns === 0 && lastWeek.turns === 0) {
     return (
@@ -51,6 +53,16 @@ export function InsightsPanel({
         </div>
         <div className="flex flex-col gap-1">
           <p className="text-sm font-semibold text-ink">{strings.turnsThisWeek(thisWeek.turns)}</p>
+          {/* Minutes spoken, not turns taken: the number that moves when someone
+              actually talks. Hidden entirely before the first spoken turn, so it
+              never sits at zero as a reproach. */}
+          {spoken.kind !== 'none' && (
+            <p className="text-sm font-semibold text-ink-muted">
+              {spoken.kind === 'under_a_minute'
+                ? strings.spokeUnderAMinute
+                : strings.spokeMinutes(spoken.minutes)}
+            </p>
+          )}
           <p
             className={`text-sm font-bold ${
               change !== null && change > 0

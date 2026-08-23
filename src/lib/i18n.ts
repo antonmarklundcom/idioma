@@ -80,6 +80,9 @@ const en = {
   insights: {
     title: 'How it is going',
     turnsThisWeek: (n: number) => `${n} turn${n === 1 ? '' : 's'} this week`,
+    // Speaking time: turns say how often, minutes say how much.
+    spokeMinutes: (minutes: number) => `You spoke ${minutes} minute${minutes === 1 ? '' : 's'}`,
+    spokeUnderAMinute: 'You spoke for under a minute',
     accuracy: 'Mistakes per turn',
     noDataYet: 'Practice a few turns and your progress shows up here.',
     better: (pct: number) => `${pct}% fewer than last week`,
@@ -406,6 +409,8 @@ const es: Dictionary = {
   insights: {
     title: 'Cómo va',
     turnsThisWeek: (n: number) => `${n} turno${n === 1 ? '' : 's'} esta semana`,
+    spokeMinutes: (minutes: number) => `Hablaste ${minutes} minuto${minutes === 1 ? '' : 's'}`,
+    spokeUnderAMinute: 'Hablaste menos de un minuto',
     accuracy: 'Errores por turno',
     noDataYet: 'Practicá unos turnos y tu progreso va a aparecer acá.',
     better: (pct: number) => `${pct}% menos que la semana pasada`,
@@ -726,6 +731,8 @@ const sv: Dictionary = {
   insights: {
     title: 'Hur det går',
     turnsThisWeek: (n: number) => `${n} tur${n === 1 ? '' : 'er'} den här veckan`,
+    spokeMinutes: (minutes: number) => `Du pratade ${minutes} minut${minutes === 1 ? '' : 'er'}`,
+    spokeUnderAMinute: 'Du pratade mindre än en minut',
     accuracy: 'Misstag per tur',
     noDataYet: 'Öva några turer så dyker din utveckling upp här.',
     better: (pct: number) => `${pct}% färre än förra veckan`,

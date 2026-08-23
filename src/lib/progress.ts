@@ -360,6 +360,8 @@ export type AccuracyWindow = {
 export type ProgressInsights = {
   thisWeek: AccuracyWindow;
   lastWeek: AccuracyWindow;
+  /** Seconds of actual speaking in the last 7 days, summed from `usage_log`. */
+  speakingSecondsThisWeek: number;
   /** The mistakes still happening, worst first - what to actually work on. */
   focusAreas: ErrorPatternWithFlag[];
   conquered: ErrorPatternWithFlag[];
@@ -390,14 +392,34 @@ async function accuracyBetween(
   return { turns, mistakes, mistakesPerTurn: turns > 0 ? mistakes / turns : null };
 }
 
+/**
+ * How long the learner actually spoke in a window. `usage_log` is (kind, amount), so
+ * the seconds live there beside the attempt counts and need no table of their own.
+ */
+async function speakingSecondsBetween(userId: string, from: Date, to: Date): Promise<number> {
+  const [row] = await db
+    .select({ total: sql<number>`coalesce(sum(${usageLog.amount}), 0)` })
+    .from(usageLog)
+    .where(
+      and(
+        eq(usageLog.userId, userId),
+        eq(usageLog.kind, 'speaking_seconds'),
+        gte(usageLog.createdAt, from),
+        lt(usageLog.createdAt, to),
+      ),
+    );
+  return Number(row?.total ?? 0);
+}
+
 export async function getProgressInsights(userId: string): Promise<ProgressInsights> {
   const now = new Date();
   const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
   const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
 
-  const [thisWeek, lastWeek, patternRows] = await Promise.all([
+  const [thisWeek, lastWeek, speakingSecondsThisWeek, patternRows] = await Promise.all([
     accuracyBetween(userId, weekAgo, now),
     accuracyBetween(userId, twoWeeksAgo, weekAgo),
+    speakingSecondsBetween(userId, weekAgo, now),
     db
       .select()
       .from(errorPatterns)
@@ -415,6 +437,7 @@ export async function getProgressInsights(userId: string): Promise<ProgressInsig
   return {
     thisWeek,
     lastWeek,
+    speakingSecondsThisWeek,
     // Three, not ten: a list of everything you have ever got wrong is a wall, not
     // a plan. The rest stay on the dashboard's full pattern list.
     focusAreas: patterns.filter((p) => !p.conquered).slice(0, 3),

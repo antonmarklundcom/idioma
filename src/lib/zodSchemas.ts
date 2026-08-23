@@ -45,6 +45,13 @@ export const TEXT_ANSWER_MAX_CHARS = 1000;
 export const AUDIO_BASE64_MAX_CHARS = 4_000_000;
 /** Client-controlled text substituted into the system prompt (§2) - one screen, not a payload. */
 export const PROMPT_CONTEXT_MAX_CHARS = 2000;
+/**
+ * The recorder cannot capture longer than its own 90s cap, so anything above this is a
+ * modified client rather than a long answer. Capped rather than trusted because this
+ * number is summed into "you spoke N minutes this week" - one bogus turn would make
+ * that read as an afternoon.
+ */
+export const SPOKEN_SECONDS_MAX = 90;
 
 export const lessonAttemptRequestSchema = z
   .object({
@@ -68,6 +75,11 @@ export const lessonAttemptRequestSchema = z
     /** Review drill (§13.4): the server builds promptContext from the item's front/back. */
     reviewItemId: z.uuid().optional(),
     promptContext: z.string().max(PROMPT_CONTEXT_MAX_CHARS).optional(),
+    /**
+     * How long the mic was actually capturing this turn. Spoken turns only - a typed
+     * answer sends nothing, and no turn is ever refused for lacking it.
+     */
+    spokenSeconds: z.number().min(0).optional(),
     mode: z.enum(['lesson', 'live', 'review']).default('lesson'),
   })
   .superRefine((body, ctx) => {
@@ -110,6 +122,12 @@ export const lessonAttemptRequestSchema = z
   // to assert which of the two fields is present.
   .transform((body, ctx) => {
     const rest = {
+      // Clamped, not rejected: this number only feeds a "minutes spoken" statistic,
+      // and refusing a whole graded turn over it would trade a real answer for a metric.
+      spokenSeconds:
+        body.spokenSeconds === undefined
+          ? undefined
+          : Math.min(Math.floor(body.spokenSeconds), SPOKEN_SECONDS_MAX),
       lessonId: body.lessonId,
       exerciseIndex: body.exerciseIndex,
       dialogueLineIndex: body.dialogueLineIndex,

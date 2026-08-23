@@ -74,7 +74,9 @@ export function ReviewSession({
   );
 
   const submitAnswer = useCallback(
-    async (input: { audioBase64: string; mimeType: string } | { text: string }) => {
+    async (
+      input: { audioBase64: string; mimeType: string; spokenSeconds: number } | { text: string },
+    ) => {
       if (!card) return;
       setStatus('sending');
       setErrorMessage(null);
@@ -102,9 +104,9 @@ export function ReviewSession({
   );
 
   const handleRecorded = useCallback(
-    async (blob: Blob, mimeType: string) => {
+    async (blob: Blob, mimeType: string, spokenSeconds: number) => {
       const audioBase64 = await blobToBase64(blob);
-      await submitAnswer({ audioBase64, mimeType });
+      await submitAnswer({ audioBase64, mimeType, spokenSeconds });
     },
     [submitAnswer],
   );

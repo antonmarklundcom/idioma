@@ -115,8 +115,16 @@ export async function POST(request: Request) {
       { status: 400 },
     );
   }
-  const { input, lessonId, exerciseIndex, dialogueLineIndex, reviewItemId, promptContext, mode } =
-    parsedBody.data;
+  const {
+    input,
+    lessonId,
+    exerciseIndex,
+    dialogueLineIndex,
+    reviewItemId,
+    promptContext,
+    spokenSeconds,
+    mode,
+  } = parsedBody.data;
 
   // PLAN.md §15.3: the capability gate, checked before anything is read or spent. It is
   // server-side only by design - the browser can post to this route directly, so a
@@ -239,6 +247,14 @@ export async function POST(request: Request) {
   // three provider requests) burns free-tier quota exactly like a succeeding one.
   // Failed turns write no utterance, so this can't inflate the gamification turn count.
   after(() => logUsage(userId, 'lesson_attempt'));
+
+  // Speaking time, the metric that actually tracks fluency (ROADMAP.md P1.5b follow-on).
+  // Logged beside the attempt rather than with the turn: like the attempt itself it is
+  // spent whether or not the model call comes back, and `usage_log` is already
+  // (kind, amount), so counting seconds needs no schema change.
+  if (spokenSeconds !== undefined && spokenSeconds > 0) {
+    after(() => logUsage(userId, 'speaking_seconds', spokenSeconds));
+  }
 
   const earlyReplyPath: Promise<EarlyReply | null> =
     input.kind === 'audio' && ttsVoice

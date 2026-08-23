@@ -3,6 +3,7 @@ import { describe, it } from 'node:test';
 import {
   AUDIO_BASE64_MAX_CHARS,
   PROMPT_CONTEXT_MAX_CHARS,
+  SPOKEN_SECONDS_MAX,
   TEXT_ANSWER_MAX_CHARS,
   lessonAttemptRequestSchema,
   lessonImportItemSchema,
@@ -303,5 +304,50 @@ describe('lessonImportItemSchema (§3.4 — the /admin import contract)', () => 
       },
     });
     assert.equal(parsed.success, false);
+  });
+});
+
+describe('lessonAttemptRequestSchema — spoken seconds', () => {
+  it('passes a plausible turn length through untouched', () => {
+    const parsed = lessonAttemptRequestSchema.parse({
+      audioBase64: 'AAAA',
+      mimeType: 'audio/webm',
+      spokenSeconds: 12,
+    });
+    assert.equal(parsed.spokenSeconds, 12);
+  });
+
+  it('is optional — a typed answer measures no speaking', () => {
+    const parsed = lessonAttemptRequestSchema.parse({ text: 'Quiero un café.' });
+    assert.equal(parsed.spokenSeconds, undefined);
+  });
+
+  it('clamps a value past the recorder cap instead of refusing the turn', () => {
+    const parsed = lessonAttemptRequestSchema.parse({
+      audioBase64: 'AAAA',
+      mimeType: 'audio/webm',
+      spokenSeconds: 100_000,
+    });
+    assert.equal(parsed.spokenSeconds, SPOKEN_SECONDS_MAX);
+  });
+
+  it('floors a fractional value rather than storing it', () => {
+    const parsed = lessonAttemptRequestSchema.parse({
+      audioBase64: 'AAAA',
+      mimeType: 'audio/webm',
+      spokenSeconds: 4.8,
+    });
+    assert.equal(parsed.spokenSeconds, 4);
+  });
+
+  it('rejects a negative duration', () => {
+    assert.equal(
+      lessonAttemptRequestSchema.safeParse({
+        audioBase64: 'AAAA',
+        mimeType: 'audio/webm',
+        spokenSeconds: -5,
+      }).success,
+      false,
+    );
   });
 });
