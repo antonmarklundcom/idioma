@@ -373,6 +373,42 @@ export function getVocabAudioText(content: unknown, index: number): string | nul
   return item ? item.term : null;
 }
 
+/**
+ * Every piece of a lesson that has a recording: each vocab term, each dialogue line,
+ * each listening prompt's hidden text.
+ *
+ * This is the list the pre-generation script walks, and it is deliberately built from
+ * the same three extractors the audio route serves from - so what gets generated and
+ * what gets asked for cannot drift apart. A lesson whose content is malformed simply
+ * contributes nothing, exactly as it renders nothing.
+ */
+export type LessonAudioItem = {
+  slot: 'exercise' | 'vocab' | 'dialogue';
+  index: number;
+  text: string;
+};
+
+export function lessonAudioItems(content: unknown): LessonAudioItem[] {
+  const items: LessonAudioItem[] = [];
+
+  getLessonVocab(content).forEach((_, index) => {
+    const text = getVocabAudioText(content, index);
+    if (text) items.push({ slot: 'vocab', index, text });
+  });
+
+  const dialogue = toPlayerDialogue(content);
+  dialogue?.lines.forEach((line) => {
+    if (line.text) items.push({ slot: 'dialogue', index: line.index, text: line.text });
+  });
+
+  rawExercises(content).forEach((_, index) => {
+    const text = getListenAudioText(content, index);
+    if (text) items.push({ slot: 'exercise', index, text });
+  });
+
+  return items;
+}
+
 // ---------------------------------------------------------------------------
 // The dialogue block (ROADMAP.md lesson-loop item 4)
 //

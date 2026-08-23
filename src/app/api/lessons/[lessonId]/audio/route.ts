@@ -15,6 +15,7 @@ import {
   listenAudioKey,
   setCachedListenAudio,
 } from '@/lib/listenAudioCache';
+import { getStoredLessonAudio, putStoredLessonAudio } from '@/lib/lessonAudioStore';
 import { isUnderMonthlyTtsCharCap, logUsage } from '@/lib/usage';
 
 /**
@@ -105,6 +106,16 @@ export async function GET(request: Request, { params }: { params: Promise<{ less
     return NextResponse.json({ audioBase64: cached.audioBase64 });
   }
 
+  // The durable library (`npm run audio:generate`). Static lesson audio is immutable
+  // content, so once a phrase has been synthesized it should never be bought again -
+  // and unlike the map above, this survives the restart that a serverless platform
+  // performs constantly. A hit here spends no characters and logs none.
+  const stored = await getStoredLessonAudio(cacheKey);
+  if (stored) {
+    setCachedListenAudio(cacheKey, stored);
+    return NextResponse.json({ audioBase64: stored.audioBase64 });
+  }
+
   // §16 defect 2 / §6.12: this is the second place in the app that spends TTS
   // characters, so it observes the same monthly stop point. Unlike tutor feedback
   // there is no text-only degradation here - a listening exercise with no audio is
@@ -126,6 +137,14 @@ export async function GET(request: Request, { params }: { params: Promise<{ less
   }
   await logUsage(session.user.id, 'tts_chars', tts.charCount);
   setCachedListenAudio(cacheKey, tts);
+  // Bought once, kept forever. Written after the spend is logged and before the
+  // response, so a phrase the generator has not reached yet still only costs once.
+  await putStoredLessonAudio({
+    cacheKey,
+    lessonId,
+    audioBase64: tts.audioBase64,
+    charCount: tts.charCount,
+  });
 
   return NextResponse.json({ audioBase64: tts.audioBase64 });
 }

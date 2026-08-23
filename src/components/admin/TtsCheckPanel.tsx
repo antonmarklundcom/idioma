@@ -4,7 +4,7 @@ import { useRef, useState } from 'react';
 
 import type { TtsCheckReason, TtsCheckResult } from '@/lib/ttsCheck';
 
-type Response = { keyConfigured: boolean; results: TtsCheckResult[] };
+type Response = { keyConfigured: boolean; storedRecordings: number; results: TtsCheckResult[] };
 
 // What each outcome MEANS, and what to do about it. The point of this panel is that
 // nobody should have to read a runtime log to tell these four apart.
@@ -76,6 +76,12 @@ export function TtsCheckPanel() {
             {data.keyConfigured
               ? '✅ GOOGLE_TTS_API_KEY is set on this deployment.'
               : '❌ GOOGLE_TTS_API_KEY is NOT set on this deployment — nothing can speak until it is.'}
+          </p>
+
+          <p className="text-sm text-slate-700 dark:text-slate-300">
+            {data.storedRecordings > 0
+              ? `🎧 ${data.storedRecordings} recordings stored — those cost nothing to play.`
+              : '🎧 No recordings stored yet. Run `npm run audio:generate` to record the whole lesson library once, instead of paying for every tap.'}
           </p>
 
           {data.results.map((result) => (

@@ -6,6 +6,7 @@ import { languagePairs } from '@/lib/db/schema';
 import { synthesizeTutorSpeech } from '@/lib/tts';
 import { phraseFor, ttsCheckReason, type TtsCheckResult } from '@/lib/ttsCheck';
 import { logUsage } from '@/lib/usage';
+import { countStoredLessonAudio } from '@/lib/lessonAudioStore';
 
 // A real call to Google, so it can take a second or two per pair.
 export const maxDuration = 60;
@@ -75,5 +76,10 @@ export async function POST() {
     });
   }
 
-  return NextResponse.json({ keyConfigured, results });
+  // How much of the lesson library is already recorded. A number that stops rising
+  // while lessons exist means `npm run audio:generate` has not been run since they
+  // were imported - and every tap on those words is still being paid for.
+  const storedRecordings = await countStoredLessonAudio();
+
+  return NextResponse.json({ keyConfigured, storedRecordings, results });
 }

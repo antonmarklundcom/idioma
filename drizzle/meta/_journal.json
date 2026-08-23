@@ -64,6 +64,13 @@
       "when": 1787471339677,
       "tag": "0008_smart_power_pack",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1787495613056,
+      "tag": "0009_silent_stick",
+      "breakpoints": true
     }
   ]
 }
