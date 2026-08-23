@@ -8,7 +8,8 @@ Read this first, then `AGENTS.md`, `ROADMAP.md` and `PLAN.md` where it matters.
 ## Where the app stands
 
 Merged to `main` last night: PRs #41–#50 (see the git log; the previous brief was #50).
-Merged this session: **#51–#58**, which is the whole of the previous brief's build list.
+Merged 23 Aug: **#51–#62**. #51–#58 were the previous brief's whole build list; #59–#62
+came out of the owner's first real session with the deployed app.
 
 - **#51** attempt 1 vs attempt 2 — the retry now shows "3 mistakes → 0" and the scorecard
   sums it up
@@ -23,6 +24,13 @@ Merged this session: **#51–#58**, which is the whole of the previous brief's b
 - **#56** the migration (`0008`) — `profile_notes`, `fact_learning`, `explanation_language`
 - **#57** owner tools — `OWNER_EMAILS`, `INVITED_EMAILS`, and a People panel in /admin
 - **#58** Swedish A2 rework for visitors — positions 16, 18 and 24 replaced
+- **#60** UI sounds (per-device toggle in Settings); a vocab chip that cannot play now
+  SAYS so instead of failing silently; the shadowing mic loop fixed — an unanswered turn
+  pauses instead of reopening the mic forever
+- **#61** `/admin` → "The tutor's voice": one click says which of four voice problems you
+  have, and plays a sample
+- **#62** the pre-recorded audio library — `lesson_audio` (migration `0009`) plus
+  `npm run audio:generate`
 
 84 lessons across 3 pairs are in `content/lessons`. **They are not in the production
 database** — they arrive there through /admin's import panel, not by deploying. Three of them
@@ -32,13 +40,18 @@ changed in #58 and need re-importing.
 
 ## Do this before writing code
 
-1. **Run the migration.** #56 added `drizzle/0008`. `npm run build` runs `deploy-migrate`, so a
-   normal deploy applies it; `npm run db:migrate` does it by hand.
-2. **Set `OWNER_EMAILS`** in production. Until it is set, admin still depends on the `role`
-   column — which is exactly the failure #57 exists to prevent.
-3. **Re-import the lessons** through /admin, or positions 16/18/24 of the Swedish A2 deck stay
-   the old resident-shaped ones.
-4. **`INVITED_EMAILS` is optional.** Unset, anyone with a Google account can sign in, as before.
+1. **Redeploy** if the deployed commit predates #62. Migration `0009` (`lesson_audio`) is
+   applied by the build, but only because `RUN_MIGRATIONS_ON_DEPLOY=true` is now set in
+   Production — it was NOT set until 23 Aug, which is why migration `0008` never ran and
+   sign-in was broken for a day. Check the build log says
+   `[migrate] applying pending migrations`.
+2. **Run `npm run audio:generate`** (needs `DATABASE_URL` + `GOOGLE_TTS_API_KEY` locally).
+   ~900 recordings, ~25k characters, once. Re-run it after every content import, or the app
+   pays per tap for the new words. `/admin` shows the stored count.
+3. **Import the lessons** through /admin: the three reworked Swedish A2 lessons (#58) and any
+   new pack. NOTE: the importer INSERTS and rejects duplicate titles — it does not update. To
+   replace a lesson, delete the old one in /admin first, or you get two at the same position.
+4. **`OWNER_EMAILS`** should be set in Production; `INVITED_EMAILS` stays optional.
 
 ---
 
@@ -75,6 +88,11 @@ fill_gap_speak are all in the contract). Run `npm run lessons:qa <pack>` before 
 costs" card on /settings. Do it with or before the live mode.
 
 ### 4. Follow-ons the last session left behind
+- **The lesson is silent between turns.** The tutor only speaks AFTER a graded answer, so the
+  vocabulary step and the exercise prompts are read, never heard. The owner's words: "the app
+  still doesn't speak with me and guide me during lesson so it is 100% quiet". Worth deciding
+  whether the exercise prompt should be spoken (it is in the learner's OWN language, so this is
+  a design question, not an oversight).
 - Shadowing time is not counted as speaking time (#53): nothing reaches the server. Worth wiring
   up if the family shadows more than it drills.
 - Placement turns synthesize a tutor reply nobody listens to (#54). A "no spoken reply needed"
@@ -94,6 +112,14 @@ costs" card on /settings. Do it with or before the live mode.
 2. **Which content pack next** (build list item 2)?
 3. After a week of use: does the fact-learning switch (#56) want to default ON after all? The
    answer is one column default and one line in the schema comment.
+4. Does the Gemini project want its free tier back? As of 23 Aug the Gemini API runs on the
+   PAID tier — a billing account was attached in AI Studio long before this session, so the
+   two-project split PLAN.md §0 mandates protects a free tier that was never used. Observed
+   cost: 26 requests → kr0.44, so roughly kr 30/month for four people practising daily,
+   against a 100 SEK credit. The upside of staying paid is no free-tier rate limits mid-lesson.
+   Restoring it = a fresh AI Studio project with no billing + a new `GEMINI_API_KEY`.
+   **TTS now lives in the same project as Gemini** (`gen-lang-client-0909313285`), with its own
+   key restricted to Cloud Text-to-Speech — the separation PLAN.md describes is moot.
 
 ---
 
