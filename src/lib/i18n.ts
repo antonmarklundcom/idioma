@@ -116,6 +116,13 @@ const en = {
     placementTitle: '🎙️ Let me check by speaking instead',
     placementDesc:
       'Two minutes, four to six short things to say out loud. We suggest a level, you decide.',
+    // Three optional answers the tutor keeps, so lessons are about this person.
+    aboutYouHeading: 'A little about you (optional)',
+    aboutYouHint:
+      'Your tutor uses these to pick topics you actually care about. Leave any of them blank, and change or delete them later in Settings.',
+    aboutYouJob: 'What do you do?',
+    aboutYouCity: 'Where do you live?',
+    aboutYouCares: 'One thing you care about',
     coachHeading: 'How should your tutor coach you?',
     gentleTitle: 'I want gentle encouragement — help me dare to speak',
     gentleDesc:
@@ -321,6 +328,28 @@ const en = {
     emptyState: 'No recurring mistakes yet. Practise a few turns and this fills itself in.',
     backToDashboard: 'Back to dashboard',
   },
+  profileNotes: {
+    heading: 'What your tutor knows about you',
+    hint: 'Used to pick topics and examples. Edit or delete anything here — including anything your tutor picked up on its own.',
+    empty: 'Nothing yet. Add something below and your tutor will use it.',
+    addPlaceholder: 'e.g. Has two daughters',
+    addFact: 'Add',
+    deleteFact: 'Delete this',
+    sourceAsked: 'you said',
+    sourceLearned: 'picked up',
+    learningTitle: 'Let my tutor remember things I mention',
+    learningDesc:
+      'Off by default. With it on, a durable fact you mention while speaking is added to the list above, where you can edit or delete it.',
+    explanationHeading: 'Explain corrections in…',
+    explanationOptions: {
+      native: 'My language',
+      target: 'The language I am learning',
+      both: 'Both',
+    },
+    saving: 'Saving…',
+    saved: 'Saved',
+    saveFailed: "Couldn't save that. Try again.",
+  },
   recorder: {
     stopRecording: 'Stop recording',
     startRecording: 'Start recording',
@@ -502,6 +531,12 @@ const es: Dictionary = {
     placementTitle: '🎙️ Mejor comprobalo hablando',
     placementDesc:
       'Dos minutos, cuatro a seis cosas cortas para decir en voz alta. Nosotros sugerimos un nivel, vos decidís.',
+    aboutYouHeading: 'Un poco sobre vos (opcional)',
+    aboutYouHint:
+      'Tu tutor usa esto para elegir temas que de verdad te importan. Podés dejar cualquiera en blanco, y cambiarlo o borrarlo después en Ajustes.',
+    aboutYouJob: '¿A qué te dedicás?',
+    aboutYouCity: '¿Dónde vivís?',
+    aboutYouCares: 'Algo que te importa',
     coachHeading: '¿Cómo querés que te guíe tu tutor?',
     gentleTitle: 'Quiero ánimo suave — ayudame a animarme a hablar',
     gentleDesc:
@@ -697,6 +732,28 @@ const es: Dictionary = {
     emptyState: 'Todavía no hay errores recurrentes. Practicá unos turnos y esto se llena solo.',
     backToDashboard: 'Volver al panel',
   },
+  profileNotes: {
+    heading: 'Lo que tu tutor sabe de vos',
+    hint: 'Se usa para elegir temas y ejemplos. Editá o borrá lo que quieras — incluso lo que tu tutor captó por su cuenta.',
+    empty: 'Todavía nada. Agregá algo abajo y tu tutor lo va a usar.',
+    addPlaceholder: 'ej. Tiene dos hijas',
+    addFact: 'Agregar',
+    deleteFact: 'Borrar esto',
+    sourceAsked: 'lo dijiste vos',
+    sourceLearned: 'lo captó',
+    learningTitle: 'Que mi tutor recuerde lo que menciono',
+    learningDesc:
+      'Apagado por defecto. Con esto activado, un dato duradero que menciones hablando se agrega a la lista de arriba, donde podés editarlo o borrarlo.',
+    explanationHeading: 'Explicar las correcciones en…',
+    explanationOptions: {
+      native: 'Mi idioma',
+      target: 'El idioma que estoy aprendiendo',
+      both: 'Los dos',
+    },
+    saving: 'Guardando…',
+    saved: 'Guardado',
+    saveFailed: 'No se pudo guardar. Probá de nuevo.',
+  },
   recorder: {
     stopRecording: 'Detener grabación',
     startRecording: 'Iniciar grabación',
@@ -877,6 +934,12 @@ const sv: Dictionary = {
     placementTitle: '🎙️ Kolla genom att prata i stället',
     placementDesc:
       'Två minuter, fyra till sex korta saker att säga högt. Vi föreslår en nivå, du bestämmer.',
+    aboutYouHeading: 'Lite om dig (frivilligt)',
+    aboutYouHint:
+      'Din lärare använder det här för att välja ämnen du faktiskt bryr dig om. Lämna vad du vill tomt, och ändra eller ta bort det senare i Inställningar.',
+    aboutYouJob: 'Vad jobbar du med?',
+    aboutYouCity: 'Var bor du?',
+    aboutYouCares: 'En sak du bryr dig om',
     coachHeading: 'Hur ska din handledare coacha dig?',
     gentleTitle: 'Jag vill ha mild uppmuntran — hjälp mig våga prata',
     gentleDesc:
@@ -1071,6 +1134,28 @@ const sv: Dictionary = {
     nothingToDrill: 'Inget att öva på härifrån än — fortsätt öva så fylls det på.',
     emptyState: 'Inga återkommande misstag än. Öva några turer så fyller det här sig självt.',
     backToDashboard: 'Tillbaka till panelen',
+  },
+  profileNotes: {
+    heading: 'Vad din lärare vet om dig',
+    hint: 'Används för att välja ämnen och exempel. Ändra eller ta bort vad du vill — även det din lärare snappade upp själv.',
+    empty: 'Inget än. Lägg till något nedan så använder din lärare det.',
+    addPlaceholder: 't.ex. Har två döttrar',
+    addFact: 'Lägg till',
+    deleteFact: 'Ta bort',
+    sourceAsked: 'du sa',
+    sourceLearned: 'uppsnappat',
+    learningTitle: 'Låt min lärare komma ihåg det jag nämner',
+    learningDesc:
+      'Av som standard. Med det på läggs en varaktig sak du nämner när du pratar till listan ovan, där du kan ändra eller ta bort den.',
+    explanationHeading: 'Förklara rättelser på…',
+    explanationOptions: {
+      native: 'Mitt språk',
+      target: 'Språket jag lär mig',
+      both: 'Båda',
+    },
+    saving: 'Sparar…',
+    saved: 'Sparat',
+    saveFailed: 'Kunde inte spara. Försök igen.',
   },
   recorder: {
     stopRecording: 'Stoppa inspelning',

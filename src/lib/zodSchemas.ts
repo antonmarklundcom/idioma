@@ -9,9 +9,37 @@ export const focusSkillValues = [
   'vocabulary',
 ] as const;
 
+/**
+ * One fact the tutor knows about the learner (ROADMAP.md P1.5b follow-on item 6).
+ * Bounded hard: these strings are substituted into the system prompt, so an unbounded
+ * one is a prompt-injection surface with a text box attached.
+ */
+export const PROFILE_FACT_MAX_CHARS = 200;
+export const PROFILE_FACTS_MAX = 20;
+
+export const profileFactSchema = z.object({
+  id: z.string().trim().min(1).max(64),
+  text: z.string().trim().min(1).max(PROFILE_FACT_MAX_CHARS),
+  source: z.enum(['asked', 'learned']),
+});
+
+export type ProfileFactInput = z.infer<typeof profileFactSchema>;
+
 export const onboardingSchema = z.object({
   languagePairId: z.uuid(),
   level: z.enum(['A1', 'A2', 'B1', 'B2', 'C1']),
+  /**
+   * The three optional questions at onboarding - what they do, where they live, and
+   * one thing they care about. Sent as plain answers; the route turns them into
+   * `profile_notes` facts, so the browser never decides what a stored fact looks like.
+   */
+  profileAnswers: z
+    .object({
+      job: z.string().trim().max(PROFILE_FACT_MAX_CHARS).optional(),
+      city: z.string().trim().max(PROFILE_FACT_MAX_CHARS).optional(),
+      caresAbout: z.string().trim().max(PROFILE_FACT_MAX_CHARS).optional(),
+    })
+    .optional(),
   coachingProfile: z.enum(['confidence_first', 'accuracy_focus']),
   focusSkills: z.array(z.enum(focusSkillValues)).min(1),
   timezone: z.string().min(1),
@@ -32,6 +60,15 @@ export const preferencesSchema = z.object({
    * been placed has no business re-submitting their language pair to record it.
    */
   level: z.enum(['A1', 'A2', 'B1', 'B2', 'C1']).optional(),
+  /**
+   * The whole fact list, replaced wholesale. Editing and deleting facts is what
+   * Settings does with them, and a list of at most twenty short strings is cheaper to
+   * send whole than to patch item by item.
+   */
+  profileNotes: z.array(profileFactSchema).max(PROFILE_FACTS_MAX).optional(),
+  /** Whether the tutor may add facts it hears. Default OFF - see the schema comment. */
+  factLearning: z.boolean().optional(),
+  explanationLanguage: z.enum(['native', 'target', 'both']).optional(),
 });
 
 export type PreferencesInput = z.infer<typeof preferencesSchema>;
@@ -202,6 +239,12 @@ export const feedbackResultSchema = z.object({
   correctedUtterance: z.string(),
   tutorReply: z.string(),
   followUpQuestion: z.string(),
+  /**
+   * One durable fact about the learner, when they volunteered one and fact learning is
+   * on (ROADMAP.md P1.5b follow-on item 6). Optional in the contract so a provider that
+   * omits it, or a model that forgets it, never fails the parse and loses the turn.
+   */
+  learnedFact: z.string().max(PROFILE_FACT_MAX_CHARS).nullish(),
 });
 
 export type FeedbackResult = z.infer<typeof feedbackResultSchema>;

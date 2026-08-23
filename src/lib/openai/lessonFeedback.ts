@@ -28,8 +28,18 @@ const feedbackJsonSchema = {
     correctedUtterance: { type: 'string' },
     tutorReply: { type: 'string' },
     followUpQuestion: { type: 'string' },
+    // Strict mode requires every property to be listed in `required`, so "optional"
+    // here means nullable: the model returns null when it has nothing to remember.
+    learnedFact: { type: ['string', 'null'] },
   },
-  required: ['transcription', 'errors', 'correctedUtterance', 'tutorReply', 'followUpQuestion'],
+  required: [
+    'transcription',
+    'errors',
+    'correctedUtterance',
+    'tutorReply',
+    'followUpQuestion',
+    'learnedFact',
+  ],
 } as const;
 
 // OpenAI's transcription endpoint keys off the filename extension, so the

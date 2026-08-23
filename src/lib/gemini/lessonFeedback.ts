@@ -25,6 +25,9 @@ const feedbackSchema: Schema = {
     correctedUtterance: { type: Type.STRING },
     tutorReply: { type: Type.STRING },
     followUpQuestion: { type: Type.STRING },
+    // Optional half of the contract: only asked for when fact learning is on, and
+    // never required, so a turn is never lost to a missing one.
+    learnedFact: { type: Type.STRING, nullable: true },
   },
   required: ['transcription', 'errors', 'correctedUtterance', 'tutorReply', 'followUpQuestion'],
 };
