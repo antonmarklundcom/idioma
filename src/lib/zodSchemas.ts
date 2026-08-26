@@ -212,6 +212,28 @@ export const reviewGradeRequestSchema = z.object({
 
 export type ReviewGradeInput = z.infer<typeof reviewGradeRequestSchema>;
 
+// --- /api/speaking-time -----------------------------------------------------
+/**
+ * An upper bound on one report, because this is a client-supplied number that lands
+ * in a metric the family reads (PLAN.md §6.3: bound everything at the trust
+ * boundary). An hour is far above any real shadowing run - the point is that the
+ * number is bounded at all, not that the bound is tight.
+ */
+export const SPEAKING_SECONDS_MAX_PER_REPORT = 3600;
+
+/**
+ * Speaking time from practice that is NOT a graded turn - shadowing, today. A graded
+ * turn reports its seconds on the attempt itself (§6.5's cap counts those attempts);
+ * shadowing deliberately never calls a model, so without this it spoke into a void
+ * and the dashboard's "you spoke N minutes" quietly undercounted the practice people
+ * do most.
+ */
+export const speakingTimeRequestSchema = z.object({
+  seconds: z.number().int().positive().max(SPEAKING_SECONDS_MAX_PER_REPORT),
+});
+
+export type SpeakingTimeInput = z.infer<typeof speakingTimeRequestSchema>;
+
 // --- /api/session/end (PLAN.md §16 defect 1) --------------------------------
 // Deliberately no session id: the server re-resolves the caller's own open session
 // from these two fields, so a beacon can never close someone else's row.
