@@ -71,6 +71,13 @@
       "when": 1787495613056,
       "tag": "0009_silent_stick",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1787744589736,
+      "tag": "0010_add_native_voice",
+      "breakpoints": true
     }
   ]
 }

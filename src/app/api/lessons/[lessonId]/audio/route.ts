@@ -5,6 +5,7 @@ import { db } from '@/lib/db';
 import { languagePairs } from '@/lib/db/schema';
 import {
   getDialogueAudioText,
+  getExercisePromptAudioText,
   getLessonForPair,
   getListenAudioText,
   getVocabAudioText,
@@ -43,11 +44,24 @@ export async function GET(request: Request, { params }: { params: Promise<{ less
   const searchParams = new URL(request.url).searchParams;
   const vocabParam = searchParams.get('vocab');
   const dialogueParam = searchParams.get('dialogue');
+  const promptParam = searchParams.get('prompt');
   const exerciseParam = searchParams.get('exercise');
-  const slot: 'exercise' | 'vocab' | 'dialogue' =
-    vocabParam !== null ? 'vocab' : dialogueParam !== null ? 'dialogue' : 'exercise';
+  const slot: 'exercise' | 'vocab' | 'dialogue' | 'prompt' =
+    vocabParam !== null
+      ? 'vocab'
+      : dialogueParam !== null
+        ? 'dialogue'
+        : promptParam !== null
+          ? 'prompt'
+          : 'exercise';
   const indexParam =
-    slot === 'vocab' ? vocabParam : slot === 'dialogue' ? dialogueParam : exerciseParam;
+    slot === 'vocab'
+      ? vocabParam
+      : slot === 'dialogue'
+        ? dialogueParam
+        : slot === 'prompt'
+          ? promptParam
+          : exerciseParam;
   const index = Number(indexParam);
   if (!indexParam || !Number.isInteger(index) || index < 0) {
     return NextResponse.json(
@@ -67,7 +81,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ less
       ? getVocabAudioText(lesson.content, index)
       : slot === 'dialogue'
         ? getDialogueAudioText(lesson.content, index)
-        : getListenAudioText(lesson.content, index);
+        : slot === 'prompt'
+          ? getExercisePromptAudioText(lesson.content, index)
+          : getListenAudioText(lesson.content, index);
   if (!audioText) {
     return NextResponse.json(
       { error: 'No audio for that item', code: 'not_found' },
@@ -76,10 +92,13 @@ export async function GET(request: Request, { params }: { params: Promise<{ less
   }
 
   const [pair] = await db
-    .select({ ttsVoice: languagePairs.ttsVoice })
+    .select({ ttsVoice: languagePairs.ttsVoice, nativeVoice: languagePairs.nativeVoice })
     .from(languagePairs)
     .where(eq(languagePairs.id, session.user.languagePairId));
-  if (!pair?.ttsVoice) {
+  // The prompt slot narrates in the learner's NATIVE voice; every other slot narrates
+  // the TARGET language, same as before this feature existed.
+  const voice = slot === 'prompt' ? pair?.nativeVoice : pair?.ttsVoice;
+  if (!voice) {
     // A pair with no configured voice (a future Guaraní pair, §3.3) simply can't
     // run listening exercises - the player degrades instead of breaking.
     return NextResponse.json(
@@ -97,7 +116,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ less
     lessonId,
     exerciseIndex: index,
     slot,
-    voice: pair.ttsVoice,
+    voice,
     speakingRate: speakingRateFor(session.user.level),
     audioText,
   });
@@ -128,7 +147,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ less
     );
   }
 
-  const tts = await synthesizeTutorSpeech(audioText, pair.ttsVoice, session.user.level);
+  const tts = await synthesizeTutorSpeech(audioText, voice, session.user.level);
   if (!tts) {
     return NextResponse.json(
       { error: "Couldn't load the audio - please try again.", code: 'tts_failed' },

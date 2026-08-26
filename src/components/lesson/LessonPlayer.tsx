@@ -115,6 +115,12 @@ export function LessonPlayer({
   // voice is set. 'error' = it should work and didn't (no TTS key, a failed call),
   // which is a different sentence to the learner and a different fix for the owner.
   const [slotAudioStatus, setSlotAudioStatus] = useState<'idle' | 'unavailable' | 'error'>('idle');
+  // Separate from slotAudioStatus: the prompt narrates in the pair's NATIVE voice, not
+  // its target one, so a pair can have one configured without the other.
+  const [promptAudioStatus, setPromptAudioStatus] = useState<'idle' | 'unavailable' | 'error'>(
+    'idle',
+  );
+  const [playingPrompt, setPlayingPrompt] = useState<number | null>(null);
   const [showDialogue, setShowDialogue] = useState(
     () => lessonId !== undefined && exercises.length > 0 && dialogue !== null,
   );
@@ -247,6 +253,61 @@ export function LessonPlayer({
       }
     },
     [lessonId, player, slotAudioStatus, sound],
+  );
+
+  /**
+   * The exercise prompt, read aloud in the learner's OWN language (ROADMAP.md
+   * follow-on: prompts were read, never heard). A separate cache-key namespace and a
+   * separate status from `playSlotAudio` because it uses the pair's `nativeVoice`, not
+   * `ttsVoice` - a pair can have one configured without the other.
+   */
+  const playPromptAudio = useCallback(
+    (index: number, onEnded?: () => void) => {
+      if (!lessonId || promptAudioStatus !== 'idle') {
+        onEnded?.();
+        return;
+      }
+      player.unlock();
+      const cacheKey = `prompt:${index}`;
+      const cached = audioCache.current.get(cacheKey);
+      if (cached) {
+        player.play(cached, onEnded);
+        return;
+      }
+      void (async () => {
+        try {
+          const res = await fetch(`/api/lessons/${lessonId}/audio?prompt=${index}`);
+          if (!res.ok) {
+            setPromptAudioStatus(res.status === 409 ? 'unavailable' : 'error');
+            onEnded?.();
+            return;
+          }
+          const data: { audioBase64: string } = await res.json();
+          audioCache.current.set(cacheKey, data.audioBase64);
+          player.play(data.audioBase64, onEnded);
+        } catch {
+          onEnded?.();
+        }
+      })();
+    },
+    [lessonId, player, promptAudioStatus],
+  );
+
+  /**
+   * Fires the prompt's audio the moment an exercise appears - inside the SAME tap
+   * handler that reveals it (goToNextExercise, "start the exercises", "now your turn"),
+   * so `player.unlock()` runs in the tap's own call stack and the async fetch that
+   * follows is still allowed to play on iOS (PLAN.md §4.5 - the same trick
+   * `handleRecorded` already relies on for the tutor's reply). Dialogue turns are
+   * skipped: they have no prompt-slot audio (getExercisePromptAudioText only covers
+   * `content.exercises`), and their own listen-first UI already covers being heard.
+   */
+  const announcePrompt = useCallback(
+    (target: PlayerExercise | null | undefined) => {
+      if (!target || target.kind === 'dialogue') return;
+      playPromptAudio(target.index);
+    },
+    [playPromptAudio],
   );
 
   const playVocabAudio = useCallback(
@@ -400,8 +461,9 @@ export function LessonPlayer({
     setAttempts(0);
     setPeeking(false);
     setAudioStatus('idle');
+    announcePrompt(exercises[step + 1] ?? null);
     setStep((s) => s + 1);
-  }, []);
+  }, [announcePrompt, exercises, step]);
 
   /**
    * The retry (ROADMAP.md lesson-loop item 1). Clears the feedback but NOT the step,
@@ -607,7 +669,14 @@ export function LessonPlayer({
               {strings.shadowTheseWords}
             </button>
           )}
-          <button type="button" onClick={() => setShowVocab(false)} className="btn-primary self-start">
+          <button
+            type="button"
+            onClick={() => {
+              if (!showDialogue) announcePrompt(exercises[0] ?? null);
+              setShowVocab(false);
+            }}
+            className="btn-primary self-start"
+          >
             {/* Naming the step that actually follows: with a dialogue in the lesson, the
                 next thing is listening to it, not being graded. */}
             {showDialogue ? strings.onToTheConversation : strings.startExercises}
@@ -675,7 +744,10 @@ export function LessonPlayer({
 
         <button
           type="button"
-          onClick={() => setShowDialogue(false)}
+          onClick={() => {
+            announcePrompt(exercises[0] ?? null);
+            setShowDialogue(false);
+          }}
           className="btn-primary self-start"
         >
           {strings.yourTurnNow}
@@ -746,9 +818,29 @@ export function LessonPlayer({
         </button>
       )}
 
-      <p className="max-w-lg text-center text-xl font-semibold text-balance text-ink">
-        {exercise ? exercise.prompt : promptContext}
-      </p>
+      <div className="flex max-w-lg items-center gap-2">
+        <p className="text-center text-xl font-semibold text-balance text-ink">
+          {exercise ? exercise.prompt : promptContext}
+        </p>
+        {/* Tap-to-hear replay of the prompt just announced (or the only way to hear it,
+            if the entry-point tap couldn't play it - e.g. the very first exercise of a
+            lesson with no vocab/dialogue step before it, reached by page navigation
+            rather than a tap inside this component). Hidden for dialogue turns (no
+            prompt-slot audio for them) and once this pair has proven it has none. */}
+        {exercise && exercise.kind !== 'dialogue' && promptAudioStatus === 'idle' && (
+          <button
+            type="button"
+            onClick={() => {
+              setPlayingPrompt(exercise.index);
+              playPromptAudio(exercise.index, () => setPlayingPrompt(null));
+            }}
+            aria-label={strings.hearPrompt}
+            className="shrink-0 text-xl"
+          >
+            {playingPrompt === exercise.index ? '…' : '🔊'}
+          </button>
+        )}
+      </div>
 
       {/* Their own line is one tap away rather than on screen: reading it aloud is a
           much easier exercise than producing it from the meaning. */}
