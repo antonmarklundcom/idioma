@@ -126,6 +126,7 @@ export async function POST(request: Request) {
     promptContext,
     spokenSeconds,
     mode,
+    noSpokenReply,
   } = parsedBody.data;
 
   // PLAN.md §15.3: the capability gate, checked before anything is read or spent. It is
@@ -263,7 +264,7 @@ export async function POST(request: Request) {
   }
 
   const earlyReplyPath: Promise<EarlyReply | null> =
-    input.kind === 'audio' && ttsVoice
+    !noSpokenReply && input.kind === 'audio' && ttsVoice
       ? getQuickReply(callArgs).then(async (quick) => {
           if (!quick) return null;
           return { quick, audio: await synthesizeSpoken(quick, ttsVoice, ttsCharsUsed, level, userId) };
@@ -314,8 +315,10 @@ export async function POST(request: Request) {
   let tutorAudioBase64: string | null = early?.audio?.audioBase64 ?? null;
 
   // Serial fallback: no split path (typed answer / provider without a quick reply), or
-  // the quick call failed. Same behaviour the route had before Phase 7B.
-  if (!tutorAudioBase64 && ttsVoice) {
+  // the quick call failed. Same behaviour the route had before Phase 7B. Skipped
+  // entirely for a caller that flagged noSpokenReply - synthesizing a reply nobody
+  // plays would just spend TTS quota for nothing.
+  if (!tutorAudioBase64 && ttsVoice && !noSpokenReply) {
     const synthesized = await synthesizeSpoken(feedback, ttsVoice, ttsCharsUsed, level, userId);
     if (synthesized) {
       tutorAudioBase64 = synthesized.audioBase64;

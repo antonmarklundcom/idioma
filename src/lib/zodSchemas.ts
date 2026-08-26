@@ -134,6 +134,15 @@ export const lessonAttemptRequestSchema = z
      */
     spokenSeconds: z.number().min(0).optional(),
     mode: z.enum(['lesson', 'live', 'review']).default('lesson'),
+    /**
+     * Skip the spoken-reply path entirely: no quick-reply call, no TTS synthesis.
+     * Grading is unaffected - the structured feedback call still runs and the turn is
+     * still persisted and counted. For callers nothing ever plays the reply to, like
+     * placement's back-to-back speaking tasks (ROADMAP.md follow-on, PR #54) - each
+     * one synthesized a tutor reply that `PlacementRun` never played, at the cost of a
+     * TTS call against the metered quota per turn.
+     */
+    noSpokenReply: z.boolean().default(false),
   })
   .superRefine((body, ctx) => {
     if ((body.audioBase64 !== undefined) === (body.text !== undefined)) {
@@ -187,6 +196,7 @@ export const lessonAttemptRequestSchema = z
       reviewItemId: body.reviewItemId,
       promptContext: body.promptContext,
       mode: body.mode,
+      noSpokenReply: body.noSpokenReply,
     };
     if (typeof body.text === 'string') {
       return { ...rest, input: { kind: 'text' as const, text: body.text } };
