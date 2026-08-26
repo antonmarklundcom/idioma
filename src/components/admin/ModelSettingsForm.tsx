@@ -120,22 +120,19 @@ export function ModelSettingsForm({
         const test = tests[task];
 
         return (
-          <section
-            key={task}
-            className="rounded-lg border border-slate-200 p-4 dark:border-slate-700"
-          >
-            <h3 className="text-base font-semibold text-slate-900 dark:text-white">
+          <section key={task} className="card p-5">
+            <h3 className="text-base font-bold text-ink">
               {TASK_LABELS[task]}
             </h3>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+            <p className="mt-1 text-sm text-ink-muted">
               {TASK_DESCRIPTIONS[task]}
             </p>
 
             <div className="mt-4 flex flex-col gap-3 sm:flex-row">
               <label className="flex flex-col gap-1 text-sm">
-                <span className="text-slate-600 dark:text-slate-300">Provider</span>
+                <span className="text-ink">Provider</span>
                 <select
-                  className="rounded border border-slate-300 px-2 py-1 dark:border-slate-600 dark:bg-slate-800"
+                  className="field px-3 py-2"
                   value={selection.providerId}
                   onChange={(e) => {
                     const providerId = e.target.value as ProviderId;
@@ -152,9 +149,9 @@ export function ModelSettingsForm({
               </label>
 
               <label className="flex flex-col gap-1 text-sm">
-                <span className="text-slate-600 dark:text-slate-300">Model</span>
+                <span className="text-ink">Model</span>
                 <select
-                  className="rounded border border-slate-300 px-2 py-1 dark:border-slate-600 dark:bg-slate-800"
+                  className="field px-3 py-2"
                   value={isCustom ? CUSTOM : selection.modelId}
                   onChange={(e) =>
                     updateTask(task, {
@@ -173,9 +170,9 @@ export function ModelSettingsForm({
 
               {isCustom && (
                 <label className="flex flex-col gap-1 text-sm">
-                  <span className="text-slate-600 dark:text-slate-300">Model ID</span>
+                  <span className="text-ink">Model ID</span>
                   <input
-                    className="rounded border border-slate-300 px-2 py-1 font-mono dark:border-slate-600 dark:bg-slate-800"
+                    className="field px-3 py-2 font-mono"
                     value={selection.modelId}
                     placeholder="exact ID from the provider's docs"
                     onChange={(e) => updateTask(task, { modelId: e.target.value })}
@@ -185,8 +182,8 @@ export function ModelSettingsForm({
             </div>
 
             <dl className="mt-4 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
-              <dt className="text-slate-500 dark:text-slate-400">Price</dt>
-              <dd className="text-slate-800 dark:text-slate-100">
+              <dt className="text-ink-muted">Price</dt>
+              <dd className="text-ink">
                 {known && known.inputPricePerMTok !== null && known.outputPricePerMTok !== null ? (
                   <>
                     ${known.inputPricePerMTok}/1M in · ${known.outputPricePerMTok}/1M out
@@ -207,24 +204,24 @@ export function ModelSettingsForm({
                 )}
               </dd>
 
-              <dt className="text-slate-500 dark:text-slate-400">Est. per 100 turns</dt>
-              <dd className="text-slate-800 dark:text-slate-100">
+              <dt className="text-ink-muted">Est. per 100 turns</dt>
+              <dd className="text-ink">
                 {cost ? `${formatUsd(cost.per100Turns)} (rough estimate)` : '—'}
               </dd>
             </dl>
 
             {known?.notes && (
-              <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">{known.notes}</p>
+              <p className="mt-2 text-xs text-ink-muted">{known.notes}</p>
             )}
 
             {!provider.hasKey && (
-              <p className="mt-3 rounded bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
+              <p className="mt-3 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
                 {provider.apiKeyEnvVar} is not set — turns using this provider will fail.
               </p>
             )}
 
             {!provider.acceptsAudioDirectly && (
-              <p className="mt-3 rounded bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:bg-amber-950 dark:text-amber-200">
+              <p className="mt-3 rounded-xl bg-streak-50 px-3 py-2 text-sm text-streak-700 dark:bg-streak-500/15 dark:text-streak-500">
                 {provider.label} can&apos;t hear the recording directly. Each turn runs
                 speech-to-text first, then feedback — two calls, slower and more expensive, and{' '}
                 <strong>no pronunciation feedback</strong>, because a transcript can&apos;t carry
@@ -237,7 +234,7 @@ export function ModelSettingsForm({
                 type="button"
                 onClick={() => handleTest(task)}
                 disabled={test?.status === 'running' || !selection.modelId}
-                className="rounded border border-slate-300 px-3 py-1 text-sm disabled:opacity-50 dark:border-slate-600"
+                className="btn-secondary btn-sm"
               >
                 {test?.status === 'running' ? 'Testing…' : 'Test this model'}
               </button>
@@ -257,7 +254,7 @@ export function ModelSettingsForm({
               )}
             </div>
             {test?.status === 'done' && test.ok && test.sampleReply && (
-              <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+              <p className="mt-2 text-xs text-ink-muted">
                 Sample reply: “{test.sampleReply}”
               </p>
             )}
@@ -266,16 +263,16 @@ export function ModelSettingsForm({
       })}
 
       {usesOpenai && (
-        <section className="rounded-lg border border-slate-200 p-4 dark:border-slate-700">
-          <h3 className="text-base font-semibold text-slate-900 dark:text-white">
+        <section className="card p-5">
+          <h3 className="text-base font-bold text-ink">
             OpenAI speech-to-text model
           </h3>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+          <p className="mt-1 text-sm text-ink-muted">
             Required while any task above runs on OpenAI — it turns the recording into text before
             the feedback call. Not used by Gemini.
           </p>
           <input
-            className="mt-3 w-full max-w-sm rounded border border-slate-300 px-2 py-1 font-mono text-sm dark:border-slate-600 dark:bg-slate-800"
+            className="field mt-3 w-full max-w-sm px-3 py-2 font-mono text-sm"
             value={settings.openaiTranscribeModelId}
             placeholder="exact transcription model ID"
             onChange={(e) => {
@@ -291,7 +288,7 @@ export function ModelSettingsForm({
           type="button"
           onClick={handleSave}
           disabled={saving}
-          className="rounded bg-slate-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50 dark:bg-white dark:text-slate-900"
+          className="btn-primary btn-sm"
         >
           {saving ? 'Saving…' : 'Save'}
         </button>

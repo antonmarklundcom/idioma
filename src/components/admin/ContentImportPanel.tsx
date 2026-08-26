@@ -83,11 +83,11 @@ export function ContentImportPanel({ initialLessons }: { initialLessons: Existin
   }
 
   return (
-    <section className="flex flex-col gap-4">
-      <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+    <section className="card flex flex-col gap-4 p-5">
+      <h2 className="heading-section">
         Content import (§2, Phase 5)
       </h2>
-      <p className="text-sm text-slate-500 dark:text-slate-400">
+      <p className="text-sm text-ink-muted">
         Paste or upload a JSON array of lessons. Every item is validated before anything is
         written - if any item fails, nothing is imported.
       </p>
@@ -98,7 +98,7 @@ export function ContentImportPanel({ initialLessons }: { initialLessons: Existin
           onChange={(e) => setText(e.target.value)}
           placeholder='[{ "languagePairCode": "en>es-speaker", "level": "A1", "topic": "greetings", "title": "...", "content": { "intro": "...", "vocab": [], "exercises": [] } }]'
           rows={10}
-          className="w-full rounded-xl border border-slate-200 bg-white p-3 font-mono text-xs text-slate-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+          className="field w-full p-3 font-mono text-xs"
         />
         <div className="flex flex-wrap items-center gap-3">
           <input
@@ -106,13 +106,13 @@ export function ContentImportPanel({ initialLessons }: { initialLessons: Existin
             type="file"
             accept="application/json"
             onChange={handleFile}
-            className="text-sm text-slate-500 dark:text-slate-400"
+            className="text-sm text-ink-muted"
           />
           <button
             type="button"
             onClick={handleImport}
             disabled={status === 'importing' || text.trim().length === 0}
-            className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+            className="btn-primary btn-sm"
           >
             {status === 'importing' ? 'Importing…' : 'Import'}
           </button>
@@ -123,7 +123,7 @@ export function ContentImportPanel({ initialLessons }: { initialLessons: Existin
         <div
           className={`rounded-xl border p-3 text-sm ${
             'imported' in response
-              ? 'border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300'
+              ? 'border-success-500 bg-success-50 text-success-700 dark:bg-success-500/15 dark:text-success-500'
               : 'border-red-300 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300'
           }`}
         >
@@ -148,20 +148,20 @@ export function ContentImportPanel({ initialLessons }: { initialLessons: Existin
       )}
 
       <div className="flex flex-col gap-2">
-        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+        <h3 className="text-sm font-semibold text-ink">
           Imported lessons ({lessons.length})
         </h3>
         <ul className="flex flex-col gap-1">
           {lessons.length === 0 && (
-            <li className="text-sm text-slate-400">No lesson content imported yet.</li>
+            <li className="text-sm text-ink-muted">No lesson content imported yet.</li>
           )}
           {lessons.map((l) => (
             <li
               key={l.id}
-              className="flex items-center justify-between gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-slate-700"
+              className="panel flex items-center justify-between gap-2 px-3 py-2 text-sm"
             >
-              <span className="truncate text-slate-700 dark:text-slate-300">
-                <span className="font-mono text-xs text-slate-400">{l.languagePairCode}</span>{' '}
+              <span className="truncate text-ink">
+                <span className="font-mono text-xs text-ink-muted">{l.languagePairCode}</span>{' '}
                 {l.level} · {l.topic} · {l.title}
               </span>
               <button
