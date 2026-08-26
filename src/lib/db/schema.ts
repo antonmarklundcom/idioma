@@ -83,6 +83,12 @@ export const languagePairs = pgTable('language_pairs', {
   // Cloud TTS voice for the TARGET language. NULL = no TTS for this pair
   // (e.g. a future Guaraní pair) → UI degrades to text-only.
   ttsVoice: text('tts_voice'),
+  // Cloud TTS voice for the NATIVE language (ROADMAP.md follow-on: speaking the
+  // exercise prompt, which is written in the learner's own language - a different
+  // voice from ttsVoice on purpose, so the "guide" is audibly distinct from the
+  // target-language content being taught). NULL = that pair's prompts stay
+  // text-only, same degrade-gracefully rule as ttsVoice.
+  nativeVoice: text('native_voice'),
   active: boolean('active').notNull().default(true),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });

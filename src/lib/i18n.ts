@@ -263,6 +263,11 @@ const en = {
     theySaid: 'They say',
     peekAtTheLine: 'Peek at the line',
     onToTheConversation: 'On to the conversation →',
+    // The exercise prompt, read aloud in the learner's OWN language (ROADMAP.md
+    // follow-on: prompts used to be read, never heard). Tap-to-hear, same as the
+    // vocab chips and dialogue lines - and, where a voice is configured, it also
+    // plays on its own the moment the exercise appears.
+    hearPrompt: 'Hear it',
   },
   live: {
     openingPrompt: "Say hi and tell your tutor what's on your mind today - anything goes.",
@@ -700,6 +705,7 @@ const es: Dictionary = {
     theySaid: 'Te dicen',
     peekAtTheLine: 'Ver la línea',
     onToTheConversation: 'Vamos a la conversación →',
+    hearPrompt: 'Escuchar',
   },
   live: {
     openingPrompt: 'Saludá y contale a tu tutor qué tenés en mente hoy - lo que sea.',
@@ -1131,6 +1137,7 @@ const sv: Dictionary = {
     theySaid: 'De säger',
     peekAtTheLine: 'Titta på repliken',
     onToTheConversation: 'Vidare till samtalet →',
+    hearPrompt: 'Lyssna',
   },
   live: {
     openingPrompt: 'Säg hej och berätta för din handledare vad du tänker på idag - vad som helst.',

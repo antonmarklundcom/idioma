@@ -361,6 +361,27 @@ export function getListenAudioText(content: unknown, index: number): string | nu
 }
 
 /**
+ * The text one exercise's instruction narrates - the exercise's own `prompt`, which is
+ * written in the learner's OWN language (ROADMAP.md follow-on: "the vocabulary step and
+ * the exercise prompts are read, never heard"). Unlike `getListenAudioText` this text is
+ * ALSO shown on screen (PlayerExercise.prompt) - narrating it is a read-aloud of visible
+ * text, not a hidden listening exercise, so the audio route serves it from the same
+ * index-only door for the same reason: TTS spend must never be driven by client text.
+ *
+ * Deliberately scoped to `content.exercises` items only, not dialogue turns: a
+ * dialogue-turn cue falls back to the line's own TARGET-language text when it has no
+ * gloss (toDialogueTurns), and narrating that in the native voice would say the wrong
+ * language in the wrong voice.
+ */
+export function getExercisePromptAudioText(content: unknown, index: number): string | null {
+  const exercise = rawExercises(content)[index];
+  if (!exercise) return null;
+  const kind = typeof exercise.type === 'string' ? EXERCISE_KINDS[exercise.type] : undefined;
+  if (!kind) return null;
+  return nonEmptyString(exercise.prompt);
+}
+
+/**
  * The text one vocab item synthesizes for the lesson's vocab step (ROADMAP.md P1.5).
  *
  * Server-side only, for the same reason `getListenAudioText` is: the audio route
@@ -383,7 +404,7 @@ export function getVocabAudioText(content: unknown, index: number): string | nul
  * contributes nothing, exactly as it renders nothing.
  */
 export type LessonAudioItem = {
-  slot: 'exercise' | 'vocab' | 'dialogue';
+  slot: 'exercise' | 'vocab' | 'dialogue' | 'prompt';
   index: number;
   text: string;
 };
@@ -404,6 +425,14 @@ export function lessonAudioItems(content: unknown): LessonAudioItem[] {
   rawExercises(content).forEach((_, index) => {
     const text = getListenAudioText(content, index);
     if (text) items.push({ slot: 'exercise', index, text });
+  });
+
+  // The 'prompt' slot narrates in the NATIVE voice, unlike the three slots above,
+  // which all narrate the TARGET language - see the generator and the audio route,
+  // both of which pick a voice per item.slot rather than one voice per lesson.
+  rawExercises(content).forEach((_, index) => {
+    const text = getExercisePromptAudioText(content, index);
+    if (text) items.push({ slot: 'prompt', index, text });
   });
 
   return items;

@@ -7,6 +7,7 @@ import {
   deriveLessonMastery,
   formatTopic,
   getDialogueAudioText,
+  getExercisePromptAudioText,
   getVocabAudioText,
   splitIntro,
   toDialogueTurns,
@@ -192,6 +193,24 @@ describe('getVocabAudioText', () => {
   it('returns null for an index the lesson does not have, so the route 404s', () => {
     assert.equal(getVocabAudioText(FILL_GAP_LESSON, 9), null);
     assert.equal(getVocabAudioText({ intro: 'x', exercises: [] }, 0), null);
+  });
+});
+
+// ROADMAP.md follow-on: the exercise prompt, spoken in the learner's OWN language.
+describe('getExercisePromptAudioText', () => {
+  it("reads every recognized exercise kind's own prompt, not its hidden text", () => {
+    assert.equal(getExercisePromptAudioText(FILL_GAP_LESSON, 0), 'Say hello.');
+    assert.equal(getExercisePromptAudioText(FILL_GAP_LESSON, 1), 'Say the whole sentence.');
+  });
+
+  it('never returns the fill_gap answer or a listen_prompt audioText', () => {
+    const text = getExercisePromptAudioText(FILL_GAP_LESSON, 1) ?? '';
+    assert.ok(!text.includes("I'm from Paraguay."));
+  });
+
+  it('returns null for an unrecognized exercise type or a missing index', () => {
+    assert.equal(getExercisePromptAudioText({ exercises: [{ type: 'mystery' }] }, 0), null);
+    assert.equal(getExercisePromptAudioText(FILL_GAP_LESSON, 9), null);
   });
 });
 

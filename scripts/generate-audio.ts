@@ -1,12 +1,14 @@
 /**
  * Pre-generate the lesson audio library.
  *
- * Every vocabulary word, dialogue line and listening prompt in the database is
- * synthesized once and stored in `lesson_audio`, so tapping a word is a database read
- * rather than a paid round trip to Google. The library is ~900 recordings across 84
- * lessons - about 25,000 characters, or 2.5% of one month's free allowance - and once
- * it exists the only thing that ever spends characters again is the tutor speaking its
- * own replies, which are new text every time and can never be pre-generated.
+ * Every vocabulary word, dialogue line, listening prompt AND exercise instruction in
+ * the database is synthesized once and stored in `lesson_audio`, so tapping a word (or
+ * opening an exercise) is a database read rather than a paid round trip to Google. The
+ * exercise-prompt slot narrates in the pair's `nativeVoice`, not `ttsVoice` - the
+ * instruction is written in the learner's own language, not the language being taught
+ * (see lib/lessons.ts `getExercisePromptAudioText`). Once the library exists the only
+ * thing that ever spends characters again is the tutor speaking its own replies, which
+ * are new text every time and can never be pre-generated.
  *
  * Run:  npm run audio:generate            (everything missing)
  *       npm run audio:generate -- --dry   (what it would do, spending nothing)
@@ -46,6 +48,7 @@ async function main() {
       content: lessonContent.content,
       pairCode: languagePairs.code,
       voice: languagePairs.ttsVoice,
+      nativeVoice: languagePairs.nativeVoice,
     })
     .from(lessonContent)
     .innerJoin(languagePairs, eq(languagePairs.id, lessonContent.languagePairId));
@@ -57,20 +60,27 @@ async function main() {
   let skippedNoVoice = 0;
 
   for (const lesson of lessons) {
-    if (!lesson.voice) {
+    if (!lesson.voice && !lesson.nativeVoice) {
       skippedNoVoice += 1;
       continue;
     }
     const items = lessonAudioItems(lesson.content);
 
     for (const item of items) {
+      // The 'prompt' slot narrates the learner's NATIVE language (the exercise
+      // instruction); every other slot narrates the TARGET language, same as before
+      // this slot existed. A pair missing the voice a given item needs just skips
+      // that item, exactly like the whole-lesson skip above used to for everything.
+      const voice = item.slot === 'prompt' ? lesson.nativeVoice : lesson.voice;
+      if (!voice) continue;
+
       for (const level of LEVELS_TO_COVER) {
         const speakingRate = speakingRateFor(level);
         const cacheKey = listenAudioKey({
           lessonId: lesson.id,
           exerciseIndex: item.index,
           slot: item.slot,
-          voice: lesson.voice,
+          voice,
           speakingRate,
           audioText: item.text,
         });
@@ -85,7 +95,7 @@ async function main() {
           continue;
         }
 
-        const spoken = await synthesizeTutorSpeech(item.text, lesson.voice, level);
+        const spoken = await synthesizeTutorSpeech(item.text, voice, level);
         if (!spoken) {
           // Reported rather than thrown: one voice Google dislikes should not cost the
           // other 900 recordings, and re-running picks up whatever is still missing.

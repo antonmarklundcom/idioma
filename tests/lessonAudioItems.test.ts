@@ -36,6 +36,11 @@ describe('lessonAudioItems', () => {
         'dialogue[0] ¿Cómo andás?',
         'dialogue[1] Todo bien.',
         'exercise[1] Escuchá bien esto.',
+        // The 'prompt' slot: the exercise's own instruction, in the learner's OWN
+        // language - narrated in the pair's nativeVoice, not its ttsVoice (see the
+        // audio route and scripts/generate-audio.ts).
+        'prompt[0] Säg hej.',
+        'prompt[1] Vad sa hon?',
       ],
     );
   });
@@ -48,9 +53,8 @@ describe('lessonAudioItems', () => {
     assert.equal(listen?.index, 1);
   });
 
-  it('leaves out what has no recording: prompts, glosses, gapped sentences', () => {
+  it('leaves out what has no recording: glosses and gapped sentences', () => {
     const items = lessonAudioItems(content);
-    assert.ok(!items.some((i) => i.text.includes('Säg hej')), 'a speak prompt is not spoken');
     assert.ok(!items.some((i) => i.text === 'stugan'), 'a gloss is the learner’s own language');
   });
 
@@ -66,6 +70,8 @@ describe('lessonAudioItems', () => {
       dialogue: { learnerSpeaker: 'Du', lines: [{ speaker: 'Du', text: '' }] },
       exercises: [{ type: 'speak_prompt', prompt: 'x' }],
     });
-    assert.deepEqual(items, []);
+    // The malformed dialogue line contributes nothing, but the exercise's own prompt
+    // still does - it does not depend on the dialogue block at all.
+    assert.deepEqual(items, [{ slot: 'prompt', index: 0, text: 'x' }]);
   });
 });

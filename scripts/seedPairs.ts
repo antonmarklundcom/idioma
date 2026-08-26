@@ -222,6 +222,11 @@ export const SEED_PAIRS = [
     // GOOGLE_TTS_API_KEY exists (Phase 0) - a wrong name just degrades to text-only
     // (TTS failures are non-fatal), so this is a safe placeholder either way.
     ttsVoice: 'es-US-Neural2-A',
+    // The exercise prompt is written in the learner's OWN language (English here),
+    // so it gets an English voice, not the Spanish one above - a different voice
+    // for the guide than for the language being taught. Same unverified-guess
+    // caveat as ttsVoice.
+    nativeVoice: 'en-US-Neural2-C',
   },
   {
     code: 'en>es-speaker',
@@ -240,6 +245,9 @@ export const SEED_PAIRS = [
     // Best-guess default from Google's documented en-US Neural2 catalog - same
     // re-verify-at-Phase-0 caveat as the es-US voice above.
     ttsVoice: 'en-US-Neural2-C',
+    // The prompt is written in Spanish here - the learner's own language - so it
+    // gets the Spanish voice. Same unverified-guess caveat as ttsVoice.
+    nativeVoice: 'es-US-Neural2-A',
   },
   {
     code: 'es-PY>sv-speaker',
@@ -266,5 +274,11 @@ export const SEED_PAIRS = [
     // Same voice as the English-speaker es-PY row: the TUTOR speaks Spanish,
     // the learner's native language only changes the explanation language.
     ttsVoice: 'es-US-Neural2-A',
+    // The prompt is written in Swedish here. Unlike the two pairs above, no other
+    // seeded pair already uses a Swedish voice, so this is a first, unverified
+    // guess from Google's documented sv-SE catalog (PLAN.md §4.5) - re-verify at
+    // Phase 0 like every other voice name here. A wrong name degrades this pair's
+    // prompt narration to text-only; it never breaks anything else.
+    nativeVoice: 'sv-SE-Wavenet-A',
   },
 ];

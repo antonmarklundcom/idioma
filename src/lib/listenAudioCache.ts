@@ -54,7 +54,7 @@ export function listenAudioKey(args: {
    * that would otherwise be one key apart only by their text hash. Defaults to
    * 'exercise' so existing call sites keep their keys.
    */
-  slot?: 'exercise' | 'vocab' | 'dialogue';
+  slot?: 'exercise' | 'vocab' | 'dialogue' | 'prompt';
 }): string {
   const textHash = createHash('sha256').update(args.audioText).digest('hex').slice(0, 16);
   return [

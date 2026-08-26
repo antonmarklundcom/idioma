@@ -188,6 +188,30 @@ Open follow-ons, in the order they are worth doing:
   attempt's mistake count is kept alongside the latest, shown as "3 mistakes → 0" under the
   second attempt's feedback, and summed on the scorecard ("you improved on 2 of 3 second
   attempts"). Client state only - `lib/attemptComparison.ts` holds the arithmetic.
+- ~~The lesson is silent between turns: the tutor only speaks AFTER a graded answer, so the
+  exercise prompts are read, never heard.~~ SHIPPED (August 2026, decision below). The
+  exercise's own `prompt` — written in the learner's OWN language, an instruction, not
+  target-language content — now has a voice: a new `language_pairs.native_voice` column
+  (migration `0010`, distinct from `ttsVoice`, which stays the TARGET-language voice) feeds
+  a new `?prompt=N` slot on the existing lesson-audio route
+  (`getExercisePromptAudioText` in `lib/lessons.ts`). **Design decision, since NEXT-SESSION.md
+  called this a design question, not an oversight:** narrate it, in a *different* voice from
+  the target-language content, so the "guide" is audibly distinct from the language being
+  taught — and fire it automatically the moment an exercise appears, from inside the SAME tap
+  that reveals it (`goToNextExercise`, "start the exercises", "now your turn"), which is what
+  makes the autoplay actually work on iOS (PLAN.md §4.5: `player.unlock()` has to run in a
+  user gesture's own call stack; the async fetch that follows is still allowed to play,
+  exactly the trick `handleRecorded` already relies on for the tutor's own reply). A
+  tap-to-hear 🔊 replay sits next to the prompt for every non-dialogue exercise, which is
+  also the only way to hear it for a lesson's very first exercise when there's no vocab or
+  dialogue step before it (that case is reached by page navigation, not a tap inside the
+  player, so the autoplay attempt is skipped and the icon is the whole story). Scoped to
+  `content.exercises` prompts only — a dialogue turn's cue already has its own listen-first
+  UI and, without a gloss, falls back to target-language text a native voice would mispronounce.
+  `lessonAudioItems`/`scripts/generate-audio.ts` cover the new slot (picking `nativeVoice` for
+  it, `ttsVoice` for everything else), so `npm run audio:generate` pre-generates prompts too —
+  migration `0010` also backfills `native_voice` for the three seeded pairs so this isn't a
+  silent no-op in Production until a re-seed.
 
 **P1.7 Curriculum expansion via admin import — content task (Opus writes, owner imports)**
 - Opus generates lesson packs as import-ready JSON validated by `npm run lessons:validate`:
