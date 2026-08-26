@@ -355,6 +355,29 @@ describe('lessonAttemptRequestSchema — spoken seconds', () => {
   });
 });
 
+describe('lessonAttemptRequestSchema — noSpokenReply', () => {
+  it('defaults to false, so an ordinary lesson turn is unaffected', () => {
+    const parsed = lessonAttemptRequestSchema.parse({ text: 'Quiero un café.' });
+    assert.equal(parsed.noSpokenReply, false);
+  });
+
+  it('passes an explicit true through, for a caller that never plays the reply', () => {
+    const parsed = lessonAttemptRequestSchema.parse({
+      audioBase64: 'AAAA',
+      mimeType: 'audio/webm',
+      noSpokenReply: true,
+    });
+    assert.equal(parsed.noSpokenReply, true);
+  });
+
+  it('rejects a non-boolean value rather than coercing it', () => {
+    assert.equal(
+      lessonAttemptRequestSchema.safeParse({ text: 'hola', noSpokenReply: 'true' }).success,
+      false,
+    );
+  });
+});
+
 describe('contentGapRequestSchema', () => {
   it('accepts a pattern key', () => {
     assert.deepEqual(contentGapRequestSchema.parse({ patternKey: 'ser-vs-estar' }), {

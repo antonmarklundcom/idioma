@@ -81,6 +81,9 @@ export function PlacementRun({
           spokenSeconds,
           lessonId: task.lessonId,
           exerciseIndex: task.exerciseIndex,
+          // Nothing in PlacementRun ever plays the tutor's reply - skip the
+          // quick-reply call and TTS synthesis that would otherwise run per task.
+          noSpokenReply: true,
         }),
       });
       if (!result.ok) {
