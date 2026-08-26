@@ -248,9 +248,21 @@ combined) with a small celebration when hit, and a friendly "X is ahead of you t
 nudge. No leagues, no strangers. PWA push notification (opt-in) timed to the user's streak
 deadline evening, using the existing timezone field.
 
-**P3.13 Onboarding polish for parents — small.** The mom/dad path: sv-native pair
-preselected by browser language, larger touch targets/text on the onboarding form, and a
-30-second "how a session works" interstitial after onboarding (three illustrated cards).
+**P3.13 Onboarding polish for parents — SHIPPED (August 2026)**
+- `/onboarding` preselects the sv-native language pair when the browser's
+  Accept-Language header says Swedish and nothing is chosen yet — the pure matching
+  logic lives in `src/lib/onboarding.ts` (`pickPreselectedLanguagePairId`), read
+  server-side via `next/headers`.
+- Larger touch targets and text throughout `OnboardingForm`: option-card rows and
+  chips grew to a consistent `min-h-14`/`min-h-16`, body copy moved from `text-sm`
+  to `text-base`/`text-lg`, and the submit button grew to `min-h-14 text-lg` — all on
+  the same `option-card` / `chip` / `field` / `btn-primary` design-system classes,
+  just with larger sizing utilities layered on top.
+- A new `/onboarding/welcome` interstitial between onboarding and the first real
+  screen: three `card`s with an emoji illustration (no asset pipeline) — warm-up,
+  lesson, free chat, matching `/today`'s own shape — then a `btn-primary` on to
+  wherever onboarding was sending the learner (their placement check, or `/today`).
+- All new copy in en/es/sv; `tests/i18n.test.ts` parity is green.
 
 ---
 
