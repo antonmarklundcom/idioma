@@ -16,13 +16,19 @@ const CEFR_LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1'] as const;
 export function OnboardingForm({
   languagePairs,
   locale,
+  preselectedLanguagePairId,
 }: {
   languagePairs: LanguagePairOption[];
   locale: Locale;
+  /** ROADMAP.md P3.13: the sv-native pair, when the browser's Accept-Language said
+   * Swedish - overrides the plain "first pair in the list" default. */
+  preselectedLanguagePairId?: string | null;
 }) {
   const strings = t(locale).onboarding;
   const router = useRouter();
-  const [languagePairId, setLanguagePairId] = useState(languagePairs[0]?.id ?? '');
+  const [languagePairId, setLanguagePairId] = useState(
+    preselectedLanguagePairId ?? languagePairs[0]?.id ?? '',
+  );
   const [level, setLevel] = useState<(typeof CEFR_LEVELS)[number]>('A1');
   // "What level are you?" is a question almost nobody can answer about themselves.
   // The chips stay for the people who can; everyone else can talk for two minutes
@@ -86,7 +92,9 @@ export function OnboardingForm({
         setError(data.error ?? strings.genericError);
         return;
       }
-      router.push(takePlacement ? '/placement' : '/today');
+      // ROADMAP.md P3.13: a short "how a session works" interstitial between
+      // onboarding and the first real screen, instead of dropping straight into it.
+      router.push(`/onboarding/welcome?next=${encodeURIComponent(takePlacement ? '/placement' : '/today')}`);
       router.refresh();
     } finally {
       setSubmitting(false);
@@ -99,15 +107,16 @@ export function OnboardingForm({
         <legend className="heading-section">{strings.whatLearning}</legend>
         <div className="flex flex-col gap-2">
           {languagePairs.map((pair) => (
-            <label key={pair.id} className="option-card items-center">
+            <label key={pair.id} className="option-card min-h-16 items-center py-4">
               <input
                 type="radio"
                 name="languagePairId"
+                className="h-5 w-5"
                 value={pair.id}
                 checked={languagePairId === pair.id}
                 onChange={() => setLanguagePairId(pair.id)}
               />
-              <span className="font-semibold text-ink">{pair.displayName}</span>
+              <span className="text-lg font-semibold text-ink">{pair.displayName}</span>
             </label>
           ))}
         </div>
@@ -121,53 +130,53 @@ export function OnboardingForm({
               type="button"
               key={lvl}
               onClick={() => setLevel(lvl)}
-              className={`chip ${level === lvl ? 'chip-active' : ''}`}
+              className={`chip min-h-14 px-6 text-base ${level === lvl ? 'chip-active' : ''}`}
             >
               {lvl}
             </button>
           ))}
         </div>
-        <p className="text-sm text-ink-muted">{strings.levelHint}</p>
-        <label className="option-card">
+        <p className="text-base text-ink-muted">{strings.levelHint}</p>
+        <label className="option-card min-h-16 py-4">
           <input
             type="checkbox"
-            className="mt-1"
+            className="mt-1 h-5 w-5"
             checked={takePlacement}
             onChange={() => setTakePlacement((on) => !on)}
           />
           <span>
-            <span className="block font-bold text-ink">{strings.placementTitle}</span>
-            <span className="block text-sm text-ink-muted">{strings.placementDesc}</span>
+            <span className="block text-lg font-bold text-ink">{strings.placementTitle}</span>
+            <span className="block text-base text-ink-muted">{strings.placementDesc}</span>
           </span>
         </label>
       </fieldset>
 
       <fieldset className="flex flex-col gap-3">
         <legend className="heading-section">{strings.coachHeading}</legend>
-        <label className="option-card">
+        <label className="option-card min-h-16 py-4">
           <input
             type="radio"
             name="coachingProfile"
-            className="mt-1"
+            className="mt-1 h-5 w-5"
             checked={coachingProfile === 'confidence_first'}
             onChange={() => setCoachingProfile('confidence_first')}
           />
           <span>
-            <span className="block font-bold text-ink">{strings.gentleTitle}</span>
-            <span className="block text-sm text-ink-muted">{strings.gentleDesc}</span>
+            <span className="block text-lg font-bold text-ink">{strings.gentleTitle}</span>
+            <span className="block text-base text-ink-muted">{strings.gentleDesc}</span>
           </span>
         </label>
-        <label className="option-card">
+        <label className="option-card min-h-16 py-4">
           <input
             type="radio"
             name="coachingProfile"
-            className="mt-1"
+            className="mt-1 h-5 w-5"
             checked={coachingProfile === 'accuracy_focus'}
             onChange={() => setCoachingProfile('accuracy_focus')}
           />
           <span>
-            <span className="block font-bold text-ink">{strings.accuracyTitle}</span>
-            <span className="block text-sm text-ink-muted">{strings.accuracyDesc}</span>
+            <span className="block text-lg font-bold text-ink">{strings.accuracyTitle}</span>
+            <span className="block text-base text-ink-muted">{strings.accuracyDesc}</span>
           </span>
         </label>
       </fieldset>
@@ -180,7 +189,7 @@ export function OnboardingForm({
               type="button"
               key={skill}
               onClick={() => toggleFocusSkill(skill)}
-              className={`chip ${focusSkills.includes(skill) ? 'chip-active' : ''}`}
+              className={`chip min-h-14 px-6 text-base ${focusSkills.includes(skill) ? 'chip-active' : ''}`}
             >
               {strings.focusSkills[skill]}
             </button>
@@ -190,7 +199,7 @@ export function OnboardingForm({
 
       <fieldset className="flex flex-col gap-3">
         <legend className="heading-section">{strings.aboutYouHeading}</legend>
-        <p className="text-sm text-ink-muted">{strings.aboutYouHint}</p>
+        <p className="text-base text-ink-muted">{strings.aboutYouHint}</p>
         {(
           [
             ['job', strings.aboutYouJob, job, setJob],
@@ -199,23 +208,27 @@ export function OnboardingForm({
           ] as const
         ).map(([key, label, value, setValue]) => (
           <label key={key} className="flex flex-col gap-1">
-            <span className="text-sm font-semibold text-ink">{label}</span>
+            <span className="text-base font-semibold text-ink">{label}</span>
             <input
               type="text"
               value={value}
               maxLength={PROFILE_FACT_MAX_CHARS}
               onChange={(e) => setValue(e.target.value)}
-              className="field py-3"
+              className="field py-4 text-lg"
             />
           </label>
         ))}
       </fieldset>
 
-      <p className="text-xs text-ink-muted">{strings.timezoneNote(timezone)}</p>
+      <p className="text-sm text-ink-muted">{strings.timezoneNote(timezone)}</p>
 
-      {error && <p className="text-sm font-semibold text-brand-700 dark:text-brand-300">{error}</p>}
+      {error && <p className="text-base font-semibold text-brand-700 dark:text-brand-300">{error}</p>}
 
-      <button type="submit" disabled={submitting || !languagePairId} className="btn-primary">
+      <button
+        type="submit"
+        disabled={submitting || !languagePairId}
+        className="btn-primary min-h-14 text-lg"
+      >
         {submitting ? strings.saving : strings.startLearning}
       </button>
     </form>

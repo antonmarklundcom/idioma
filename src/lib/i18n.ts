@@ -145,6 +145,17 @@ const en = {
     saving: 'Saving…',
     startLearning: 'Start learning',
   },
+  onboardingWelcome: {
+    title: 'How a session works',
+    subtitle: "Just three simple steps, every time you practice. Here's what to expect.",
+    warmupTitle: 'A quick warm-up',
+    warmupBody: 'A few things you already learned, to wake up your memory.',
+    lessonTitle: 'Your next lesson',
+    lessonBody: 'New words and a couple of short exercises, chosen for you.',
+    speakTitle: 'One free chat',
+    speakBody: 'Say whatever you want — your tutor just listens and replies.',
+    continueButton: "Let's go",
+  },
   review: {
     title: 'Review',
     emptyState:
@@ -578,6 +589,17 @@ const es: Dictionary = {
     saving: 'Guardando…',
     startLearning: 'Empezar a aprender',
   },
+  onboardingWelcome: {
+    title: 'Así funciona una sesión',
+    subtitle: 'Solo tres pasos simples, cada vez que practicás. Esto es lo que te espera.',
+    warmupTitle: 'Un calentamiento rápido',
+    warmupBody: 'Algunas cosas que ya aprendiste, para despertar tu memoria.',
+    lessonTitle: 'Tu próxima lección',
+    lessonBody: 'Palabras nuevas y un par de ejercicios cortos, elegidos para vos.',
+    speakTitle: 'Una charla libre',
+    speakBody: 'Decí lo que quieras — tu tutor solo escucha y responde.',
+    continueButton: 'Vamos',
+  },
   review: {
     title: 'Repaso',
     emptyState:
@@ -997,6 +1019,17 @@ const sv: Dictionary = {
     genericError: 'Något gick fel. Försök igen.',
     saving: 'Sparar…',
     startLearning: 'Börja lära dig',
+  },
+  onboardingWelcome: {
+    title: 'Så här funkar ett pass',
+    subtitle: 'Bara tre enkla steg, varje gång du övar. Så här ser det ut.',
+    warmupTitle: 'En snabb uppvärmning',
+    warmupBody: 'Några saker du redan lärt dig, för att väcka minnet.',
+    lessonTitle: 'Din nästa lektion',
+    lessonBody: 'Nya ord och ett par korta övningar, valda för dig.',
+    speakTitle: 'Ett fritt samtal',
+    speakBody: 'Säg vad du vill — din handledare bara lyssnar och svarar.',
+    continueButton: 'Kör igång',
   },
   review: {
     title: 'Repetition',
