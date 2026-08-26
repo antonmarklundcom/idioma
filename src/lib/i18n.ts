@@ -7,6 +7,7 @@ export type Locale = 'en' | 'es' | 'sv';
 const en = {
   nav: {
     brand: '🗣️ Idioma',
+    today: 'Today',
     dashboard: 'Dashboard',
     lessons: 'Lessons',
     review: 'Review',
@@ -432,6 +433,7 @@ export type Dictionary = typeof en;
 const es: Dictionary = {
   nav: {
     brand: '🗣️ Idioma',
+    today: 'Hoy',
     dashboard: 'Panel',
     lessons: 'Lecciones',
     review: 'Repaso',
@@ -843,6 +845,7 @@ const es: Dictionary = {
 const sv: Dictionary = {
   nav: {
     brand: '🗣️ Idioma',
+    today: 'Idag',
     dashboard: 'Översikt',
     lessons: 'Lektioner',
     review: 'Repetition',

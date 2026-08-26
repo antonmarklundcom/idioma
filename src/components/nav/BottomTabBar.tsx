@@ -7,8 +7,14 @@ import { t, type Locale } from '@/lib/i18n';
 // ROADMAP.md P0.3: the app is used as a phone PWA, so the four things you
 // actually do live in a thumb-reachable bar instead of a wrapping row of text
 // links in the header. Desktop keeps the header nav (this is `sm:hidden`).
+//
+// The first tab is /today, not /dashboard: P0.4 made the guided session the
+// post-login landing but shipped after this bar, so the one button the whole
+// roadmap is built around was the one screen with no way back to it. The
+// dashboard is a read-out rather than a thing you do, so it moves to the
+// header's icon row beside settings.
 const TABS = [
-  { href: '/dashboard', icon: '🏠', key: 'dashboard' },
+  { href: '/today', icon: '🎯', key: 'today' },
   { href: '/lesson', icon: '📚', key: 'lessons' },
   { href: '/review', icon: '🔁', key: 'review' },
   { href: '/live', icon: '🎤', key: 'live' },

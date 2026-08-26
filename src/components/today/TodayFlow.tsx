@@ -16,6 +16,7 @@ import type { ReviewCard } from '@/types';
 // grading path, the one that already existed. All this file adds is the order,
 // a progress line, and the finish screen.
 export function TodayFlow({
+  minutes,
   steps,
   cards,
   lesson,
@@ -24,6 +25,8 @@ export function TodayFlow({
   currentStreak,
   locale,
 }: {
+  /** The session's advertised length, shown while it is still ahead of you. */
+  minutes: number;
   steps: TodayStepKind[];
   cards: ReviewCard[];
   lesson: { id: string; title: string; exercises: PlayerExercise[] } | null;
@@ -90,6 +93,14 @@ export function TodayFlow({
           {strings.skipStep}
         </button>
       </div>
+
+      {/* What the session is, said once, on the way in. Repeating it over step
+          three would be nagging, and over the finish screen it was wrong. */}
+      {stepIndex === 0 && (
+        <p className="mx-auto w-full max-w-2xl px-5 pt-2 text-sm text-ink-muted sm:px-6">
+          {strings.subtitle(minutes)}
+        </p>
+      )}
 
       {step === 'review' && (
         <ReviewSession

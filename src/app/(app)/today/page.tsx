@@ -2,7 +2,6 @@ import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { getUserStatsSummary } from '@/lib/gamification';
 import { getUserLocale } from '@/lib/getUserLocale';
-import { t } from '@/lib/i18n';
 import { FREE_PRACTICE_LESSON_CONTEXT } from '@/lib/gemini/prompts';
 import {
   getCompletedLessonIds,
@@ -36,7 +35,6 @@ export default async function TodayPage() {
     getUserStatsSummary(session.user.id, session.user.timezone),
     getUserLocale(session.user.id),
   ]);
-  const strings = t(locale);
 
   const nextUp = nextLessonInPath(lessons, completed);
   const lessonRow = nextUp ? await getLessonForPair(nextUp.id, session.user.languagePairId) : null;
@@ -54,14 +52,16 @@ export default async function TodayPage() {
 
   return (
     <div className="flex flex-1 flex-col">
-      <div className="mx-auto w-full max-w-2xl px-5 pt-8 sm:px-6 sm:pt-10">
-        <p className="text-sm text-ink-muted">{strings.today.subtitle(estimateTodayMinutes(shape))}</p>
-      </div>
-
       {/* There is always at least the closing speaking turn, so this never
           renders an empty session - a learner with no imported curriculum still
-          gets a real minute of practice. */}
+          gets a real minute of practice.
+
+          The "about N minutes" line is handed to the flow rather than printed
+          here: it is a promise about a session that is about to happen, and a
+          page-level copy of it kept promising seven more minutes to someone
+          already looking at the finish screen. */}
       <TodayFlow
+        minutes={estimateTodayMinutes(shape)}
         steps={steps}
         cards={cards}
         lesson={
