@@ -199,11 +199,21 @@ Open follow-ons, in the order they are worth doing:
   etiquette, colectivo habits). Guaraní **words** stay opt-in per the dialect notes.
 - AC: packs import cleanly via /admin; owner spot-review before import.
 
-**P1.8 Jopara/culture layer (later, cheap) — small**
-- A per-pair prompt-data change (not code): at B1+ let the tutor introduce common jopara
-  particles/loanwords (na, ko, piko, luego-PY usage) with glosses when natural; add
-  `guarani-loanword` to the es taxonomies so these become trackable patterns.
-- AC: dialectNotes updated via seed/admin; visible in tutor replies at B1+ only.
+**P1.8 Jopara/culture layer — SHIPPED (August 2026)**
+- `guarani-loanword` added to both Paraguayan-Spanish-target error taxonomies in
+  `scripts/seedPairs.ts` (`ES_TAXONOMY` and `SV_ES_TAXONOMY` — the `es-PY>en-speaker`
+  and `es-PY>sv-speaker` pairs), so a jopará word the learner produces becomes a
+  trackable recurring pattern like any other.
+- Both pairs' `dialectNotes` gained one B1+-gated paragraph: the tutor may weave in
+  common jopará particles/loanwords (na, ko, piko, the Paraguayan "luego") with a
+  gloss the first time it uses one, when it fits naturally. Explicitly opt-in — never
+  required from the learner, never graded as an error if absent — and explicitly
+  scoped to B1+, leaving A1/A2 untouched.
+- Data-only change (PLAN.md §3.3): no new code path, `tests/seedPairs.test.ts`'s
+  taxonomy-key and slot-substitution contract stays green.
+- AC met: dialectNotes updated in seed data; the B1+ gate and opt-in framing are in
+  the prompt text itself, so it reaches the tutor exactly the way every other
+  dialect note does.
 
 ### P2 — Voice (deferred by owner decision, keep on the list)
 

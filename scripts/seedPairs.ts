@@ -43,6 +43,7 @@ const ES_TAXONOMY = [
   'pronunciation-rr',
   'pronunciation-stress',
   'pronunciation-j-g',
+  'guarani-loanword',
   'other',
 ];
 
@@ -145,6 +146,7 @@ const SV_ES_TAXONOMY = [
   'pronunciation-rr',
   'pronunciation-stress',
   'pronunciation-sj-tj', // sj-/tj-ljud används i stället för spanskt j/ll/rr
+  'guarani-loanword',
   'other',
 ];
 
@@ -203,7 +205,12 @@ export const SEED_PAIRS = [
     dialectNotes:
       'Paraguayan Spanish: use voseo (vos tenés, vos sos, ¿qué querés?) not tuteo. ' +
       'Prefer local vocabulary where natural (tereré, yuyos, chipa). Avoid Guaraní words unless the learner uses them first. ' +
-      'Accept both voseo and tuteo from the learner but model voseo in replies.',
+      'Accept both voseo and tuteo from the learner but model voseo in replies. ' +
+      'At B1 and above only (never at A1/A2): jopará is real Paraguayan speech, so you may weave in common ' +
+      'particles and loanwords when they fit naturally — "na" (softener, "vení na"), "ko" (emphasis), ' +
+      '"piko" (question emphasis, "¿qué piko hacés?"), and the Paraguayan use of "luego" (mild emphasis, ' +
+      'not "later") — each with a brief gloss the first time you use it. This stays opt-in and occasional: ' +
+      'never require the learner to produce Guaraní, and never grade it as an error if they don\'t use it.',
     correctionStyle:
       'Encouraging and concise. Correct every real error but never more than the learner can absorb; ' +
       'lead with what was communicated successfully. Explanations in English, one or two sentences each.',
@@ -240,11 +247,16 @@ export const SEED_PAIRS = [
     nativeLang: 'sv',
     displayName: 'Spanska (Paraguay) för svensktalande',
     // Same substance as the English-speaker es-PY row above (PLAN.md §9 Q12):
-    // Paraguayan Spanish, voseo, local vocabulary.
+    // Paraguayan Spanish, voseo, local vocabulary, B1+ jopará (ROADMAP.md P1.8).
     dialectNotes:
       'Paraguayan Spanish: use voseo (vos tenés, vos sos, ¿qué querés?) not tuteo. ' +
       'Prefer local vocabulary where natural (tereré, yuyos, chipa). Avoid Guaraní words unless the learner uses them first. ' +
-      'Accept both voseo and tuteo from the learner but model voseo in replies.',
+      'Accept both voseo and tuteo from the learner but model voseo in replies. ' +
+      'At B1 and above only (never at A1/A2): jopará is real Paraguayan speech, so you may weave in common ' +
+      'particles and loanwords when they fit naturally — "na" (softener, "vení na"), "ko" (emphasis), ' +
+      '"piko" (question emphasis, "¿qué piko hacés?"), and the Paraguayan use of "luego" (mild emphasis, ' +
+      'not "later") — each with a brief gloss the first time you use it. This stays opt-in and occasional: ' +
+      'never require the learner to produce Guaraní, and never grade it as an error if they don\'t use it.',
     correctionStyle:
       'Uppmuntrande och kortfattad. Rätta varje verkligt fel men överväldiga aldrig eleven; ' +
       'lyft först fram det som kommunicerades framgångsrikt. Förklaringar på svenska, en eller två meningar var.',
