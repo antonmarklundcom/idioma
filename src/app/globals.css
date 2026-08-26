@@ -186,6 +186,25 @@ body {
     @apply border-brand-600 bg-brand-600 text-white hover:border-brand-600;
   }
 
+  /* The two form shapes the app kept re-typing by hand. `field` is any text input
+     or select; `option-card` is a whole tappable row wrapping a radio or checkbox -
+     a thumb target rather than a 16px dot, which is the point of it on a phone.
+     `has-[:checked]` colours the row from the input inside it, so the checked look
+     needs no React state. */
+  .field {
+    @apply rounded-2xl border-2 border-line bg-surface px-4 py-2.5 text-ink shadow-card;
+  }
+
+  .option-card {
+    @apply flex cursor-pointer items-start gap-3 rounded-2xl border-2 border-line bg-surface px-4 py-3.5 shadow-card has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50 dark:has-[:checked]:bg-brand-900/25;
+  }
+
+  /* A panel inside a card: /admin nests read-outs two deep, and a second bordered
+     white card on a white card reads as a mistake. Sunken, not raised. */
+  .panel {
+    @apply rounded-xl border border-line bg-surface-muted px-4 py-3;
+  }
+
   .heading-page {
     @apply text-3xl font-extrabold tracking-tight text-ink;
   }

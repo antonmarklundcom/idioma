@@ -8,9 +8,9 @@ const STATUS_LABEL: Record<InviteRow['status'], string> = {
 };
 
 const STATUS_STYLE: Record<InviteRow['status'], string> = {
-  joined: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
-  invited_not_joined: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300',
-  joined_without_invite: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
+  joined: 'bg-success-100 text-success-700 dark:bg-success-500/20 dark:text-success-500',
+  invited_not_joined: 'bg-surface-muted text-ink-muted',
+  joined_without_invite: 'bg-streak-100 text-streak-700 dark:bg-streak-500/20 dark:text-streak-500',
 };
 
 function trend(now: number | null, before: number | null): string {
@@ -36,31 +36,31 @@ export function PeoplePanel({
   inviteListActive: boolean;
 }) {
   return (
-    <section className="flex flex-col gap-4 rounded-2xl border border-slate-200 p-5 dark:border-slate-700">
+    <section className="card flex flex-col gap-4 p-5">
       <div>
-        <h2 className="text-lg font-semibold text-slate-900 dark:text-white">People</h2>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+        <h2 className="heading-section">People</h2>
+        <p className="mt-1 text-sm text-ink-muted">
           {inviteListActive
             ? 'INVITED_EMAILS is set: only these addresses can sign in for the first time. Anyone who already has an account keeps it.'
             : 'INVITED_EMAILS is not set, so anyone with a Google account can sign in. Set it to close that.'}
         </p>
       </div>
 
-      <div className="rounded-xl border border-slate-200 px-4 py-3 dark:border-slate-700">
-        <p className="text-xs text-slate-400">Invite list</p>
+      <div className="panel">
+        <p className="text-xs text-ink-muted">Invite list</p>
         {invites.length === 0 ? (
-          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Nobody yet.</p>
+          <p className="mt-2 text-sm text-ink-muted">Nobody yet.</p>
         ) : (
           <ul className="mt-2 flex flex-col gap-1">
             {invites.map((row) => (
               <li
                 key={row.email}
-                className="flex flex-wrap items-center justify-between gap-2 text-sm text-slate-700 dark:text-slate-300"
+                className="flex flex-wrap items-center justify-between gap-2 text-sm text-ink"
               >
                 <span className="truncate">
                   {row.name ? `${row.name} · ${row.email}` : row.email}
                   {row.isOwner && (
-                    <span className="ml-2 rounded-full bg-slate-900 px-2 py-0.5 text-xs font-medium text-white dark:bg-white dark:text-slate-900">
+                    <span className="ml-2 rounded-full bg-brand-600 px-2 py-0.5 text-xs font-bold text-white">
                       owner
                     </span>
                   )}
@@ -80,38 +80,38 @@ export function PeoplePanel({
         {learners.map((learner) => (
           <div
             key={learner.userId}
-            className="rounded-xl border border-slate-200 px-4 py-3 dark:border-slate-700"
+            className="panel"
           >
             <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <p className="font-semibold text-slate-900 dark:text-white">
+              <p className="font-bold text-ink">
                 {learner.name ?? learner.email}
               </p>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-ink-muted">
                 {learner.level ?? 'no level'} · {learner.email}
               </p>
             </div>
             <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-sm sm:grid-cols-4">
               <div>
-                <dt className="text-xs text-slate-400">Streak</dt>
-                <dd className="text-slate-700 dark:text-slate-300">
+                <dt className="text-xs text-ink-muted">Streak</dt>
+                <dd className="text-ink">
                   🔥 {learner.currentStreak} (best {learner.longestStreak})
                 </dd>
               </div>
               <div>
-                <dt className="text-xs text-slate-400">Lessons done</dt>
-                <dd className="text-slate-700 dark:text-slate-300">{learner.lessonsCompleted}</dd>
+                <dt className="text-xs text-ink-muted">Lessons done</dt>
+                <dd className="text-ink">{learner.lessonsCompleted}</dd>
               </div>
               <div>
-                <dt className="text-xs text-slate-400">Mistakes/turn</dt>
-                <dd className="text-slate-700 dark:text-slate-300">
+                <dt className="text-xs text-ink-muted">Mistakes/turn</dt>
+                <dd className="text-ink">
                   {trend(learner.mistakesPerTurnThisWeek, learner.mistakesPerTurnLastWeek)}
                 </dd>
               </div>
               <div>
-                <dt className="text-xs text-slate-400">This month</dt>
+                <dt className="text-xs text-ink-muted">This month</dt>
                 {/* An estimate, and labelled as one: only the TTS half is actually
                     billed today - see the rates in lib/adminLearners.ts. */}
-                <dd className="text-slate-700 dark:text-slate-300">
+                <dd className="text-ink">
                   ~${learner.estimatedMonthlyUsd.toFixed(2)} · {learner.attemptsThisMonth} turns
                 </dd>
               </div>

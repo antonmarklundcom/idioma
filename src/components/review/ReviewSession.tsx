@@ -210,7 +210,7 @@ export function ReviewSession({
               maxLength={TEXT_ANSWER_MAX_CHARS}
               rows={2}
               placeholder={strings.typePlaceholder}
-              className="w-full rounded-2xl border-2 border-line bg-surface px-3 py-2 text-ink"
+              className="field w-full px-3 py-2"
             />
             <div className="flex items-center justify-between gap-2">
               <button

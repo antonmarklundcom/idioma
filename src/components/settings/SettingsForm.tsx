@@ -117,10 +117,7 @@ export function SettingsForm({
         <legend className="heading-section">{onboarding.whatLearning}</legend>
         <div className="flex flex-col gap-2">
           {pairs.map((pair) => (
-            <label
-              key={pair.id}
-              className="flex cursor-pointer items-center gap-3 rounded-2xl border-2 border-line bg-surface px-4 py-3.5 shadow-card has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50 dark:has-[:checked]:bg-brand-900/25"
-            >
+            <label key={pair.id} className="option-card items-center">
               <input
                 type="radio"
                 name="languagePairId"
@@ -161,7 +158,7 @@ export function SettingsForm({
 
       <fieldset className="flex flex-col gap-3">
         <legend className="heading-section">{onboarding.coachHeading}</legend>
-        <label className="flex cursor-pointer items-start gap-3 rounded-2xl border-2 border-line bg-surface px-4 py-3.5 shadow-card has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50 dark:has-[:checked]:bg-brand-900/25">
+        <label className="option-card">
           <input
             type="radio"
             name="coachingProfile"
@@ -177,7 +174,7 @@ export function SettingsForm({
             <span className="block text-sm text-ink-muted">{onboarding.gentleDesc}</span>
           </span>
         </label>
-        <label className="flex cursor-pointer items-start gap-3 rounded-2xl border-2 border-line bg-surface px-4 py-3.5 shadow-card has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50 dark:has-[:checked]:bg-brand-900/25">
+        <label className="option-card">
           <input
             type="radio"
             name="coachingProfile"

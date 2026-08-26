@@ -99,10 +99,7 @@ export function OnboardingForm({
         <legend className="heading-section">{strings.whatLearning}</legend>
         <div className="flex flex-col gap-2">
           {languagePairs.map((pair) => (
-            <label
-              key={pair.id}
-              className="flex cursor-pointer items-center gap-3 rounded-2xl border-2 border-line bg-surface px-4 py-3.5 shadow-card has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50 dark:has-[:checked]:bg-brand-900/25"
-            >
+            <label key={pair.id} className="option-card items-center">
               <input
                 type="radio"
                 name="languagePairId"
@@ -131,7 +128,7 @@ export function OnboardingForm({
           ))}
         </div>
         <p className="text-sm text-ink-muted">{strings.levelHint}</p>
-        <label className="flex cursor-pointer items-start gap-3 rounded-2xl border-2 border-line bg-surface px-4 py-3.5 shadow-card has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50 dark:has-[:checked]:bg-brand-900/25">
+        <label className="option-card">
           <input
             type="checkbox"
             className="mt-1"
@@ -147,7 +144,7 @@ export function OnboardingForm({
 
       <fieldset className="flex flex-col gap-3">
         <legend className="heading-section">{strings.coachHeading}</legend>
-        <label className="flex cursor-pointer items-start gap-3 rounded-2xl border-2 border-line bg-surface px-4 py-3.5 shadow-card has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50 dark:has-[:checked]:bg-brand-900/25">
+        <label className="option-card">
           <input
             type="radio"
             name="coachingProfile"
@@ -160,7 +157,7 @@ export function OnboardingForm({
             <span className="block text-sm text-ink-muted">{strings.gentleDesc}</span>
           </span>
         </label>
-        <label className="flex cursor-pointer items-start gap-3 rounded-2xl border-2 border-line bg-surface px-4 py-3.5 shadow-card has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50 dark:has-[:checked]:bg-brand-900/25">
+        <label className="option-card">
           <input
             type="radio"
             name="coachingProfile"
@@ -208,7 +205,7 @@ export function OnboardingForm({
               value={value}
               maxLength={PROFILE_FACT_MAX_CHARS}
               onChange={(e) => setValue(e.target.value)}
-              className="rounded-2xl border-2 border-line bg-surface px-4 py-3 text-ink shadow-card"
+              className="field py-3"
             />
           </label>
         ))}

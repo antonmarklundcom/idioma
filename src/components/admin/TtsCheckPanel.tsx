@@ -45,10 +45,10 @@ export function TtsCheckPanel() {
   }
 
   return (
-    <section className="flex flex-col gap-4 rounded-2xl border border-slate-200 p-5 dark:border-slate-700">
+    <section className="card flex flex-col gap-4 p-5">
       <div>
-        <h2 className="text-lg font-semibold text-slate-900 dark:text-white">The tutor&apos;s voice</h2>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+        <h2 className="heading-section">The tutor&apos;s voice</h2>
+        <p className="mt-1 text-sm text-ink-muted">
           Speaks one short phrase per language pair, using that pair&apos;s own configured voice.
           Costs a few dozen characters of the monthly allowance, and they are metered like any
           other synthesis.
@@ -59,7 +59,7 @@ export function TtsCheckPanel() {
         type="button"
         onClick={run}
         disabled={state === 'running'}
-        className="self-start rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50 dark:bg-white dark:text-slate-900"
+        className="btn-primary btn-sm self-start"
       >
         {state === 'running' ? 'Testing…' : 'Test the voice'}
       </button>
@@ -72,13 +72,13 @@ export function TtsCheckPanel() {
 
       {data && (
         <div className="flex flex-col gap-3">
-          <p className="text-sm text-slate-700 dark:text-slate-300">
+          <p className="text-sm text-ink">
             {data.keyConfigured
               ? '✅ GOOGLE_TTS_API_KEY is set on this deployment.'
               : '❌ GOOGLE_TTS_API_KEY is NOT set on this deployment — nothing can speak until it is.'}
           </p>
 
-          <p className="text-sm text-slate-700 dark:text-slate-300">
+          <p className="text-sm text-ink">
             {data.storedRecordings > 0
               ? `🎧 ${data.storedRecordings} recordings stored — those cost nothing to play.`
               : '🎧 No recordings stored yet. Run `npm run audio:generate` to record the whole lesson library once, instead of paying for every tap.'}
@@ -87,22 +87,22 @@ export function TtsCheckPanel() {
           {data.results.map((result) => (
             <div
               key={result.code}
-              className="rounded-xl border border-slate-200 px-4 py-3 dark:border-slate-700"
+              className="panel"
             >
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="font-medium text-slate-900 dark:text-white">
+                <p className="font-bold text-ink">
                   {result.ok ? '✅' : '❌'} {result.displayName}
                 </p>
-                <p className="font-mono text-xs text-slate-400">{result.voice ?? 'no voice'}</p>
+                <p className="font-mono text-xs text-ink-muted">{result.voice ?? 'no voice'}</p>
               </div>
-              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+              <p className="mt-1 text-sm text-ink-muted">
                 {EXPLANATION[result.reason]}
               </p>
               {result.audioBase64 && (
                 <button
                   type="button"
                   onClick={() => play(result.audioBase64!)}
-                  className="mt-2 rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 dark:border-slate-600 dark:text-slate-200"
+                  className="btn-secondary btn-sm mt-2"
                 >
                   🔊 Play it
                 </button>

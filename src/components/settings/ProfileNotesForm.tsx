@@ -87,7 +87,7 @@ export function ProfileNotesForm({
                 maxLength={PROFILE_FACT_MAX_CHARS}
                 onChange={(e) => updateFact(fact.id, e.target.value)}
                 onBlur={() => commitFacts(facts)}
-                className="min-w-0 flex-1 rounded-2xl border-2 border-line bg-surface px-4 py-2.5 text-ink shadow-card"
+                className="field min-w-0 flex-1"
               />
               {/* Where a fact came from, because "the tutor decided this about me" and
                   "I typed this" are very different things to read back. */}
@@ -115,7 +115,7 @@ export function ProfileNotesForm({
             maxLength={PROFILE_FACT_MAX_CHARS}
             placeholder={strings.addPlaceholder}
             onChange={(e) => setDraft(e.target.value)}
-            className="min-w-0 flex-1 rounded-2xl border-2 border-line bg-surface px-4 py-2.5 text-ink shadow-card"
+            className="field min-w-0 flex-1"
           />
           <button type="button" onClick={addFact} className="btn-secondary btn-sm shrink-0">
             {strings.addFact}
@@ -123,7 +123,7 @@ export function ProfileNotesForm({
         </div>
       )}
 
-      <label className="flex cursor-pointer items-start gap-3 rounded-2xl border-2 border-line bg-surface px-4 py-3.5 shadow-card has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50 dark:has-[:checked]:bg-brand-900/25">
+      <label className="option-card">
         <input
           type="checkbox"
           className="mt-1"
