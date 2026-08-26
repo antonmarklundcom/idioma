@@ -28,7 +28,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           brand and the two progress read-outs - navigation moves to the bottom
           tab bar, where a thumb can reach it. */}
       <header className="sticky top-0 z-30 flex items-center justify-between gap-x-4 gap-y-2 border-b border-line bg-surface/90 px-4 py-3 pt-[calc(env(safe-area-inset-top)+0.75rem)] backdrop-blur sm:px-6 sm:py-4 sm:pt-4">
-        <Link href="/dashboard" className="py-1 text-lg font-extrabold tracking-tight text-ink">
+        <Link href="/today" className="py-1 text-lg font-extrabold tracking-tight text-ink">
           {strings.nav.brand}
         </Link>
         <nav className="flex items-center gap-x-1 text-sm text-ink-muted">
@@ -39,6 +39,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           />
           <StreakBadge currentStreak={stats.currentStreak} locale={locale} />
           <span className="hidden items-center gap-x-1 sm:flex">
+            <Link className="min-h-11 rounded-xl px-2 py-2.5 font-semibold hover:text-brand-600" href="/today">
+              {strings.nav.today}
+            </Link>
             <Link className="min-h-11 rounded-xl px-2 py-2.5 font-semibold hover:text-brand-600" href="/dashboard">
               {strings.nav.dashboard}
             </Link>
@@ -60,7 +63,17 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           </span>
           {/* Icon-only below sm so the compact header still fits the ring, the
               flame and a way into settings; sign-out lives on that page for
-              phones, where the header has no room for it. */}
+              phones, where the header has no room for it. The dashboard joins
+              them on phones: it left the tab bar to make room for /today, and a
+              screen reachable only by guessing that the brand is a link is not
+              reachable. */}
+          <Link
+            className="min-h-11 rounded-xl px-2 py-2.5 font-semibold hover:text-brand-600 sm:hidden"
+            href="/dashboard"
+            aria-label={strings.nav.dashboard}
+          >
+            <span aria-hidden="true">📊</span>
+          </Link>
           <Link
             className="min-h-11 rounded-xl px-2 py-2.5 font-semibold hover:text-brand-600"
             href="/settings"
