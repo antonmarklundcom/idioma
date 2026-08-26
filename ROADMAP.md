@@ -102,28 +102,42 @@ i18n strings (en/es/sv) for the path badges, continue card, and settings form.
 - AC: owner can switch UI language and see the whole app change without re-login; can move
   own level A1→A2; can swap pair and /lesson shows that pair's lessons.
 
-**P0.3 Design-system pass (playful Duolingo-like) — medium, highest perceived-value**
-- One Tailwind v4 design pass across all pages: identity palette (pick a warm primary +
-  success green + streak orange; keep dark mode working), consistent type scale, rounded-2xl
-  cards with real elevation, big rounded primary buttons, generous whitespace.
-- Mobile-first: bottom tab bar (Home / Lessons / Review / Live) on small screens replacing
-  the top nav links; top nav stays on desktop.
-- Micro-delight: XP toast, streak flame, daily-goal ring, and lesson-complete get springy
-  CSS animations (no animation library needed; prefers-reduced-motion respected).
-- Empty states get friendly illustrated copy (emoji-scale is fine, no asset pipeline).
-- AC: no page shows default-wireframe slate-on-white cards; Lighthouse a11y ≥ 90; both
-  themes coherent; screenshots of dashboard/lessons/live look like a consumer app.
+**P0.3 Design-system pass (playful Duolingo-like) — SHIPPED (August 2026)**
+- Shipped in the P0 workstream: warm coral brand scale plus a success green and a streak
+  orange that are deliberately never the brand colour, semantic surface/ink/line tokens
+  exposed through `@theme inline` so dark mode is a token swap rather than a second
+  stylesheet, and reusable `card` / `btn-*` / `chip` / heading classes.
+- Bottom tab bar below `sm`, header nav on desktop, safe-area padding on both.
+- Springy `pop` / `rise` / `flame` animations on the XP toast, celebration, completion
+  screens, feedback cards and the goal ring, with ONE global `prefers-reduced-motion`
+  rule rather than per-component discipline.
+- Shared `EmptyState` (emoji-scale, no asset pipeline) on the lesson list, review queue,
+  mistake list and session history.
+- **Follow-up shipped separately:** `/admin` was the one screen the pass missed and kept
+  its slate-on-white cards until a later PR; `field`, `option-card` and `panel` were
+  promoted into `globals.css` in the same change, so the form shapes the app was
+  re-typing by hand now live in one place.
+- AC met except the Lighthouse number, which needs a browser against the deployed app —
+  contrast was checked against the tokens directly (the streak chip needed its own 700
+  step to clear 4.5:1).
 
-**P0.4 The "Today" flow — medium, the pedagogical centerpiece**
-- One route (e.g. /today, and make it the post-login landing) that chains a session:
-  due reviews (capped ~5) → next lesson's next exercise(s) → one free-speaking turn →
-  finish screen with XP total, streak state, and a "see you tomorrow" moment.
-- Implemented as an orchestrator over the EXISTING review/lesson/live machinery — no new
-  grading paths, no new API routes for the steps themselves; it sequences what exists.
-- Dashboard's big button becomes "Start today's session (~7 min)". The 0/3 daily goal ring
-  fills as the flow progresses.
-- AC: a user who only ever taps the big button gets a complete, varied daily practice and
-  never sees the four-tab decision problem; individual tabs remain for free navigation.
+**P0.4 The "Today" flow — SHIPPED (August 2026)**
+- `/today` chains a capped review warm-up (5) → the path's next lesson → one free-speaking
+  turn → a finish screen with the session's XP and the streak it protects. It is the
+  post-login landing: sign-in, onboarding and the PWA `start_url` all point at it.
+- An orchestrator, not a practice mode: `ReviewSession` grades reviews and `LessonPlayer`
+  walks the lesson and the closing turn, so there is exactly one grading path and no new
+  API routes for the steps. Both gained one optional `onFinished`; `LessonPlayer` also
+  gained `turnLimit`, which is what ends the otherwise open-ended free-practice loop.
+- `lib/today.ts` holds the session's shape as pure, unit-tested functions. The speaking
+  turn always survives, so a learner with no imported curriculum still gets real practice.
+- Any step is skippable, so a broken mic never traps somebody mid-session.
+- **Follow-up shipped separately:** P0.4 landed hours after P0.3's nav pass, so the bottom
+  tab bar had no tab for the one button the whole roadmap is built around — Today is now
+  the first tab and the dashboard moved to the header's icon row. The same PR fixed the
+  "about 7 minutes" line, which the page shell printed over the finish screen too.
+- Still open: `/today` skips the vocab and dialogue steps (it is time-boxed, and a step is
+  not free there). Worth revisiting once those steps have been used in anger.
 
 ### P1 — Pedagogy depth
 
