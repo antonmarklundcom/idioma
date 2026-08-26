@@ -7,10 +7,9 @@ import {
   getLessonForPair,
   getLessonsForPair,
   nextLessonInPath,
-  toPlayerExercises,
 } from '@/lib/lessons';
 import { getUserLocale } from '@/lib/getUserLocale';
-import { TODAY_REVIEW_CAP, estimateTodayMinutes } from '@/lib/today';
+import { TODAY_REVIEW_CAP, estimateTodayMinutes, todaySessionShape } from '@/lib/today';
 import { t } from '@/lib/i18n';
 import { estimateReviewMinutes } from '@/lib/srs';
 import { ErrorPatternList } from '@/components/dashboard/ErrorPatternList';
@@ -60,10 +59,12 @@ export default async function DashboardPage() {
     nextLesson && session?.user?.languagePairId
       ? await getLessonForPair(nextLesson.id, session.user.languagePairId)
       : null;
-  const todayMinutes = estimateTodayMinutes({
-    dueCount: Math.min(data?.dueReviewCount ?? 0, TODAY_REVIEW_CAP),
-    exerciseCount: nextLessonRow ? toPlayerExercises(nextLessonRow.content).length : 0,
-  });
+  const todayMinutes = estimateTodayMinutes(
+    todaySessionShape(
+      Math.min(data?.dueReviewCount ?? 0, TODAY_REVIEW_CAP),
+      nextLessonRow?.content ?? null,
+    ),
+  );
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-5 py-8 sm:px-6 sm:py-10">
