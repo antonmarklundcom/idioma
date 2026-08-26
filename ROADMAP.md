@@ -218,10 +218,17 @@ design). Gate: `users.tier === 'premium'` server-side (mechanism exists). Mode p
 /live: "Standard" (free, default) vs "Premium live" (owner only at first). Budget: verify
 current Gemini Live pricing at build time; expect $1–3/conversation-hour.
 
-**P2.11 Cost meter — small, do WITH or before P2.10.** A "what this costs" card on
-/settings (or /admin for the owner view): this month's per-user metered usage from
-`usage_log` (attempts, TTS chars, live minutes) with rough $ estimates. Purpose: family
-cost-awareness without billing. AC: numbers reconcile with the admin usage panel.
+**P2.11 Cost meter — SHIPPED (August 2026)**
+- `/settings` gets a "What this costs" card: this signed-in user's own metered usage
+  for the current UTC month, read straight from `usage_log` — graded attempts,
+  tutor-speech characters, and speaking minutes (shadowing's `speaking_seconds`,
+  ROADMAP.md P1.5b follow-on) — with a rough dollar estimate.
+- `src/lib/costMeter.ts` (`getLearnerCostSummary`) sums the same rows #57's admin
+  panel reads and calls the same `estimateMonthlyUsd` from `src/lib/adminLearners.ts`,
+  so the two views can never disagree on one person's number. Purpose stays family
+  cost-awareness, not billing.
+- AC met: the numbers reconcile with the admin usage panel by construction — same
+  query shape, same arithmetic, just scoped to `WHERE user_id = <this user>`.
 
 ### P3 — Retention for a family of four
 

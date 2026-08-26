@@ -389,6 +389,15 @@ const en = {
     handsFreeOn: 'On',
     handsFreeOff: 'Off',
     saveFailed: "Couldn't save that. Try again.",
+    costMeterTitle: 'What this costs',
+    costMeterHint:
+      'A rough look at your own practice this month, so cost stays visible to the family — not a bill.',
+    costMeterAttempts: 'Graded attempts',
+    costMeterTtsChars: 'Tutor speech (characters)',
+    costMeterSpeakingMinutes: 'Speaking minutes',
+    costMeterEstimate: (usd: number) => `About $${usd.toFixed(2)} this month`,
+    costMeterFootnote:
+      'A rough estimate, not a bill — reconciles with the same usage the owner sees in Admin.',
   },
   gamification: {
     turnsToday: (turns: number, target: number) => `${turns}/${target} turns today`,
@@ -801,6 +810,15 @@ const es: Dictionary = {
     handsFreeOn: 'Activado',
     handsFreeOff: 'Desactivado',
     saveFailed: 'No pudimos guardar eso. Intentá de nuevo.',
+    costMeterTitle: 'Lo que esto cuesta',
+    costMeterHint:
+      'Un vistazo aproximado a tu propia práctica este mes, para que el costo sea visible en la familia — no una factura.',
+    costMeterAttempts: 'Intentos evaluados',
+    costMeterTtsChars: 'Voz del tutor (caracteres)',
+    costMeterSpeakingMinutes: 'Minutos hablando',
+    costMeterEstimate: (usd: number) => `Unos $${usd.toFixed(2)} este mes`,
+    costMeterFootnote:
+      'Una estimación aproximada, no una factura — coincide con el mismo uso que ve el dueño en Admin.',
   },
   gamification: {
     turnsToday: (turns: number, target: number) => `${turns}/${target} turnos hoy`,
@@ -1212,6 +1230,15 @@ const sv: Dictionary = {
     handsFreeOn: 'På',
     handsFreeOff: 'Av',
     saveFailed: 'Kunde inte spara. Försök igen.',
+    costMeterTitle: 'Vad det här kostar',
+    costMeterHint:
+      'En ungefärlig bild av din egen övning den här månaden, så att kostnaden syns för familjen — inte en faktura.',
+    costMeterAttempts: 'Bedömda försök',
+    costMeterTtsChars: 'Handledarens tal (tecken)',
+    costMeterSpeakingMinutes: 'Talminuter',
+    costMeterEstimate: (usd: number) => `Ungefär $${usd.toFixed(2)} den här månaden`,
+    costMeterFootnote:
+      'En ungefärlig uppskattning, inte en faktura — stämmer med samma användning som ägaren ser i Admin.',
   },
   gamification: {
     turnsToday: (turns: number, target: number) => `${turns}/${target} turer idag`,

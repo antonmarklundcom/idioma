@@ -10,6 +10,8 @@ import { HandsFreeToggle } from '@/components/settings/HandsFreeToggle';
 import { SoundToggle } from '@/components/settings/SoundToggle';
 import { SettingsForm } from '@/components/settings/SettingsForm';
 import { ProfileNotesForm } from '@/components/settings/ProfileNotesForm';
+import { CostMeterCard } from '@/components/settings/CostMeterCard';
+import { getLearnerCostSummary } from '@/lib/costMeter';
 
 // ROADMAP.md P0.2: settings is a form now, not a receipt. Identity (name, email)
 // comes from Google and stays read-only; everything the learner chose about how
@@ -17,7 +19,7 @@ import { ProfileNotesForm } from '@/components/settings/ProfileNotesForm';
 export default async function SettingsPage() {
   const session = await auth();
   const user = session?.user;
-  const [pairs, locale] = await Promise.all([
+  const [pairs, locale, costSummary] = await Promise.all([
     db
       .select({
         id: languagePairs.id,
@@ -27,6 +29,7 @@ export default async function SettingsPage() {
       .from(languagePairs)
       .where(eq(languagePairs.active, true)),
     user ? getUserLocale(user.id) : Promise.resolve('en' as const),
+    user ? getLearnerCostSummary(user.id) : Promise.resolve(null),
   ]);
   const strings = t(locale);
 
@@ -79,6 +82,8 @@ export default async function SettingsPage() {
           locale={locale}
         />
       )}
+
+      {costSummary && <CostMeterCard summary={costSummary} locale={locale} />}
 
       <SoundToggle locale={locale} />
 
