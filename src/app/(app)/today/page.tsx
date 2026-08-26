@@ -7,11 +7,18 @@ import {
   getCompletedLessonIds,
   getLessonForPair,
   getLessonsForPair,
+  getLessonVocab,
   nextLessonInPath,
+  toPlayerDialogue,
   toPlayerExercises,
 } from '@/lib/lessons';
 import { getDueReviewItems } from '@/lib/srs';
-import { TODAY_REVIEW_CAP, buildTodaySteps, estimateTodayMinutes } from '@/lib/today';
+import {
+  TODAY_REVIEW_CAP,
+  buildTodaySteps,
+  estimateTodayMinutes,
+  todaySessionShape,
+} from '@/lib/today';
 import { TodayFlow } from '@/components/today/TodayFlow';
 import type { ReviewCard } from '@/types';
 
@@ -47,7 +54,7 @@ export default async function TodayPage() {
     back: item.back,
   }));
 
-  const shape = { dueCount: cards.length, exerciseCount: exercises.length };
+  const shape = todaySessionShape(cards.length, lessonRow?.content ?? null);
   const steps = buildTodaySteps(shape);
 
   return (
@@ -66,7 +73,17 @@ export default async function TodayPage() {
         cards={cards}
         lesson={
           lessonRow && exercises.length > 0
-            ? { id: lessonRow.id, title: lessonRow.title, exercises }
+            ? {
+                id: lessonRow.id,
+                title: lessonRow.title,
+                exercises,
+                // The words and the conversation come with the lesson now. Both are
+                // presentation - no model call, no graded turn - so the only thing
+                // they cost is the minute the estimate above already accounts for,
+                // and without them /today was drilling vocabulary it had never shown.
+                vocab: getLessonVocab(lessonRow.content),
+                dialogue: toPlayerDialogue(lessonRow.content),
+              }
             : null
         }
         freePracticePrompt={FREE_PRACTICE_LESSON_CONTEXT}

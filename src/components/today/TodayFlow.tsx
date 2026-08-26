@@ -7,7 +7,8 @@ import { ReviewSession } from '@/components/review/ReviewSession';
 import { t, type Locale } from '@/lib/i18n';
 import type { TodayStepKind } from '@/lib/today';
 import type { CoachingProfile } from '@/lib/db/schema';
-import type { PlayerExercise } from '@/lib/lessons';
+import type { PlayerDialogue, PlayerExercise } from '@/lib/lessons';
+import type { LessonVocabItem } from '@/lib/srs';
 import type { ReviewCard } from '@/types';
 
 // ROADMAP.md P0.4: an orchestrator, not a new practice mode. Every step is run by
@@ -29,7 +30,15 @@ export function TodayFlow({
   minutes: number;
   steps: TodayStepKind[];
   cards: ReviewCard[];
-  lesson: { id: string; title: string; exercises: PlayerExercise[] } | null;
+  lesson: {
+    id: string;
+    title: string;
+    exercises: PlayerExercise[];
+    /** Presented before the drills, exactly as in the full lesson. */
+    vocab: LessonVocabItem[];
+    /** Played as the model. Its learner lines are NOT performed here - see lib/today.ts. */
+    dialogue: PlayerDialogue | null;
+  } | null;
   freePracticePrompt: string;
   coachingProfile: CoachingProfile | null;
   currentStreak: number;
@@ -119,6 +128,8 @@ export function TodayFlow({
           initialPrompt={lesson.exercises[0]?.prompt ?? lesson.title}
           lessonId={lesson.id}
           exercises={lesson.exercises}
+          vocab={lesson.vocab}
+          dialogue={lesson.dialogue}
           locale={locale}
           onFinished={advance}
         />
