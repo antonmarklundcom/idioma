@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { UtteranceRecorder } from '@/components/recorder/UtteranceRecorder';
+import { useSpeakingTimeBeacon } from '@/components/practice/useSpeakingTimeBeacon';
 import { useUiSounds } from '@/components/ui/useUiSounds';
 import { t, type Locale } from '@/lib/i18n';
 import type { LessonVocabItem } from '@/lib/srs';
@@ -15,6 +16,12 @@ import type { LessonVocabItem } from '@/lib/srs';
  * would not be if every repetition cost a graded turn against the daily cap (§6.5).
  * The term audio comes from the lesson's own audio route, already cached per slot by
  * the caller, so a second pass through the list costs no synthesis either.
+ *
+ * One number does leave: how long the learner spoke. "Nothing is uploaded" used to
+ * include that, which made the family's most-repeated practice the practice the
+ * dashboard could not see - somebody who shadowed twenty words was told they had
+ * spoken for zero minutes. The seconds go out as a single sum at the end of the run
+ * (`useSpeakingTimeBeacon`), and buy nothing: no XP, no streak, no graded turn.
  */
 export function ShadowRun({
   vocab,
@@ -47,6 +54,7 @@ export function ShadowRun({
   const ownAudioRef = useRef<HTMLAudioElement | null>(null);
 
   const sound = useUiSounds();
+  const { addSpokenSeconds, flushSpeakingTime } = useSpeakingTimeBeacon();
   const item = vocab[index];
   const isLast = index === vocab.length - 1;
 
@@ -82,7 +90,8 @@ export function ShadowRun({
 
   // Plain functions, not useCallback: the React Compiler memoizes them, and hand-written
   // dependency lists here only stop it from doing so.
-  const handleRecorded = (blob: Blob) => {
+  const handleRecorded = (blob: Blob, _mimeType: string, spokenSeconds: number) => {
+    addSpokenSeconds(spokenSeconds);
     sound('sent');
     setOwnUrl((previous) => {
       if (previous) URL.revokeObjectURL(previous);
@@ -98,6 +107,14 @@ export function ShadowRun({
     audio.src = ownUrl;
     audio.play().catch(() => {});
   }, [ownUrl]);
+
+  // The run is over, so the minutes go now rather than whenever this component
+  // happens to unmount. The beacon still flushes on unmount and on `pagehide` as a
+  // backstop, and reporting twice is not possible - it clears what it sends.
+  const exitRun = () => {
+    flushSpeakingTime();
+    onExit();
+  };
 
   const goTo = (next: number) => {
     setOwnUrl((previous) => {
@@ -116,7 +133,7 @@ export function ShadowRun({
     return (
       <div className="flex w-full flex-1 flex-col items-center gap-4 py-8">
         <p className="max-w-sm text-center text-sm text-ink-muted">{strings.audioBroken}</p>
-        <button type="button" onClick={onExit} className="btn-primary">
+        <button type="button" onClick={exitRun} className="btn-primary">
           {strings.exit}
         </button>
       </div>
@@ -131,7 +148,7 @@ export function ShadowRun({
         </p>
         <button
           type="button"
-          onClick={onExit}
+          onClick={exitRun}
           className="-my-1 cursor-pointer px-2 py-1 text-sm font-bold text-ink-muted"
         >
           {strings.exit}
@@ -194,7 +211,7 @@ export function ShadowRun({
           </button>
           <button
             type="button"
-            onClick={() => (isLast ? onExit() : goTo(index + 1))}
+            onClick={() => (isLast ? exitRun() : goTo(index + 1))}
             className="btn-primary"
           >
             {isLast ? strings.finish : strings.nextWord}

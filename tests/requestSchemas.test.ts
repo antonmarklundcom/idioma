@@ -10,6 +10,8 @@ import {
   lessonImportItemSchema,
   reviewGradeRequestSchema,
   sessionEndRequestSchema,
+  speakingTimeRequestSchema,
+  SPEAKING_SECONDS_MAX_PER_REPORT,
 } from '@/lib/zodSchemas';
 
 // PLAN.md §6.3/§10.6: the request schemas are the trust boundary. Everything past them
@@ -367,5 +369,38 @@ describe('contentGapRequestSchema', () => {
     );
     assert.equal(contentGapRequestSchema.safeParse({ patternKey: '   ' }).success, false);
     assert.equal(contentGapRequestSchema.safeParse({}).success, false);
+  });
+});
+
+describe('speakingTimeRequestSchema — ungraded speaking time', () => {
+  it('accepts a whole number of seconds', () => {
+    assert.deepEqual(speakingTimeRequestSchema.parse({ seconds: 42 }), { seconds: 42 });
+  });
+
+  it('rejects zero and negatives — nothing spoken is not a report', () => {
+    assert.equal(speakingTimeRequestSchema.safeParse({ seconds: 0 }).success, false);
+    assert.equal(speakingTimeRequestSchema.safeParse({ seconds: -30 }).success, false);
+  });
+
+  it('rejects a fractional second — usage_log.amount counts whole units', () => {
+    assert.equal(speakingTimeRequestSchema.safeParse({ seconds: 4.5 }).success, false);
+  });
+
+  // The client picks this number, and it lands in a metric the family reads.
+  it('bounds one report', () => {
+    assert.equal(
+      speakingTimeRequestSchema.safeParse({ seconds: SPEAKING_SECONDS_MAX_PER_REPORT }).success,
+      true,
+    );
+    assert.equal(
+      speakingTimeRequestSchema.safeParse({ seconds: SPEAKING_SECONDS_MAX_PER_REPORT + 1 }).success,
+      false,
+    );
+  });
+
+  it('rejects a missing or non-numeric duration', () => {
+    assert.equal(speakingTimeRequestSchema.safeParse({}).success, false);
+    assert.equal(speakingTimeRequestSchema.safeParse({ seconds: '60' }).success, false);
+    assert.equal(speakingTimeRequestSchema.safeParse(null).success, false);
   });
 });
