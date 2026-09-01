@@ -266,7 +266,7 @@ current Gemini Live pricing at build time; expect $1–3/conversation-hour.
 
 ### P3 — Retention for a family of four
 
-**P3.12 Family gamification — medium.** Replace the single "partner streak" line with a
+**P3.12 Family gamification — SUPERSEDED by §5.3 (P5.1/P5.2), September 2026.** Replace the single "partner streak" line with a
 family strip: each member's streak/daily-ring, a shared weekly family goal (e.g. 20 turns
 combined) with a small celebration when hit, and a friendly "X is ahead of you today"
 nudge. No leagues, no strangers. PWA push notification (opt-in) timed to the user's streak
@@ -290,7 +290,206 @@ deadline evening, using the existing timezone field.
 
 ---
 
-## 5. Operational checklist (owner, not code)
+## 5. P4/P5 — Engagement & reward-loop overhaul (planned September 2026, Fable)
+
+**Why.** The owner's verdict after real use: *"it felt average… I must make an app that makes
+people wanna use it more and feel rewarded for learning — and learn."* The plumbing is good;
+the reward loop is flat. Diagnosis, in five lines:
+
+1. **XP is a dead-end number.** It only accumulates — no levels, no next milestone ever on
+   screen. The only bar is a 3-turn daily ring that is full after ~2 minutes, and then the
+   app has no answer to "why do one more turn?"
+2. **Every reward is a fixed schedule.** +10, +5, +25, always. Predictable rewards stop
+   feeling like rewards within a week; there are no daily quests, nothing varies.
+3. **The finish moment is under-juiced.** `/today`'s finish shows XP and the streak — not
+   what was *learned*, no count-up, no hook for tomorrow.
+4. **The app hides its own best evidence.** It knows words learned (`review_items`), minutes
+   spoken (`speaking_seconds`), mistakes conquered — and never rolls them into "your Spanish
+   is measurably growing." This is the axis where Idioma beats Duolingo: Duolingo makes you
+   feel productive; this app can *prove* you improved.
+5. **"Mistakes conquered" — §12.2's own "highest-value dopamine hit" — flips silently.** No
+   celebration, no trophy case. And the family loop (old P3.12) is unbuilt, though for four
+   family members the other people ARE the retention mechanic. Even the streak shield saves
+   your streak without ever telling you.
+
+PLAN.md §12.1's rules still govern everything below: reward showing up + mastery, no ads,
+no dark patterns, celebrations celebrate *learning*.
+
+### 5.1 Owner decisions (locked, September 2026)
+
+1. **Build now, in this order: P4.1 → P4.2 → P4.3 → P4.4 → P5.1 → P5.2.** This workstream
+   **outranks P2.10 (real-time premium)** until it is done.
+2. **Push notifications: yes** — opt-in per user, warm copy only, and the whole feature
+   degrades to invisible when VAPID keys are unset.
+3. **Parked in §5.6 backlog pending explicit owner calls** (do not build without one):
+   variable/random rewards, in-lesson combo, storing learner audio for "hear yourself a
+   month ago".
+4. **Executed by Opus and Sonnet sessions only**, via the `prompts/*.md` files (phase table
+   §5.5). Fable is never spawned for build phases (autonomy protocol §5.4.5).
+5. Retuning `GAMIFICATION` constants is free — 4 users, no fairness debt to preserve.
+
+### 5.2 P4 — Reward loop
+
+**P4.1 Levels — give XP a point (Opus, small, no migration)**
+- `xpToLevel(xpTotal)` pure in `lib/gamification.ts`, values in the `GAMIFICATION` constants
+  object. Suggested curve (session may tune, must document): XP to go from level L to L+1 =
+  `50 + 25·(L−1)` — level 2 lands on day one, ~level 5 in a week, then it slows. Unit-test
+  monotonicity and the inverse (xp into level / xp for next level).
+- `getUserStatsSummary` returns `level`, `xpIntoLevel`, `xpForNextLevel`. Level badge next
+  to `StreakBadge` in the app shell; a "N XP to level L" line on the dashboard and the
+  `/today` finish screen. Crossing a threshold fires the existing `Celebration` (new
+  variant) plus a `uiSounds` cue.
+- AC: badge renders everywhere the streak does; a level-up mid-session celebrates exactly
+  once; `tests/i18n.test.ts` parity (en/es/sv) green.
+
+**P4.2 Daily quests (Opus, medium, one migration)**
+- `lib/quests.ts` pure + tested: pick 3 quests from the catalog deterministically from
+  `hash(userId, localDate)` (user's timezone via the existing helpers — export
+  `localDateString` if needed). Same quests all day, different tomorrow, per user. No LLM.
+- Catalog v1 (progress computed at read time, sources all exist):
+  - **"2 clean turns"** — `utterances` today, `speaker='user'`, empty `errors`.
+  - **"Clear 5 reviews"** — add `logUsage(userId, 'review_grade')` to POST `/api/review`;
+    count today's rows.
+  - **"Finish a lesson"** — a completed session today (same source `/today` uses).
+  - **"Speak 3 minutes"** — today's `speaking_seconds` usage rows.
+- Rewards: +10 XP per quest, +20 all-three bonus, through `awardXp`. Idempotency: new
+  `user_stats.quests_state` jsonb `{ date, awarded: string[] }` (drizzle-generated
+  migration) — award once per quest per local day; read-check-write is acceptable at family
+  scale, note the race in a comment.
+- UI: quest card on `/today` (3 rows, progress counts, checkmarks) and quest ticks on the
+  finish screen; completing a quest shows an XP toast live (award on the API responses that
+  change progress: attempt, review grade, session complete).
+- AC: determinism tested (same user+day stable, varies across users/days); no double award
+  on a re-poll; quest card empty-states sanely for a user with no curriculum; i18n parity.
+
+**P4.3 The finish arc + conquered celebrations + comeback (Opus, medium, one migration)**
+- Finish screen (`/today` and lesson completion) becomes an arc: XP count-up, quest ticks,
+  "today you practiced N words and fixed M mistakes" (from `attemptComparison` + utterance
+  errors), streak state, then ONE hook for tomorrow — the next path lesson by name, or the
+  shakiest pattern ("tomorrow we conquer *ser vs estar*").
+- Conquered flip: new `error_patterns.conquered_celebrated_at` timestamp. Conquered stays a
+  DERIVED state (≥3 occurrences, `lastSeenAt` > 14 days ago). On dashboard/`/today` load, a
+  conquered pattern with NULL `conquered_celebrated_at` triggers the full `Celebration` and
+  stamps the column; the error-pattern upsert nulls it on recurrence so a re-conquest
+  celebrates again.
+- Trophy case: dashboard section listing conquered patterns with dates ("conquered 12 Sep
+  after 9 encounters").
+- Shield visibility + comeback: the week the auto-shield bridged a day, say so warmly on
+  `/today` ("your streak shield caught Tuesday 🛡️"); after a longer gap, a warm re-entry
+  card. Never guilt (§12.1.3).
+- AC: count-up honors `prefers-reduced-motion`; conquered celebration fires exactly once
+  per conquest including re-conquests; shield message only in the week it triggered; i18n
+  parity.
+
+**P4.4 "Your Spanish is growing" evidence panel (Sonnet, medium, no migration)**
+- Dashboard panel, read-time queries only: words known (distinct vocab `review_items` with
+  `reps ≥ 1`), total + this-week speaking minutes, path progress per level (completed /
+  total lessons for the pair), conquered count, and an 8-week practice-days sparkline
+  (utterances grouped by local day — reuse/export the gamification timezone helpers).
+- Integrates the P4.1 level ring. Copy frames evidence: "You can say 214 words. You've
+  spoken 3 h 12 m of Spanish."
+- AC: one round of parallel queries; empty state for brand-new users; sparkline is plain
+  SVG on the design tokens, correct in dark mode; i18n parity.
+
+### 5.3 P5 — Family retention (supersedes P3.12)
+
+**P5.1 Family strip + shared weekly goal (Sonnet, medium, no migration)**
+- Replaces the `getPartnerStreak` env-flag hack (remove `SHOW_PARTNER_STREAK`): a strip on
+  dashboard + `/today` showing every user with a language pair (≤10 by design): name,
+  streak flame, today's goal ring, level. No leagues, no ranking — sort by name.
+- Shared weekly family goal: a `GAMIFICATION` constant (e.g. 40 combined turns per ISO
+  week, all members), progress bar, small celebration for everyone the week it's crossed.
+  Derived from `utterances` — no new table.
+- A warm "Anna practiced today ✅" line. Accountability, never shame.
+- AC: renders for 1–10 users; ISO-week reset uses the existing week helper; the env flag
+  and its code path are gone; i18n parity.
+
+**P5.2 Streak-deadline push notification (Sonnet, medium-large, one migration)**
+- Opt-in toggle in `/settings`. Web-push (VAPID): `push_subscriptions` table (userId,
+  endpoint unique, p256dh/auth keys, reminder hour default 19, lastSentDate, createdAt),
+  subscribe/unsubscribe API routes, push + notificationclick handlers in `src/sw.ts`.
+- At most ONE reminder per day: evening local time (user's timezone), only when today's
+  goal is unmet AND `currentStreak ≥ 3`. Copy warm and specific ("2 turns keep your 12-day
+  streak alive") — never guilt (§12.1.3).
+- Scheduler: in-process `setInterval` tick (~10 min) on the long-running Hostinger Node
+  server selecting who is due; `lastSentDate` dedupes. No external cron.
+- Missing VAPID env ⇒ the settings toggle hides and nothing else changes; keys are on the
+  owner checklist (§5.8).
+- AC: "who is due now" selector unit-tested (timezone, goal-met, streak, dedupe); works
+  with keys absent; a 410/404 from the push service deletes the subscription row.
+
+### 5.4 Autonomy protocol for the build sessions
+
+Every prompt file references this; it governs where prompts are silent.
+
+1. **One phase = one branch (`phase/p4-a` etc. off latest `main`) = one PR.** Open the PR
+   and IMMEDIATELY arm GitHub auto-merge (squash) via the GitHub MCP tools — the merge is
+   held by GitHub on green, not by the session watching. If arming fails, a repo setting
+   from §5.8.1 is missing: say so in the phase report, never silently fall back to watching.
+2. **Before every push**: `npm run typecheck && npm run lint && npm test &&
+   npm run lessons:validate && npx next build`. A red CI is always the session's own work.
+3. **Mark the ROADMAP item SHIPPED in the PR that ships it** (see NEXT-SESSION.md's top
+   note for what happens otherwise), and append a build-log entry to §5.7 in the same PR.
+4. Minor non-blocking issues → `KNOWN-ISSUES.md`, keep building. Stop and ask ONLY for a
+   missing credential with no graceful fallback, or a foundation decision (schema shape,
+   auth) where guessing wrong forces a rewrite.
+5. **Never Fable.** Build phases, subagents and spawned sessions use Opus or Sonnet only.
+   A phase that believes it needs Fable stops and asks the owner, with the reason.
+6. **Prompts are re-runnable**: check what already exists on the branch, continue from the
+   first unmet exit criterion.
+7. **Handoff, only when all gates pass**: PR state `merged` verified through the GitHub MCP
+   tools; `origin/main` actually contains the phase commit (fetch and check); checks
+   concluded green; exit criteria met; build-log entry committed. Then spawn the next phase
+   as a NEW session via the claude-code-remote `create_session` tool — inherit environment
+   and permission mode (never `plan`), `model` per §5.5, prompt exactly
+   `Read prompts/<next-file>.md in this repo and execute it.` If `create_session` is
+   unavailable: continue in the same window when the next phase uses the same model,
+   otherwise stop and report. Never start a phase on top of an unmerged previous one.
+8. All GitHub state checks go through the `mcp__github__*` tools — never `curl`/`gh`
+   against api.github.com (the cloud proxy returns empty bodies, not errors). Every wait
+   has a deadline and a "could not determine" branch that reports rather than waits. No
+   phase ends a turn with "waiting for CI": it ends merged, or with a stated blocker.
+
+### 5.5 Phase table
+
+| Phase | Model | Prompt file | Covers |
+|---|---|---|---|
+| p4-a | Opus (`claude-opus-5`) | `prompts/opus-1-reward-core.md` | P4.1 + P4.2 |
+| p4-b | Opus (`claude-opus-5`) | `prompts/opus-2-finish-arc.md` | P4.3 |
+| p4-c | Sonnet (`claude-sonnet-5`) | `prompts/sonnet-3-progress-panel.md` | P4.4 |
+| p5-a | Sonnet (`claude-sonnet-5`) | `prompts/sonnet-4-family.md` | P5.1 + P5.2 |
+
+### 5.6 Backlog (owner call required before building)
+
+- **Variable rewards** (occasional surprise bonus at session end) — benign under §12.1,
+  but whether ANY randomness belongs in the app is the owner's values call.
+- **In-lesson combo** (consecutive clean turns build a visible multiplier) — small, fun,
+  waiting only for the reward loop above to land first.
+- **"Hear yourself a month ago"** — the most convincing proof-of-learning possible, but it
+  requires storing learner audio (`utterances.audioRef` is NULL by explicit decision
+  today). Privacy + storage call.
+
+### 5.7 Build log (phases append here before merging)
+
+*(empty at planning time — 1 Sep 2026)*
+
+### 5.8 Owner checklist before starting p4-a
+
+1. **One-time repo settings, both off by default, both needed before the first phase**:
+   Settings → General → Pull Requests → tick "Allow auto-merge"; branch protection on
+   `main` requiring the CI `check` status. Without these, phase p4-a stalls at its merge.
+2. **Merge the plan PR first** so phases branch off a `main` that contains `prompts/`.
+3. Paste into a fresh **Opus** session with auto-accept permissions:
+   `Read prompts/opus-1-reward-core.md in this repo and execute it.`
+4. Before p5-a you'll want VAPID keys (`npx web-push generate-vapid-keys`) set on
+   Hostinger: `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`
+   (a `mailto:`). Missing keys never block the phase — the push toggle just stays hidden.
+5. Recovery: if a phase's session dies, re-paste that phase's prompt line in a fresh
+   window — it resumes from the first unmet exit criterion. Find the current phase in §5.7.
+
+---
+
+## 6. Operational checklist (owner, not code)
 
 - **On every deploy with migrations**: `npm run db:migrate` (PR #31 adds migration 0007).
 - **Before inviting mom/dad**: if the Google OAuth consent screen is still in "Testing"
@@ -301,13 +500,14 @@ deadline evening, using the existing timezone field.
 - After P0.2 ships, spot-check that switching UI language does not touch the language
   pair (they are independent by design: `ui_locale` vs `language_pair_id`).
 
-## 6. Model-usage strategy (how the owner wants sessions run)
+## 7. Model-usage strategy (how the owner wants sessions run)
 
 - **Fable**: analysis, plans like this one, architecture review, PR review of large
   changes. Not for routine implementation and not for content generation.
-- **Opus**: P0.3, P0.4, P1.5, P2.10 (flow/design/prompt-sensitive), and curriculum packs
-  (P1.7).
-- **Sonnet**: P0.1, P0.2, P1.6, P2.9, P2.11, P3 items (well-specified wiring).
+- **Opus**: P0.3, P0.4, P1.5, P2.10 (flow/design/prompt-sensitive), curriculum packs
+  (P1.7), and the P4 Opus phases (§5.5: p4-a, p4-b).
+- **Sonnet**: P0.1, P0.2, P1.6, P2.9, P2.11, P3 items (well-specified wiring), and the
+  P4/P5 Sonnet phases (§5.5: p4-c, p5-a).
 - Every build session: `npm run typecheck && npm run lint && npm test` green before push;
   one PR per workstream item; respect AGENTS.md (read the bundled Next.js 16 docs in
   `node_modules/next/dist/docs/` before writing framework-touching code).
