@@ -95,7 +95,20 @@ them changed in #58 and still need re-importing (carried over — unchanged this
 
 ## Build list, in order
 
-### 1. Real-time premium mode (large — carried over, still the biggest item)
+### 0. Engagement & reward-loop overhaul (NEW, 1 Sep 2026 — outranks everything below)
+The owner used the app and called it "average" — the reward loop is flat, not the
+plumbing. Fable wrote the full plan as **ROADMAP.md §5** (P4.1–P4.4, P5.1–P5.2, an
+autonomy protocol, and a phase table) with one executable prompt file per phase in
+`prompts/`. Do NOT re-plan it here. To start:
+- Owner: do the two one-time repo settings in ROADMAP §5.8.1 (allow auto-merge +
+  required CI check on `main`), then paste into a fresh **Opus** session:
+  `Read prompts/opus-1-reward-core.md in this repo and execute it.`
+- Each phase merges its own PR on green and spawns the next phase itself
+  (Opus → Opus → Sonnet → Sonnet, per ROADMAP §5.5). Progress lives in ROADMAP §5.7.
+- P3.12 (family gamification, below) is superseded by ROADMAP §5.3 — don't build it
+  from the old spec.
+
+### 1. Real-time premium mode (large — carried over; now runs AFTER item 0)
 Gemini Live is ~$1.40 per conversation-hour and has a rate-limited free tier. Gate on
 `users.tier = 'premium'` (the mechanism exists). BYO Gemini key per user is what makes it
 affordable for family; that key must be encrypted at rest and never returned to the client.
